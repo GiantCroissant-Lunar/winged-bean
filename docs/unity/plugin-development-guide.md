@@ -138,7 +138,7 @@ namespace MyCompany.MyUnityPlugin
         private void Update()
         {
             _timer += Time.deltaTime;
-            
+
             // Simple gameplay logic
             if (_timer >= 1f)
             {
@@ -397,12 +397,12 @@ public Dictionary<string, object> GetState()
         ["playerName"] = _playerName,
         ["score"] = _score,
         ["isActive"] = gameObject.activeInHierarchy,
-        
+
         // Unity types
         ["position"] = transform.position,
         ["rotation"] = transform.rotation,
         ["scale"] = transform.localScale,
-        
+
         // Collections (must be serializable)
         ["inventory"] = _inventory.ToArray(),
         ["settings"] = _gameSettings.ToDictionary()
@@ -448,12 +448,12 @@ public void RestoreState(Dictionary<string, object> state)
         _playerName = gameState.playerName;
         _currentLevel = gameState.level;
         _inventory = gameState.inventory;
-        
+
         if (gameState.position?.Length == 3)
         {
             transform.position = new Vector3(
-                gameState.position[0], 
-                gameState.position[1], 
+                gameState.position[0],
+                gameState.position[1],
                 gameState.position[2]
             );
         }
@@ -492,10 +492,10 @@ public class GameService : IGameService
     public async Task InitializeAsync()
     {
         _logger.LogInformation("Game service initializing...");
-        
+
         // Load game data, connect to servers, etc.
         await LoadGameDataAsync();
-        
+
         _logger.LogInformation("Game service initialized");
     }
 
@@ -538,10 +538,10 @@ public void ConfigureServices(IServiceCollection services)
     // Core services
     services.AddSingleton<IGameService, GameService>();
     services.AddTransient<IScoreCalculator, ScoreCalculator>();
-    
+
     // Data services
     services.AddSingleton<IDataRepository, JsonDataRepository>();
-    
+
     // UI services
     services.AddTransient<IUIFactory, UIFactory>();
 }
@@ -617,7 +617,7 @@ public class SecurePlayerController : MonoBehaviour
         {
             // This will throw if permission not granted
             _permissionEnforcer.EnforcePermission(PluginId, "unity.component.add");
-            
+
             gameObject.AddComponent<T>();
         }
         catch (UnauthorizedAccessException ex)
@@ -640,7 +640,7 @@ public class HotReloadableComponent : MonoBehaviour, IStatefulComponent
     // Mark important fields as serialized for inspection
     [SerializeField] private int _version = 1;
     [SerializeField] private bool _debugMode = false;
-    
+
     // Runtime state that should persist
     private Dictionary<string, object> _runtimeData = new();
     private List<GameObject> _managedObjects = new();
@@ -679,19 +679,19 @@ public class HotReloadableComponent : MonoBehaviour, IStatefulComponent
             // Component configuration
             ["version"] = _version,
             ["debugMode"] = _debugMode,
-            
+
             // Runtime state
             ["runtimeData"] = new Dictionary<string, object>(_runtimeData),
-            
+
             // Managed objects
             ["managedObjectPositions"] = _managedObjects
                 .Where(obj => obj != null)
-                .Select(obj => new { 
-                    name = obj.name, 
-                    position = obj.transform.position 
+                .Select(obj => new {
+                    name = obj.name,
+                    position = obj.transform.position
                 })
                 .ToArray(),
-                
+
             // Unity transform
             ["transform"] = new {
                 position = transform.position,
@@ -706,12 +706,12 @@ public class HotReloadableComponent : MonoBehaviour, IStatefulComponent
         // Restore configuration
         if (state.TryGetValue("version", out var version))
             _version = Convert.ToInt32(version);
-            
+
         if (state.TryGetValue("debugMode", out var debug))
             _debugMode = Convert.ToBoolean(debug);
 
         // Restore runtime data
-        if (state.TryGetValue("runtimeData", out var runtime) && 
+        if (state.TryGetValue("runtimeData", out var runtime) &&
             runtime is Dictionary<string, object> runtimeDict)
         {
             _runtimeData = new Dictionary<string, object>(runtimeDict);
@@ -769,7 +769,7 @@ public class HotReloadTester : MonoBehaviour
 {
     [Header("Hot-Reload Testing")]
     [SerializeField] private string _pluginId = "com.mycompany.myunityplugin";
-    
+
     [ContextMenu("Trigger Hot-Reload")]
     public void TriggerHotReload()
     {
@@ -798,16 +798,16 @@ public class HotReloadTesterEditor : Editor
     public override void OnInspectorGUI()
     {
         DrawDefaultInspector();
-        
+
         GUILayout.Space(10);
-        
+
         var tester = (HotReloadTester)target;
-        
+
         if (GUILayout.Button("Trigger Hot-Reload"))
         {
             tester.TriggerHotReload();
         }
-        
+
         if (GUILayout.Button("Reload All Plugins"))
         {
             tester.ReloadAllPlugins();
@@ -949,11 +949,11 @@ Set up automated building in your `.csproj`:
     <FilesToCopy Include="$(OutDir)$(AssemblyName).pdb" Condition="'$(Configuration)' == 'Debug'" />
     <FilesToCopy Include="plugin.json" />
   </ItemGroup>
-  
-  <Copy SourceFiles="@(FilesToCopy)" 
-        DestinationFolder="$(OutputPath)" 
+
+  <Copy SourceFiles="@(FilesToCopy)"
+        DestinationFolder="$(OutputPath)"
         SkipUnchangedFiles="true" />
-        
+
   <Message Text="Plugin built and copied to Unity project" Importance="high" />
 </Target>
 ```

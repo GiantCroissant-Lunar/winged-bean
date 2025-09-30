@@ -83,18 +83,18 @@ public static void SetupHybridCLR()
 public class PluginSystemBootstrap : MonoBehaviour
 {
     private IPluginHost _pluginHost;
-    
+
     private async void Start()
     {
         var services = new ServiceCollection();
         services.AddWingedBeanHost();
         services.AddUnityPluginSupport();
-        
+
         var serviceProvider = services.BuildServiceProvider();
         _pluginHost = serviceProvider.GetRequiredService<IPluginHost>();
-        
+
         await _pluginHost.InitializeAsync();
-        
+
         // Load plugins from specified directory
         await _pluginHost.LoadPluginsFromDirectoryAsync("Assets/Plugins");
     }
@@ -113,7 +113,7 @@ public class PluginSystemBootstrap : MonoBehaviour
     <TargetFramework>netstandard2.1</TargetFramework>
     <OutputPath>../UnityProject/Assets/Plugins/YourPlugin</OutputPath>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="../WingedBean.Host.Unity/WingedBean.Host.Unity.csproj" />
   </ItemGroup>
@@ -129,11 +129,11 @@ public class PluginSystemBootstrap : MonoBehaviour
   "name": "Your Unity Plugin",
   "description": "Description of your plugin",
   "author": "Your Name",
-  
+
   "entryPoint": {
     "unity": "./YourPlugin.dll"
   },
-  
+
   "unity": {
     "minUnityVersion": "2022.3.0",
     "supportedPlatforms": ["StandaloneWindows64", "StandaloneOSX"],
@@ -141,7 +141,7 @@ public class PluginSystemBootstrap : MonoBehaviour
     "persistAcrossScenes": false,
     "initializationOrder": 0
   },
-  
+
   "security": {
     "permissions": {
       "unity": {
@@ -164,17 +164,17 @@ public class YourPluginBehaviour : MonoBehaviour, IStatefulComponent
 {
     public string PlayerName { get; set; } = "Player";
     public int Score { get; set; } = 0;
-    
+
     private void Start()
     {
         Debug.Log($"Plugin initialized: {PlayerName}");
     }
-    
+
     private void Update()
     {
         // Your plugin logic here
     }
-    
+
     // State preservation for hot-reload
     public Dictionary<string, object> GetState()
     {
@@ -184,12 +184,12 @@ public class YourPluginBehaviour : MonoBehaviour, IStatefulComponent
             ["Score"] = Score
         };
     }
-    
+
     public void RestoreState(Dictionary<string, object> state)
     {
         if (state.TryGetValue("PlayerName", out var name))
             PlayerName = name?.ToString() ?? "Player";
-            
+
         if (state.TryGetValue("Score", out var score))
             Score = Convert.ToInt32(score);
     }
@@ -209,7 +209,7 @@ public class YourPluginEntryPoint : IPluginEntryPoint
     {
         services.AddSingleton<IYourService, YourService>();
     }
-    
+
     public async Task InitializeAsync(IServiceProvider serviceProvider)
     {
         var logger = serviceProvider.GetRequiredService<ILogger<YourPluginEntryPoint>>();
@@ -238,7 +238,7 @@ public class StatefulBehaviour : MonoBehaviour, IStatefulComponent
 {
     [SerializeField] private int _persistentValue;
     [SerializeField] private string _persistentText;
-    
+
     public Dictionary<string, object> GetState()
     {
         return new Dictionary<string, object>
@@ -249,18 +249,18 @@ public class StatefulBehaviour : MonoBehaviour, IStatefulComponent
             ["transform.rotation"] = transform.rotation
         };
     }
-    
+
     public void RestoreState(Dictionary<string, object> state)
     {
         if (state.TryGetValue("persistentValue", out var value))
             _persistentValue = Convert.ToInt32(value);
-            
+
         if (state.TryGetValue("persistentText", out var text))
             _persistentText = text?.ToString() ?? string.Empty;
-            
+
         if (state.TryGetValue("transform.position", out var pos))
             transform.position = (Vector3)pos;
-            
+
         if (state.TryGetValue("transform.rotation", out var rot))
             transform.rotation = (Quaternion)rot;
     }
@@ -322,21 +322,21 @@ Unity plugins operate under a permission-based security model:
 public class SecurePluginBehaviour : MonoBehaviour
 {
     private IUnityPluginPermissionEnforcer _permissionEnforcer;
-    
+
     private void Start()
     {
         _permissionEnforcer = FindObjectOfType<UnityPluginHost>()
             .GetService<IUnityPluginPermissionEnforcer>();
     }
-    
+
     public void CreateGameObject()
     {
         // This will throw UnauthorizedAccessException if permission not granted
         _permissionEnforcer.EnforcePermission(
-            "com.yourcompany.yourplugin", 
+            "com.yourcompany.yourplugin",
             "unity.gameobject.create"
         );
-        
+
         var newObject = new GameObject("PluginCreatedObject");
     }
 }
@@ -369,7 +369,7 @@ public class LoadedUnityPlugin : ILoadedPlugin
     public string Version { get; }
     public bool IsLoaded { get; }
     public bool IsInitialized { get; }
-    
+
     public Task InitializeAsync();
     public Task ShutdownAsync();
     public Task<Dictionary<string, object>> GetStateAsync();
@@ -492,7 +492,7 @@ public interface IUnityPluginPermissionEnforcer : IPluginSecurity
 Enable detailed logging for troubleshooting:
 
 ```csharp
-services.AddLogging(builder => 
+services.AddLogging(builder =>
 {
     builder.AddConsole();
     builder.SetMinimumLevel(LogLevel.Debug);

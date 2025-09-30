@@ -400,17 +400,17 @@ Update your plugin manifests to work with HybridCLR:
   "id": "com.example.hotreloadplugin",
   "version": "1.0.0",
   "name": "Hot Reload Plugin",
-  
+
   "entryPoint": {
     "unity": "./HotReloadPlugin.dll"
   },
-  
+
   "unity": {
     "supportsHotReload": true,
     "hotReloadMode": "hybridclr",
     "monoBehaviourComponents": ["HotReloadBehaviour"]
   },
-  
+
   "hotReload": {
     "enabled": true,
     "watchFiles": ["*.dll", "*.json"],
@@ -449,7 +449,7 @@ public class HotReloadTester : MonoBehaviour
     private void Start()
     {
         _pluginHost = FindObjectOfType<UnityPluginHost>();
-        
+
         if (_reloadButton != null)
         {
             _reloadButton.onClick.AddListener(TestHotReload);
@@ -483,7 +483,7 @@ public class HotReloadTester : MonoBehaviour
         {
             _statusText.text = $"Status: {message}";
         }
-        
+
         Debug.Log($"[HotReloadTester] {message}");
     }
 }
@@ -547,7 +547,7 @@ public void EnableHybridCLRDebugLogging()
 {
     #if UNITY_EDITOR || DEVELOPMENT_BUILD
     Debug.Log("[HybridCLR] Debug logging enabled");
-    
+
     // Enable HybridCLR internal logging
     HybridCLR.RuntimeApi.SetLogLevel(HybridCLR.LogLevel.Debug);
     #endif
