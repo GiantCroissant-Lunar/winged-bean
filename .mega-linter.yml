@@ -49,6 +49,13 @@ TERRAFORM_TFLINT_CONFIG_FILE: infra/terraform/.tflint.hcl
 CREDENTIALS_SECRETLINT_DISABLE_ERRORS: false
 CREDENTIALS_GITLEAKS_CONFIG_FILE: .gitleaks.toml
 
+# Line length limits (120 characters for modern codebases)
+YAML_YAMLLINT_RULE_LINE_LENGTH_MAX: 120
+YAML_YAMLLINT_RULE_LINE_LENGTH_LEVEL: warning
+MARKDOWN_MARKDOWNLINT_CONFIG_FILE: .markdownlint.yml
+BASH_SHELLCHECK_DISABLE_ERRORS: false
+CSHARP_DOTNET_FORMAT_ARGUMENTS: --severity info
+
 # File filters - exclude certain directories and files
 FILTER_REGEX_EXCLUDE: |
   (ref-projects/.*|
