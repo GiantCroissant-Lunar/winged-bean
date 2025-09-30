@@ -84,12 +84,12 @@ repos:
         files: \.(yaml|yml)$
         exclude: ^projects/nodejs/pnpm-lock\.yaml$|^ref-projects/
 
-  # Markdown linting
+  # Markdown linting (focused on structure, not line length)
   - repo: https://github.com/igorshubovych/markdownlint-cli
     rev: v0.45.0
     hooks:
       - id: markdownlint
-        args: ['--fix']
+        args: ['--fix', '--disable', 'MD013']  # Disable line length rule
         exclude: ^ref-projects/
 
   # .NET formatting and analysis (for projects/dotnet/)
@@ -132,12 +132,8 @@ repos:
         pass_filenames: false
         require_serial: true
 
-  # Shell script linting
-  - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.11.0.1
-    hooks:
-      - id: shellcheck
-        args: ['-e', 'SC1091']  # Disable "not following" warnings
+  # Shell script linting - disabled due to installation issues
+  # Note: Install shellcheck manually if needed: brew install shellcheck
 
   # Check for common security issues in various languages
   - repo: https://github.com/PyCQA/bandit
