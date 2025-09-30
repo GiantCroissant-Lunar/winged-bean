@@ -97,7 +97,7 @@ namespace WingedBean.Host.Unity.Tests
             _permissionEnforcer.RegisterPlugin(_manifest);
 
             // Act & Assert
-            Assert.Throws<UnauthorizedAccessException>(() => 
+            Assert.Throws<UnauthorizedAccessException>(() =>
                 _permissionEnforcer.EnforcePermission(TestPluginId, "unity.input.access"));
         }
 
@@ -105,7 +105,7 @@ namespace WingedBean.Host.Unity.Tests
         public void EnforcePermission_WithUnregisteredPlugin_ThrowsUnauthorizedAccessException()
         {
             // Act & Assert
-            Assert.Throws<UnauthorizedAccessException>(() => 
+            Assert.Throws<UnauthorizedAccessException>(() =>
                 _permissionEnforcer.EnforcePermission(TestPluginId, "unity.gameobject.create"));
         }
 
@@ -317,7 +317,7 @@ namespace WingedBean.Host.Unity.Tests
         {
             // Arrange
             _manifest.Unity.MinUnityVersion = "2025.1.0"; // Future version
-            
+
             // Act
             var result = _securityVerifier.ValidatePluginAsync(_context);
 
@@ -330,7 +330,7 @@ namespace WingedBean.Host.Unity.Tests
         {
             // Arrange
             _manifest.Unity.SupportedPlatforms = new[] { "iOS" }; // Assuming we're on Windows
-            
+
             // Act
             var result = _securityVerifier.ValidatePluginAsync(_context);
 
@@ -343,7 +343,7 @@ namespace WingedBean.Host.Unity.Tests
         {
             // Arrange
             _manifest.Unity = null;
-            
+
             // Act
             var result = _securityVerifier.ValidatePluginAsync(_context);
 

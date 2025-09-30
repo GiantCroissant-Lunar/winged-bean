@@ -67,10 +67,10 @@ namespace WingedBean.Host.Unity.Tests
 
             // Assert
             Assert.IsTrue(initTask.IsCompletedSuccessfully);
-            
+
             var behaviours = UnityEngine.Object.FindObjectsOfType<TestStatefulBehaviour>();
             Assert.IsNotEmpty(behaviours);
-            
+
             _testBehaviour = behaviours[0];
             Assert.IsNotNull(_testBehaviour);
             Assert.IsTrue(_testBehaviour.IsInitialized);
@@ -82,7 +82,7 @@ namespace WingedBean.Host.Unity.Tests
             // Arrange
             var initTask = _plugin.InitializeAsync();
             yield return new WaitUntil(() => initTask.IsCompleted);
-            
+
             var initialBehaviours = UnityEngine.Object.FindObjectsOfType<TestStatefulBehaviour>();
             Assert.IsNotEmpty(initialBehaviours);
 
@@ -92,7 +92,7 @@ namespace WingedBean.Host.Unity.Tests
 
             // Assert
             Assert.IsTrue(shutdownTask.IsCompletedSuccessfully);
-            
+
             var remainingBehaviours = UnityEngine.Object.FindObjectsOfType<TestStatefulBehaviour>();
             Assert.IsEmpty(remainingBehaviours);
         }
@@ -103,7 +103,7 @@ namespace WingedBean.Host.Unity.Tests
             // Arrange
             var initTask = _plugin.InitializeAsync();
             yield return new WaitUntil(() => initTask.IsCompleted);
-            
+
             var behaviour = UnityEngine.Object.FindObjectOfType<TestStatefulBehaviour>();
             behaviour.TestValue = 42;
             behaviour.TestString = "Test State";
@@ -114,7 +114,7 @@ namespace WingedBean.Host.Unity.Tests
             // Assert
             Assert.IsNotNull(state);
             Assert.IsTrue(state.ContainsKey("TestStatefulBehaviour"));
-            
+
             var componentState = state["TestStatefulBehaviour"] as Dictionary<string, object>;
             Assert.IsNotNull(componentState);
             Assert.AreEqual(42, componentState["TestValue"]);
@@ -127,17 +127,17 @@ namespace WingedBean.Host.Unity.Tests
             // Arrange
             var initTask = _plugin.InitializeAsync();
             yield return new WaitUntil(() => initTask.IsCompleted);
-            
+
             var originalBehaviour = UnityEngine.Object.FindObjectOfType<TestStatefulBehaviour>();
             originalBehaviour.TestValue = 42;
             originalBehaviour.TestString = "Restored State";
-            
+
             var state = await _plugin.GetStateAsync();
 
             // Shutdown and reinitialize
             var shutdownTask = _plugin.ShutdownAsync();
             yield return new WaitUntil(() => shutdownTask.IsCompleted);
-            
+
             var reinitTask = _plugin.InitializeAsync();
             yield return new WaitUntil(() => reinitTask.IsCompleted);
 
@@ -156,14 +156,14 @@ namespace WingedBean.Host.Unity.Tests
         {
             // Arrange
             var unmanagedObject = new GameObject("Unmanaged");
-            
+
             // Act
             var managedObjects = _plugin.GetPluginGameObjects();
 
             // Assert
             Assert.IsNotNull(managedObjects);
             Assert.IsFalse(managedObjects.Contains(unmanagedObject));
-            
+
             UnityEngine.Object.DestroyImmediate(unmanagedObject);
         }
 
@@ -205,10 +205,10 @@ namespace WingedBean.Host.Unity.Tests
         {
             if (state.TryGetValue("TestValue", out var testValue))
                 TestValue = Convert.ToInt32(testValue);
-                
+
             if (state.TryGetValue("TestString", out var testString))
                 TestString = testString?.ToString() ?? string.Empty;
-                
+
             if (state.TryGetValue("IsInitialized", out var isInitialized))
                 IsInitialized = Convert.ToBoolean(isInitialized);
         }

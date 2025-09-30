@@ -20,12 +20,12 @@ namespace WingedBean.Unity.Plugins.Sample
         {
             // Register plugin services
             services.AddSingleton<ISampleService, SampleService>();
-            
+
             // Get Unity-specific services
             _unityServices = hostServices.GetService<IUnityPluginServices>();
 
             Debug.Log("Sample Unity Plugin activated!");
-            
+
             // Add sample MonoBehaviour component
             _unityServices?.AddComponent<SamplePluginBehaviour>();
 
@@ -41,7 +41,7 @@ namespace WingedBean.Unity.Plugins.Sample
             _unityServices?.RemoveComponent<SamplePluginBehaviour>();
 
             Debug.Log("Sample Unity Plugin deactivated!");
-            
+
             await Task.CompletedTask;
         }
     }
@@ -102,7 +102,7 @@ namespace WingedBean.Unity.Plugins.Sample
             _sampleCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
             _sampleCube.name = "PluginSampleCube";
             _sampleCube.transform.position = targetPosition;
-            
+
             // Set cube color
             var renderer = _sampleCube.GetComponent<Renderer>();
             if (renderer != null)
@@ -142,7 +142,7 @@ namespace WingedBean.Unity.Plugins.Sample
             if (_sampleCube != null)
             {
                 _sampleCube.transform.Rotate(0, rotationSpeed * Time.deltaTime, 0);
-                
+
                 // Move cube in a sine wave pattern
                 var newPos = targetPosition + Vector3.up * Mathf.Sin(totalTime) * 2f;
                 _sampleCube.transform.position = newPos;
@@ -193,7 +193,7 @@ namespace WingedBean.Unity.Plugins.Sample
                 {
                     _sampleCube.transform.position = pluginState.CubePosition;
                     _sampleCube.transform.rotation = pluginState.CubeRotation;
-                    
+
                     var renderer = _sampleCube.GetComponent<Renderer>();
                     if (renderer != null)
                     {
@@ -224,12 +224,12 @@ namespace WingedBean.Unity.Plugins.Sample
         {
             var rect = new Rect(10, 300, 400, 150);
             GUI.Box(rect, "Sample Unity Plugin Status");
-            
+
             GUI.Label(new Rect(20, 320, 380, 20), $"Update Count: {updateCount}");
             GUI.Label(new Rect(20, 340, 380, 20), $"Total Time: {totalTime:F2}s");
             GUI.Label(new Rect(20, 360, 380, 20), $"Rotation Speed: {rotationSpeed:F1}°/s");
             GUI.Label(new Rect(20, 380, 380, 20), $"Cube Color: {cubeColor}");
-            
+
             if (_sampleCube != null)
             {
                 GUI.Label(new Rect(20, 400, 380, 20), $"Cube Position: {_sampleCube.transform.position}");

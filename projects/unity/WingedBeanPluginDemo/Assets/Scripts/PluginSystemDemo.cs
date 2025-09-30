@@ -22,7 +22,7 @@ namespace WingedBean.Unity.Demo
         public Text statusText;
         public Text pluginListText;
         public InputField pluginPathInput;
-        
+
         [Header("Plugin Settings")]
         public string pluginsDirectory = "Assets/Plugins";
         public bool enableHotReload = true;
@@ -158,7 +158,7 @@ namespace WingedBean.Unity.Demo
                     {
                         var plugin = await _pluginLoader.LoadPluginAsync(manifest);
                         await _registry.RegisterPluginAsync(manifest);
-                        
+
                         _logger.LogInformation("Loaded plugin: {PluginId} v{Version}", manifest.Id, manifest.Version);
                     }
                     catch (System.Exception ex)
@@ -203,7 +203,7 @@ namespace WingedBean.Unity.Demo
                 // Load and parse manifest
                 var manifestJson = await File.ReadAllTextAsync(manifestPath);
                 var manifest = System.Text.Json.JsonSerializer.Deserialize<PluginManifest>(manifestJson);
-                
+
                 if (manifest == null)
                 {
                     UpdateStatus("Failed to parse plugin manifest");
@@ -244,11 +244,11 @@ namespace WingedBean.Unity.Demo
 
                 // For demo purposes, reload the first plugin
                 var firstPlugin = _pluginLoader.LoadedPlugins.Values.First();
-                
+
                 UpdateStatus($"Hot-reloading plugin: {firstPlugin.Id}");
 
                 var success = await _hotReloadManager.HotReloadPluginAsync(
-                    firstPlugin.Id, 
+                    firstPlugin.Id,
                     preserveStateOnReload);
 
                 if (success)
@@ -285,7 +285,7 @@ namespace WingedBean.Unity.Demo
 
                 // For demo purposes, unload the first plugin
                 var firstPlugin = _pluginLoader.LoadedPlugins.Values.First();
-                
+
                 UpdateStatus($"Unloading plugin: {firstPlugin.Id}");
 
                 await _pluginLoader.UnloadPluginAsync(firstPlugin);
@@ -310,20 +310,20 @@ namespace WingedBean.Unity.Demo
             if (pluginListText == null) return;
 
             var pluginInfo = new List<string>();
-            
+
             foreach (var plugin in _pluginLoader.LoadedPlugins.Values)
             {
                 var info = $"• {plugin.Id} v{plugin.Version} ({plugin.State})";
-                
+
                 if (plugin is LoadedUnityPlugin unityPlugin)
                 {
                     info += $" [Components: {unityPlugin.MonoBehaviourComponents.Count}]";
                 }
-                
+
                 pluginInfo.Add(info);
             }
 
-            pluginListText.text = pluginInfo.Count > 0 
+            pluginListText.text = pluginInfo.Count > 0
                 ? string.Join("\n", pluginInfo)
                 : "No plugins loaded";
         }
@@ -366,7 +366,7 @@ namespace WingedBean.Unity.Demo
                     if (hasUpdates)
                     {
                         _logger.LogInformation("Update available for plugin: {PluginId}", plugin.Id);
-                        
+
                         if (enableHotReload)
                         {
                             // Auto-reload if enabled
@@ -409,17 +409,17 @@ namespace WingedBean.Unity.Demo
             {
                 GUILayout.BeginArea(new Rect(10, 10, 300, 200));
                 GUILayout.Label("WingedBean Plugin System Demo", GUI.skin.box);
-                
+
                 if (GUILayout.Button("Load Plugin"))
                 {
                     LoadPluginAsync();
                 }
-                
+
                 if (GUILayout.Button("Hot Reload Plugin"))
                 {
                     ReloadPluginAsync();
                 }
-                
+
                 if (GUILayout.Button("Unload Plugin"))
                 {
                     UnloadPluginAsync();

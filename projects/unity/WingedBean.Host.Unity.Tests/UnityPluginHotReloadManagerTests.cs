@@ -57,7 +57,7 @@ namespace WingedBean.Host.Unity.Tests
         public void TearDown()
         {
             _hotReloadManager?.Dispose();
-            
+
             // Clean up any remaining test behaviours
             var behaviours = UnityEngine.Object.FindObjectsOfType<HotReloadTestBehaviour>();
             foreach (var behaviour in behaviours)
@@ -98,7 +98,7 @@ namespace WingedBean.Host.Unity.Tests
 
             // Assert
             Assert.IsTrue(updateTask.IsCompletedSuccessfully);
-            
+
             var updatedBehaviour = UnityEngine.Object.FindObjectOfType<HotReloadTestBehaviour>();
             Assert.IsNotNull(updatedBehaviour);
             Assert.AreEqual(5, updatedBehaviour.TestCounter);
@@ -136,10 +136,10 @@ namespace WingedBean.Host.Unity.Tests
 
             // Assert
             Assert.IsTrue(updateTask.IsCompletedSuccessfully);
-            
+
             var originalBehaviours = UnityEngine.Object.FindObjectsOfType<HotReloadTestBehaviour>();
             var newBehaviours = UnityEngine.Object.FindObjectsOfType<NewTestBehaviour>();
-            
+
             Assert.IsNotEmpty(originalBehaviours);
             Assert.IsNotEmpty(newBehaviours);
         }
@@ -175,7 +175,7 @@ namespace WingedBean.Host.Unity.Tests
 
             // Assert
             Assert.IsTrue(updateTask.IsCompletedSuccessfully);
-            
+
             var remainingBehaviours = UnityEngine.Object.FindObjectsOfType<HotReloadTestBehaviour>();
             Assert.IsEmpty(remainingBehaviours);
         }
@@ -324,7 +324,7 @@ namespace WingedBean.Host.Unity.Tests
         {
             if (state.TryGetValue("TestCounter", out var counter))
                 TestCounter = Convert.ToInt32(counter);
-                
+
             if (state.TryGetValue("TestMessage", out var message))
                 TestMessage = message?.ToString() ?? string.Empty;
         }
