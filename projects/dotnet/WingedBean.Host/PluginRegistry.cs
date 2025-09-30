@@ -150,7 +150,7 @@ public class FilePluginRegistry : IPluginRegistry
     {
         _registryPath = registryPath;
         _logger = logger;
-        
+
         Directory.CreateDirectory(Path.GetDirectoryName(_registryPath) ?? ".");
         LoadRegistryAsync().GetAwaiter().GetResult();
     }
@@ -165,17 +165,17 @@ public class FilePluginRegistry : IPluginRegistry
 
             // Remove existing version if present
             _plugins[manifest.Id].RemoveAll(p => p.Version == manifest.Version);
-            
+
             // Add new version
             _plugins[manifest.Id].Add(manifest);
-            
+
             // Sort by version descending
             _plugins[manifest.Id] = _plugins[manifest.Id]
                 .OrderByDescending(p => p.SemanticVersion)
                 .ToList();
 
             await SaveRegistryAsync(ct);
-            
+
             _logger?.LogInformation("Registered plugin {PluginId} v{Version}", manifest.Id, manifest.Version);
         }
         finally
@@ -315,7 +315,7 @@ public class FilePluginRegistry : IPluginRegistry
         try
         {
             var allPlugins = _plugins.Values.SelectMany(versions => versions).ToList();
-            
+
             var stats = new PluginStatistics
             {
                 TotalPlugins = allPlugins.Count,
@@ -337,7 +337,7 @@ public class FilePluginRegistry : IPluginRegistry
             // Group by security level
             foreach (var securityLevel in Enum.GetValues<SecurityLevel>())
             {
-                stats.PluginsBySecurityLevel[securityLevel] = allPlugins.Count(p => 
+                stats.PluginsBySecurityLevel[securityLevel] = allPlugins.Count(p =>
                     (p.Security?.SecurityLevel ?? SecurityLevel.Standard) == securityLevel);
             }
 
@@ -361,7 +361,7 @@ public class FilePluginRegistry : IPluginRegistry
 
             var json = await File.ReadAllTextAsync(_registryPath);
             var registryData = JsonSerializer.Deserialize<Dictionary<string, List<PluginManifest>>>(json);
-            
+
             if (registryData != null)
             {
                 _plugins.Clear();
@@ -384,9 +384,9 @@ public class FilePluginRegistry : IPluginRegistry
     {
         try
         {
-            var json = JsonSerializer.Serialize(_plugins, new JsonSerializerOptions 
-            { 
-                WriteIndented = true 
+            var json = JsonSerializer.Serialize(_plugins, new JsonSerializerOptions
+            {
+                WriteIndented = true
             });
             await File.WriteAllTextAsync(_registryPath, json, ct);
         }

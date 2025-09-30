@@ -77,9 +77,9 @@ public class SemanticVersion : IComparable<SemanticVersion>, IEquatable<Semantic
     public bool Equals(SemanticVersion? other)
     {
         if (other is null) return false;
-        return Major == other.Major && 
-               Minor == other.Minor && 
-               Patch == other.Patch && 
+        return Major == other.Major &&
+               Minor == other.Minor &&
+               Patch == other.Patch &&
                PreRelease == other.PreRelease;
     }
 
@@ -97,22 +97,22 @@ public class SemanticVersion : IComparable<SemanticVersion>, IEquatable<Semantic
         return version;
     }
 
-    public static bool operator ==(SemanticVersion? left, SemanticVersion? right) => 
+    public static bool operator ==(SemanticVersion? left, SemanticVersion? right) =>
         left?.Equals(right) ?? right is null;
 
-    public static bool operator !=(SemanticVersion? left, SemanticVersion? right) => 
+    public static bool operator !=(SemanticVersion? left, SemanticVersion? right) =>
         !(left == right);
 
-    public static bool operator <(SemanticVersion? left, SemanticVersion? right) => 
+    public static bool operator <(SemanticVersion? left, SemanticVersion? right) =>
         left?.CompareTo(right) < 0;
 
-    public static bool operator >(SemanticVersion? left, SemanticVersion? right) => 
+    public static bool operator >(SemanticVersion? left, SemanticVersion? right) =>
         left?.CompareTo(right) > 0;
 
-    public static bool operator <=(SemanticVersion? left, SemanticVersion? right) => 
+    public static bool operator <=(SemanticVersion? left, SemanticVersion? right) =>
         left?.CompareTo(right) <= 0;
 
-    public static bool operator >=(SemanticVersion? left, SemanticVersion? right) => 
+    public static bool operator >=(SemanticVersion? left, SemanticVersion? right) =>
         left?.CompareTo(right) >= 0;
 }
 
@@ -193,8 +193,8 @@ public class VersionRange
     private bool IsTildeCompatible(SemanticVersion version)
     {
         // ~1.2.3 allows >=1.2.3 but <1.3.0
-        return version >= Version && 
-               version.Major == Version.Major && 
+        return version >= Version &&
+               version.Major == Version.Major &&
                version.Minor == Version.Minor;
     }
 

@@ -200,7 +200,7 @@ public class RsaPluginSignatureVerifier : IPluginSignatureVerifier
             // Verify signature
             using var rsa = RSA.Create();
             rsa.ImportFromPem(publicKeyPem);
-            
+
             return rsa.VerifyData(hash, signature, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
         }
         catch
@@ -212,7 +212,7 @@ public class RsaPluginSignatureVerifier : IPluginSignatureVerifier
     public async Task<PluginSignature> SignPluginAsync(PluginManifest manifest, string pluginPath, string privateKeyPath, CancellationToken ct = default)
     {
         var privateKeyPem = await File.ReadAllTextAsync(privateKeyPath, ct);
-        
+
         using var rsa = RSA.Create();
         rsa.ImportFromPem(privateKeyPem);
 
@@ -234,7 +234,7 @@ public class RsaPluginSignatureVerifier : IPluginSignatureVerifier
     private async Task<byte[]> CalculatePluginHashAsync(string pluginPath, CancellationToken ct)
     {
         using var sha256 = SHA256.Create();
-        
+
         // Include all plugin files in hash calculation
         var files = Directory.GetFiles(pluginPath, "*", SearchOption.AllDirectories)
             .OrderBy(f => f)

@@ -35,7 +35,7 @@ public class PluginDependencyResolver
     public IEnumerable<PluginManifest> ResolveLoadOrder(IEnumerable<PluginManifest> manifests, SemanticVersion? hostVersion = null)
     {
         var manifestList = manifests.ToList();
-        
+
         // Filter by host compatibility if version provided
         if (hostVersion != null)
         {
@@ -75,12 +75,12 @@ public class PluginDependencyResolver
                     dependencyGraph[manifest.Id].Add(dependency);
                     inDegree[dependency]++;
 
-                    _logger?.LogDebug("Plugin {Plugin} v{Version} depends on {Dependency}", 
+                    _logger?.LogDebug("Plugin {Plugin} v{Version} depends on {Dependency}",
                         manifest.Id, manifest.Version, dependency);
                 }
                 else
                 {
-                    _logger?.LogWarning("Plugin {Plugin} depends on {Dependency} which was not found", 
+                    _logger?.LogWarning("Plugin {Plugin} depends on {Dependency} which was not found",
                         manifest.Id, dependency);
                 }
             }
@@ -102,7 +102,7 @@ public class PluginDependencyResolver
             var pluginId = queue.Dequeue();
             sorted.Add(manifestMap[pluginId]);
 
-            _logger?.LogDebug("Adding plugin {Plugin} v{Version} to load order (position {Position})", 
+            _logger?.LogDebug("Adding plugin {Plugin} v{Version} to load order (position {Position})",
                 pluginId, manifestMap[pluginId].Version, sorted.Count);
 
             // Reduce in-degree for all plugins that depend on this one

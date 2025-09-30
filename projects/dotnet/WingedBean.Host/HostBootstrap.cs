@@ -186,7 +186,7 @@ public class HostBootstrap
         _services.AddSingleton<PluginRegistry>();
 
         // Register advanced plugin features
-        var registryPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), 
+        var registryPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "WingedBean", "plugin-registry.json");
         _pluginRegistry = new FilePluginRegistry(registryPath);
         _services.AddSingleton(_pluginRegistry);
@@ -273,7 +273,7 @@ public class HostBootstrap
             {
                 var pluginPath = GetPluginPath(manifest);
                 var isSignatureValid = await _signatureVerifier.VerifySignatureAsync(manifest, pluginPath, ct);
-                
+
                 if (!isSignatureValid)
                 {
                     var securityLevel = manifest.Security.SecurityLevel;
@@ -281,7 +281,7 @@ public class HostBootstrap
                     {
                         throw new InvalidOperationException($"Plugin {manifest.Id} signature verification failed and security level requires valid signature");
                     }
-                    
+
                     _logger?.LogWarning("Plugin {PluginId} signature verification failed, but security level allows loading", manifest.Id);
                 }
                 else
@@ -310,7 +310,7 @@ public class HostBootstrap
     /// </summary>
     private void OnPluginUpdateAvailable(object? sender, PluginUpdateAvailableEventArgs e)
     {
-        _logger?.LogInformation("Update available for plugin {PluginId}: {CurrentVersion} -> {AvailableVersion}", 
+        _logger?.LogInformation("Update available for plugin {PluginId}: {CurrentVersion} -> {AvailableVersion}",
             e.PluginId, e.CurrentVersion, e.AvailableVersion);
 
         if (e.IsAutoUpdateEnabled)
@@ -325,7 +325,7 @@ public class HostBootstrap
     /// </summary>
     private void OnPluginUpdateCompleted(object? sender, PluginUpdateEventArgs e)
     {
-        _logger?.LogInformation("Plugin {PluginId} successfully updated from {FromVersion} to {ToVersion}", 
+        _logger?.LogInformation("Plugin {PluginId} successfully updated from {FromVersion} to {ToVersion}",
             e.PluginId, e.FromVersion, e.ToVersion);
     }
 
@@ -334,7 +334,7 @@ public class HostBootstrap
     /// </summary>
     private void OnPluginUpdateFailed(object? sender, PluginUpdateErrorEventArgs e)
     {
-        _logger?.LogError(e.Exception, "Plugin {PluginId} update failed: {FromVersion} -> {ToVersion}: {ErrorMessage}", 
+        _logger?.LogError(e.Exception, "Plugin {PluginId} update failed: {FromVersion} -> {ToVersion}: {ErrorMessage}",
             e.PluginId, e.FromVersion, e.ToVersion, e.ErrorMessage);
     }
 

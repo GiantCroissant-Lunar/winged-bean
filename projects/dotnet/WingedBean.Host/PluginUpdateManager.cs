@@ -246,7 +246,7 @@ public class PluginUpdateManager : IPluginUpdateManager
                 if (success)
                 {
                     // Record successful update
-                    RecordUpdate(pluginId, currentPlugin.Version, targetVersion, true, null, 
+                    RecordUpdate(pluginId, currentPlugin.Version, targetVersion, true, null,
                         DateTimeOffset.UtcNow - startTime, PluginUpdateType.Manual, rollbackPath);
 
                     UpdateCompleted?.Invoke(this, updateEventArgs);
@@ -333,8 +333,8 @@ public class PluginUpdateManager : IPluginUpdateManager
 
     public async Task<IEnumerable<PluginUpdateRecord>> GetUpdateHistoryAsync(string pluginId, CancellationToken ct = default)
     {
-        return _updateHistory.TryGetValue(pluginId, out var history) 
-            ? history.OrderByDescending(h => h.UpdatedAt) 
+        return _updateHistory.TryGetValue(pluginId, out var history)
+            ? history.OrderByDescending(h => h.UpdatedAt)
             : Enumerable.Empty<PluginUpdateRecord>();
     }
 
@@ -351,7 +351,7 @@ public class PluginUpdateManager : IPluginUpdateManager
 
         var pluginPath = GetPluginPath(plugin);
         var rollbackManifestPath = Path.Combine(rollbackDir, "plugin.json");
-        
+
         // Save current plugin manifest
         var manifestJson = System.Text.Json.JsonSerializer.Serialize(plugin, new JsonSerializerOptions { WriteIndented = true });
         await File.WriteAllTextAsync(rollbackManifestPath, manifestJson, ct);
@@ -372,13 +372,13 @@ public class PluginUpdateManager : IPluginUpdateManager
         // 2. Unload current plugin using plugin loader
         // 3. Replace plugin files
         // 4. Load new plugin version
-        
+
         // For now, we'll simulate the process
         await Task.Delay(1000, ct); // Simulate update process
-        
+
         // Update registry with new version
         await _registry.UpdatePluginAsync(targetPlugin, ct);
-        
+
         return true;
     }
 
@@ -392,19 +392,19 @@ public class PluginUpdateManager : IPluginUpdateManager
 
             var manifestJson = await File.ReadAllTextAsync(rollbackManifestPath, ct);
             var rollbackPlugin = System.Text.Json.JsonSerializer.Deserialize<PluginManifest>(manifestJson);
-            
+
             if (rollbackPlugin == null)
                 return false;
 
             // Restore plugin files
             var pluginPath = GetPluginPath(rollbackPlugin);
             var rollbackFilesPath = Path.Combine(rollbackPath, "files");
-            
+
             if (Directory.Exists(rollbackFilesPath))
             {
                 if (Directory.Exists(pluginPath))
                     Directory.Delete(pluginPath, true);
-                
+
                 await CopyDirectoryAsync(rollbackFilesPath, pluginPath, ct);
             }
 
@@ -424,7 +424,7 @@ public class PluginUpdateManager : IPluginUpdateManager
         }
     }
 
-    private void RecordUpdate(string pluginId, string fromVersion, string toVersion, bool success, 
+    private void RecordUpdate(string pluginId, string fromVersion, string toVersion, bool success,
         string? errorMessage, TimeSpan duration, PluginUpdateType updateType, string? rollbackPath)
     {
         if (!_updateHistory.ContainsKey(pluginId))
@@ -468,10 +468,10 @@ public class PluginUpdateManager : IPluginUpdateManager
         foreach (var file in Directory.GetFiles(sourceDir, "*", SearchOption.AllDirectories))
         {
             ct.ThrowIfCancellationRequested();
-            
+
             var relativePath = Path.GetRelativePath(sourceDir, file);
             var destFile = Path.Combine(destDir, relativePath);
-            
+
             Directory.CreateDirectory(Path.GetDirectoryName(destFile)!);
             using var sourceStream = File.OpenRead(file);
             using var destStream = File.Create(destFile);
