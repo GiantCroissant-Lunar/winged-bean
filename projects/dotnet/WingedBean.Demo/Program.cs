@@ -51,6 +51,7 @@ class Program
             var bootstrap = new HostBootstrap(
                 pluginLoader,
                 loggerFactory.CreateLogger<HostBootstrap>(),
+                "1.0.0", // host version
                 pluginPaths
             );
 
@@ -63,7 +64,7 @@ class Program
             if (ptyService != null)
             {
                 logger.LogInformation("✅ Successfully resolved IPtyService from plugin");
-                
+
                 // Configure PTY to run a simple command
                 var ptyConfig = new PtyConfig
                 {
@@ -78,10 +79,10 @@ class Program
                 {
                     var session = await ptyService.StartSessionAsync(ptyConfig);
                     logger.LogInformation("✅ PTY session started: {SessionId} (PID: {ProcessId})", session.SessionId, session.ProcessId);
-                    
+
                     // Wait a moment for output
                     await Task.Delay(1000);
-                    
+
                     await ptyService.StopSessionAsync(session.SessionId);
                     logger.LogInformation("✅ PTY session stopped successfully");
                 }
@@ -101,7 +102,7 @@ class Program
             if (terminalApp != null)
             {
                 logger.LogInformation("✅ Successfully resolved ITerminalApp from plugin");
-                
+
                 var appConfig = new TerminalAppConfig
                 {
                     Name = "Console Dungeon Demo",
@@ -124,7 +125,7 @@ class Program
             if (recorder != null)
             {
                 logger.LogInformation("✅ Successfully resolved IRecorder from plugin");
-                
+
                 // Test the recorder
                 var sessionId = "phase2-demo";
                 var metadata = new SessionMetadata
@@ -140,7 +141,7 @@ class Program
                 await recorder.RecordDataAsync(sessionId, System.Text.Encoding.UTF8.GetBytes("🎉 All plugins loaded successfully!\r\n"), DateTimeOffset.UtcNow);
                 await recorder.RecordDataAsync(sessionId, System.Text.Encoding.UTF8.GetBytes("✨ Hot-reload capable plugin system is working!\r\n"), DateTimeOffset.UtcNow);
                 var outputPath = await recorder.StopRecordingAsync(sessionId);
-                
+
                 logger.LogInformation("✅ Recording saved to: {OutputPath}", outputPath);
             }
             else

@@ -18,41 +18,49 @@ projects/nodejs/
 ## Running Tests
 
 ### All Tests
+
 ```bash
 pnpm test
 ```
 
 ### Unit Tests Only
+
 ```bash
 pnpm test:unit
 ```
 
 ### Integration Tests
+
 ```bash
 pnpm test:integration
 ```
 
 ### E2E Tests (requires running services)
+
 ```bash
 pnpm test:e2e
 ```
 
 ### PM2 Workflow Tests
+
 ```bash
 pnpm test:pm2
 ```
 
 ### Watch Mode (for development)
+
 ```bash
 pnpm test:watch
 ```
 
 ### Coverage Report
+
 ```bash
 pnpm test:coverage
 ```
 
 ### Manual Tests
+
 ```bash
 cd pty-service
 npm run test:manual    # Test PTY spawning directly
@@ -62,36 +70,42 @@ npm run test:client    # Test WebSocket client connection
 ## Test Categories
 
 ### 1. Unit Tests (`__tests__/`)
+
 - Test individual components in isolation
 - Mock external dependencies
 - Fast execution
 - Run on every commit
 
 **Examples:**
+
 - PTY process spawning
 - WebSocket message handling
 - Error handling
 - Input/output formatting
 
 ### 2. Integration Tests (`tests/integration/`)
+
 - Test interaction between components
 - May require running services
 - Moderate execution time
 - Run before deployment
 
 **Examples:**
+
 - Full WebSocket communication flow
 - PTY → Server → Browser pipeline
 - pm2 lifecycle management
 - File watching and auto-reload
 
 ### 3. E2E Tests (`tests/integration/e2e.test.js`)
+
 - Test complete user workflows
 - Requires browser automation (Playwright)
 - Slow execution
 - Run before releases
 
 **Examples:**
+
 - Browser loads Astro page
 - Terminal renders correctly
 - Keyboard/mouse input works
@@ -100,11 +114,13 @@ npm run test:client    # Test WebSocket client connection
 ## Prerequisites
 
 ### For Unit Tests
+
 ```bash
 pnpm install
 ```
 
 ### For Integration Tests
+
 ```bash
 # Ensure services can start
 pnpm run dev
@@ -112,6 +128,7 @@ pnpm run dev:stop
 ```
 
 ### For E2E Tests
+
 ```bash
 # Install Playwright browsers
 npx playwright install
@@ -120,6 +137,7 @@ npx playwright install
 ## CI/CD Integration
 
 ### GitHub Actions Example
+
 ```yaml
 name: Tests
 on: [push, pull_request]
@@ -130,7 +148,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: "18"
       - run: pnpm install
       - run: pnpm test:unit
       - run: pnpm test:integration
@@ -139,24 +157,26 @@ jobs:
 ## Writing New Tests
 
 ### Unit Test Template
+
 ```javascript
-describe('Feature Name', () => {
-  test('should do something', () => {
+describe("Feature Name", () => {
+  test("should do something", () => {
     // Arrange
-    const input = 'test';
+    const input = "test";
 
     // Act
     const result = myFunction(input);
 
     // Assert
-    expect(result).toBe('expected');
+    expect(result).toBe("expected");
   });
 });
 ```
 
 ### Integration Test Template
+
 ```javascript
-describe('Integration: Feature', () => {
+describe("Integration: Feature", () => {
   beforeAll(async () => {
     // Start services
   });
@@ -165,7 +185,7 @@ describe('Integration: Feature', () => {
     // Clean up
   });
 
-  test('should integrate correctly', async () => {
+  test("should integrate correctly", async () => {
     // Test multi-component interaction
   });
 });
@@ -180,21 +200,25 @@ describe('Integration: Feature', () => {
 ## Debugging Tests
 
 ### Run specific test file
+
 ```bash
 npx jest path/to/test.js
 ```
 
 ### Run specific test
+
 ```bash
 npx jest -t "test name"
 ```
 
 ### Debug with Node inspector
+
 ```bash
 node --inspect-brk node_modules/.bin/jest --runInBand
 ```
 
 ### View detailed output
+
 ```bash
 pnpm test -- --verbose
 ```

@@ -51,16 +51,16 @@ public class PluginDiscovery
             _logger?.LogInformation("Scanning plugin directory: {Directory}", directory);
 
             var manifestFiles = Directory.GetFiles(directory, "*.plugin.json", SearchOption.AllDirectories);
-            
+
             foreach (var manifestFile in manifestFiles)
             {
                 try
                 {
                     _logger?.LogDebug("Loading plugin manifest: {ManifestFile}", manifestFile);
-                    
+
                     var json = await File.ReadAllTextAsync(manifestFile, ct);
                     var manifest = JsonSerializer.Deserialize<PluginManifest>(json);
-                    
+
                     if (manifest == null)
                     {
                         _logger?.LogWarning("Failed to deserialize plugin manifest: {ManifestFile}", manifestFile);

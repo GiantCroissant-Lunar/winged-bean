@@ -56,12 +56,12 @@ public class AlcPluginLoader : IPluginLoader
             // Create isolated, collectible ALC for hot-swap support
             var contextName = $"{manifest.Id}_v{manifest.Version}_{Guid.NewGuid():N}";
             var alc = new AssemblyLoadContext(contextName, isCollectible: true);
-            
+
             _logger?.LogDebug("Created load context: {ContextName}", contextName);
 
             // Load the plugin assembly
             var assembly = alc.LoadFromAssemblyPath(Path.GetFullPath(entryPoint));
-            
+
             _logger?.LogDebug("Loaded assembly: {AssemblyName} from {EntryPoint}", assembly.FullName, entryPoint);
 
             // Find IPluginActivator implementation
@@ -117,7 +117,7 @@ public class AlcPluginLoader : IPluginLoader
             // Quiesce period to allow in-flight operations to complete
             if (plugin.Manifest.QuiesceSeconds > 0)
             {
-                _logger?.LogDebug("Quiescing plugin {PluginId} for {Seconds} seconds", 
+                _logger?.LogDebug("Quiescing plugin {PluginId} for {Seconds} seconds",
                     plugin.Id, plugin.Manifest.QuiesceSeconds);
                 await Task.Delay(plugin.Manifest.QuiesceSeconds * 1000, ct);
             }

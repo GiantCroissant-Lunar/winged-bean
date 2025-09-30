@@ -9,16 +9,16 @@ public interface ILoadedPlugin
 {
     /// <summary>Plugin unique identifier</summary>
     string Id { get; }
-    
+
     /// <summary>Plugin version</summary>
     Version Version { get; }
-    
+
     /// <summary>Plugin manifest metadata</summary>
     PluginManifest Manifest { get; }
-    
+
     /// <summary>Current plugin state</summary>
     PluginState State { get; }
-    
+
     /// <summary>Services registered by this plugin</summary>
     IServiceCollection Services { get; }
 

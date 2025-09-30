@@ -20,14 +20,16 @@ We will use native tools (not Docker containers) for pre-commit hooks, while usi
 
 ## Rationale
 
-### Native Tools for Pre-commit Benefits:
+### Native Tools for Pre-commit Benefits
+
 - **Fast Execution**: Native tools start immediately without Docker container overhead (2-5+ seconds saved per hook)
 - **Better Developer Experience**: Quick feedback encourages developers to use hooks rather than bypass them
 - **Resource Efficiency**: No Docker daemon requirements or container resource overhead
 - **Simplified Setup**: Developers can install tools directly via package managers (npm, pip, etc.)
 - **IDE Integration**: Native tools work seamlessly with language servers and IDE linting
 
-### Hybrid Approach Benefits:
+### Hybrid Approach Benefits
+
 - **Local Speed**: Fast pre-commit validation for immediate feedback
 - **CI Consistency**: Docker-based megalint ensures consistent, comprehensive validation across environments
 - **Language Coverage**: Pre-commit handles common issues, CI handles comprehensive analysis
@@ -35,14 +37,16 @@ We will use native tools (not Docker containers) for pre-commit hooks, while usi
 
 ## Consequences
 
-### Positive:
+### Positive
+
 - Developers will experience fast, responsive pre-commit validation
 - Higher adoption rate of pre-commit hooks due to speed
 - Seamless integration with developer IDEs and editors
 - Clear separation between local validation (speed) and CI validation (comprehensive)
 - M4 Mini performance will make native tools nearly instantaneous
 
-### Negative:
+### Negative
+
 - Need to maintain two sets of linting configurations (pre-commit + CI)
 - Potential version drift between local tools and CI environment
 - Developers must install language-specific tools locally
@@ -50,7 +54,8 @@ We will use native tools (not Docker containers) for pre-commit hooks, while usi
 
 ## Implementation Notes
 
-### Pre-commit Configuration:
+### Pre-commit Configuration
+
 ```yaml
 # .pre-commit-config.yaml
 repos:
@@ -80,12 +85,14 @@ repos:
       - id: terraform-validate
 ```
 
-### CI Configuration:
+### CI Configuration
+
 - Use megalint with Docker for comprehensive validation
 - Configure megalint to handle all languages: C#, Python, Node.js, YAML, Terraform
 - Ensure CI catches any issues missed by local pre-commit hooks
 
-### Developer Setup:
+### Developer Setup
+
 1. Install pre-commit: `pip install pre-commit`
 2. Install hooks: `pre-commit install`
 3. Install required language tools (ruff, eslint, terraform, etc.)

@@ -17,6 +17,7 @@ We need to implement comprehensive security and code quality checks as part of o
 ## Decision
 
 We will implement a comprehensive pre-commit hook strategy that includes:
+
 1. **Linting** for code quality across all languages
 2. **GitLeaks** for secret detection and credential scanning
 3. **Additional security tools** for vulnerability detection
@@ -24,19 +25,22 @@ We will implement a comprehensive pre-commit hook strategy that includes:
 
 ## Rationale
 
-### Security Benefits:
+### Security Benefits
+
 - **Secret Prevention**: GitLeaks prevents credentials, API keys, and tokens from being committed
 - **Early Detection**: Catches security issues before code review, reducing remediation costs
 - **Compliance**: Helps meet security compliance requirements for sensitive projects
 - **Developer Education**: Immediate feedback teaches developers about security best practices
 
-### Code Quality Benefits:
+### Code Quality Benefits
+
 - **Consistency**: Automated formatting ensures uniform code style across the team
 - **Error Prevention**: Linting catches common bugs and anti-patterns early
 - **Multi-language Support**: Comprehensive coverage for our technology stack
 - **Maintainability**: Cleaner code is easier to maintain and review
 
-### Performance Considerations:
+### Performance Considerations
+
 - **Native Tools**: Fast execution without Docker overhead
 - **Incremental Scanning**: Only scan changed files for speed
 - **Parallel Execution**: Multiple hooks can run concurrently
@@ -44,14 +48,16 @@ We will implement a comprehensive pre-commit hook strategy that includes:
 
 ## Consequences
 
-### Positive:
+### Positive
+
 - Significant reduction in security incidents and credential leaks
 - Improved code quality and consistency across the codebase
 - Faster code review cycles due to automated quality checks
 - Enhanced security posture with multiple layers of protection
 - Educational value for developers learning security best practices
 
-### Negative:
+### Negative
+
 - Initial setup complexity with multiple tools and configurations
 - Potential for false positives requiring allowlist management
 - Additional time added to commit process (though minimal with native tools)
@@ -60,7 +66,8 @@ We will implement a comprehensive pre-commit hook strategy that includes:
 
 ## Implementation Notes
 
-### Pre-commit Configuration:
+### Pre-commit Configuration
+
 ```yaml
 # .pre-commit-config.yaml
 repos:
@@ -138,7 +145,8 @@ repos:
         args: ['--baseline', '.secrets.baseline']
 ```
 
-### GitLeaks Configuration:
+### GitLeaks Configuration
+
 ```toml
 # .gitleaks.toml
 title = "Gitleaks Config"
@@ -168,7 +176,8 @@ paths = [
 ]
 ```
 
-### Tool Installation:
+### Tool Installation
+
 ```bash
 # Install pre-commit
 pip install pre-commit
@@ -182,12 +191,14 @@ brew install gitleaks yamllint terraform tflint
 pre-commit install
 ```
 
-### Security Baseline Management:
+### Security Baseline Management
+
 - Use `.secrets.baseline` for detect-secrets to manage known false positives
 - Regular updates to security rules and allowlists
 - Team training on handling security alerts and exceptions
 
-### CI Integration:
+### CI Integration
+
 - Run same checks in CI with megalint for consistency
 - Fail builds on security violations
 - Generate security reports for compliance

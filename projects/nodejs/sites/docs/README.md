@@ -46,6 +46,7 @@ Open [http://localhost:4321](http://localhost:4321) in your browser.
 ### AsciinemaPlayer
 
 Displays interactive terminal session recordings. Features:
+
 - Multiple cast file selection
 - Preloaded playback
 - Responsive design
@@ -53,6 +54,7 @@ Displays interactive terminal session recordings. Features:
 ### XTerm
 
 Provides a live terminal interface connected via WebSocket. Features:
+
 - Real-time connection to .NET console applications
 - Automatic reconnection
 - Dark theme with syntax highlighting
@@ -63,6 +65,7 @@ Provides a live terminal interface connected via WebSocket. Features:
 To use the live terminal feature:
 
 1. **Start the .NET Console Application**:
+
    ```bash
    cd ../../../dotnet/console-dungeon
    dotnet run --project ConsoleDungeon/ConsoleDungeon.csproj
@@ -76,6 +79,7 @@ To use the live terminal feature:
 ## Demo Cast Files
 
 The site includes several sample terminal recordings:
+
 - `example.cast` - Basic hello world demo
 - `npm-install.cast` - NPM package installation
 - `git-commit.cast` - Git workflow demonstration

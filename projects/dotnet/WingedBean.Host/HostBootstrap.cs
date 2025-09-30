@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace WingedBean.Host;
 
 /// <summary>
-/// Orchestrates the plugin system startup: discovery, loading, and activation
+/// Orchestrates the plugin system startup: discovery, loading, and activation with advanced features
 /// </summary>
 public class HostBootstrap
 {
@@ -15,15 +15,22 @@ public class HostBootstrap
     private readonly ServiceCollection _services;
     private readonly List<ILoadedPlugin> _loadedPlugins;
     private readonly ILogger<HostBootstrap>? _logger;
+    private readonly SemanticVersion _hostVersion;
+    private IPluginRegistry? _pluginRegistry;
+    private IPluginSignatureVerifier? _signatureVerifier;
+    private IPluginUpdateManager? _updateManager;
+    private IPluginPermissionEnforcer? _permissionEnforcer;
 
     /// <summary>
     /// Initialize host bootstrap
     /// </summary>
     /// <param name="pluginLoader">Plugin loader implementation</param>
+    /// <param name="hostVersion">Host version for compatibility checking</param>
     /// <param name="pluginDirectories">Directories to scan for plugins</param>
-    public HostBootstrap(IPluginLoader pluginLoader, params string[] pluginDirectories)
+    public HostBootstrap(IPluginLoader pluginLoader, string hostVersion = "1.0.0", params string[] pluginDirectories)
     {
         _pluginLoader = pluginLoader;
+        _hostVersion = SemanticVersion.Parse(hostVersion);
         _discovery = new PluginDiscovery(pluginDirectories);
         _resolver = new PluginDependencyResolver();
         _services = new ServiceCollection();
@@ -35,11 +42,13 @@ public class HostBootstrap
     /// </summary>
     /// <param name="pluginLoader">Plugin loader implementation</param>
     /// <param name="logger">Logger instance</param>
+    /// <param name="hostVersion">Host version for compatibility checking</param>
     /// <param name="pluginDirectories">Directories to scan for plugins</param>
-    public HostBootstrap(IPluginLoader pluginLoader, ILogger<HostBootstrap> logger, params string[] pluginDirectories)
+    public HostBootstrap(IPluginLoader pluginLoader, ILogger<HostBootstrap> logger, string hostVersion = "1.0.0", params string[] pluginDirectories)
     {
         _pluginLoader = pluginLoader;
         _logger = logger;
+        _hostVersion = SemanticVersion.Parse(hostVersion);
         // Note: We'll create separate loggers later when we have access to ILoggerFactory
         _discovery = new PluginDiscovery(pluginDirectories);
         _resolver = new PluginDependencyResolver();
@@ -77,42 +86,72 @@ public class HostBootstrap
                 throw new InvalidOperationException("Plugin dependency validation failed");
             }
 
-            // 4. Resolve dependency order
-            _logger?.LogInformation("Resolving plugin load order");
-            var orderedManifests = _resolver.ResolveLoadOrder(manifests);
+            // 4. Resolve dependency order with version compatibility
+            _logger?.LogInformation("Resolving plugin load order with host version {HostVersion}", _hostVersion);
+            var orderedManifests = _resolver.ResolveLoadOrder(manifests, _hostVersion);
 
-            // 5. Load plugins in dependency order
+            // 5. Verify plugin signatures and permissions
+            _logger?.LogInformation("Verifying plugin security");
+            await VerifyPluginSecurityAsync(orderedManifests, ct);
+
+            // 6. Load plugins in dependency order
             _logger?.LogInformation("Loading plugins");
             foreach (var manifest in orderedManifests)
             {
                 if (ct.IsCancellationRequested)
                     break;
 
+                // Register plugin in registry
+                if (_pluginRegistry != null)
+                {
+                    await _pluginRegistry.RegisterPluginAsync(manifest, ct);
+                }
+
                 var plugin = await _pluginLoader.LoadPluginAsync(manifest, ct);
                 _loadedPlugins.Add(plugin);
+
+                _logger?.LogInformation("Loaded plugin {PluginId} v{Version}", manifest.Id, manifest.Version);
             }
 
-            // 6. Build intermediate service provider for plugin activation
+            // 7. Build intermediate service provider for plugin activation
             var hostServiceProvider = _services.BuildServiceProvider();
 
-            // 7. Activate plugins in dependency order
+            // 8. Activate plugins in dependency order
             _logger?.LogInformation("Activating plugins");
             foreach (var plugin in _loadedPlugins)
             {
                 if (ct.IsCancellationRequested)
                     break;
 
+                // Register plugin permissions
+                if (_permissionEnforcer != null && plugin.Manifest.Security?.Permissions != null)
+                {
+                    _permissionEnforcer.RegisterPermissions(plugin.Id, plugin.Manifest.Security.Permissions);
+                }
+
                 await plugin.ActivateAsync(hostServiceProvider, ct);
-                
+
                 // Register plugin services in main service collection
                 foreach (var serviceDescriptor in plugin.Services)
                 {
                     ((IList<ServiceDescriptor>)_services).Add(serviceDescriptor);
                 }
+
+                _logger?.LogInformation("Activated plugin {PluginId} v{Version}", plugin.Id, plugin.Manifest.Version);
             }
 
-            // 8. Build final service provider with all plugin services
+            // 9. Build final service provider with all plugin services
             var finalServiceProvider = _services.BuildServiceProvider();
+
+            // 10. Initialize update manager
+            _updateManager = finalServiceProvider.GetService<IPluginUpdateManager>();
+            if (_updateManager != null)
+            {
+                // Subscribe to update events
+                _updateManager.UpdateAvailable += OnPluginUpdateAvailable;
+                _updateManager.UpdateCompleted += OnPluginUpdateCompleted;
+                _updateManager.UpdateFailed += OnPluginUpdateFailed;
+            }
 
             _logger?.LogInformation("Host initialized with {Count} plugins", _loadedPlugins.Count);
 
@@ -126,7 +165,7 @@ public class HostBootstrap
     }
 
     /// <summary>
-    /// Register core host services
+    /// Register core host services with advanced plugin features
     /// </summary>
     private void RegisterHostServices()
     {
@@ -146,10 +185,32 @@ public class HostBootstrap
         _services.AddSingleton(_pluginLoader);
         _services.AddSingleton<PluginRegistry>();
 
+        // Register advanced plugin features
+        var registryPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), 
+            "WingedBean", "plugin-registry.json");
+        _pluginRegistry = new FilePluginRegistry(registryPath);
+        _services.AddSingleton(_pluginRegistry);
+
+        _signatureVerifier = new RsaPluginSignatureVerifier();
+        _services.AddSingleton(_signatureVerifier);
+
+        _permissionEnforcer = new DefaultPluginPermissionEnforcer();
+        _services.AddSingleton(_permissionEnforcer);
+
+        // Update manager needs to be created after other services
+        _services.AddSingleton<IPluginUpdateManager>(provider =>
+        {
+            var logger = provider.GetService<ILogger<PluginUpdateManager>>();
+            return new PluginUpdateManager(_pluginLoader, _pluginRegistry, _signatureVerifier, logger);
+        });
+
         // Register event bus for inter-plugin communication
         _services.AddSingleton<IEventBus, EventBus>();
 
-        _logger?.LogDebug("Host services registered");
+        // Register host version for compatibility checks
+        _services.AddSingleton(_hostVersion);
+
+        _logger?.LogDebug("Host services registered with advanced features");
     }
 
     /// <summary>
@@ -197,6 +258,114 @@ public class HostBootstrap
         _loadedPlugins.Clear();
         _logger?.LogInformation("Host shutdown complete");
     }
+
+    /// <summary>
+    /// Verify plugin signatures and security permissions
+    /// </summary>
+    private async Task VerifyPluginSecurityAsync(IEnumerable<PluginManifest> manifests, CancellationToken ct)
+    {
+        if (_signatureVerifier == null)
+            return;
+
+        foreach (var manifest in manifests)
+        {
+            if (manifest.Security?.Signature != null)
+            {
+                var pluginPath = GetPluginPath(manifest);
+                var isSignatureValid = await _signatureVerifier.VerifySignatureAsync(manifest, pluginPath, ct);
+                
+                if (!isSignatureValid)
+                {
+                    var securityLevel = manifest.Security.SecurityLevel;
+                    if (securityLevel == SecurityLevel.Restricted || securityLevel == SecurityLevel.Isolated)
+                    {
+                        throw new InvalidOperationException($"Plugin {manifest.Id} signature verification failed and security level requires valid signature");
+                    }
+                    
+                    _logger?.LogWarning("Plugin {PluginId} signature verification failed, but security level allows loading", manifest.Id);
+                }
+                else
+                {
+                    _logger?.LogInformation("Plugin {PluginId} signature verified successfully", manifest.Id);
+                }
+            }
+            else if (manifest.Security?.SecurityLevel == SecurityLevel.Restricted || manifest.Security?.SecurityLevel == SecurityLevel.Isolated)
+            {
+                throw new InvalidOperationException($"Plugin {manifest.Id} requires signature but none provided");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Get plugin path for a manifest
+    /// </summary>
+    private string GetPluginPath(PluginManifest manifest)
+    {
+        // Simple implementation - in production this would be more sophisticated
+        return Path.Combine("plugins", manifest.Id);
+    }
+
+    /// <summary>
+    /// Handle plugin update available event
+    /// </summary>
+    private void OnPluginUpdateAvailable(object? sender, PluginUpdateAvailableEventArgs e)
+    {
+        _logger?.LogInformation("Update available for plugin {PluginId}: {CurrentVersion} -> {AvailableVersion}", 
+            e.PluginId, e.CurrentVersion, e.AvailableVersion);
+
+        if (e.IsAutoUpdateEnabled)
+        {
+            _logger?.LogInformation("Auto-update enabled for plugin {PluginId}, scheduling update", e.PluginId);
+            // In a real implementation, this would schedule the update
+        }
+    }
+
+    /// <summary>
+    /// Handle plugin update completed event
+    /// </summary>
+    private void OnPluginUpdateCompleted(object? sender, PluginUpdateEventArgs e)
+    {
+        _logger?.LogInformation("Plugin {PluginId} successfully updated from {FromVersion} to {ToVersion}", 
+            e.PluginId, e.FromVersion, e.ToVersion);
+    }
+
+    /// <summary>
+    /// Handle plugin update failed event
+    /// </summary>
+    private void OnPluginUpdateFailed(object? sender, PluginUpdateErrorEventArgs e)
+    {
+        _logger?.LogError(e.Exception, "Plugin {PluginId} update failed: {FromVersion} -> {ToVersion}: {ErrorMessage}", 
+            e.PluginId, e.FromVersion, e.ToVersion, e.ErrorMessage);
+    }
+
+    /// <summary>
+    /// Get plugin statistics
+    /// </summary>
+    public async Task<PluginStatistics?> GetPluginStatisticsAsync(CancellationToken ct = default)
+    {
+        return _pluginRegistry != null ? await _pluginRegistry.GetStatisticsAsync(ct) : null;
+    }
+
+    /// <summary>
+    /// Check for plugin updates
+    /// </summary>
+    public async Task CheckForUpdatesAsync(CancellationToken ct = default)
+    {
+        if (_updateManager == null)
+            return;
+
+        foreach (var plugin in _loadedPlugins)
+        {
+            try
+            {
+                await _updateManager.CheckForUpdatesAsync(plugin.Id, ct);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Failed to check for updates for plugin {PluginId}", plugin.Id);
+            }
+        }
+    }
 }
 
 /// <summary>
@@ -237,7 +406,7 @@ public class EventBus : IEventBus
         if (_handlers.TryGetValue(typeof(T), out var handlers))
         {
             _logger?.LogDebug("Publishing event {EventType} to {HandlerCount} handlers", typeof(T).Name, handlers.Count);
-            
+
             var tasks = handlers.Select(handler => handler(eventData));
             await Task.WhenAll(tasks);
         }

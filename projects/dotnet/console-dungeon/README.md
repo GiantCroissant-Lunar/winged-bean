@@ -77,5 +77,6 @@ The application consists of:
 ## Reference Projects
 
 This project draws inspiration from:
+
 - Terminal.Gui examples in `/ref-projects/Terminal.Gui/Examples/UICatalog/Scenarios`
 - SuperSocket samples in `/ref-projects/SuperSocket/samples`

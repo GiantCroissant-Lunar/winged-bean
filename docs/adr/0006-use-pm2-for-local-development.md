@@ -8,11 +8,13 @@
 ## Context and Problem Statement
 
 The Terminal.Gui PTY web integration requires running multiple services simultaneously during development:
+
 1. Node.js PTY WebSocket service (port 4041)
 2. Astro development server (port 4321)
 3. Optional: .NET Terminal.Gui application (spawned by PTY service)
 
 Developers need a simple way to:
+
 - Start all services with one command
 - View aggregated logs from all services
 - Auto-restart services on code changes
@@ -34,6 +36,7 @@ We needed to decide between multiple approaches for managing these services duri
 ## Considered Options
 
 ### Option 1: Custom Shell Scripts
+
 ```bash
 #!/bin/bash
 trap 'kill 0' SIGINT
@@ -43,11 +46,13 @@ wait
 ```
 
 **Pros:**
+
 - No dependencies
 - Simple to understand
 - Full control over process management
 
 **Cons:**
+
 - Platform-specific (bash vs PowerShell)
 - Manual process tracking
 - No log aggregation
@@ -56,6 +61,7 @@ wait
 - No status monitoring
 
 ### Option 2: npm-run-all / concurrently
+
 ```json
 {
   "scripts": {
@@ -67,11 +73,13 @@ wait
 ```
 
 **Pros:**
+
 - npm-native solution
 - Simple parallel execution
 - Good for simple workflows
 
 **Cons:**
+
 - No process management (restart on crash)
 - Logs mixed together without clear formatting
 - No status monitoring
@@ -79,6 +87,7 @@ wait
 - Limited watch mode capabilities
 
 ### Option 3: Docker Compose
+
 ```yaml
 services:
   pty-service:
@@ -92,11 +101,13 @@ services:
 ```
 
 **Pros:**
+
 - Production-like environment
 - Isolation and reproducibility
 - Good for complex dependencies
 
 **Cons:**
+
 - Complex setup for simple use case
 - Slower hot reload (container overhead)
 - .NET app spawning complications (Docker-in-Docker or separate container)
@@ -104,6 +115,7 @@ services:
 - More complex debugging
 
 ### Option 4: PM2 (Process Manager 2) ✅ **SELECTED**
+
 ```javascript
 // ecosystem.config.js
 module.exports = {
@@ -125,6 +137,7 @@ module.exports = {
 ```
 
 **Pros:**
+
 - ✅ Production-grade process manager
 - ✅ Built-in file watching and auto-restart
 - ✅ Excellent log aggregation (`pm2 logs`)
@@ -136,6 +149,7 @@ module.exports = {
 - ✅ Native Node.js processes (no containerization overhead)
 
 **Cons:**
+
 - Additional dependency (but lightweight)
 - Learning curve (minimal)
 - Daemon process (background management)
@@ -149,6 +163,7 @@ PM2 provides the best balance of developer experience, features, and maintainabi
 ### Implementation Details
 
 **1. Configuration: `ecosystem.config.js`**
+
 ```javascript
 module.exports = {
   apps: [
@@ -186,6 +201,7 @@ module.exports = {
 ```
 
 **2. Package Scripts:**
+
 ```json
 {
   "scripts": {
@@ -200,6 +216,7 @@ module.exports = {
 ```
 
 **3. Development Workflow:**
+
 ```bash
 # Start all services
 pnpm run dev
@@ -247,15 +264,18 @@ pnpm run dev:stop
 Comprehensive test suite validates the PM2 workflow:
 
 **Unit Tests:**
+
 - PTY process spawning
 - WebSocket server functionality
 
 **Integration Tests:**
+
 - PM2 service lifecycle (start, status, logs, stop)
 - File watching behavior (manual verification)
 - End-to-end browser tests (Playwright)
 
 **Test Commands:**
+
 ```bash
 pnpm test              # All tests
 pnpm test:unit         # Unit tests only
@@ -266,8 +286,8 @@ pnpm test:e2e          # Browser automation tests
 
 ## Links
 
-- **PM2 Documentation:** https://pm2.keymetrics.io/docs/usage/quick-start/
-- **Ecosystem File:** https://pm2.keymetrics.io/docs/usage/application-declaration/
+- **PM2 Documentation:** <https://pm2.keymetrics.io/docs/usage/quick-start/>
+- **Ecosystem File:** <https://pm2.keymetrics.io/docs/usage/application-declaration/>
 - **Implementation:** `projects/nodejs/ecosystem.config.js`
 - **Test Suite:** `projects/nodejs/tests/integration/pm2-lifecycle.test.js`
 - **Related ADR:** [ADR-0005: Use PTY for Terminal.Gui Web Integration](0005-use-pty-for-terminal-gui-web-integration.md)
@@ -275,7 +295,9 @@ pnpm test:e2e          # Browser automation tests
 ## Future Considerations
 
 ### Docker Compose for Production
+
 While PM2 is excellent for local development, Docker Compose may still be valuable for:
+
 - Production deployments with orchestration
 - Integration testing in CI/CD
 - Multi-environment configuration management
@@ -285,6 +307,7 @@ PM2 and Docker are not mutually exclusive - PM2 can run inside Docker containers
 ### When to Reconsider
 
 Consider alternative solutions if:
+
 - Services exceed 5-10 processes (complexity threshold)
 - Need for complex service dependencies (startup ordering)
 - Cross-language service management becomes cumbersome

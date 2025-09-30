@@ -33,6 +33,7 @@ pre-commit install
 ### What Runs Locally
 
 Pre-commit hooks provide fast feedback on:
+
 - **Security**: GitLeaks, detect-secrets, bandit
 - **Code Quality**: Ruff (Python), ESLint/Prettier (JS/TS)
 - **Infrastructure**: Terraform fmt/validate
@@ -59,6 +60,7 @@ git commit --no-verify -m "skip hooks"
 ### What Runs in CI
 
 MegaLinter provides comprehensive validation:
+
 - **All languages**: C#, Python, Node.js, YAML, Terraform
 - **Security scanning**: Credentials, secrets, vulnerabilities
 - **Code quality**: Formatting, linting, best practices
@@ -77,6 +79,7 @@ The CI workflow (`.github/workflows/mega-linter.yml`) is optimized for maximum p
   - Quick native pre-checks for immediate feedback
 
 The workflow runs on:
+
 - All pushes to any branch
 - Pull requests to main/master
 - Validates only changed files (except main branch)
@@ -113,39 +116,46 @@ winged-bean/
 ## Language-Specific Configuration
 
 ### Python (`projects/python/`)
+
 - **Linter**: Ruff (replaces flake8, black, isort)
 - **Type Checking**: MyPy
 - **Security**: Bandit, Safety
 - **Config**: `pyproject.toml`
 
 ### JavaScript/TypeScript (`projects/nodejs/`)
+
 - **Linter**: ESLint with TypeScript support
 - **Formatter**: Prettier
 - **Config**: `.eslintrc.js`, `.prettierrc`
 
 ### C# (`projects/dotnet/`)
+
 - **Formatter**: dotnet format (whitespace, style)
 - **Code Quality**: JetBrains CLI (cleanup, inspection)
 - **Config**: Built-in .NET formatting rules + JetBrains profiles
 - **Requirements**: .NET SDK, optional JetBrains CLI (`jb`)
 
 ### Terraform (`infra/terraform/`)
+
 - **Formatter**: terraform fmt
 - **Linter**: tflint
 - **Validator**: terraform validate
 
 ### YAML (All `.yml`/`.yaml` files)
+
 - **Linter**: yamllint
 - **Config**: `.yamllint.yml`
 
 ## Security Features
 
 ### Secret Detection
+
 - **GitLeaks**: Comprehensive secret scanning
 - **detect-secrets**: Additional secret detection with baseline
 - **Custom Rules**: AWS, GitHub, Azure, JWT tokens
 
 ### Vulnerability Scanning
+
 - **Python**: Safety for dependency vulnerabilities
 - **Node.js**: npm audit (via ESLint plugins)
 - **General**: Bandit for Python security issues
@@ -181,12 +191,14 @@ pre-commit run ruff --verbose
 ## Benefits
 
 ### Local Development
+
 ✅ **Fast**: Native tools start immediately
 ✅ **Immediate Feedback**: Catch issues before commit
 ✅ **IDE Integration**: Works with language servers
 ✅ **Selective**: Only runs on changed files
 
 ### CI Pipeline
+
 ✅ **Comprehensive**: Full project validation
 ✅ **Consistent**: Docker ensures same environment
 ✅ **Reporting**: Detailed reports and GitHub integration
@@ -211,6 +223,6 @@ pre-commit run ruff --verbose
 
 ## Support
 
-- **Pre-commit**: https://pre-commit.com/
-- **MegaLinter**: https://megalinter.io/
+- **Pre-commit**: <https://pre-commit.com/>
+- **MegaLinter**: <https://megalinter.io/>
 - **Project Issues**: Create GitHub issues for project-specific problems

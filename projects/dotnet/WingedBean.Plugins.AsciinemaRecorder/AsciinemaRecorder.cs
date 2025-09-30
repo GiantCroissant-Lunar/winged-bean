@@ -74,7 +74,7 @@ public class AsciinemaRecorder : IRecorder
 
         context.EventCount++;
 
-        _logger.LogTrace("Recorded {DataSize} bytes for session {SessionId} at {Time}s", 
+        _logger.LogTrace("Recorded {DataSize} bytes for session {SessionId} at {Time}s",
             data.Length, sessionId, relativeTime);
     }
 
@@ -91,7 +91,7 @@ public class AsciinemaRecorder : IRecorder
 
         var duration = (DateTimeOffset.UtcNow - context.StartTime).TotalSeconds;
 
-        _logger.LogInformation("Recording stopped: {OutputPath}, Duration: {Duration}s, Events: {EventCount}", 
+        _logger.LogInformation("Recording stopped: {OutputPath}, Duration: {Duration}s, Events: {EventCount}",
             context.OutputPath, duration, context.EventCount);
 
         return context.OutputPath;

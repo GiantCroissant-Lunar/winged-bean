@@ -20,14 +20,16 @@ We will use Astro.js as our web framework combined with asciinema player for ter
 
 ## Rationale
 
-### Astro.js Benefits:
+### Astro.js Benefits
+
 - **Islands Architecture**: Allows us to ship minimal JavaScript while still supporting interactive components where needed
 - **Framework Agnostic**: Can integrate components from React, Vue, Svelte, or vanilla JS as needed
 - **Static-First**: Generates static HTML by default, ensuring fast loading times and good SEO
 - **Modern Tooling**: Built-in TypeScript support, hot module replacement, and excellent developer experience
 - **Performance**: Zero JavaScript by default unless explicitly opted in
 
-### asciinema player Benefits:
+### asciinema player Benefits
+
 - **Lightweight**: Small bundle size for embedding terminal recordings
 - **High Quality**: Captures actual terminal output, not just video recordings
 - **Interactive**: Users can copy text from recordings, pause, and control playback
@@ -36,14 +38,16 @@ We will use Astro.js as our web framework combined with asciinema player for ter
 
 ## Consequences
 
-### Positive:
+### Positive
+
 - Fast, SEO-friendly static site generation
 - Minimal JavaScript bundle sizes
 - High-quality, interactive terminal demonstrations
 - Excellent developer experience
 - Future-proof architecture that can evolve with project needs
 
-### Negative:
+### Negative
+
 - Learning curve for team members unfamiliar with Astro
 - asciinema requires users to install recording tools for content creation
 - Static-first approach may require additional consideration for dynamic features

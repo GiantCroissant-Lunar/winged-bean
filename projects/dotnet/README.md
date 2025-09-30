@@ -7,7 +7,7 @@ This directory contains the implementation of RFC-0003: Plugin Architecture Foun
 ✅ **Phase 1 Complete** - Core plugin system foundation implemented:
 
 - **WingedBean.Host** - Core plugin interfaces and abstractions
-- **WingedBean.Host.Console** - ALC-based plugin loader for .NET console applications  
+- **WingedBean.Host.Console** - ALC-based plugin loader for .NET console applications
 - **WingedBean.Contracts** - Shared interfaces for plugin implementations
 - **WingedBean.Plugins.AsciinemaRecorder** - Sample plugin demonstrating the architecture
 - **WingedBean.Demo** - Console application demonstrating the plugin system
@@ -46,7 +46,7 @@ The plugin system follows the RFC specification with these key components:
 - **IPluginActivator** - Interface plugins implement to register services
 - **ILoadedPlugin** - Represents a loaded plugin instance
 - **PluginManifest** - JSON-based plugin metadata
-- **PluginDiscovery** - Scans directories for `.plugin.json` files  
+- **PluginDiscovery** - Scans directories for `.plugin.json` files
 - **PluginDependencyResolver** - Topological sort for dependency ordering
 - **HostBootstrap** - Orchestrates plugin discovery, loading, and activation
 
@@ -71,26 +71,31 @@ The plugin system follows the RFC specification with these key components:
 ## 🚀 Key Features Implemented
 
 ### ✅ Plugin Discovery
+
 - Scans directories for `.plugin.json` manifest files
 - Resolves relative paths to absolute paths
 - Validates plugin metadata
 
-### ✅ Dependency Resolution  
+### ✅ Dependency Resolution
+
 - Topological sort using Kahn's algorithm
 - Detects circular dependencies
 - Orders plugins by dependency requirements
 
 ### ✅ Hot-Reload Support
+
 - Uses collectible AssemblyLoadContext
 - Supports unload/reload without restart
 - Quiesce period for graceful shutdown
 
 ### ✅ Profile-Agnostic Design
+
 - Abstract IPluginLoader interface
 - Console profile with ALC implementation
 - Ready for Unity (HybridCLR) and Web (ES modules) profiles
 
 ### ✅ Service Integration
+
 - Plugins register services via DI container
 - Host merges plugin services
 - Full dependency injection support
@@ -121,7 +126,7 @@ The plugin system follows the RFC specification with these key components:
     "services": [
       {
         "interface": "IRecorder",
-        "implementation": "AsciinemaRecorder", 
+        "implementation": "AsciinemaRecorder",
         "lifecycle": "transient"
       }
     ]
@@ -137,12 +142,14 @@ The plugin system follows the RFC specification with these key components:
 ## 🔧 Usage
 
 ### Building
+
 ```bash
 cd projects/dotnet
 dotnet build WingedBean.sln
 ```
 
 ### Running Demo
+
 ```bash
 dotnet run --project WingedBean.Demo
 ```
@@ -150,6 +157,7 @@ dotnet run --project WingedBean.Demo
 ### Creating a Plugin
 
 1. **Create Plugin Project**
+
    ```bash
    dotnet new classlib -n MyPlugin
    dotnet add reference WingedBean.Host
@@ -157,8 +165,9 @@ dotnet run --project WingedBean.Demo
    ```
 
 2. **Implement Plugin Activator**
+
    ```csharp
-   public class MyPlugin : IPluginActivator 
+   public class MyPlugin : IPluginActivator
    {
        public Task ActivateAsync(IServiceCollection services, IServiceProvider hostServices, CancellationToken ct)
        {
@@ -171,10 +180,11 @@ dotnet run --project WingedBean.Demo
    ```
 
 3. **Create Manifest** (`MyPlugin.plugin.json`)
+
    ```json
    {
      "id": "myplugin",
-     "version": "1.0.0", 
+     "version": "1.0.0",
      "name": "My Plugin",
      "entryPoint": { "dotnet": "./MyPlugin.dll" },
      "dependencies": {},
@@ -182,7 +192,7 @@ dotnet run --project WingedBean.Demo
        "services": [{
          "interface": "IMyService",
          "implementation": "MyServiceImpl",
-         "lifecycle": "transient"  
+         "lifecycle": "transient"
        }]
      },
      "supportedProfiles": ["console"]
@@ -194,7 +204,7 @@ dotnet run --project WingedBean.Demo
 The core plugin system is complete per RFC Phase 1. Future enhancements:
 
 - **Unity Profile** (Phase 3) - HybridCLR-based plugin loader
-- **Godot Profile** (Phase 3) - Godot ALC plugin loader  
+- **Godot Profile** (Phase 3) - Godot ALC plugin loader
 - **Web Profile** (Phase 3) - ES module plugin loader
 - **Plugin Versioning** (Phase 4) - Multiple version support
 - **Plugin Security** (Phase 4) - Signing and sandboxing
@@ -202,11 +212,11 @@ The core plugin system is complete per RFC Phase 1. Future enhancements:
 
 ## 🎯 Definition of Done - Phase 1
 
-✅ `WingedBean.Host` package with core plugin interfaces  
-✅ `PluginDiscovery` working (scan directories, load manifests)  
-✅ `PluginDependencyResolver` working (topological sort)  
-✅ `AlcPluginLoader` working (load/unload/reload in Console profile)  
-✅ `HostBootstrap` working (orchestrate plugin lifecycle)  
+✅ `WingedBean.Host` package with core plugin interfaces
+✅ `PluginDiscovery` working (scan directories, load manifests)
+✅ `PluginDependencyResolver` working (topological sort)
+✅ `AlcPluginLoader` working (load/unload/reload in Console profile)
+✅ `HostBootstrap` working (orchestrate plugin lifecycle)
 ⏳ Unit tests for all components (>80% coverage) - **Next priority**
 
 The plugin architecture foundation is now complete and ready for production use in console applications, with a clear path for extending to Unity, Godot, and Web profiles.

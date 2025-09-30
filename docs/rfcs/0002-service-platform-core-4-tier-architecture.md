@@ -11,6 +11,7 @@ Draft
 ## Summary
 
 Establish a **full-fledged 4-tier service platform** for winged-bean (inspired by pinto-bean), supporting **multiple execution profiles** (Console/Terminal.Gui, Unity, Godot, Web). The architecture uses:
+
 - **Tier-1**: Pure contracts (profile-agnostic interfaces and DTOs)
 - **Tier-2**: Source-generated façades with `[RealizeService]` attribute
 - **Tier-3**: Profile-aware adapters (resilience, load contexts, telemetry, schedulers, transport)
@@ -23,6 +24,7 @@ Establish a **full-fledged 4-tier service platform** for winged-bean (inspired b
 ### Vision
 
 Build a **cross-profile service platform** where:
+
 1. Services are defined once (Tier-1 contracts)
 2. Automatically realized across profiles (Tier-2 source-generated façades)
 3. Cross-cutting concerns (resilience, telemetry, hot-swap) work uniformly (Tier-3 adapters)
@@ -40,11 +42,13 @@ Build a **cross-profile service platform** where:
 ### Current Architecture Issues
 
 **Console Profile (Current):**
+
 - `server.js` (Node.js PTY service) + `TerminalGuiApp.cs` (C#) tightly coupled
 - No abstraction for recording, transport, or PTY implementation
 - Hard to test, hard to extend, impossible to reuse for Unity/Godot
 
 **Future Profiles Need:**
+
 - **Unity**: MonoBehaviour lifecycle, HybridCLR hot-swap, Unity Netcode transport, IL2CPP AOT
 - **Godot**: Node lifecycle, GodotSharp hot-reload, ENet/WebRTC transport, native C#
 - **Web**: Browser environment, WebAssembly constraints, HTTP/WebSocket transport, no filesystem
@@ -304,6 +308,7 @@ public partial class PtyService : IPtyService
 ```
 
 **Why Source Generators?**
+
 - Service count will grow: PTY, Recording, Session, Analytics, AI, Resources, SceneFlow, etc.
 - Hand-writing façades for each service × each method × resilience + telemetry = unmaintainable
 - Generated code is consistent, tested once, works for all services
@@ -692,6 +697,7 @@ public class UnityBootstrap : MonoBehaviour
 ## Implementation Plan
 
 ### Phase 1: Platform Foundation (4-6 weeks)
+
 1. **Week 1-2: Tier-1 Contracts**
    - Define `WingedBean.Contracts` NuGet package
    - Interfaces: `IPtyService`, `IRecorder`, `ISessionManager`, `ITransport`
@@ -715,6 +721,7 @@ public class UnityBootstrap : MonoBehaviour
    - **DOD**: Adapters packaged in `WingedBean.Adapters.Console`
 
 ### Phase 2: Console Profile Implementation (3-4 weeks)
+
 1. **Week 7-8: Tier-4 Providers (Console)**
    - `NodePtyProvider` (TypeScript wrapper for `node-pty`)
    - `AsciinemaRecorder` (C# implementation)
@@ -728,6 +735,7 @@ public class UnityBootstrap : MonoBehaviour
    - **DOD**: Console app fully refactored, all tests pass
 
 ### Phase 3: Testing & Documentation (2 weeks)
+
 1. **Week 11: Tests**
    - Unit tests for all adapters
    - Integration tests for Console profile
@@ -741,6 +749,7 @@ public class UnityBootstrap : MonoBehaviour
    - **DOD**: Complete documentation published
 
 ### Phase 4: Future Profiles (Future Iterations)
+
 1. **Unity Profile** (8-10 weeks)
    - Unity-specific adapters (`UnityMainThreadScheduler`, `HybridClrLoadContext`)
    - Unity transport (`Unity Netcode`)
@@ -784,27 +793,32 @@ public class UnityBootstrap : MonoBehaviour
 ## Testing Strategy
 
 ### Unit Tests
+
 - **Tier-3 Adapters**: Mock Tier-4 providers (e.g., mock `node-pty`, mock `fs`)
 - **Tier-2 Façades**: Mock Tier-3 adapters (e.g., mock `IRecorder`, mock `ITransport`)
 - **Source Generator**: Golden file tests (input → expected output)
 
 ### Integration Tests
+
 - **CLI Mode**: Spawn real PTY, verify recording file format
 - **Web Mode**: Start WebSocket server, send messages, verify PTY interaction
 
 ### E2E Tests
+
 - Full stack: Browser → xterm.js → WebSocket → PTY → Terminal.Gui
 - Verify asciinema playback of recorded sessions
 
 ## Definition of Done
 
 ### Phase 1 (Platform Foundation)
+
 - [ ] `WingedBean.Contracts` NuGet package created and published
 - [ ] `WingedBean.SourceGen` Roslyn analyzer generates valid façade code
 - [ ] `WingedBean.Adapters.Console` package with resilience, load context, telemetry
 - [ ] Unit tests for source generator (>90% coverage)
 
 ### Phase 2 (Console Profile)
+
 - [ ] `NodePtyProvider` implemented in TypeScript
 - [ ] `AsciinemaRecorder` implemented in C#
 - [ ] `server.js` refactored to use adapters
@@ -813,6 +827,7 @@ public class UnityBootstrap : MonoBehaviour
 - [ ] All existing functionality preserved (no regressions)
 
 ### Phase 3 (Testing & Documentation)
+
 - [ ] Unit tests for all adapters (>80% coverage)
 - [ ] Integration tests for CLI and Web modes
 - [ ] E2E test passing
@@ -821,6 +836,7 @@ public class UnityBootstrap : MonoBehaviour
 - [ ] Developer guide: "How to add a new profile"
 
 ### Phase 4 (Future Profiles)
+
 - [ ] Unity profile implemented and tested
 - [ ] Godot profile implemented and tested
 - [ ] Web profile implemented and tested
@@ -834,35 +850,42 @@ public class UnityBootstrap : MonoBehaviour
 ## Risks and Mitigations
 
 ### Risk: Source Generator Complexity
+
 - **Mitigation**: Start with simple façade generation, iterate
 - **Mitigation**: Golden file tests ensure correctness
 - **Mitigation**: Reference pinto-bean generator implementation
 
 ### Risk: Performance Overhead
+
 - **Mitigation**: Adapters are thin wrappers (minimal indirection)
 - **Mitigation**: Benchmark PTY data forwarding (must be <5% overhead)
 
 ### Risk: Unity/Godot Integration Challenges
+
 - **Mitigation**: Console profile validates architecture first
 - **Mitigation**: IL2CPP/AOT constraints addressed via source generators (no runtime reflection)
 
 ### Risk: Learning Curve
+
 - **Mitigation**: Clear documentation and examples
 - **Mitigation**: Gradual migration (keep old code working during transition)
 
 ## Alternatives Considered
 
 ### 1. Keep Existing Flat Architecture
+
 - ✅ Simpler, less code
 - ❌ Cannot scale to Unity/Godot without complete rewrite
 - **Decision**: Platform architecture is essential for multi-profile support
 
 ### 2. No Source Generators (Hand-Written Façades)
+
 - ✅ Simpler tooling
 - ❌ Unmaintainable as service count grows
 - **Decision**: Source generators are essential for scalability
 
 ### 3. Microservices Architecture
+
 - ✅ Maximum isolation
 - ❌ Way overkill for local console/Unity/Godot apps
 - **Decision**: Monolithic with clean boundaries is sufficient

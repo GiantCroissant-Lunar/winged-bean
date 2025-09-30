@@ -1,4 +1,6 @@
-# Winged Bean
+Terraform fmt........................................(no files to check)Skipped
+Terraform validate...................................(no files to check)Skipped
+Terraform validate with tflint.......................(no files to check)Skipped# Winged Bean
 
 A multi-language project with comprehensive CI/CD pipeline and local development tools.
 
@@ -23,6 +25,7 @@ A multi-language project with comprehensive CI/CD pipeline and local development
 This project uses [act](https://github.com/nektos/act) for local GitHub Actions testing.
 
 #### Quick Start
+
 ```bash
 # Install act (macOS)
 brew install act
@@ -34,6 +37,7 @@ act -j megalinter        # Run MegaLinter workflow
 ```
 
 #### Documentation
+
 - [Complete Act Usage Guide](docs/development/ACT_USAGE.md)
 - [Architecture Decision Record](docs/adr/0004-adopt-act-for-local-github-actions-testing.md)
 

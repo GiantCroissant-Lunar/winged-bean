@@ -15,11 +15,13 @@ We needed a way to run Terminal.Gui v2 applications in web browsers using xterm.
 ### Initial Approach (Rejected)
 
 Initially, we attempted a simulated approach:
+
 - .NET WebSocket server (SuperSocket) directly connected to xterm.js
 - Manual ANSI escape sequence generation to simulate Terminal.Gui interface
 - Custom screen content rendering with cursor positioning
 
 **Problems with this approach:**
+
 1. **Not Real Terminal.Gui**: Generated simulated interface, not actual Terminal.Gui v2
 2. **High Maintenance**: Required manual ANSI sequence crafting for every UI element
 3. **Limited Functionality**: Difficult to support complex Terminal.Gui features
@@ -75,6 +77,7 @@ Terminal.Gui App → PTY → node-pty → WebSocket → xterm.js (Browser)
 ### Implementation Details
 
 **PTY Spawning:**
+
 ```javascript
 const ptyProcess = pty.spawn('/bin/bash', ['-lc', cmd], {
     name: 'xterm-256color',
@@ -88,11 +91,13 @@ const ptyProcess = pty.spawn('/bin/bash', ['-lc', cmd], {
 ```
 
 **Binary Streaming:**
+
 - PTY output → WebSocket as ArrayBuffer
 - xterm.js writes binary data directly
 - No encoding/decoding overhead
 
 **Input Forwarding:**
+
 - Keyboard: xterm.js `onData` → WebSocket → PTY
 - Mouse: SGR mouse protocol events → PTY
 - Resize: JSON control message → PTY resize
@@ -126,6 +131,7 @@ const ptyProcess = pty.spawn('/bin/bash', ['-lc', cmd], {
 ## Implementation Status
 
 ### Working ✅
+
 - PTY process spawning with proper terminal environment
 - Binary WebSocket streaming from PTY to browser
 - xterm.js rendering Terminal.Gui interface
@@ -135,10 +141,12 @@ const ptyProcess = pty.spawn('/bin/bash', ['-lc', cmd], {
 - Process cleanup on disconnect
 
 ### In Progress 🔄
+
 - Mouse click event handling in Terminal.Gui
 - Testing with complex Terminal.Gui examples (UICatalog scenarios)
 
 ### Future Enhancements 📋
+
 - Session management for multiple users
 - Authentication and authorization
 - WebSocket Secure (WSS) for production
@@ -148,20 +156,26 @@ const ptyProcess = pty.spawn('/bin/bash', ['-lc', cmd], {
 ## Alternatives Not Chosen
 
 ### 1. WebAssembly Terminal.Gui
+
 **Reason**: Terminal.Gui is .NET-based, would require:
+
 - Full .NET runtime in WASM (large bundle size)
 - TTY/terminal emulation in browser
 - Significant engineering effort with uncertain compatibility
 
 ### 2. Terminal.Gui Native Web Backend
+
 **Reason**: Would require:
+
 - Major changes to Terminal.Gui core
 - New rendering backend for web
 - Fork or upstream contribution complexity
 - Maintenance burden for every Terminal.Gui update
 
 ### 3. Screen Scraping/OCR
+
 **Reason**:
+
 - Extremely fragile and unreliable
 - Can't capture colors, formatting, or interactive elements
 - High latency
@@ -186,6 +200,7 @@ const ptyProcess = pty.spawn('/bin/bash', ['-lc', cmd], {
 This decision enables real Terminal.Gui applications to run in browsers with minimal changes. The PTY approach is proven by major terminal emulators (VS Code, Hyper, Terminus) and provides the cleanest separation between terminal application and web interface.
 
 The main trade-off is server-side execution vs. client-side, but this is acceptable given:
+
 1. Terminal applications inherently expect server/system resources
 2. Similar architecture to SSH web terminals (wetty, ttyd)
 3. Better security (app logic stays on server)

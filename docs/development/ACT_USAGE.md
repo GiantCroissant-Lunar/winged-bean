@@ -15,11 +15,13 @@ This document describes how to use `act` to test GitHub Actions workflows locall
 ## Installation
 
 ### macOS
+
 ```bash
 brew install act
 ```
 
 ### Other Platforms
+
 Download from [act releases](https://github.com/nektos/act/releases)
 
 ## Configuration
@@ -33,11 +35,13 @@ The project includes pre-configured files for act:
 ## Basic Usage
 
 ### List Available Workflows
+
 ```bash
 act -l
 ```
 
 ### Run the MegaLinter Workflow
+
 ```bash
 # Dry run (shows what would execute)
 act --dryrun
@@ -54,6 +58,7 @@ act pull_request
 ```
 
 ### Common Options
+
 ```bash
 # Run with verbose output
 act --verbose
@@ -71,9 +76,11 @@ act --skip-steps="Archive reports"
 ## Development Workflow
 
 ### 1. Modify Workflows
+
 Make changes to `.github/workflows/mega-linter.yml` or `.mega-linter.yml`
 
 ### 2. Test Locally
+
 ```bash
 # Quick validation
 act --dryrun
@@ -83,6 +90,7 @@ act -j megalinter
 ```
 
 ### 3. Debug Issues
+
 ```bash
 # Run with verbose logging
 act --verbose
@@ -92,12 +100,15 @@ act --container-daemon-socket /var/run/docker.sock
 ```
 
 ### 4. Commit Changes
+
 Once local testing passes, commit your workflow changes.
 
 ## Troubleshooting
 
 ### Docker Issues
+
 If you encounter Docker permission issues:
+
 ```bash
 # Add your user to docker group (Linux)
 sudo usermod -aG docker $USER
@@ -107,13 +118,17 @@ sudo act
 ```
 
 ### Container Architecture Issues (Apple Silicon)
+
 The `.actrc` file includes `--container-architecture linux/amd64` for compatibility.
 
 ### Large Image Downloads
+
 First run will download ~500MB runner image. This is cached for future runs.
 
 ### Memory Issues
+
 If workflows fail due to memory constraints:
+
 ```bash
 # Run with more memory
 act --container-options="--memory=4g"
@@ -134,20 +149,26 @@ act --env-file .env.production
 ## Advanced Usage
 
 ### Custom Runner Images
+
 Modify `.actrc` to use different runner images:
+
 ```bash
 -P ubuntu-latest=ghcr.io/catthehacker/ubuntu:full-latest
 ```
 
 ### Workflow Secrets
+
 For workflows requiring secrets, add them to `.env.act`:
+
 ```bash
 GITHUB_TOKEN=your_token_here
 CUSTOM_SECRET=secret_value
 ```
 
 ### Selective Step Execution
+
 Skip time-consuming steps during development:
+
 ```bash
 # Skip artifact upload
 act --skip-steps="Archive reports"
@@ -166,14 +187,18 @@ act --skip-steps="Pre-pull MegaLinter image"
 ## Integration with Development
 
 ### Pre-commit Testing
+
 Add act testing to your development workflow:
+
 ```bash
 # Before committing workflow changes
 act --dryrun && git add . && git commit -m "Update workflow"
 ```
 
 ### CI/CD Development
+
 Use act for iterative CI/CD development:
+
 1. Modify workflow files
 2. Test with `act --dryrun`
 3. Run full test with `act`
@@ -190,10 +215,12 @@ Use act for iterative CI/CD development:
 ## Support
 
 For act-specific issues:
+
 - [Act GitHub Repository](https://github.com/nektos/act)
 - [Act Documentation](https://nektosact.com/)
 
 For project-specific workflow issues:
+
 - Review workflow files in `.github/workflows/`
 - Check MegaLinter configuration in `.mega-linter.yml`
 - Consult team documentation

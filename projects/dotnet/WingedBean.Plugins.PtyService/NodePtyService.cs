@@ -64,7 +64,7 @@ public class NodePtyService : IPtyService, IDisposable
         processStartInfo.Environment["LINES"] = config.Rows.ToString();
 
         var process = new Process { StartInfo = processStartInfo };
-        
+
         process.OutputDataReceived += (sender, e) =>
         {
             if (e.Data != null)
@@ -104,12 +104,12 @@ public class NodePtyService : IPtyService, IDisposable
                 Timestamp = DateTimeOffset.UtcNow
             };
             SessionExited?.Invoke(this, args);
-            
+
             _sessions.TryRemove(sessionId, out _);
         };
 
         process.EnableRaisingEvents = true;
-        
+
         try
         {
             process.Start();
@@ -196,12 +196,12 @@ public class NodePtyService : IPtyService, IDisposable
     public Task ResizeAsync(string sessionId, int cols, int rows, CancellationToken ct = default)
     {
         _logger.LogInformation("Resize request for PTY session {SessionId}: {Cols}x{Rows}", sessionId, cols, rows);
-        
+
         if (_sessions.TryGetValue(sessionId, out var sessionInfo))
         {
             sessionInfo.Config.Cols = cols;
             sessionInfo.Config.Rows = rows;
-            
+
             // In a real PTY implementation, we would resize the actual PTY
             // For now, just log the resize request
             _logger.LogInformation("Resize applied to PTY session {SessionId}", sessionId);
@@ -219,7 +219,7 @@ public class NodePtyService : IPtyService, IDisposable
         if (!_disposed)
         {
             _logger.LogInformation("Disposing PTY service and stopping all sessions");
-            
+
             var sessionIds = _sessions.Keys.ToList();
             foreach (var sessionId in sessionIds)
             {

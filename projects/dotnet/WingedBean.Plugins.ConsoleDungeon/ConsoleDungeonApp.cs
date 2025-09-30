@@ -35,14 +35,14 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
 
         _config = config;
         _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(ct);
-        
+
         _logger.LogInformation("Starting Console Dungeon application...");
 
         try
         {
             // Initialize Terminal.Gui
             Application.Init();
-            
+
             _isRunning = true;
 
             // Create main window
@@ -62,7 +62,7 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
                 finally
                 {
                     _isRunning = false;
-                    
+
                     // Notify that the application has exited
                     var exitArgs = new TerminalExitEventArgs
                     {
@@ -94,13 +94,13 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
         try
         {
             _cancellationTokenSource?.Cancel();
-            
+
             // Request shutdown of the Terminal.Gui application
             Application.RequestStop();
-            
+
             // Wait a bit for graceful shutdown
             await Task.Delay(1000, ct);
-            
+
             _isRunning = false;
             _logger.LogInformation("Console Dungeon application stopped");
         }
@@ -241,7 +241,7 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
         if (!_disposed)
         {
             _logger.LogInformation("Disposing Console Dungeon application");
-            
+
             try
             {
                 if (_isRunning)
@@ -250,7 +250,7 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
                 }
 
                 _cancellationTokenSource?.Dispose();
-                
+
                 // Shutdown Terminal.Gui
                 Application.Shutdown();
             }

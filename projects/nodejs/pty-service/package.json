@@ -22,7 +22,12 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "keywords": ["pty", "terminal", "websocket", "terminal.gui"],
+  "keywords": [
+    "pty",
+    "terminal",
+    "websocket",
+    "terminal.gui"
+  ],
   "author": "",
   "license": "MIT"
 }

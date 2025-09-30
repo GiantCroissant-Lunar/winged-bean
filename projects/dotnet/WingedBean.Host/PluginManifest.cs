@@ -58,6 +58,28 @@ public class PluginManifest
     /// <summary>Quiesce time in seconds before unloading</summary>
     [JsonPropertyName("quiesceSeconds")]
     public int QuiesceSeconds { get; set; } = 5;
+
+    /// <summary>Plugin security settings and signature</summary>
+    [JsonPropertyName("security")]
+    public PluginSecurity? Security { get; set; }
+
+    /// <summary>Plugin compatibility information</summary>
+    [JsonPropertyName("compatibility")]
+    public PluginCompatibility Compatibility { get; set; } = new();
+
+    /// <summary>Plugin update information</summary>
+    [JsonPropertyName("updateInfo")]
+    public PluginUpdateInfo? UpdateInfo { get; set; }
+
+    /// <summary>Parse semantic version from version string</summary>
+    [JsonIgnore]
+    public SemanticVersion SemanticVersion => SemanticVersion.Parse(Version);
+
+    /// <summary>Check if this plugin is compatible with a host version</summary>
+    public bool IsCompatibleWith(SemanticVersion hostVersion)
+    {
+        return Compatibility.MinHostVersion == null || hostVersion >= SemanticVersion.Parse(Compatibility.MinHostVersion);
+    }
 }
 
 /// <summary>
@@ -108,4 +130,70 @@ public class PluginServiceExport
     /// <summary>Service lifecycle (singleton/scoped/transient)</summary>
     [JsonPropertyName("lifecycle")]
     public string Lifecycle { get; set; } = "transient";
+}
+
+/// <summary>
+/// Plugin compatibility information
+/// </summary>
+public class PluginCompatibility
+{
+    /// <summary>Minimum host version required</summary>
+    [JsonPropertyName("minHostVersion")]
+    public string? MinHostVersion { get; set; }
+
+    /// <summary>Maximum host version supported</summary>
+    [JsonPropertyName("maxHostVersion")]
+    public string? MaxHostVersion { get; set; }
+
+    /// <summary>Required runtime profiles</summary>
+    [JsonPropertyName("requiredProfiles")]
+    public List<string> RequiredProfiles { get; set; } = new();
+
+    /// <summary>Conflicting plugins that cannot coexist</summary>
+    [JsonPropertyName("conflicts")]
+    public List<string> Conflicts { get; set; } = new();
+
+    /// <summary>Breaking changes in this version</summary>
+    [JsonPropertyName("breakingChanges")]
+    public List<string> BreakingChanges { get; set; } = new();
+}
+
+/// <summary>
+/// Plugin update information
+/// </summary>
+public class PluginUpdateInfo
+{
+    /// <summary>Update channel (stable, beta, alpha)</summary>
+    [JsonPropertyName("channel")]
+    public string Channel { get; set; } = "stable";
+
+    /// <summary>Automatic update policy</summary>
+    [JsonPropertyName("autoUpdate")]
+    public bool AutoUpdate { get; set; } = false;
+
+    /// <summary>Update server URL</summary>
+    [JsonPropertyName("updateUrl")]
+    public string? UpdateUrl { get; set; }
+
+    /// <summary>Rollback information</summary>
+    [JsonPropertyName("rollback")]
+    public PluginRollbackInfo? Rollback { get; set; }
+}
+
+/// <summary>
+/// Plugin rollback information
+/// </summary>
+public class PluginRollbackInfo
+{
+    /// <summary>Can rollback to previous version</summary>
+    [JsonPropertyName("enabled")]
+    public bool Enabled { get; set; } = true;
+
+    /// <summary>Maximum number of versions to keep for rollback</summary>
+    [JsonPropertyName("maxVersions")]
+    public int MaxVersions { get; set; } = 3;
+
+    /// <summary>Rollback timeout in seconds</summary>
+    [JsonPropertyName("timeoutSeconds")]
+    public int TimeoutSeconds { get; set; } = 300;
 }

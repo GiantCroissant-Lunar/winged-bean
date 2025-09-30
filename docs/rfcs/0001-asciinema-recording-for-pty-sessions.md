@@ -38,6 +38,7 @@ Add asciinema `.cast` file recording capability to the PTY service to capture bo
 **Unified PTY Service** supporting two modes:
 
 #### Mode 1: CLI Mode (Local Terminal)
+
 ```
 Local Terminal ← stdin/stdout ← PTY Service (Node.js) → Terminal.Gui App
                                         ↓
@@ -47,12 +48,14 @@ Local Terminal ← stdin/stdout ← PTY Service (Node.js) → Terminal.Gui App
 ```
 
 **Usage:**
+
 ```bash
 node server.js --cli --record session.cast
 # Outputs directly to your terminal with recording
 ```
 
 #### Mode 2: Web Mode (Browser)
+
 ```
 Browser (xterm.js) ← WebSocket ← PTY Service (Node.js) → Terminal.Gui App
                                         ↓
@@ -62,6 +65,7 @@ Browser (xterm.js) ← WebSocket ← PTY Service (Node.js) → Terminal.Gui App
 ```
 
 **Usage:**
+
 ```bash
 node server.js --web
 # Starts WebSocket server for browser clients
@@ -70,6 +74,7 @@ node server.js --web
 #### Unified Recording Module
 
 The PTY service will capture:
+
 - **Output events** (`"o"`): Terminal output (ANSI sequences) from Terminal.Gui
 - **Input events** (`"i"`): User keyboard and mouse input sent to PTY
 - **Resize events** (`"r"`): Terminal dimension changes
@@ -106,11 +111,13 @@ The PTY service will capture:
 Use standard [asciicast v2 format](https://docs.asciinema.org/manual/asciicast/v2/):
 
 **Header (JSON):**
+
 ```json
 {"version": 2, "width": 80, "height": 24, "timestamp": 1696077600, "env": {"TERM": "xterm-256color"}}
 ```
 
 **Events (JSON array per line):**
+
 ```json
 [0.123456, "o", "terminal output data"]
 [1.234567, "i", "\t"]
@@ -121,6 +128,7 @@ Use standard [asciicast v2 format](https://docs.asciinema.org/manual/asciicast/v
 ```
 
 Event types:
+
 - `"o"` - Output from PTY to browser
 - `"i"` - Input from browser to PTY (keyboard, mouse)
 - `"r"` - Terminal resize (format: `"width x height"`)
@@ -157,6 +165,7 @@ class CastRecorder {
 #### 2. Server Integration (modify `server.js`)
 
 **CLI Argument Parsing:**
+
 ```javascript
 const args = process.argv.slice(2);
 const cliMode = args.includes('--cli');
@@ -166,6 +175,7 @@ const recordPath = recordIndex >= 0 ? args[recordIndex + 1] : null;
 ```
 
 **Mode 1: CLI Mode Implementation:**
+
 ```javascript
 if (cliMode) {
   const recorder = recordPath ? new CastRecorder(recordPath, process.stdout.columns, process.stdout.rows) : null;
@@ -199,6 +209,7 @@ if (cliMode) {
 ```
 
 **Mode 2: Web Mode Implementation (existing + recording):**
+
 ```javascript
 if (webMode) {
   const wss = new WebSocket.Server({ port: WS_PORT });
@@ -256,6 +267,7 @@ if (webMode) {
 #### 3. Configuration
 
 Add to `package.json` or environment:
+
 ```json
 {
   "recording": {
@@ -270,6 +282,7 @@ Add to `package.json` or environment:
 #### 4. API Control (Optional)
 
 Add WebSocket control messages:
+
 ```json
 {"type": "recording", "action": "start"}
 {"type": "recording", "action": "stop"}
@@ -279,6 +292,7 @@ Add WebSocket control messages:
 ### Testing Strategy
 
 #### Unit Tests (`projects/nodejs/pty-service/__tests__/recording.test.js`)
+
 - CastRecorder class initialization
 - Event writing (output, input, resize)
 - File format validation
@@ -286,6 +300,7 @@ Add WebSocket control messages:
 - Concurrent write safety
 
 #### Integration Tests (`projects/nodejs/pty-service/__tests__/recording-integration.test.js`)
+
 - Full PTY session recording
 - Parse and validate generated .cast file
 - Verify event ordering and timing
@@ -293,6 +308,7 @@ Add WebSocket control messages:
 - File size limits
 
 #### Manual Tests
+
 - Record a simple Terminal.Gui session
 - Play back with `asciinema play session.cast`
 - Verify visual output matches original
@@ -302,23 +318,27 @@ Add WebSocket control messages:
 ## Implementation Plan
 
 ### Phase 1: Core Recording Module (Required for MVP)
+
 1. Create `CastRecorder` class with basic output recording
 2. Add unit tests for recorder
 3. Validate .cast file format generation
 
 ### Phase 2: CLI Mode Implementation (Required)
+
 1. Add CLI argument parsing to `server.js`
 2. Implement CLI mode with stdin/stdout forwarding
 3. Add recording integration for CLI mode
 4. Test locally: `node server.js --cli --record session.cast`
 
 ### Phase 3: Web Mode Recording (Required)
+
 1. Add recording option to WebSocket handler
 2. Hook into existing data flow (input/output/resize)
 3. Add integration tests for web mode recording
 4. Manual testing with browser client
 
 ### Phase 4: Helper Scripts & Documentation (Required)
+
 1. Add npm scripts to `package.json`:
    - `console:play` - Run without recording
    - `console:record` - Run with recording
@@ -327,12 +347,14 @@ Add WebSocket control messages:
 3. Add examples of .cast file playback
 
 ### Phase 5: Advanced Features (Optional)
+
 1. Recording controls (start/stop/pause via WebSocket)
 2. File size limits and rotation
 3. Metadata injection (session info, user annotations)
 4. Compression support
 
 ### Phase 6: Tooling (Future)
+
 1. Replay tool to automate .cast files back through PTY
 2. Cast file editor/trimmer
 3. Merge multiple recordings
@@ -343,6 +365,7 @@ Add WebSocket control messages:
 ### Acceptance Criteria
 
 #### Must Have ✅
+
 - [ ] `CastRecorder` class implemented in `projects/nodejs/pty-service/recording.js`
 - [ ] Records output events (`"o"`) with accurate timestamps
 - [ ] Records input events (`"i"`) including keyboard and mouse
@@ -367,6 +390,7 @@ Add WebSocket control messages:
 - [ ] Proper cleanup on disconnection/exit (close file, flush buffers)
 
 #### Nice to Have 🎯
+
 - [ ] Recording control via WebSocket messages (start/stop)
 - [ ] File size limits to prevent disk exhaustion
 - [ ] Configurable output directory
@@ -374,6 +398,7 @@ Add WebSocket control messages:
 - [ ] Error handling for disk full, permission errors
 
 #### Out of Scope ❌
+
 - Automated replay system (future RFC)
 - Recording editing tools
 - Server-side playback API
@@ -383,12 +408,14 @@ Add WebSocket control messages:
 ### Verification Steps
 
 1. **Install dependencies** (if new packages needed):
+
    ```bash
    cd projects/nodejs/pty-service
    pnpm install
    ```
 
 2. **Run unit tests**:
+
    ```bash
    pnpm test
    # All tests should pass
@@ -396,6 +423,7 @@ Add WebSocket control messages:
    ```
 
 3. **Run integration tests**:
+
    ```bash
    pnpm test recording-integration
    # Should create valid .cast file
@@ -403,6 +431,7 @@ Add WebSocket control messages:
    ```
 
 4. **Manual verification - CLI Mode**:
+
    ```bash
    cd projects/nodejs/pty-service
 
@@ -424,6 +453,7 @@ Add WebSocket control messages:
    ```
 
 5. **Manual verification - Web Mode**:
+
    ```bash
    # Start PTY service in web mode with recording enabled
    cd projects/nodejs
@@ -442,6 +472,7 @@ Add WebSocket control messages:
    ```
 
 6. **Helper scripts test**:
+
    ```bash
    cd projects/nodejs/pty-service
 
@@ -455,6 +486,7 @@ Add WebSocket control messages:
    ```
 
 7. **Format validation**:
+
    ```bash
    # Check first line is valid JSON header
    head -n1 recording.cast | jq .
@@ -471,6 +503,7 @@ Add WebSocket control messages:
 ### PM2 Development Environment
 
 **Before starting implementation:**
+
 ```bash
 cd /Users/apprenticegc/Work/lunar-horse/personal-work/winged-bean/projects/nodejs
 pm2 start ecosystem.config.js
@@ -480,6 +513,7 @@ pm2 logs
 The `pty-service` will auto-reload on file changes.
 
 **After implementation:**
+
 ```bash
 # Verify services are running
 pm2 status
@@ -495,41 +529,50 @@ pm2 delete all
 ## Dependencies
 
 ### Runtime Dependencies
+
 - **node-pty** (already installed): PTY communication
 - **ws** (already installed): WebSocket server
 - **fs/promises**: File I/O for .cast files
 
 ### Development Dependencies
+
 - **jest** (already installed): Testing framework
 - **asciinema** (optional, for manual testing): `brew install asciinema`
 
 ### System Dependencies
+
 - Node.js >=18.0.0 (already required)
 - Disk space for recordings (configurable limit recommended)
 
 ## Risks and Mitigations
 
 ### Risk: Disk Space Exhaustion
+
 - **Mitigation**: Implement file size limits, automatic cleanup of old recordings
 - **Mitigation**: Make recording opt-in, not automatic
 
 ### Risk: Performance Impact
+
 - **Mitigation**: Async file writes using buffered streams
 - **Mitigation**: Monitor overhead in testing, disable if >5% latency added
 
 ### Risk: Sensitive Data in Recordings
+
 - **Mitigation**: Document that recordings capture all input/output
 - **Mitigation**: Add config option to exclude input events for privacy
 - **Mitigation**: Don't commit recordings to git (add to .gitignore)
 
 ### Risk: File Format Changes
+
 - **Mitigation**: Stick to asciicast v2 specification (stable since 2019)
 - **Mitigation**: Version check on .cast file header
 
 ## Alternatives Considered
 
 ### 1. External Wrapper Tool Only
+
 **Approach**: Use `asciinema rec -c "dotnet run"` without PTY service changes
+
 - ✅ No code changes needed
 - ❌ Different recording mechanism for web vs local
 - ❌ Doesn't work for web sessions
@@ -537,28 +580,36 @@ pm2 delete all
 - **Decision**: Unified PTY approach provides consistency
 
 ### 2. Recording Only in Web Mode
+
 **Approach**: Keep PTY service web-only, use external tools for local recording
+
 - ✅ Simpler implementation (only one mode)
 - ❌ Inconsistent user experience (web vs local)
 - ❌ Local users must learn different tools
 - **Decision**: Unified approach worth the additional complexity
 
 ### 3. Console App-Level Recording
+
 **Approach**: Embed recording logic in C# Terminal.Gui app
+
 - ❌ Terminal.Gui writes directly to TTY - hard to intercept
 - ❌ Would need to modify Terminal.Gui or fork it
 - ❌ Doesn't capture actual ANSI sequences
 - **Decision**: PTY is the correct interception point
 
 ### 4. Custom Binary Format
+
 **Approach**: Design proprietary recording format
+
 - ❌ Not compatible with existing asciinema ecosystem
 - ❌ Requires custom playback tools
 - ✅ Could be more efficient
 - **Decision**: Standard format more valuable than marginal efficiency gains
 
 ### 5. Video Recording (Canvas/WebRTC)
+
 **Approach**: Record xterm.js canvas as video
+
 - ❌ Large file sizes
 - ❌ Can't extract text from video
 - ❌ Not suitable for automation/replay
@@ -566,7 +617,9 @@ pm2 delete all
 - **Decision**: Use asciinema for technical audience; can add video export later if needed
 
 ### 6. Proxy Layer Recording
+
 **Approach**: Record at network layer (WebSocket proxy)
+
 - ❌ More complex architecture
 - ❌ Harder to correlate input/output
 - ❌ Doesn't help with CLI mode

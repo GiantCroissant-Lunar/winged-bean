@@ -1,25 +1,25 @@
-const pty = require('node-pty');
+const pty = require("node-pty");
 
-describe('PTY Process Spawning', () => {
-  test('should spawn bash shell', (done) => {
-    const ptyProcess = pty.spawn('/bin/bash', ['-lc', 'echo "test"'], {
-      name: 'xterm-256color',
+describe("PTY Process Spawning", () => {
+  test("should spawn bash shell", (done) => {
+    const ptyProcess = pty.spawn("/bin/bash", ["-lc", 'echo "test"'], {
+      name: "xterm-256color",
       cols: 80,
       rows: 24,
       env: {
-        TERM: 'xterm-256color',
-        COLORTERM: 'truecolor'
-      }
+        TERM: "xterm-256color",
+        COLORTERM: "truecolor",
+      },
     });
 
-    let output = '';
+    let output = "";
 
     ptyProcess.onData((data) => {
       output += data;
     });
 
     ptyProcess.onExit(({ exitCode }) => {
-      expect(output).toContain('test');
+      expect(output).toContain("test");
       expect(exitCode).toBe(0);
       done();
     });
@@ -27,19 +27,19 @@ describe('PTY Process Spawning', () => {
     setTimeout(() => {
       if (!ptyProcess.killed) {
         ptyProcess.kill();
-        done(new Error('PTY process timeout'));
+        done(new Error("PTY process timeout"));
       }
     }, 3000);
   });
 
-  test('should detect .NET SDK', (done) => {
-    const ptyProcess = pty.spawn('dotnet', ['--version'], {
-      name: 'xterm-256color',
+  test("should detect .NET SDK", (done) => {
+    const ptyProcess = pty.spawn("dotnet", ["--version"], {
+      name: "xterm-256color",
       cols: 80,
-      rows: 24
+      rows: 24,
     });
 
-    let output = '';
+    let output = "";
 
     ptyProcess.onData((data) => {
       output += data;
@@ -55,16 +55,16 @@ describe('PTY Process Spawning', () => {
     setTimeout(() => {
       if (!ptyProcess.killed) {
         ptyProcess.kill();
-        done(new Error('Dotnet version check timeout'));
+        done(new Error("Dotnet version check timeout"));
       }
     }, 3000);
   });
 
-  test('should handle PTY resize', () => {
-    const ptyProcess = pty.spawn('/bin/bash', [], {
-      name: 'xterm-256color',
+  test("should handle PTY resize", () => {
+    const ptyProcess = pty.spawn("/bin/bash", [], {
+      name: "xterm-256color",
       cols: 80,
-      rows: 24
+      rows: 24,
     });
 
     // Should not throw
@@ -80,11 +80,11 @@ describe('PTY Process Spawning', () => {
     ptyProcess.kill();
   });
 
-  test('should handle invalid commands', (done) => {
-    const ptyProcess = pty.spawn('/bin/bash', ['-lc', 'nonexistent-command'], {
-      name: 'xterm-256color',
+  test("should handle invalid commands", (done) => {
+    const ptyProcess = pty.spawn("/bin/bash", ["-lc", "nonexistent-command"], {
+      name: "xterm-256color",
       cols: 80,
-      rows: 24
+      rows: 24,
     });
 
     ptyProcess.onExit(({ exitCode }) => {
@@ -95,7 +95,7 @@ describe('PTY Process Spawning', () => {
     setTimeout(() => {
       if (!ptyProcess.killed) {
         ptyProcess.kill();
-        done(new Error('Invalid command test timeout'));
+        done(new Error("Invalid command test timeout"));
       }
     }, 3000);
   });
