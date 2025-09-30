@@ -1,0 +1,28 @@
+{
+  "id": "winged-bean.console-dungeon",
+  "name": "Console Dungeon",
+  "version": "1.0.0",
+  "description": "Console Dungeon Terminal.Gui application",
+  "author": "WingedBean Team",
+  "entryPoint": { "dotnet": "WingedBean.Plugins.ConsoleDungeon.dll" },
+  "dependencies": {},
+  "exports": {
+    "services": [
+      {
+        "interface": "WingedBean.Contracts.ITerminalApp",
+        "implementation": "WingedBean.Plugins.ConsoleDungeon.ConsoleDungeonApp",
+        "lifecycle": "singleton"
+      }
+    ]
+  },
+  "capabilities": [
+    "terminal-gui",
+    "console-app",
+    "interactive-ui"
+  ],
+  "tags": ["terminal-gui", "console", "game", "dungeon"],
+  "metadata": {
+    "requiresTerminal": true,
+    "supportsPty": true
+  }
+}

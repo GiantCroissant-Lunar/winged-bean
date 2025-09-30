@@ -12,6 +12,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WingedBean.Plugins.Asciinem
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WingedBean.Demo", "WingedBean.Demo\WingedBean.Demo.csproj", "{E5F6A7B8-C9D0-1234-5678-90ABCDEF1234}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WingedBean.Plugins.PtyService", "WingedBean.Plugins.PtyService\WingedBean.Plugins.PtyService.csproj", "{B6C9F3E5-2345-6789-ABCD-EF0123456789}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WingedBean.Plugins.ConsoleDungeon", "WingedBean.Plugins.ConsoleDungeon\WingedBean.Plugins.ConsoleDungeon.csproj", "{C7DAF4E6-3456-789A-BCDE-F01234567890}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,5 +42,13 @@ Global
 		{E5F6A7B8-C9D0-1234-5678-90ABCDEF1234}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E5F6A7B8-C9D0-1234-5678-90ABCDEF1234}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E5F6A7B8-C9D0-1234-5678-90ABCDEF1234}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6C9F3E5-2345-6789-ABCD-EF0123456789}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6C9F3E5-2345-6789-ABCD-EF0123456789}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6C9F3E5-2345-6789-ABCD-EF0123456789}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6C9F3E5-2345-6789-ABCD-EF0123456789}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7DAF4E6-3456-789A-BCDE-F01234567890}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7DAF4E6-3456-789A-BCDE-F01234567890}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7DAF4E6-3456-789A-BCDE-F01234567890}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7DAF4E6-3456-789A-BCDE-F01234567890}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
