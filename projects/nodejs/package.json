@@ -4,7 +4,24 @@
   "packageManager": "pnpm@9.0.0",
   "scripts": {
     "build": "pnpm --filter docs build",
-    "dev": "pnpm --filter docs dev",
-    "lint": "pnpm -r lint"
+    "dev": "pm2 start ecosystem.config.js",
+    "dev:stop": "pm2 stop ecosystem.config.js",
+    "dev:restart": "pm2 restart ecosystem.config.js",
+    "dev:logs": "pm2 logs",
+    "dev:status": "pm2 status",
+    "dev:monit": "pm2 monit",
+    "lint": "pnpm -r lint",
+    "test": "jest",
+    "test:unit": "jest --testPathPattern='__tests__'",
+    "test:integration": "jest --testPathPattern='tests/integration'",
+    "test:e2e": "jest --testPathPattern='tests/integration/e2e'",
+    "test:pm2": "jest --testPathPattern='tests/integration/pm2'",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "playwright": "^1.48.0",
+    "pm2": "^5.4.2"
   }
 }
