@@ -46,6 +46,7 @@ jobs:
           sudo apt-get install -y yamllint shellcheck &
           pip install --quiet ruff bandit safety &
           npm install -g --silent eslint prettier &
+          wait
 
       # Run quick native pre-check (optional - for immediate feedback)
       - name: Quick native pre-check
@@ -54,7 +55,7 @@ jobs:
           echo "Running quick pre-checks..."
           find . -name "*.py" -path "./projects/python/*" | head -10 | \
             xargs -r ruff check --quiet || true
-          find . -name "*.yaml" -o -name "*.yml" | head -10 | \
+          find . \( -name "*.yaml" -o -name "*.yml" \) | head -10 | \
             xargs -r yamllint -d relaxed || true
 
       # Run MegaLinter with optimized settings
@@ -68,8 +69,7 @@ jobs:
             -e GITHUB_EVENT_NAME="${{ github.event_name }}" \
             -e GITHUB_REF="${{ github.ref }}" \
             -e GITHUB_SHA="${{ github.sha }}" \
-            -e VALIDATE_ALL_CODEBASE="${{ github.event_name == 'push' && \
-                github.ref == 'refs/heads/main' }}" \
+            -e VALIDATE_ALL_CODEBASE="${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}" \
             -e APPLY_FIXES="none" \
             -e PARALLEL="true" \
             -e LOG_LEVEL="WARNING" \
@@ -106,7 +106,7 @@ jobs:
                   issue_number: context.issue.number,
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  body: `## 🔍 MegaLinter Summary\n\n${lines.join('\n')}\n\n[View full reports](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`
+                  body: `## 🔍 MegaLinter Summary\n\n${lines.join('\n')}\n\n[View full reports](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${{ github.run_id }})`
                 });
               }
             } catch (error) {
@@ -115,6 +115,6 @@ jobs:
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                body: `## ✅ MegaLinter completed\n\n[View results](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`
+                body: `## ✅ MegaLinter completed\n\n[View results](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${{ github.run_id }})`
               });
             }
