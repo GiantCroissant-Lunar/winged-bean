@@ -52,8 +52,10 @@ jobs:
         run: |
           # Run fast native checks first
           echo "Running quick pre-checks..."
-          find . -name "*.py" -path "./projects/python/*" | head -10 | xargs -r ruff check --quiet || true
-          find . -name "*.yaml" -o -name "*.yml" | head -10 | xargs -r yamllint -d relaxed || true
+          find . -name "*.py" -path "./projects/python/*" | head -10 | \
+            xargs -r ruff check --quiet || true
+          find . -name "*.yaml" -o -name "*.yml" | head -10 | \
+            xargs -r yamllint -d relaxed || true
 
       # Run MegaLinter with optimized settings
       - name: Run MegaLinter
@@ -66,7 +68,8 @@ jobs:
             -e GITHUB_EVENT_NAME="${{ github.event_name }}" \
             -e GITHUB_REF="${{ github.ref }}" \
             -e GITHUB_SHA="${{ github.sha }}" \
-            -e VALIDATE_ALL_CODEBASE="${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}" \
+            -e VALIDATE_ALL_CODEBASE="${{ github.event_name == 'push' && \
+                github.ref == 'refs/heads/main' }}" \
             -e APPLY_FIXES="none" \
             -e PARALLEL="true" \
             -e LOG_LEVEL="WARNING" \
