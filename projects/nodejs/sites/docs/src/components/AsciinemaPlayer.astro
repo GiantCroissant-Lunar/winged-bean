@@ -1,0 +1,96 @@
+---
+import 'asciinema-player/dist/bundle/asciinema-player.css';
+
+interface Props {
+  src: string;
+  /** Optional image URL displayed before playback */
+  poster?: string;
+  cols?: number;
+  rows?: number;
+  autoPlay?: boolean;
+  preload?: 'auto' | 'none';
+  loop?: boolean;
+  startAt?: number;
+}
+
+const {
+  src,
+  poster,
+  cols = 80,
+  rows = 24,
+  autoPlay = false,
+  preload = 'auto',
+  loop = false,
+  startAt
+} = Astro.props as Props;
+
+const elementId = `asciinema-player-${Math.random().toString(36).slice(2)}`;
+
+const options = {
+  poster,
+  cols,
+  rows,
+  autoplay: autoPlay,
+  preload,
+  loop,
+  startAt
+};
+
+const filteredOptions = Object.fromEntries(
+  Object.entries(options).filter(([, value]) => value !== undefined)
+);
+
+---
+<div
+  id={elementId}
+  class="asciinema-player"
+  data-src={src}
+  data-options={JSON.stringify(filteredOptions)}
+  data-id={elementId}
+></div>
+
+<script type="module" is:inline>
+  const containers = document.querySelectorAll('.asciinema-player');
+  containers.forEach(container => {
+    const loadPlayer = async () => {
+      // Load the script if not loaded
+      if (!window.AsciinemaPlayer) {
+        await new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = '/asciinema-player.min.js';
+          script.onload = resolve;
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+      }
+
+      const rawOptions = container.dataset.options;
+      let options = {};
+
+      if (rawOptions) {
+        try {
+          options = JSON.parse(rawOptions);
+        } catch (error) {
+          console.error('Failed to parse Asciinema options', error);
+          container.textContent = 'Failed to parse Asciinema options.';
+        }
+      }
+
+      const castSrc = container.dataset.src ?? '';
+
+      try {
+        const AsciinemaPlayer = window.AsciinemaPlayer;
+        AsciinemaPlayer.create(castSrc, container, options ?? {});
+      } catch (error) {
+        console.error('Failed to initialize asciinema-player', error);
+        container.textContent = 'Failed to initialize Asciinema player.';
+      }
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadPlayer, { once: true });
+    } else {
+      loadPlayer();
+    }
+  });
+</script>

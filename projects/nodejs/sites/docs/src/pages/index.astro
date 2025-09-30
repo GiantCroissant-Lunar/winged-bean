@@ -1,0 +1,107 @@
+---
+import AsciinemaPlayer from '../components/AsciinemaPlayer.astro';
+import XTerm from '../components/XTerm.astro';
+
+const pageTitle = 'Winged Bean Docs';
+const castFiles = [
+  { name: 'Hello Example', src: '/example.cast' },
+  { name: 'NPM Install', src: '/npm-install.cast' },
+  { name: 'Git Commit', src: '/git-commit.cast' },
+  { name: 'Docker Build', src: '/docker-build.cast' }
+];
+const defaultCast = '/example.cast';
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{pageTitle}</title>
+  </head>
+  <body style="font-family: system-ui, sans-serif; margin: 2rem; line-height: 1.5;">
+    <main style="max-width: 960px; margin: 0 auto; display: grid; gap: 2rem;">
+      <header>
+        <h1 style="margin-bottom: 0.5rem;">{pageTitle}</h1>
+        <p>Interactive terminal demos are powered by the embedded Asciinema player below.</p>
+      </header>
+
+      <section>
+        <h2 style="margin-bottom: 0.75rem;">Sample Terminal Session</h2>
+        <div style="margin-bottom: 1rem;">
+          <label for="cast-select" style="margin-right: 0.5rem;">Select a demo:</label>
+          <select id="cast-select" style="padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
+            {castFiles.map(cast => (
+              <option value={cast.src} selected={cast.src === defaultCast}>{cast.name}</option>
+            ))}
+          </select>
+        </div>
+        <AsciinemaPlayer src={defaultCast} preload="auto" />
+      </section>
+
+      <section>
+        <h2 style="margin-bottom: 0.75rem;">Live Terminal (WebSocket)</h2>
+        <p style="margin-bottom: 1rem;">
+          Connect to a live Terminal.Gui application running on the server.
+          Start the Console Dungeon .NET application first, then use this terminal to interact with it.
+        </p>
+        <XTerm id="live-terminal" />
+      </section>
+
+      <script>
+        document.addEventListener('DOMContentLoaded', () => {
+          const select = document.getElementById('cast-select');
+          let currentPlayer = null;
+
+          select.addEventListener('change', async () => {
+            const selectedSrc = select.value;
+            const container = document.querySelector('.asciinema-player');
+
+            // Dispose current player if exists
+            if (currentPlayer && typeof currentPlayer.dispose === 'function') {
+              currentPlayer.dispose();
+            }
+
+            // Clear container
+            container.innerHTML = '';
+            container.dataset.src = selectedSrc;
+
+            // Wait for AsciinemaPlayer to be available
+            const checkPlayer = () => {
+              return new Promise((resolve) => {
+                const interval = setInterval(() => {
+                  if (window.AsciinemaPlayer) {
+                    clearInterval(interval);
+                    resolve(window.AsciinemaPlayer);
+                  }
+                }, 100);
+              });
+            };
+
+            try {
+              const AsciinemaPlayer = await checkPlayer();
+              currentPlayer = AsciinemaPlayer.create(selectedSrc, container, {
+                cols: 80,
+                rows: 24,
+                autoplay: false,
+                preload: 'auto',
+                loop: false
+              });
+            } catch (error) {
+              console.error('Failed to load selected cast:', error);
+              container.textContent = 'Failed to load selected demo.';
+            }
+          });
+        });
+      </script>
+
+      <footer style="border-top: 1px solid #e2e8f0; padding-top: 1rem; color: #6b7280;">
+        <p>
+          Replace <code>public/*.cast</code> with your own recordings and reuse the
+          <code>AsciinemaPlayer</code> component across pages.
+        </p>
+      </footer>
+    </main>
+  </body>
+</html>
