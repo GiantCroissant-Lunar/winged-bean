@@ -31,3 +31,7 @@ node_modules/
 
 # JetBrains IDEs
 .idea/
+
+# .NET build artifacts
+bin/
+obj/
