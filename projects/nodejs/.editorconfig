@@ -1,0 +1,47 @@
+# EditorConfig for Node.js project
+# Inherits from root .editorconfig
+
+# JavaScript files
+[*.{js,jsx}]
+indent_size = 2
+
+# TypeScript files
+[*.{ts,tsx}]
+indent_size = 2
+
+# JSON files
+[*.json]
+indent_size = 2
+
+# Package.json and similar
+[package.json]
+indent_size = 2
+
+# Configuration files
+[*.{yml,yaml}]
+indent_size = 2
+
+# Markdown files
+[*.md]
+trim_trailing_whitespace = false
+indent_size = 2
+
+# HTML files
+[*.html]
+indent_size = 2
+
+# CSS/SCSS/LESS files
+[*.{css,scss,sass,less}]
+indent_size = 2
+
+# Vue files
+[*.vue]
+indent_size = 2
+
+# Svelte files
+[*.svelte]
+indent_size = 2
+
+# Lock files should not be edited
+[{package-lock.json,yarn.lock,pnpm-lock.yaml}]
+insert_final_newline = false
