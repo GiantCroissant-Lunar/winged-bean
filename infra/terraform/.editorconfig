@@ -1,0 +1,43 @@
+# EditorConfig for Terraform project
+# Inherits from root .editorconfig
+
+# Terraform files
+[*.tf]
+indent_size = 2
+
+# Terraform variable files
+[*.tfvars]
+indent_size = 2
+
+# HCL files
+[*.hcl]
+indent_size = 2
+
+# JSON files
+[*.json]
+indent_size = 2
+
+# YAML files
+[*.{yml,yaml}]
+indent_size = 2
+
+# Markdown files
+[*.md]
+trim_trailing_whitespace = false
+indent_size = 2
+
+# Shell scripts
+[*.sh]
+indent_size = 2
+
+# Dockerfile
+[Dockerfile*]
+indent_size = 2
+
+# Makefile
+[Makefile]
+indent_style = tab
+
+# Terraform lock files should not be edited
+[.terraform.lock.hcl]
+insert_final_newline = false
