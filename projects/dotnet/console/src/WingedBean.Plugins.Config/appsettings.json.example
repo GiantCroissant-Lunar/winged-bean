@@ -1,0 +1,27 @@
+{
+  "Server": {
+    "Port": 8080,
+    "Host": "localhost",
+    "Enabled": true
+  },
+  "Database": {
+    "ConnectionString": "Server=localhost;Database=wingedbean",
+    "Timeout": 30,
+    "MaxConnections": 100
+  },
+  "Plugins": {
+    "Load": [
+      "ConfigService",
+      "AudioService",
+      "ResourceService"
+    ],
+    "LoadStrategy": "Lazy"
+  },
+  "Logging": {
+    "Level": "Information",
+    "Console": {
+      "Enabled": true,
+      "Format": "Simple"
+    }
+  }
+}
