@@ -39,7 +39,7 @@ repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.13.2
     hooks:
-      - id: ruff
+      - id: ruff-check  # Updated from legacy 'ruff' alias
         args: [--fix, --exit-non-zero-on-fix]
         files: ^projects/python/.*\.py$
       - id: ruff-format
@@ -72,8 +72,9 @@ repos:
         files: ^infra/terraform/.*\.tf$
       - id: terraform_validate
         files: ^infra/terraform/.*\.tf$
-      - id: terraform_tflint
-        files: ^infra/terraform/.*\.tf$
+      # terraform_tflint requires tflint installation, disabled for now
+      # - id: terraform_tflint
+      #   files: ^infra/terraform/.*\.tf$
 
   # YAML linting
   - repo: https://github.com/adrienverge/yamllint
