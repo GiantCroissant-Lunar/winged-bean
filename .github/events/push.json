@@ -1,0 +1,26 @@
+{
+  "ref": "refs/heads/main",
+  "before": "0000000000000000000000000000000000000000",
+  "after": "local-test-sha",
+  "repository": {
+    "name": "winged-bean",
+    "full_name": "winged-bean/winged-bean",
+    "owner": {
+      "name": "winged-bean",
+      "login": "winged-bean"
+    }
+  },
+  "pusher": {
+    "name": "developer",
+    "email": "developer@local.test"
+  },
+  "head_commit": {
+    "id": "local-test-sha",
+    "message": "Local test commit",
+    "timestamp": "2025-09-29T09:32:00Z",
+    "author": {
+      "name": "developer",
+      "email": "developer@local.test"
+    }
+  }
+}

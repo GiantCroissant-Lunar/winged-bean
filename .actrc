@@ -1,0 +1,23 @@
+# Act configuration for winged-bean project
+# Documentation: https://nektosact.com/usage/index.html#configuration-file
+
+# Use medium-sized runner image for balance of functionality and download size
+-P ubuntu-latest=catthehacker/ubuntu:act-latest
+
+# Set container architecture for Apple Silicon compatibility
+--container-architecture linux/amd64
+
+# Enable verbose logging for debugging
+--verbose
+
+# Set default event to push (can be overridden)
+--eventpath .github/events/push.json
+
+# Use host network to avoid Docker networking issues
+--use-gitignore=false
+
+# Environment variables
+--env-file .env.act
+
+# Enable artifact server for upload/download actions
+--artifact-server-path=/tmp/act-artifacts

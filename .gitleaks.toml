@@ -1,0 +1,152 @@
+# GitLeaks configuration for winged-bean project
+title = "GitLeaks Config for winged-bean"
+
+[extend]
+# Use default rules as base
+useDefault = true
+
+# Custom rules for additional secret detection
+[[rules]]
+id = "aws-access-key"
+description = "AWS Access Key ID"
+regex = '''AKIA[0-9A-Z]{16}'''
+keywords = ["AKIA"]
+
+[[rules]]
+id = "aws-secret-key"
+description = "AWS Secret Access Key"
+regex = '''[0-9a-zA-Z/+]{40}'''
+keywords = ["aws_secret_access_key", "aws-secret-access-key"]
+
+[[rules]]
+id = "github-token"
+description = "GitHub Personal Access Token"
+regex = '''ghp_[0-9a-zA-Z]{36}'''
+keywords = ["ghp_"]
+
+[[rules]]
+id = "github-oauth"
+description = "GitHub OAuth Token"
+regex = '''gho_[0-9a-zA-Z]{36}'''
+keywords = ["gho_"]
+
+[[rules]]
+id = "github-app-token"
+description = "GitHub App Token"
+regex = '''(ghu|ghs)_[0-9a-zA-Z]{36}'''
+keywords = ["ghu_", "ghs_"]
+
+[[rules]]
+id = "private-key"
+description = "Private Key"
+regex = '''-----BEGIN (RSA|OPENSSH|DSA|EC|PGP) PRIVATE KEY-----'''
+keywords = ["-----BEGIN"]
+
+[[rules]]
+id = "jwt-token"
+description = "JSON Web Token"
+regex = '''eyJ[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*'''
+keywords = ["eyJ"]
+
+[[rules]]
+id = "azure-storage-key"
+description = "Azure Storage Account Key"
+regex = '''[0-9a-zA-Z+/]{88}=='''
+keywords = ["AccountKey", "account-key"]
+
+[[rules]]
+id = "google-api-key"
+description = "Google API Key"
+regex = '''AIza[0-9A-Za-z\\-_]{35}'''
+keywords = ["AIza"]
+
+[[rules]]
+id = "slack-token"
+description = "Slack Token"
+regex = '''xox[baprs]-([0-9a-zA-Z]{10,48})'''
+keywords = ["xoxb", "xoxa", "xoxp", "xoxr", "xoxs"]
+
+[[rules]]
+id = "docker-config"
+description = "Docker Config with Auth"
+regex = '''"auth":\s*"[A-Za-z0-9+/]+=*"'''
+keywords = ["dockerconfigjson", "auth"]
+
+[[rules]]
+id = "connection-string"
+description = "Database Connection String"
+regex = '''(?i)(server|data source|host)=[^;]+;.*password=[^;]+'''
+keywords = ["connectionstring", "connection-string", "password="]
+
+# Allowlist configuration
+[allowlist]
+description = "Allowlisted files and patterns"
+
+# Files to skip entirely
+files = [
+    '''\.md$''',                    # Markdown files
+    '''\.txt$''',                   # Text files
+    '''\.log$''',                   # Log files
+    '''\.gitignore$''',             # Git ignore files
+    '''\.gitattributes$''',         # Git attributes
+    '''pnpm-lock\.yaml$''',         # Package lock files
+    '''package-lock\.json$''',      # NPM lock files
+    '''yarn\.lock$''',              # Yarn lock files
+    '''Cargo\.lock$''',             # Rust lock files
+    '''\.secrets\.baseline$''',     # detect-secrets baseline
+]
+
+# Paths to skip
+paths = [
+    '''ref-projects/''',            # Reference projects
+    '''.git/''',                    # Git directory
+    '''node_modules/''',            # Node.js dependencies
+    '''venv/''',                    # Python virtual environments
+    '''\.venv/''',                  # Python virtual environments
+    '''__pycache__/''',             # Python cache
+    '''\.pytest_cache/''',          # Pytest cache
+    '''\.coverage/''',              # Coverage reports
+    '''build/''',                   # Build directories
+    '''dist/''',                    # Distribution directories
+    '''target/''',                  # Rust/Cargo target
+    '''bin/''',                     # Binary directories
+    '''obj/''',                     # .NET object files
+    '''\.terraform/''',             # Terraform state
+    '''tests/fixtures/''',          # Test fixtures
+    '''docs/examples/''',           # Documentation examples
+]
+
+# Commit allowlist for specific commits (if needed)
+commits = [
+    # Add specific commit hashes here if needed
+]
+
+# String patterns to allowlist
+regexes = [
+    '''example\.com''',             # Example domains
+    '''localhost''',                # Local development
+    '''127\.0\.0\.1''',             # Local IP
+    '''0\.0\.0\.0''',               # Bind all interfaces
+    '''placeholder''',              # Placeholder text
+    '''dummy''',                    # Dummy data
+    '''fake''',                     # Fake data
+    '''test''',                     # Test data
+    '''sample''',                   # Sample data
+]
+
+# Stop words - strings that if found will allowlist the secret
+stopwords = [
+    "example",
+    "placeholder",
+    "dummy",
+    "fake",
+    "test",
+    "sample",
+    "lorem",
+    "ipsum",
+    "todo",
+    "fixme",
+    "xxx",
+    "yyy",
+    "zzz"
+]

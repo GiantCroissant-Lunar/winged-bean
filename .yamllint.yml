@@ -1,0 +1,60 @@
+# yamllint configuration for winged-bean project
+extends: relaxed
+
+rules:
+  # Line length
+  line-length:
+    max: 120
+    level: warning
+
+  # Indentation
+  indentation:
+    spaces: 2
+    indent-sequences: true
+    check-multi-line-strings: false
+
+  # Trailing spaces
+  trailing-spaces: enable
+
+  # Empty lines
+  empty-lines:
+    max: 2
+    max-start: 1
+    max-end: 1
+
+  # Comments
+  comments:
+    require-starting-space: true
+    ignore-shebangs: true
+    min-spaces-from-content: 1
+
+  # Document markers
+  document-start:
+    present: false
+  document-end:
+    present: false
+
+  # Truthy values
+  truthy:
+    allowed-values: ['true', 'false', 'yes', 'no']
+    check-keys: false
+
+ignore: |
+  ref-projects/
+  node_modules/
+  .git/
+  .venv/
+  venv/
+  __pycache__/
+  .pytest_cache/
+  .coverage/
+  build/
+  dist/
+  target/
+  bin/
+  obj/
+  .terraform/
+  pnpm-lock.yaml
+  package-lock.json
+  yarn.lock
+  Cargo.lock
