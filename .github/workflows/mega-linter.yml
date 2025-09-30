@@ -3,7 +3,6 @@
 name: MegaLinter
 
 on:
-  push:
   pull_request:
     branches: [main, master]
 
@@ -40,13 +39,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-megalinter-cupcake-
 
-      # Pre-pull image in background
-      - name: Pre-pull MegaLinter image
-        run: |
-          docker pull oxsecurity/megalinter-${{ env.MEGALINTER_FLAVOR }}:v7 &
-          PULL_PID=$!
-          echo "PULL_PID=$PULL_PID" >> $GITHUB_ENV
-
       # Install only essential native tools for speed comparison
       - name: Install native tools (parallel)
         run: |
@@ -54,9 +46,6 @@ jobs:
           sudo apt-get install -y yamllint shellcheck &
           pip install --quiet ruff bandit safety &
           npm install -g --silent eslint prettier &
-
-          # Wait for Docker pull to complete
-          wait ${{ env.PULL_PID }}
 
       # Run quick native pre-check (optional - for immediate feedback)
       - name: Quick native pre-check

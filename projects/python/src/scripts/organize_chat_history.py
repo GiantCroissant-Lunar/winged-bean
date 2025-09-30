@@ -24,7 +24,6 @@ WARNING: This will permanently delete the original files after consolidation!
 import argparse
 import glob
 import os
-import re
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -41,13 +40,13 @@ Examples:
     python organize_chat_history.py /path/to/chat-history  # Organize specific directory
 
 WARNING: This will permanently delete the original files after consolidation!
-        """
+        """,
     )
     parser.add_argument(
         "directory",
         nargs="?",
         default=".",
-        help="Path to chat history directory (default: current directory)"
+        help="Path to chat history directory (default: current directory)",
     )
 
     return parser.parse_args()
@@ -55,7 +54,9 @@ WARNING: This will permanently delete the original files after consolidation!
 
 def find_chat_history_files(directory):
     """Find all chat history files with the expected naming pattern."""
-    pattern = os.path.join(directory, "????-??-??-caveat-the-messages-below-were-generated-by-the-u-*.txt")
+    pattern = os.path.join(
+        directory, "????-??-??-caveat-the-messages-below-were-generated-by-the-u-*.txt"
+    )
     return glob.glob(pattern)
 
 
@@ -104,12 +105,12 @@ def get_total_size(file_paths):
     return total_size
 
 
-def concatenate_files(input_files, output_file):
+def concatenate_files(input_files, output_file, append=False):
     """Concatenate multiple files into one output file."""
     try:
-        with open(output_file, 'wb') as outfile:
+        with open(output_file, "ab" if append else "wb") as outfile:
             for input_file in input_files:
-                with open(input_file, 'rb') as infile:
+                with open(input_file, "rb") as infile:
                     # Copy file contents
                     while True:
                         chunk = infile.read(8192)  # Read in 8KB chunks
@@ -117,7 +118,7 @@ def concatenate_files(input_files, output_file):
                             break
                         outfile.write(chunk)
         return True
-    except IOError as e:
+    except OSError as e:
         print(f"Error: Failed to concatenate files: {e}")
         return False
 
@@ -126,7 +127,7 @@ def confirm_action(message):
     """Get user confirmation for destructive actions."""
     try:
         response = input(f"{message} (y/N): ").strip().lower()
-        return response in ('y', 'yes')
+        return response in ("y", "yes")
     except (EOFError, KeyboardInterrupt):
         print("\nOperation cancelled.")
         return False
@@ -178,17 +179,24 @@ def main():
         consolidated_file = chat_history_dir / f"{date}-chat-history-consolidated.txt"
 
         # Check if consolidated file already exists
-        if consolidated_file.exists():
-            print(f"  Warning: Consolidated file already exists: {consolidated_file}")
-            print("  Skipping this date group."
-            continue
-
+        # Check if consolidated file already exists
+        append_mode = consolidated_file.exists()
+        if append_mode:
+            print(
+                f"  Consolidated file exists, will append new files: {consolidated_file}"
+            )
+        else:
+            print(f"  Creating new consolidated file: {consolidated_file.name}")
         # Get original total size for verification
         original_total = get_total_size(sorted_files)
+        original_consolidated_size = (
+            consolidated_file.stat().st_size if append_mode else 0
+        )
+        expected_total = original_total + original_consolidated_size
 
         # Concatenate files
         print(f"  Creating consolidated file: {consolidated_file.name}")
-        if not concatenate_files(sorted_files, consolidated_file):
+        if not concatenate_files(sorted_files, consolidated_file, append_mode):
             print("  Error: Failed to create consolidated file")
             continue
 
@@ -202,7 +210,7 @@ def main():
         print(f"  Original files total: {original_total} bytes")
         print(f"  Consolidated file: {consolidated_size} bytes")
 
-        if original_total == consolidated_size:
+        if expected_total == consolidated_size:
             print("  ✓ File sizes match - consolidation successful")
 
             # Remove original files
@@ -240,7 +248,6 @@ def main():
         for file_path in consolidated_files:
             try:
                 size = os.path.getsize(file_path)
-                mtime = os.path.getmtime(file_path)
                 print(f"  {file_path} ({size} bytes)")
             except OSError:
                 print(f"  {file_path} (could not get size)")
