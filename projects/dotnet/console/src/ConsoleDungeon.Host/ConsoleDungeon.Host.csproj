@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <RootNamespace>ConsoleDungeon.Host</RootNamespace>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Reference the existing ConsoleDungeon app -->
+    <ProjectReference Include="../ConsoleDungeon/ConsoleDungeon.csproj" />
+  </ItemGroup>
+
+</Project>
