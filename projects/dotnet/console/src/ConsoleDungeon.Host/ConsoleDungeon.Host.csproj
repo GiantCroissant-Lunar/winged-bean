@@ -8,8 +8,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Reference the existing ConsoleDungeon app -->
+    <!-- Reference the ConsoleDungeon app -->
     <ProjectReference Include="../ConsoleDungeon/ConsoleDungeon.csproj" />
+
+    <!-- Reference Registry and service plugins -->
+    <ProjectReference Include="../../../../../framework/src/WingedBean.Registry/WingedBean.Registry.csproj" />
+    <ProjectReference Include="../WingedBean.Plugins.WebSocket/WingedBean.Plugins.WebSocket.csproj" />
+    <ProjectReference Include="../WingedBean.Plugins.TerminalUI/WingedBean.Plugins.TerminalUI.csproj" />
+    <ProjectReference Include="../WingedBean.Plugins.Config/WingedBean.Plugins.Config.csproj" />
   </ItemGroup>
 
 </Project>

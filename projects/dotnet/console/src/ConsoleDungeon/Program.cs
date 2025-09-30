@@ -1,26 +1,33 @@
-using SuperSocket.WebSocket.Server;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Configuration;
-using Terminal.Gui;
+using WingedBean.Contracts.Core;
+using WingedBean.Contracts.WebSocket;
+using WingedBean.Contracts.TerminalUI;
 using System.Text;
 
 namespace ConsoleDungeon;
 
 public class Program
 {
-    private static WebSocketSession? _webSocketSession;
-    private static bool _uiInitialized = false;
-    private static Timer? _screenUpdateTimer;
+    private readonly IRegistry _registry;
+    private IWebSocketService? _webSocketService;
+    private ITerminalUIService? _terminalUIService;
+    private bool _webSocketConnected = false;
 
-    private static string GetScreenContent()
+    public Program(IRegistry registry)
     {
-        if (!_uiInitialized)
-        {
-            return "Terminal.Gui not available - run server in a terminal window with TTY.\r\nWebSocket server is running on port 4040.\r\n";
-        }
+        _registry = registry ?? throw new ArgumentNullException(nameof(registry));
+    }
 
+    private string GetScreenContent()
+    {
         try
         {
+            // If we have a TerminalUI service, use it
+            if (_terminalUIService != null)
+            {
+                return _terminalUIService.GetScreenContent();
+            }
+
+            // Otherwise, return a simple demo interface
             var sb = new StringBuilder();
 
             // Format content properly for xterm.js with proper line endings and cursor positioning
@@ -28,11 +35,11 @@ public class Program
             sb.Append("\x1b[2J"); // Clear entire screen
 
             // Build the Terminal.Gui interface line by line with proper cursor positioning
-            sb.Append("\x1b[1;1H┌─ Console Dungeon - Terminal.Gui v2 ─────────────────────────────────────────┐\r\n");
+            sb.Append("\x1b[1;1H┌─ Console Dungeon - Service Registry Mode ───────────────────────────────────┐\r\n");
             sb.Append("\x1b[2;1H│                                                                              │\r\n");
             sb.Append("\x1b[3;1H│ WebSocket server running on port 4040                                       │\r\n");
             sb.Append("\x1b[4;1H│                                                                              │\r\n");
-            sb.Append($"\x1b[5;1H│ Connected session: {(_webSocketSession != null ? "Yes" : "No")}                                                        │\r\n");
+            sb.Append($"\x1b[5;1H│ WebSocket connected: {(_webSocketConnected ? "Yes" : "No")}                                                    │\r\n");
             sb.Append("\x1b[6;1H│                                                                              │\r\n");
 
             // Add empty lines
@@ -52,105 +59,86 @@ public class Program
         }
     }
 
-    private static async void SendScreenUpdate(object? state)
+    public async Task RunAsync()
     {
-        if (_webSocketSession != null)
+        Console.WriteLine("Console Dungeon - Starting with Service Registry...");
+
+        // Get services from registry
+        try
         {
-            try
-            {
-                var screenContent = GetScreenContent();
-                await _webSocketSession.SendAsync($"screen:{screenContent}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error sending screen update: {ex.Message}");
-            }
+            _webSocketService = _registry.Get<IWebSocketService>();
+            Console.WriteLine("✓ WebSocket service loaded from registry");
         }
-    }
+        catch (ServiceNotFoundException)
+        {
+            Console.WriteLine("⚠ WebSocket service not found in registry");
+            throw;
+        }
 
-    public static async Task Main(string[] args)
-    {
-        Console.WriteLine("Console Dungeon - Starting...");
+        // Try to get TerminalUI service (optional)
+        if (_registry.IsRegistered<ITerminalUIService>())
+        {
+            _terminalUIService = _registry.Get<ITerminalUIService>();
+            Console.WriteLine("✓ TerminalUI service loaded from registry");
+        }
+        else
+        {
+            Console.WriteLine("⚠ TerminalUI service not available - using simple demo interface");
+        }
 
-        var host = WebSocketHostBuilder.Create(args)
-            .ConfigureAppConfiguration((hostCtx, configApp) =>
+        // Subscribe to WebSocket messages
+        _webSocketService.MessageReceived += async (message) =>
+        {
+            Console.WriteLine($"WebSocket message received: {message}");
+            _webSocketConnected = true;
+
+            if (message.Length > 0)
             {
-                // Support both direct run and run via Host wrapper
-                var basePath = System.AppContext.BaseDirectory;
-                configApp.SetBasePath(basePath);
-                configApp.AddJsonFile("appsettings.json", optional: false, reloadOnChange: false);
-            })
-            .UseWebSocketMessageHandler(async (session, message) =>
-            {
-                Console.WriteLine($"WebSocket message received: {message.Message}");
-                _webSocketSession = session;
-
-                if (message.Message.Length > 0)
+                if (message.StartsWith("key:"))
                 {
-                    if (message.Message.StartsWith("key:"))
-                    {
-                        var keyData = message.Message.Substring(4);
-                        Console.WriteLine($"Key received: {keyData}");
-                        // For now, just acknowledge the key press
-                        // In a real implementation, you'd send this to Terminal.Gui
-                        var screenContent = GetScreenContent();
-                        await session.SendAsync($"screen:{screenContent}");
-                    }
-                    else if (message.Message == "init")
-                    {
-                        // Send initial screen only once
-                        var screenContent = GetScreenContent();
-                        Console.WriteLine($"Sending screen content length: {screenContent.Length} characters");
-                        Console.WriteLine("First 100 chars: " + screenContent.Substring(0, Math.Min(100, screenContent.Length)));
-                        await session.SendAsync($"screen:{screenContent}");
-
-                        // Don't start timer to avoid continuous updates
-                        Console.WriteLine("Screen content sent successfully");
-                    }
+                    var keyData = message.Substring(4);
+                    Console.WriteLine($"Key received: {keyData}");
+                    // Acknowledge key press and send screen update
+                    var screenContent = GetScreenContent();
+                    _webSocketService.Broadcast($"screen:{screenContent}");
                 }
-            })
-            .Build();
+                else if (message == "init")
+                {
+                    // Send initial screen
+                    var screenContent = GetScreenContent();
+                    Console.WriteLine($"Sending screen content length: {screenContent.Length} characters");
+                    Console.WriteLine("First 100 chars: " + screenContent.Substring(0, Math.Min(100, screenContent.Length)));
+                    _webSocketService.Broadcast($"screen:{screenContent}");
+                    Console.WriteLine("Screen content sent successfully");
+                }
+            }
+        };
 
-        Console.WriteLine("WebSocket server configured. Starting in background...");
+        // Start WebSocket server
+        Console.WriteLine("Starting WebSocket server on port 4040...");
+        _webSocketService.Start(4040);
+        Console.WriteLine("✓ WebSocket server started");
 
-        // Start WebSocket server in background
-        _ = Task.Run(() => host.Run());
-
-        // For now, just run in WebSocket-only mode to avoid Terminal.Gui complexity
-        Console.WriteLine("Running in WebSocket-only mode for demonstration.");
-        _uiInitialized = true; // Set to true so WebSocket clients get the demo interface
+        // Initialize TerminalUI if available
+        if (_terminalUIService != null)
+        {
+            _terminalUIService.Initialize();
+            Console.WriteLine("✓ TerminalUI initialized");
+        }
 
         // Just wait for WebSocket connections
-        Console.WriteLine("Press Ctrl+C to exit.");
+        Console.WriteLine("Running. Press Ctrl+C to exit.");
         await Task.Delay(-1);  // Wait forever
     }
 
-    private static string ProcessCommand(string command)
+    // Static entry point for backwards compatibility
+    public static async Task Main(string[] args)
     {
-        var cmd = command.ToLower();
-        switch (cmd)
-        {
-            case "help":
-                return "Available commands:\n  help - Show this help\n  echo <text> - Echo text\n  time - Show current time\n  status - Show WebSocket status\n  quit - Exit application";
-
-            case "time":
-                return $"Current time: {DateTime.Now:yyyy-MM-dd HH:mm:ss}";
-
-            case "status":
-                var status = _webSocketSession != null ? "WebSocket connected" : "WebSocket not connected";
-                return $"Status: {status}";
-
-            default:
-                if (cmd.StartsWith("echo "))
-                {
-                    return cmd.Substring(5);
-                }
-                else if (!string.IsNullOrWhiteSpace(cmd))
-                {
-                    return $"Unknown command: {cmd}";
-                }
-                break;
-        }
-        return "";
+        Console.WriteLine("ConsoleDungeon.Program.Main() called - this entry point is deprecated.");
+        Console.WriteLine("Please use ConsoleDungeon.Host instead, which properly initializes the service registry.");
+        await Task.Delay(1000);
+        throw new InvalidOperationException(
+            "ConsoleDungeon.Program.Main() should not be called directly. " +
+            "Use ConsoleDungeon.Host to properly initialize services via the Registry pattern.");
     }
 }
