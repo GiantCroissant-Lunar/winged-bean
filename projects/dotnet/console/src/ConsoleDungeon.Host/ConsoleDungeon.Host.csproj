@@ -10,6 +10,18 @@
   <ItemGroup>
     <!-- Reference the existing ConsoleDungeon app -->
     <ProjectReference Include="../ConsoleDungeon/ConsoleDungeon.csproj" />
+    
+    <!-- Reference WingedBean foundation services -->
+    <ProjectReference Include="../../../../../framework/src/WingedBean.Contracts.Core/WingedBean.Contracts.Core.csproj" />
+    <ProjectReference Include="../../../../../framework/src/WingedBean.Registry/WingedBean.Registry.csproj" />
+    <ProjectReference Include="../WingedBean.PluginLoader/WingedBean.PluginLoader.csproj" />
+    <ProjectReference Include="../WingedBean.Providers.AssemblyContext/WingedBean.Providers.AssemblyContext.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Add logging support for bootstrap -->
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
   </ItemGroup>
 
 </Project>
