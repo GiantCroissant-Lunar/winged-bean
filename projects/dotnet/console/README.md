@@ -34,4 +34,4 @@ The WebSocket server will start on port 4040. Connect from the Astro frontend's 
 - [ ] Extract Terminal.Gui as plugin
 - [ ] Refactor ConsoleDungeon to use services
 
-See RFC-0004 for full roadmap.
+See [RFC-0004](../../../docs/rfcs/0004-project-organization-and-folder-structure.md) for full roadmap.
