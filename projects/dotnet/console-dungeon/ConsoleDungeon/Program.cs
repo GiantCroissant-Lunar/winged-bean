@@ -75,10 +75,7 @@ public class Program
         var host = WebSocketHostBuilder.Create(args)
             .ConfigureAppConfiguration((hostCtx, configApp) =>
             {
-                // Support both direct run and run via Host wrapper
-                var basePath = System.AppContext.BaseDirectory;
-                configApp.SetBasePath(basePath);
-                configApp.AddJsonFile("appsettings.json", optional: false, reloadOnChange: false);
+                configApp.AddJsonFile("ConsoleDungeon/appsettings.json");
             })
             .UseWebSocketMessageHandler(async (session, message) =>
             {
