@@ -1,0 +1,28 @@
+{
+  "id": "winged-bean.terminal-ui",
+  "name": "Terminal UI Service",
+  "version": "1.0.0",
+  "description": "Provides Terminal UI functionality using Terminal.Gui v2",
+  "author": "WingedBean Team",
+  "entryPoint": { "dotnet": "WingedBean.Plugins.TerminalUI.dll" },
+  "dependencies": {},
+  "exports": {
+    "services": [
+      {
+        "interface": "WingedBean.Contracts.TerminalUI.ITerminalUIService",
+        "implementation": "WingedBean.Plugins.TerminalUI.TerminalGuiService",
+        "lifecycle": "singleton"
+      }
+    ]
+  },
+  "capabilities": [
+    "terminal-ui",
+    "text-rendering",
+    "interactive-ui"
+  ],
+  "tags": ["terminal-ui", "tui", "terminal.gui", "console"],
+  "metadata": {
+    "requiresTTY": true,
+    "terminalFramework": "Terminal.Gui v2"
+  }
+}
