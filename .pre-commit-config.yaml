@@ -8,9 +8,13 @@ repos:
     rev: v6.0.0
     hooks:
       - id: trailing-whitespace
-        exclude: ^projects/dotnet/.*\.(cs|vb|fs)$  # Let dotnet format handle .NET files
+        exclude: |
+          ^projects/dotnet/.*\.(cs|vb|fs)$  # Let dotnet format handle .NET files
+          ^infra/terraform/.*\.(tf|tfvars)$  # Let terraform fmt handle terraform files
       - id: end-of-file-fixer
+        exclude: ^infra/terraform/.*\.(tf|tfvars)$  # Let terraform fmt handle terraform files
       - id: check-json
+        exclude: ^infra/terraform/.*\.(tf|tfvars)$  # Terraform files are not JSON
       - id: check-xml
       - id: check-merge-conflict
       - id: check-case-conflict
@@ -25,6 +29,7 @@ repos:
     rev: v8.28.0
     hooks:
       - id: gitleaks
+        exclude: ^infra/terraform/.*  # Terraform files are managed by terraform tooling
 
   # Comprehensive secret detection with baseline filtering
   # - repo: https://github.com/Yelp/detect-secrets
@@ -110,6 +115,7 @@ repos:
       - id: jetbrains-cleanup
         name: JetBrains Code Cleanup
         entry: sh
+        exclude: ^infra/terraform/.*  # Terraform files are managed by terraform tooling
         args: ['-c', 'if command -v jb >/dev/null 2>&1; then jb cleanupcode --profile="Built-in: Full Cleanup" projects/dotnet/ --verbosity=WARN || true; else echo "JetBrains CLI (jb) not found, skipping cleanup"; fi']
         language: system
         files: ^projects/dotnet/.*\.(cs|vb|fs)$

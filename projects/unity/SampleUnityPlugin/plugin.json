@@ -1,0 +1,79 @@
+{
+  "id": "wingedbean.unity.plugins.sample",
+  "version": "1.0.0",
+  "name": "Sample Unity Plugin",
+  "description": "Demonstrates Unity plugin system with MonoBehaviour integration and hot-reload",
+  "author": "WingedBean Team",
+  "license": "MIT",
+
+  "entryPoint": {
+    "unity": "./SampleUnityPlugin.dll",
+    "dotnet": "./SampleUnityPlugin.dll"
+  },
+
+  "dependencies": {
+    "wingedbean.host": "^1.0.0"
+  },
+
+  "exports": {
+    "services": [
+      {
+        "interface": "ISampleService",
+        "implementation": "SampleService",
+        "lifecycle": "singleton"
+      }
+    ]
+  },
+
+  "capabilities": [
+    "unity-components",
+    "state-preservation",
+    "hot-reload",
+    "gameobject-creation"
+  ],
+
+  "supportedProfiles": ["unity"],
+
+  "loadStrategy": "eager",
+  "quiesceSeconds": 2,
+
+  "security": {
+    "requireSignature": false,
+    "permissions": {
+      "fileSystem": {
+        "canRead": true,
+        "canWrite": false
+      },
+      "unity": {
+        "canCreateGameObjects": true,
+        "canDestroyGameObjects": true,
+        "canAddComponents": true,
+        "canRemoveComponents": true,
+        "allowedComponentTypes": [
+          "SamplePluginBehaviour"
+        ]
+      }
+    }
+  },
+
+  "unity": {
+    "persistAcrossScenes": false,
+    "minUnityVersion": "2022.3.0",
+    "supportedPlatforms": [
+      "StandaloneWindows64",
+      "StandaloneOSX",
+      "StandaloneLinux64",
+      "Android",
+      "iOS"
+    ],
+    "monoBehaviourComponents": [
+      "SamplePluginBehaviour"
+    ],
+    "initializationOrder": 0,
+    "editorOnly": false
+  },
+
+  "compatibility": {
+    "minHostVersion": "1.0.0"
+  }
+}
