@@ -1,0 +1,45 @@
+# EditorConfig for Python project
+# Inherits from root .editorconfig
+
+# Python files (PEP 8 compliant)
+[*.py]
+indent_size = 4
+max_line_length = 88
+
+# Python stub files
+[*.pyi]
+indent_size = 4
+
+# Configuration files
+[*.{toml,cfg,ini}]
+indent_size = 4
+
+# YAML files
+[*.{yml,yaml}]
+indent_size = 2
+
+# JSON files
+[*.json]
+indent_size = 2
+
+# Markdown files
+[*.md]
+trim_trailing_whitespace = false
+indent_size = 2
+
+# Requirements files
+[requirements*.txt]
+indent_size = 2
+
+# Dockerfile
+[Dockerfile*]
+indent_size = 2
+
+# Shell scripts
+[*.sh]
+indent_size = 2
+
+# Jupyter notebooks (if any)
+[*.ipynb]
+indent_size = 2
+insert_final_newline = false

@@ -1,0 +1,55 @@
+# EditorConfig for Unity project
+# Inherits from root .editorconfig
+
+# Override for Unity (4-space indentation for C#)
+[*]
+indent_size = 4
+
+# C# files (Unity scripts)
+[*.cs]
+indent_size = 4
+
+# Unity-specific files
+[*.{unity,prefab,mat,asset}]
+indent_size = 2
+
+# Unity meta files
+[*.meta]
+indent_size = 2
+
+# Unity scene files
+[*.unity]
+indent_size = 2
+
+# Shader files
+[*.{shader,cginc,hlsl}]
+indent_size = 4
+
+# JSON files (Unity packages, settings)
+[*.json]
+indent_size = 2
+
+# YAML files
+[*.{yml,yaml}]
+indent_size = 2
+
+# Markdown files
+[*.md]
+trim_trailing_whitespace = false
+indent_size = 2
+
+# Unity package manifest
+[manifest.json]
+indent_size = 2
+
+# Assembly definition files
+[*.asmdef]
+indent_size = 2
+
+# Unity settings files
+[ProjectSettings/*.asset]
+indent_size = 2
+
+# UnityPackage files should not be edited
+[*.unitypackage]
+insert_final_newline = false
