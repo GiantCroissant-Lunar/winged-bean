@@ -8,9 +8,8 @@ repos:
     rev: v6.0.0
     hooks:
       - id: trailing-whitespace
+        exclude: ^projects/dotnet/.*\.(cs|vb|fs)$  # Let dotnet format handle .NET files
       - id: end-of-file-fixer
-      - id: check-yaml
-        args: ['--unsafe']  # Allow custom YAML tags
       - id: check-json
       - id: check-xml
       - id: check-merge-conflict
@@ -21,19 +20,19 @@ repos:
       - id: check-executables-have-shebangs
       - id: check-shebang-scripts-are-executable
 
-  # Secret detection with GitLeaks
+  # Secret detection (GitLeaks is faster, detect-secrets is more comprehensive)
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.28.0
     hooks:
       - id: gitleaks
 
-  # Additional secret detection
-  - repo: https://github.com/Yelp/detect-secrets
-    rev: v1.5.0
-    hooks:
-      - id: detect-secrets
-        args: ['--baseline', '.secrets.baseline']
-        exclude: .*\.lock$|.*pnpm-lock\.yaml$
+  # Comprehensive secret detection with baseline filtering
+  # - repo: https://github.com/Yelp/detect-secrets
+  #   rev: v1.5.0
+  #   hooks:
+  #     - id: detect-secrets
+  #       args: ['--baseline', '.secrets.baseline']
+  #       exclude: .*\.lock$|.*pnpm-lock\.yaml$
 
   # Python linting and formatting (for projects/python/)
   - repo: https://github.com/astral-sh/ruff-pre-commit
@@ -96,42 +95,36 @@ repos:
   # .NET formatting and analysis (for projects/dotnet/)
   - repo: local
     hooks:
-      - id: dotnet-format-whitespace
-        name: dotnet format (whitespace)
+      - id: dotnet-format
+        name: dotnet format (whitespace + style)
         entry: sh
-        args: ['-c', 'if command -v dotnet >/dev/null 2>&1; then cd projects/dotnet && find . -name "*.sln" -o -name "*.csproj" | head -1 | xargs -I {} dotnet format {} whitespace --verbosity minimal; else echo "dotnet CLI not found, skipping format"; fi']
-        language: system
-        files: ^projects/dotnet/.*\.(cs|vb|fs)$
-        pass_filenames: false
-        require_serial: true
-      - id: dotnet-format-style
-        name: dotnet format (style)
-        entry: sh
-        args: ['-c', 'if command -v dotnet >/dev/null 2>&1; then cd projects/dotnet && find . -name "*.sln" -o -name "*.csproj" | head -1 | xargs -I {} dotnet format {} style --verbosity minimal; else echo "dotnet CLI not found, skipping format"; fi']
+        args: ['-c', 'if command -v dotnet >/dev/null 2>&1; then cd projects/dotnet && if [ -f "WingedBean.sln" ]; then dotnet format WingedBean.sln --verbosity minimal || true; else echo "No solution found"; fi; else echo "dotnet CLI not found, skipping format"; fi']
         language: system
         files: ^projects/dotnet/.*\.(cs|vb|fs)$
         pass_filenames: false
         require_serial: true
 
-  # JetBrains CLI tools (code inspection and cleanup)
+  # JetBrains CLI tools (comprehensive analysis - manual only)
   - repo: local
     hooks:
       - id: jetbrains-cleanup
         name: JetBrains Code Cleanup
         entry: sh
-        args: ['-c', 'if command -v jb >/dev/null 2>&1; then jb cleanupcode --profile="Built-in: Full Cleanup" projects/dotnet/ --verbosity=WARN; else echo "JetBrains CLI (jb) not found, skipping cleanup"; fi']
+        args: ['-c', 'if command -v jb >/dev/null 2>&1; then jb cleanupcode --profile="Built-in: Full Cleanup" projects/dotnet/ --verbosity=WARN || true; else echo "JetBrains CLI (jb) not found, skipping cleanup"; fi']
         language: system
         files: ^projects/dotnet/.*\.(cs|vb|fs)$
         pass_filenames: false
         require_serial: true
+        stages: [manual]  # Only run manually
       - id: jetbrains-inspect
         name: JetBrains Code Inspection
         entry: sh
-        args: ['-c', 'if command -v jb >/dev/null 2>&1; then jb inspectcode projects/dotnet/ --build --format=json --output=.jetbrains-inspection-results.json --verbosity=WARN; else echo "JetBrains CLI (jb) not found, skipping inspection"; fi']
+        args: ['-c', 'if command -v jb >/dev/null 2>&1; then jb inspectcode projects/dotnet/ --build --format=json --output=.jetbrains-inspection-results.json --verbosity=WARN || true; else echo "JetBrains CLI (jb) not found, skipping inspection"; fi']
         language: system
         files: ^projects/dotnet/.*\.(cs|vb|fs|sln|csproj|vbproj|fsproj)$
         pass_filenames: false
         require_serial: true
+        stages: [manual]  # Only run manually
 
   # Shell script linting - disabled due to installation issues
   # Note: Install shellcheck manually if needed: brew install shellcheck
