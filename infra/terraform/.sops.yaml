@@ -4,7 +4,8 @@
 # Replace the placeholder age recipient below with your real public key from `age-keygen`.
 # Example to generate: age-keygen -o infra/terraform/secrets/age.key (keep that file gitignored!)
 # Extract public part (PowerShell):
-#   (Get-Content infra/terraform/secrets/age.key | Select-String 'public key:').ToString()
+#   (Get-Content infra/terraform/secrets/age.key | \
+#    Select-String 'public key:').ToString()
 
 creation_rules:
   - path_regex: >-

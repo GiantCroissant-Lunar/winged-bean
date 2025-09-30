@@ -35,7 +35,8 @@ jobs:
         uses: actions/cache@v3
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-megalinter-cupcake-${{ hashFiles('.mega-linter.yml') }}
+          key: ${{ runner.os }}-megalinter-cupcake-${{
+            hashFiles('.mega-linter.yml') }}
           restore-keys: |
             ${{ runner.os }}-megalinter-cupcake-
 
@@ -52,8 +53,10 @@ jobs:
         run: |
           # Run fast native checks first
           echo "Running quick pre-checks..."
-          find . -name "*.py" -path "./projects/python/*" | head -10 | xargs -r ruff check --quiet || true
-          find . -name "*.yaml" -o -name "*.yml" | head -10 | xargs -r yamllint -d relaxed || true
+          find . -name "*.py" -path "./projects/python/*" | \
+            head -10 | xargs -r ruff check --quiet || true
+          find . -name "*.yaml" -o -name "*.yml" | \
+            head -10 | xargs -r yamllint -d relaxed || true
 
       # Run MegaLinter with optimized settings
       - name: Run MegaLinter
@@ -66,7 +69,8 @@ jobs:
             -e GITHUB_EVENT_NAME="${{ github.event_name }}" \
             -e GITHUB_REF="${{ github.ref }}" \
             -e GITHUB_SHA="${{ github.sha }}" \
-            -e VALIDATE_ALL_CODEBASE="${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}" \
+            -e VALIDATE_ALL_CODEBASE="${{ github.event_name == 'push' && \
+              github.ref == 'refs/heads/main' }}" \
             -e APPLY_FIXES="none" \
             -e PARALLEL="true" \
             -e LOG_LEVEL="WARNING" \
@@ -97,13 +101,16 @@ jobs:
               const summaryPath = 'megalinter-reports/README.md';
               if (fs.existsSync(summaryPath)) {
                 const summary = fs.readFileSync(summaryPath, 'utf8');
-                const lines = summary.split('\n').slice(0, 50); // First 50 lines only
+                const lines = summary.split('\n').slice(0, 50);
+                // First 50 lines only
 
                 github.rest.issues.createComment({
                   issue_number: context.issue.number,
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  body: `## 🔍 MegaLinter Summary\n\n${lines.join('\n')}\n\n[View full reports](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`
+                  body: `## 🔍 MegaLinter Summary\n\n${lines.join('\n')}\n\n` +
+                    `[View full reports](https://github.com/${{ github.repository }}` +
+                    `/actions/runs/${{ github.run_id }})`
                 });
               }
             } catch (error) {
