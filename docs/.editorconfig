@@ -1,0 +1,46 @@
+# EditorConfig for documentation
+# Inherits from root .editorconfig
+
+# Markdown files
+[*.md]
+trim_trailing_whitespace = false
+indent_size = 2
+
+# YAML files (for static site generators)
+[*.{yml,yaml}]
+indent_size = 2
+
+# JSON files
+[*.json]
+indent_size = 2
+
+# HTML files
+[*.html]
+indent_size = 2
+
+# CSS files
+[*.{css,scss,sass,less}]
+indent_size = 2
+
+# JavaScript files (for documentation sites)
+[*.{js,ts}]
+indent_size = 2
+
+# Configuration files
+[*.{toml,ini,cfg}]
+indent_size = 2
+
+# ADR (Architecture Decision Records)
+[*.adr]
+trim_trailing_whitespace = false
+indent_size = 2
+
+# reStructuredText files
+[*.rst]
+trim_trailing_whitespace = false
+indent_size = 3
+
+# AsciiDoc files
+[*.adoc]
+trim_trailing_whitespace = false
+indent_size = 2

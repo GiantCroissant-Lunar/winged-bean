@@ -1,0 +1,39 @@
+# Generated documentation
+_site/
+site/
+.jekyll-cache/
+.jekyll-metadata
+
+# Temporary files
+*.tmp
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build artifacts
+dist/
+build/
+out/
+
+# Dependencies (if docs use static site generators)
+node_modules/
+.pnpm-store/
+
+# Logs
+*.log
+
+# Cache directories
+.cache/
