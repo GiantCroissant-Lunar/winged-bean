@@ -1,19 +1,22 @@
 ---
 // XTerm component for displaying terminal in web
+// Supports both legacy WebSocket protocol (port 4040) and binary PTY streaming (port 4041)
 interface Props {
   id?: string;
   websocketUrl?: string;
+  mode?: 'legacy' | 'pty'; // legacy = old ConsoleDungeon, pty = node-pty binary streaming
 }
 
 const {
   id = 'live-terminal',
-  websocketUrl = 'ws://localhost:4041'
+  websocketUrl = 'ws://localhost:4041',
+  mode = 'pty' // Default to PTY mode for new implementations
 } = Astro.props as Props;
 ---
 
 <link rel="stylesheet" href="/node_modules/xterm/css/xterm.css" />
 
-<div id={id} data-ws-url={websocketUrl} data-terminal-id={id} style="width: 100%; height: 400px; border: 1px solid #ccc; border-radius: 4px; background: #1e1e1e;">
+<div id={id} data-ws-url={websocketUrl} data-terminal-id={id} data-mode={mode} style="width: 100%; height: 400px; border: 1px solid #ccc; border-radius: 4px; background: #1e1e1e;">
 </div>
 
 <script>
@@ -26,6 +29,7 @@ const {
     containers.forEach(container => {
       const terminalId = container.dataset.terminalId;
       const wsUrl = container.dataset.wsUrl || 'ws://localhost:4041';
+      const mode = container.dataset.mode || 'pty';
 
       if (container && !container.dataset.initialized) {
         // Mark as initialized to prevent double initialization
@@ -37,6 +41,7 @@ const {
       const terminal = new Terminal({
         cols: 80,
         rows: 24,
+        rendererType: 'dom',
         fontSize: 14,
         fontFamily: 'Consolas, "Liberation Mono", Menlo, monospace',
         theme: {
@@ -65,12 +70,21 @@ const {
       });
 
       terminal.open(container);
+      // Expose terminal instance for tests/debugging
+      try {
+        window.__xterms = window.__xterms || {};
+        window.__xterms[terminalId] = terminal;
+      } catch {}
       terminal.writeln('xterm.js terminal loaded successfully!');
-      terminal.writeln(`Connecting to ConsoleDungeon WebSocket at ${wsUrl}...`);
-      terminal.writeln('Terminal.Gui v2 interface will appear shortly...');
+      terminal.writeln(`Connecting to ${mode === 'pty' ? 'PTY service' : 'ConsoleDungeon'} at ${wsUrl}...`);
+      if (mode === 'pty') {
+        terminal.writeln('Terminal.Gui v2 will spawn in PTY environment...');
+      } else {
+        terminal.writeln('Terminal.Gui v2 interface will appear shortly...');
+      }
       terminal.writeln('');
 
-      // WebSocket connection for ConsoleDungeon
+      // WebSocket connection
       let ws = null;
 
       const connectWebSocket = () => {
@@ -80,49 +94,134 @@ const {
 
         ws = new WebSocket(wsUrl);
 
-        ws.onopen = () => {
-          terminal.writeln('WebSocket connected! Requesting Terminal.Gui interface...');
-          // Send init message to get the initial screen
-          ws.send('init');
-        };
+        if (mode === 'pty') {
+          // PTY mode: Binary streaming
+          ws.binaryType = 'arraybuffer';
 
-        ws.onmessage = (event) => {
-          // Handle text data from ConsoleDungeon
-          const message = event.data;
+          ws.onopen = () => {
+            console.log('[XTerm] WebSocket connected in PTY mode (binary streaming)');
+            console.log('[XTerm] WebSocket URL:', wsUrl);
+            console.log('[XTerm] WebSocket readyState:', ws.readyState);
+            terminal.writeln('WebSocket connected! PTY process starting...\r\n');
+          };
 
-          // Check if it's a screen update message
-          if (message.startsWith('screen:')) {
-            const screenContent = message.substring(7); // Remove 'screen:' prefix
-            // Write the screen content which includes ANSI escape sequences
-            terminal.write(screenContent);
-          } else {
-            // Handle other message types
-            terminal.write(message);
-          }
-        };
+          let messageCount = 0;
+          let lastMessageTime = Date.now();
+
+          const decoder = new TextDecoder('utf-8');
+          ws.onmessage = async (event) => {
+            messageCount++;
+            lastMessageTime = Date.now();
+
+            // Log first few messages for debugging
+            if (messageCount <= 5) {
+              console.log(`[XTerm] Message ${messageCount}:`, {
+                type: typeof event.data,
+                isArrayBuffer: event.data instanceof ArrayBuffer,
+                size: event.data.byteLength || event.data.length
+              });
+            }
+
+            // Check if it's binary data first (most common case for PTY)
+            if (event.data instanceof ArrayBuffer) {
+              // Decode UTF-8 bytes to string before writing
+              const text = decoder.decode(new Uint8Array(event.data), { stream: true });
+              if (text) terminal.write(text);
+            } else if (event.data instanceof Blob) {
+              // Some browsers may deliver Blob if binaryType not respected; normalize
+              const buf = new Uint8Array(await event.data.arrayBuffer());
+              const text = decoder.decode(buf, { stream: true });
+              if (text) terminal.write(text);
+            } else if (typeof event.data === 'string') {
+              // Text data - might be JSON control message
+              try {
+                const data = JSON.parse(event.data);
+                // Handle control messages if needed
+                console.log('[XTerm] Control message:', data);
+              } catch (e) {
+                // Not JSON, just plain text - write to terminal
+                terminal.write(event.data);
+              }
+            } else {
+              // Unknown data type - log and try to write
+              console.warn('[XTerm] Unknown WebSocket data type:', typeof event.data);
+              terminal.write(String(event.data));
+            }
+          };
+
+          // Log connection stats every 2 seconds
+          // Heartbeat to keep intermediaries/proxies from closing idle socket
+          const heartbeatInterval = setInterval(() => {
+            if (ws.readyState === WebSocket.OPEN) {
+              try { ws.send(JSON.stringify({ type: 'heartbeat', t: Date.now() })); } catch {}
+            }
+          }, 5000);
+
+          const statsInterval = setInterval(() => {
+            if (ws.readyState === WebSocket.OPEN) {
+              const timeSinceLastMessage = Date.now() - lastMessageTime;
+              console.log(`[XTerm] Stats - Messages: ${messageCount}, Last message: ${timeSinceLastMessage}ms ago, State: ${ws.readyState}`);
+            } else {
+              console.log(`[XTerm] WebSocket not open, state: ${ws.readyState}`);
+              clearInterval(statsInterval);
+              clearInterval(heartbeatInterval);
+            }
+          }, 2000);
+        } else {
+          // Legacy mode: Text-based protocol with 'screen:' and 'key:' prefixes
+          ws.onopen = () => {
+            console.log('WebSocket connected in legacy mode');
+            terminal.writeln('WebSocket connected! Requesting Terminal.Gui interface...');
+            // Send init message to get the initial screen
+            ws.send('init');
+          };
+
+          ws.onmessage = (event) => {
+            // Handle text data from ConsoleDungeon
+            const message = event.data;
+
+            // Check if it's a screen update message
+            if (message.startsWith('screen:')) {
+              const screenContent = message.substring(7); // Remove 'screen:' prefix
+              // Write the screen content which includes ANSI escape sequences
+              terminal.write(screenContent);
+            } else {
+              // Handle other message types
+              terminal.write(message);
+            }
+          };
+        }
 
         ws.onclose = (event) => {
+          console.error(`[XTerm] WebSocket closed - Code: ${event.code}, Reason: "${event.reason}", Clean: ${event.wasClean}`);
+          console.error('[XTerm] Stack trace:', new Error().stack);
           terminal.writeln(`\r\nWebSocket disconnected (${event.code}: ${event.reason}). Reconnecting...`);
           setTimeout(connectWebSocket, 3000);
         };
 
         ws.onerror = (error) => {
-          console.error('WebSocket error:', error);
+          console.error('[XTerm] WebSocket error:', error);
           terminal.writeln('\r\nWebSocket connection error.');
         };
       };
 
-      // Handle terminal input - send to ConsoleDungeon
+      // Handle terminal input
       terminal.onData(data => {
         if (ws && ws.readyState === WebSocket.OPEN) {
-          // Send key data in the format expected by ConsoleDungeon
-          ws.send(`key:${data}`);
+          if (mode === 'pty') {
+            // PTY mode: Send raw input directly
+            ws.send(data);
+          } else {
+            // Legacy mode: Send with 'key:' prefix
+            ws.send(`key:${data}`);
+          }
         }
       });
 
       // Handle terminal resize
       terminal.onResize(({cols, rows}) => {
         if (ws && ws.readyState === WebSocket.OPEN) {
+          // Both modes use JSON for resize
           ws.send(JSON.stringify({type: 'resize', cols, rows}));
         }
       });

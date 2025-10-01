@@ -99,6 +99,13 @@ wss.on("connection", (ws) => {
 
   // No need to send commands - .NET app is spawned directly in PTY
 
+  // Keepalive: send ping frames periodically; browser replies with pong automatically
+  let pingInterval = setInterval(() => {
+    try {
+      if (ws.readyState === WebSocket.OPEN) ws.ping();
+    } catch {}
+  }, 10000);
+
   // Handle WebSocket messages (input from xterm.js)
   ws.on("message", (message) => {
     try {
@@ -116,6 +123,11 @@ wss.on("connection", (ws) => {
         }
         return;
       }
+      if (data.type === "heartbeat") {
+        // Client heartbeat - acknowledge optionally
+        // No-op keeps the connection active
+        return;
+      }
     } catch (e) {
       // Not JSON, treat as raw input data
       const input = message.toString();
@@ -129,6 +141,7 @@ wss.on("connection", (ws) => {
   // Handle WebSocket close
   ws.on("close", (code, reason) => {
     console.log(`WebSocket client disconnected: ${code} ${reason}`);
+    clearInterval(pingInterval);
 
     // Stop recording if active
     if (recordingManager.isRecording()) {
@@ -148,6 +161,7 @@ wss.on("connection", (ws) => {
   // Handle WebSocket errors
   ws.on("error", (error) => {
     console.error("WebSocket error:", error);
+    clearInterval(pingInterval);
     if (!ptyProcess.killed) {
       ptyProcess.kill();
     }
