@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using WingedBean.Contracts.Core;
 
 namespace WingedBean.Registry;
@@ -7,8 +10,8 @@ namespace WingedBean.Registry;
 /// </summary>
 public class ActualRegistry : IRegistry
 {
-    private readonly Dictionary<Type, List<ServiceEntry>> _services = new();
-    private readonly object _lock = new();
+    private readonly Dictionary<Type, List<ServiceEntry>> _services = new Dictionary<Type, List<ServiceEntry>>();
+    private readonly object _lock = new object();
 
     private class ServiceEntry
     {
@@ -26,7 +29,8 @@ public class ActualRegistry : IRegistry
     public void Register<TService>(TService implementation, int priority = 0)
         where TService : class
     {
-        ArgumentNullException.ThrowIfNull(implementation);
+        if (implementation == null)
+            throw new ArgumentNullException(nameof(implementation));
 
         var metadata = new ServiceMetadata
         {
@@ -40,8 +44,10 @@ public class ActualRegistry : IRegistry
     public void Register<TService>(TService implementation, ServiceMetadata metadata)
         where TService : class
     {
-        ArgumentNullException.ThrowIfNull(implementation);
-        ArgumentNullException.ThrowIfNull(metadata);
+        if (implementation == null)
+            throw new ArgumentNullException(nameof(implementation));
+        if (metadata == null)
+            throw new ArgumentNullException(nameof(metadata));
 
         lock (_lock)
         {
@@ -111,7 +117,8 @@ public class ActualRegistry : IRegistry
     public bool Unregister<TService>(TService implementation)
         where TService : class
     {
-        ArgumentNullException.ThrowIfNull(implementation);
+        if (implementation == null)
+            throw new ArgumentNullException(nameof(implementation));
 
         lock (_lock)
         {
@@ -148,7 +155,8 @@ public class ActualRegistry : IRegistry
     public ServiceMetadata? GetMetadata<TService>(TService implementation)
         where TService : class
     {
-        ArgumentNullException.ThrowIfNull(implementation);
+        if (implementation == null)
+            throw new ArgumentNullException(nameof(implementation));
 
         lock (_lock)
         {
