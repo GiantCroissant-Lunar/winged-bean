@@ -1,0 +1,12 @@
+{
+  "id": "WingedBean.Plugins.WebSocket",
+  "name": "WebSocket Service (SuperSocket)",
+  "version": "1.0.0",
+  "description": "WebSocket server implementation using SuperSocket",
+  "author": "WingedBean Team",
+  "provides": [
+    "WingedBean.Contracts.WebSocket.IWebSocketService"
+  ],
+  "dependencies": [],
+  "priority": 10
+}

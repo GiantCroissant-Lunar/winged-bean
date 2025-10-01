@@ -1,0 +1,40 @@
+{
+  "id": "wingedbean.plugins.recorder.asciinema",
+  "version": "1.0.0",
+  "name": "Asciinema Recorder",
+  "description": "Records PTY sessions to asciicast v2 format",
+  "author": "WingedBean Team",
+  "license": "MIT",
+
+  "entryPoint": {
+    "dotnet": "./WingedBean.Plugins.AsciinemaRecorder.dll",
+    "nodejs": null,
+    "unity": "./WingedBean.Plugins.AsciinemaRecorder.dll",
+    "godot": "./WingedBean.Plugins.AsciinemaRecorder.dll"
+  },
+
+  "dependencies": {
+    "wingedbean.contracts": "^1.0.0"
+  },
+
+  "exports": {
+    "services": [
+      {
+        "interface": "IRecorder",
+        "implementation": "AsciinemaRecorder",
+        "lifecycle": "transient"
+      }
+    ]
+  },
+
+  "capabilities": [
+    "recording",
+    "asciinema-v2",
+    "filesystem"
+  ],
+
+  "supportedProfiles": ["console", "unity", "godot", "web"],
+
+  "loadStrategy": "lazy",
+  "quiesceSeconds": 5
+}
