@@ -1,16 +1,16 @@
 /**
  * RFC-0004 Phase 3.9: xterm.js Regression Test
- * 
- * CRITICAL REGRESSION TEST: Verify that xterm.js integration still works 
+ *
+ * CRITICAL REGRESSION TEST: Verify that xterm.js integration still works
  * after Phase 3 plugin refactoring.
- * 
+ *
  * This test validates:
  * - WebSocket server starts on port 4040
  * - Browser connects successfully via Astro frontend
  * - Terminal.Gui interface renders in xterm.js
  * - Screen content is properly formatted
  * - All commands work (help, echo, time, status)
- * 
+ *
  * Success = All xterm.js functionality works identically to Phase 2 MVP
  * Failure = Phase 3 changes must be debugged before proceeding
  */
@@ -29,7 +29,7 @@ describe("RFC-0004 Phase 3.9: xterm.js Regression Test", () => {
 
   beforeAll(async () => {
     console.log("🔧 Starting Phase 3.9 Regression Test Setup...");
-    
+
     // Start ConsoleDungeon.Host (Phase 3 plugin-based version)
     console.log("Starting ConsoleDungeon.Host with plugin bootstrap...");
     consoleDungeonHost = spawn(
@@ -97,12 +97,12 @@ describe("RFC-0004 Phase 3.9: xterm.js Regression Test", () => {
 
     // Launch browser
     console.log("Launching browser...");
-    browser = await chromium.launch({ 
+    browser = await chromium.launch({
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
     page = await browser.newPage();
-    
+
     console.log("✓ Browser launched");
     console.log("🚀 Setup complete - starting tests\n");
   }, 60000); // 60s timeout for setup
@@ -126,19 +126,19 @@ describe("RFC-0004 Phase 3.9: xterm.js Regression Test", () => {
 
   test("✅ Phase 3.9.1: Astro page loads successfully", async () => {
     console.log("\n📋 Test: Astro page loads successfully");
-    
+
     await page.goto(`http://localhost:${ASTRO_PORT}`);
     await page.waitForSelector(".xterm", { timeout: 10000 });
 
     const terminalExists = await page.$(".xterm");
     expect(terminalExists).toBeTruthy();
-    
+
     console.log("✓ Astro page loaded with xterm.js terminal");
   }, 15000);
 
   test("✅ Phase 3.9.2: WebSocket connection established", async () => {
     console.log("\n📋 Test: WebSocket connection established");
-    
+
     await page.goto(`http://localhost:${ASTRO_PORT}`);
     await page.waitForSelector(".xterm", { timeout: 10000 });
 
@@ -154,17 +154,17 @@ describe("RFC-0004 Phase 3.9: xterm.js Regression Test", () => {
     expect(terminalContent).toBeTruthy();
     expect(terminalContent.length).toBeGreaterThan(0);
     expect(terminalContent).toContain("WebSocket connected");
-    
+
     console.log("✓ WebSocket connected successfully");
     console.log(`  Terminal content length: ${terminalContent.length} characters`);
   }, 20000);
 
   test("✅ Phase 3.9.3: Terminal.Gui interface renders correctly", async () => {
     console.log("\n📋 Test: Terminal.Gui interface renders correctly");
-    
+
     await page.goto(`http://localhost:${ASTRO_PORT}`);
     await page.waitForSelector(".xterm", { timeout: 10000 });
-    
+
     // Wait for Terminal.Gui content to render
     await page.waitForTimeout(4000);
 
@@ -177,7 +177,7 @@ describe("RFC-0004 Phase 3.9: xterm.js Regression Test", () => {
     expect(terminalContent).toContain("Console Dungeon");
     expect(terminalContent).toContain("Terminal.Gui v2");
     expect(terminalContent).toContain("WebSocket server running on port 4040");
-    
+
     console.log("✓ Terminal.Gui interface rendered correctly");
     console.log("  Interface includes:");
     console.log("    - Console Dungeon title");
@@ -187,7 +187,7 @@ describe("RFC-0004 Phase 3.9: xterm.js Regression Test", () => {
 
   test("✅ Phase 3.9.4: Terminal responds to keyboard input", async () => {
     console.log("\n📋 Test: Terminal responds to keyboard input");
-    
+
     await page.goto(`http://localhost:${ASTRO_PORT}`);
     await page.waitForSelector(".xterm", { timeout: 10000 });
     await page.waitForTimeout(3000);
@@ -215,7 +215,7 @@ describe("RFC-0004 Phase 3.9: xterm.js Regression Test", () => {
     // (actual command processing depends on ConsoleDungeon implementation)
     expect(initialContent).toBeTruthy();
     expect(updatedContent).toBeTruthy();
-    
+
     console.log("✓ Terminal accepts keyboard input");
     console.log(`  Initial content: ${initialContent.substring(0, 50)}...`);
     console.log(`  After input: ${updatedContent.substring(0, 50)}...`);
@@ -223,7 +223,7 @@ describe("RFC-0004 Phase 3.9: xterm.js Regression Test", () => {
 
   test("✅ Phase 3.9.5: Terminal displays connection status", async () => {
     console.log("\n📋 Test: Terminal displays connection status");
-    
+
     await page.goto(`http://localhost:${ASTRO_PORT}`);
     await page.waitForSelector(".xterm", { timeout: 10000 });
     await page.waitForTimeout(3000);
@@ -235,16 +235,16 @@ describe("RFC-0004 Phase 3.9: xterm.js Regression Test", () => {
 
     // Verify connection status is displayed
     expect(terminalContent).toContain("Connected session");
-    
+
     console.log("✓ Terminal displays connection status");
   }, 20000);
 
   test("✅ Phase 3.9.6: Phase 3 bootstrap does not break xterm.js", async () => {
     console.log("\n📋 Test: Phase 3 bootstrap does not break xterm.js");
-    
+
     // This is the critical regression test - verify that despite Phase 3 changes,
     // the xterm.js integration works exactly as before
-    
+
     await page.goto(`http://localhost:${ASTRO_PORT}`);
     await page.waitForSelector(".xterm", { timeout: 10000 });
     await page.waitForTimeout(3000);
@@ -275,7 +275,7 @@ describe("RFC-0004 Phase 3.9: xterm.js Regression Test", () => {
 
   test("✅ Phase 3.9.7: Terminal survives page reload", async () => {
     console.log("\n📋 Test: Terminal survives page reload");
-    
+
     await page.goto(`http://localhost:${ASTRO_PORT}`);
     await page.waitForSelector(".xterm", { timeout: 10000 });
     await page.waitForTimeout(3000);
@@ -293,7 +293,7 @@ describe("RFC-0004 Phase 3.9: xterm.js Regression Test", () => {
     // Verify terminal reconnects after reload
     expect(terminalContent).toContain("WebSocket connected");
     expect(terminalContent).toContain("Console Dungeon");
-    
+
     console.log("✓ Terminal reconnects successfully after page reload");
   }, 25000);
 });
