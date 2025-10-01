@@ -23,7 +23,7 @@ public partial class ProxyService : IResourceService
 
     // Source gen fills in all methods below
     // Temporary stub implementations until source generator is available
-    
+
     /// <inheritdoc />
     public Task<TResource?> LoadAsync<TResource>(string resourceId, CancellationToken cancellationToken = default)
         where TResource : class

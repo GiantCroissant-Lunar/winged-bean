@@ -54,7 +54,7 @@ public class RegistrySelectionTests
         var serviceA = new TestServiceA();
         var serviceB = new TestServiceB();
         var serviceC = new TestServiceC();
-        
+
         registry.Register<ITestService>(serviceA, priority: 5);
         registry.Register<ITestService>(serviceB, priority: 10);
         registry.Register<ITestService>(serviceC, priority: 3);
@@ -73,7 +73,7 @@ public class RegistrySelectionTests
         var registry = new ActualRegistry();
         var serviceA = new TestServiceA();
         var serviceB = new TestServiceB();
-        
+
         registry.Register<ITestService>(serviceA); // Default priority 0
         registry.Register<ITestService>(serviceB); // Default priority 0
 
@@ -116,7 +116,7 @@ public class RegistrySelectionTests
         var registry = new ActualRegistry();
         var serviceA = new TestServiceA();
         var serviceB = new TestServiceB();
-        
+
         registry.Register<ITestService>(serviceA, priority: 1);
         registry.Register<ITestService>(serviceB, priority: 5);
 
@@ -135,7 +135,7 @@ public class RegistrySelectionTests
         var serviceA = new TestServiceA();
         var serviceB = new TestServiceB();
         var serviceC = new TestServiceC();
-        
+
         registry.Register<ITestService>(serviceA, priority: 1);
         registry.Register<ITestService>(serviceB, priority: 2);
         registry.Register<ITestService>(serviceC, priority: 3);

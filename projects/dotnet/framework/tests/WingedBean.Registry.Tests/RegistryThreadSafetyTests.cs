@@ -11,8 +11,8 @@ namespace WingedBean.Registry.Tests;
 public class RegistryThreadSafetyTests
 {
     private interface ITestService { }
-    private class TestService : ITestService 
-    { 
+    private class TestService : ITestService
+    {
         public int Id { get; set; }
     }
 
@@ -50,7 +50,7 @@ public class RegistryThreadSafetyTests
         var registry = new ActualRegistry();
         var service = new TestService { Id = 1 };
         registry.Register<ITestService>(service, priority: 10);
-        
+
         const int concurrentCount = 100;
         var tasks = new List<Task<ITestService>>();
 
@@ -75,7 +75,7 @@ public class RegistryThreadSafetyTests
         // Arrange
         var registry = new ActualRegistry();
         var services = new List<TestService>();
-        
+
         for (int i = 0; i < 50; i++)
         {
             var service = new TestService { Id = i };
@@ -105,7 +105,7 @@ public class RegistryThreadSafetyTests
         // Arrange
         var registry = new ActualRegistry();
         var initialServices = new List<TestService>();
-        
+
         // Pre-register some services
         for (int i = 0; i < 10; i++)
         {
@@ -154,7 +154,7 @@ public class RegistryThreadSafetyTests
         // Assert: Should not throw any exceptions
         var act = () => Task.WaitAll(tasks.ToArray());
         act.Should().NotThrow();
-        
+
         // Verify registry is still functional
         registry.IsRegistered<ITestService>().Should().BeTrue();
     }
@@ -165,7 +165,7 @@ public class RegistryThreadSafetyTests
         // Arrange
         var registry = new ActualRegistry();
         const int serviceCount = 10;
-        
+
         for (int i = 0; i < serviceCount; i++)
         {
             var service = new TestService { Id = i };

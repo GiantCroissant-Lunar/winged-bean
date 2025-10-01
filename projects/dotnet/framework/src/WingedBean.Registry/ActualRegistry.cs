@@ -62,7 +62,7 @@ public class ActualRegistry : IRegistry
         lock (_lock)
         {
             var serviceType = typeof(TService);
-            
+
             if (!_services.TryGetValue(serviceType, out var entries) || entries.Count == 0)
             {
                 throw new ServiceNotFoundException(serviceType);
@@ -86,7 +86,7 @@ public class ActualRegistry : IRegistry
         lock (_lock)
         {
             var serviceType = typeof(TService);
-            
+
             if (!_services.TryGetValue(serviceType, out var entries))
             {
                 return Enumerable.Empty<TService>();
@@ -116,14 +116,14 @@ public class ActualRegistry : IRegistry
         lock (_lock)
         {
             var serviceType = typeof(TService);
-            
+
             if (!_services.TryGetValue(serviceType, out var entries))
             {
                 return false;
             }
 
             var removed = entries.RemoveAll(e => ReferenceEquals(e.Implementation, implementation));
-            
+
             if (entries.Count == 0)
             {
                 _services.Remove(serviceType);
@@ -153,7 +153,7 @@ public class ActualRegistry : IRegistry
         lock (_lock)
         {
             var serviceType = typeof(TService);
-            
+
             if (!_services.TryGetValue(serviceType, out var entries))
             {
                 return null;

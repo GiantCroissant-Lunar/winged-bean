@@ -12,8 +12,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../../../../framework/src/WingedBean.Contracts.Core/WingedBean.Contracts.Core.csproj" />
-    <ProjectReference Include="../../../../../framework/src/WingedBean.Contracts.Config/WingedBean.Contracts.Config.csproj" />
+    <ProjectReference Include="../../../framework/src/WingedBean.Contracts.Core/WingedBean.Contracts.Core.csproj" />
+    <ProjectReference Include="../../../framework/src/WingedBean.Contracts.Config/WingedBean.Contracts.Config.csproj" />
   </ItemGroup>
 
   <ItemGroup>
