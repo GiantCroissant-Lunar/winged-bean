@@ -12,10 +12,10 @@
     <ProjectReference Include="../ConsoleDungeon/ConsoleDungeon.csproj" />
 
     <!-- Reference Registry and service plugins -->
-    <ProjectReference Include="../../../framework/src/WingedBean.Registry/WingedBean.Registry.csproj" />
-    <ProjectReference Include="../WingedBean.Plugins.WebSocket/WingedBean.Plugins.WebSocket.csproj" />
-    <ProjectReference Include="../WingedBean.Plugins.TerminalUI/WingedBean.Plugins.TerminalUI.csproj" />
-    <ProjectReference Include="../WingedBean.Plugins.Config/WingedBean.Plugins.Config.csproj" />
+    <ProjectReference Include="../../../../framework/src/WingedBean.Registry/WingedBean.Registry.csproj" />
+    <ProjectReference Include="../../plugins/WingedBean.Plugins.WebSocket/WingedBean.Plugins.WebSocket.csproj" />
+    <ProjectReference Include="../../plugins/WingedBean.Plugins.TerminalUI/WingedBean.Plugins.TerminalUI.csproj" />
+    <ProjectReference Include="../../plugins/WingedBean.Plugins.Config/WingedBean.Plugins.Config.csproj" />
   </ItemGroup>
 
 </Project>
