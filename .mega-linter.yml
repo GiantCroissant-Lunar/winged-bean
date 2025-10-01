@@ -21,23 +21,16 @@ ENABLE:
 # Directory structure configuration
 DEFAULT_WORKSPACE: /tmp/lint
 
-# Language-specific configurations
-PYTHON_DIRECTORY: projects/python
-JAVASCRIPT_DIRECTORY: projects/nodejs
-TYPESCRIPT_DIRECTORY: projects/nodejs
-CSHARP_DIRECTORY: projects/dotnet
-TERRAFORM_DIRECTORY: infra/terraform
-
 # Python linters configuration
-PYTHON_RUFF_CONFIG_FILE: projects/python/pyproject.toml
-PYTHON_BANDIT_CONFIG_FILE: projects/python/pyproject.toml
-PYTHON_MYPY_CONFIG_FILE: projects/python/pyproject.toml
+PYTHON_RUFF_CONFIG_FILE: development/python/pyproject.toml
+PYTHON_BANDIT_CONFIG_FILE: development/python/pyproject.toml
+PYTHON_MYPY_CONFIG_FILE: development/python/pyproject.toml
 
 # JavaScript/TypeScript configuration
-TYPESCRIPT_ES_CONFIG_FILE: projects/nodejs/.eslintrc.js
-JAVASCRIPT_ES_CONFIG_FILE: projects/nodejs/.eslintrc.js
-TYPESCRIPT_PRETTIER_CONFIG_FILE: projects/nodejs/.prettierrc
-JAVASCRIPT_PRETTIER_CONFIG_FILE: projects/nodejs/.prettierrc
+TYPESCRIPT_ES_CONFIG_FILE: development/nodejs/.eslintrc.js
+JAVASCRIPT_ES_CONFIG_FILE: development/nodejs/.eslintrc.js
+TYPESCRIPT_PRETTIER_CONFIG_FILE: development/nodejs/.prettierrc
+JAVASCRIPT_PRETTIER_CONFIG_FILE: development/nodejs/.prettierrc
 
 # YAML configuration
 YAML_YAMLLINT_CONFIG_FILE: .yamllint.yml
@@ -49,9 +42,7 @@ TERRAFORM_TFLINT_CONFIG_FILE: infra/terraform/.tflint.hcl
 CREDENTIALS_SECRETLINT_DISABLE_ERRORS: false
 CREDENTIALS_GITLEAKS_CONFIG_FILE: .gitleaks.toml
 
-# Line length limits (120 characters for modern codebases)
-YAML_YAMLLINT_RULE_LINE_LENGTH_MAX: 120
-YAML_YAMLLINT_RULE_LINE_LENGTH_LEVEL: warning
+# Markdown configuration
 MARKDOWN_MARKDOWNLINT_CONFIG_FILE: .markdownlint.yml
 BASH_SHELLCHECK_DISABLE_ERRORS: false
 CSHARP_DOTNET_FORMAT_ARGUMENTS: --severity info
@@ -79,10 +70,9 @@ FILTER_REGEX_EXCLUDE: |
   \.secrets\.baseline)
 
 # Specific linter configurations
-PYTHON_RUFF_ARGUMENTS: --config=projects/python/pyproject.toml
+PYTHON_RUFF_ARGUMENTS: --config=development/python/pyproject.toml
 PYTHON_BANDIT_ARGUMENTS: -r -f json
 TERRAFORM_TERRAFORM_FMT_ARGUMENTS: -diff -check
-YAML_YAMLLINT_ARGUMENTS: -d relaxed
 
 # Disable certain linters that are handled by pre-commit or not needed
 DISABLE:
