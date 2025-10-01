@@ -1,6 +1,7 @@
 const pty = require("node-pty");
 const WebSocket = require("ws");
 const path = require("path");
+const RecordingManager = require("./recording-manager");
 
 // WebSocket server configuration
 const WS_PORT = 4041;
@@ -12,6 +13,11 @@ const DOTNET_PROJECT_PATH = path.resolve(
 );
 
 console.log("Terminal.Gui PTY Service starting...");
+
+// Create recording manager
+const recordingsDir = path.resolve(__dirname, "../../../docs/recordings");
+const recordingManager = new RecordingManager(recordingsDir);
+console.log(`Recording manager initialized: ${recordingsDir}`);
 
 // Create WebSocket server
 const wss = new WebSocket.Server({ port: WS_PORT });
@@ -43,6 +49,40 @@ wss.on("connection", (ws) => {
 
   // Stream PTY output to WebSocket client (binary frames)
   ptyProcess.onData((data) => {
+    const dataStr = data.toString();
+
+    // Check for recording control sequences (OSC 1337)
+    if (dataStr.includes('\x1b]1337;StartRecording\x07')) {
+      const filename = recordingManager.startRecording();
+      if (filename) {
+        const msg = `\r\n🔴 Recording started: ${filename}\r\n`;
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(Buffer.from(msg, "utf8"));
+        }
+      }
+      // Filter out control sequence, don't send to browser
+      return;
+    }
+
+    if (dataStr.includes('\x1b]1337;StopRecording\x07')) {
+      recordingManager.stopRecording().then(info => {
+        if (info) {
+          const msg = `\r\n⏹️  Recording stopped: ${info.filename} (${info.frameCount} frames, ${info.duration}s)\r\n`;
+          if (ws.readyState === WebSocket.OPEN) {
+            ws.send(Buffer.from(msg, "utf8"));
+          }
+        }
+      });
+      // Filter out control sequence, don't send to browser
+      return;
+    }
+
+    // Record data if recording is active
+    if (recordingManager.isRecording()) {
+      recordingManager.writeData(data);
+    }
+
+    // Send to WebSocket client
     if (ws.readyState === WebSocket.OPEN) {
       // Send as binary to preserve all bytes exactly as PTY outputs them
       ws.send(Buffer.from(data, "utf8"));
@@ -89,6 +129,16 @@ wss.on("connection", (ws) => {
   // Handle WebSocket close
   ws.on("close", (code, reason) => {
     console.log(`WebSocket client disconnected: ${code} ${reason}`);
+
+    // Stop recording if active
+    if (recordingManager.isRecording()) {
+      recordingManager.stopRecording().then(info => {
+        if (info) {
+          console.log(`Auto-stopped recording on disconnect: ${info.filename}`);
+        }
+      });
+    }
+
     if (!ptyProcess.killed) {
       console.log("Killing PTY process...");
       ptyProcess.kill();

@@ -92,12 +92,34 @@ public class TerminalGuiService : ITerminalUIService
         {
             X = 1,
             Y = 11,
-            Text = "Ready - Terminal.Gui is fully functional!"
+            Text = "Ready - Terminal.Gui is fully functional! (F9=Record, F10=Stop)"
         };
 
         // Button click handler
         button.Accepting += (s, e) => {
             statusLabel.Text = $"Button clicked at {DateTime.Now:HH:mm:ss}!";
+        };
+
+        // Add keyboard handler for F9/F10 recording control
+        _mainWindow.KeyDown += (sender, e) => {
+            // F9 = Start Recording
+            if (e.KeyCode == KeyCode.F9)
+            {
+                // Send OSC sequence to PTY service to start recording
+                Console.Write("\x1b]1337;StartRecording\x07");
+                Console.Out.Flush();
+                statusLabel.Text = "🔴 Recording started (F10 to stop)";
+                e.Handled = true;
+            }
+            // F10 = Stop Recording
+            else if (e.KeyCode == KeyCode.F10)
+            {
+                // Send OSC sequence to PTY service to stop recording
+                Console.Write("\x1b]1337;StopRecording\x07");
+                Console.Out.Flush();
+                statusLabel.Text = "⏹️  Recording stopped (F9 to start)";
+                e.Handled = true;
+            }
         };
 
         // Add all controls to window

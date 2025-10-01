@@ -191,6 +191,28 @@ development/dotnet/
 
 ---
 
+### Phase 4: Testing & Documentation (Parallel with Phases 1-3)
+**Target:** 2025-10-13
+
+1. ✅ **RFC-0008:** Playwright and Asciinema Testing
+   - Install Playwright and configure E2E tests
+   - Create visual verification tests
+   - Integrate asciinema recording in PTY service
+   - Record progress for RFC-0005, RFC-0006, RFC-0007 implementations
+   - Set up CI/CD workflows
+
+**Status:** Can run in parallel with RFC-0005-0007
+**Effort:** 3-4 days
+**Priority:** HIGH
+
+**Recording Strategy:**
+- Record baseline before RFC-0005 (current state)
+- Record after RFC-0005 (framework compliance changes)
+- Record after RFC-0006 (dynamic plugin loading demo)
+- Record after RFC-0007 (ECS gameplay demo)
+
+---
+
 ## Implementation Order
 
 **Strict Order (blocking dependencies):**
@@ -200,38 +222,73 @@ RFC-0005 (Framework Compliance)
 RFC-0006 (Dynamic Loading) ← Can start after RFC-0005
    ↓
 RFC-0007 (Arch ECS) ← Can start after RFC-0005 & RFC-0006
+
+RFC-0008 (Testing & Recording) ← Can run in parallel with all above
 ```
 
 **Recommended Schedule:**
-- **Days 1-2:** RFC-0005 (Framework Compliance)
-- **Days 3-5:** RFC-0006 (Dynamic Plugin Loading)
-- **Days 6-12:** RFC-0007 (Arch ECS Integration)
+- **Day 0:** RFC-0008 Setup (Playwright + Asciinema) + Record baseline
+- **Days 1-2:** RFC-0005 (Framework Compliance) + Record after completion
+- **Days 3-5:** RFC-0006 (Dynamic Plugin Loading) + Record demo
+- **Days 6-12:** RFC-0007 (Arch ECS Integration) + Record gameplay demo
+- **Day 13:** RFC-0008 Finalization (CI/CD workflows, documentation)
 
-**Total Time:** ~12 working days (2.5 weeks)
+**Total Time:** ~13 working days (2.5 weeks)
+
+**Recording Milestones:**
+1. **Baseline Recording** (Day 0): Current Terminal.Gui state
+2. **Post-RFC-0005** (Day 2): Framework compliance verified
+3. **Post-RFC-0006** (Day 5): Dynamic plugin loading demo
+4. **Post-RFC-0007** (Day 12): ECS gameplay with 10,000+ entities
+
+---
+
+---
+
+### RFC-0008: Playwright and Asciinema Testing Strategy
+**Status:** Proposed
+**Date:** 2025-10-01
+**Priority:** HIGH (P1)
+**Estimated Effort:** 3-4 days
+
+**Summary:** Implement visual E2E testing with Playwright and asciinema recording for Terminal.Gui PTY integration. Enables automated visual verification and progress documentation.
+
+**Key Changes:**
+- Add Playwright for visual testing and screenshot comparison
+- Integrate asciinema recording in PTY service
+- Create GitHub Actions workflows for automated testing
+- Record development progress for RFC-0005, RFC-0006, RFC-0007
+
+**Impact:** Visual verification of Terminal.Gui rendering, automated regression testing, progress documentation
+
+**Dependencies:** None (can run in parallel with RFC-0005-0007)
+**Blocks:** None
+
+[Read Full RFC →](./0008-playwright-and-asciinema-testing-strategy.md)
 
 ---
 
 ## Future RFCs (Planned)
 
-### RFC-0008: Dungeon Generation System (Planned)
+### RFC-0009: Dungeon Generation System (Planned)
 **Priority:** MEDIUM
 **Estimated Effort:** 5 days
 
 BSP or cellular automata-based procedural dungeon generation with room/corridor systems.
 
-### RFC-0009: PTY Dual-Mode Support (Planned)
+### RFC-0010: PTY Dual-Mode Support (Planned)
 **Priority:** MEDIUM
 **Estimated Effort:** 3 days
 
 Support both standalone Terminal.Gui and PTY/xterm.js modes with a single codebase.
 
-### RFC-0010: Save/Load System (Planned)
+### RFC-0011: Save/Load System (Planned)
 **Priority:** LOW
 **Estimated Effort:** 4 days
 
 Serialize ECS world state to disk with multiple save slots support.
 
-### RFC-0011: Content System (Items, Enemies, Loot) (Planned)
+### RFC-0012: Content System (Items, Enemies, Loot) (Planned)
 **Priority:** LOW
 **Estimated Effort:** 7 days
 
