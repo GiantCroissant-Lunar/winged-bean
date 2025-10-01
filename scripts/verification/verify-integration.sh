@@ -9,7 +9,9 @@
 
 set -e
 
-REPO_ROOT="/home/runner/work/winged-bean/winged-bean"
+# Determine repository root (script is in scripts/verification/)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 DOTNET_DIR="$REPO_ROOT/development/dotnet/console/src/host/ConsoleDungeon.Host"
 ASTRO_DIR="$REPO_ROOT/development/nodejs/sites/docs"
 LOG_DIR="/tmp/xterm-verification"

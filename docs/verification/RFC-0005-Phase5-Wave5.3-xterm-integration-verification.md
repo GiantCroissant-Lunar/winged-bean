@@ -225,9 +225,26 @@ The xterm.js integration continues to work correctly after RFC-0005 Phase 5 refa
 
 ---
 
+## Quick Start
+
+To run verification yourself:
+
+```bash
+# Option 1: Automated WebSocket test
+cd development/nodejs
+npm install
+NODE_PATH=./node_modules:$NODE_PATH node ../../scripts/verification/test-websocket.js
+
+# Option 2: Full manual verification
+cd scripts/verification
+./verify-integration.sh
+# Then open browser to http://localhost:4321
+```
+
 ## Related Documents
 
 - [RFC-0005](../rfcs/0005-plugin-architecture-phase-5.md)
 - [Terminal.Gui PTY Integration Handover](../handover/TERMINAL_GUI_PTY_INTEGRATION.md)
 - [Phase 3 xterm.js Regression Test](../../development/nodejs/tests/integration/phase3-xterm-regression.test.js)
 - [E2E Integration Test](../../development/nodejs/tests/integration/e2e.test.js)
+- [Verification Scripts README](../../scripts/verification/README.md)
