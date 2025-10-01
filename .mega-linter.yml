@@ -39,12 +39,10 @@ YAML_YAMLLINT_CONFIG_FILE: .yamllint.yml
 TERRAFORM_TFLINT_CONFIG_FILE: infra/terraform/.tflint.hcl
 
 # Security linters
-CREDENTIALS_SECRETLINT_DISABLE_ERRORS: false
 CREDENTIALS_GITLEAKS_CONFIG_FILE: .gitleaks.toml
 
 # Markdown configuration
 MARKDOWN_MARKDOWNLINT_CONFIG_FILE: .markdownlint.yml
-BASH_SHELLCHECK_DISABLE_ERRORS: false
 CSHARP_DOTNET_FORMAT_ARGUMENTS: --severity info
 
 # File filters - exclude certain directories and files
@@ -83,7 +81,6 @@ DISABLE:
 DISABLE_LINTERS:
   - PYTHON_PYLINT     # Using ruff instead
   - PYTHON_FLAKE8     # Using ruff instead
-  - PYTHON_PYCODESTYLE # Using ruff instead
   - JAVASCRIPT_STANDARD # Using eslint with custom config
   - TYPESCRIPT_STANDARD # Using eslint with custom config
 
