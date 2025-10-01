@@ -1,6 +1,3 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using WingedBean.Contracts.Core;
 
 namespace WingedBean.Contracts.Config;
@@ -23,31 +20,6 @@ public partial class ProxyService : IConfigService
         _registry = registry;
     }
 
-    // TODO: Source gen will fill in these methods with proper delegation to registry
-    // For now, providing stub implementations to allow compilation
-
-    /// <inheritdoc />
-    public string? Get(string key) => throw new NotImplementedException("Source generation pending");
-
-    /// <inheritdoc />
-    public T? Get<T>(string key) => throw new NotImplementedException("Source generation pending");
-
-    /// <inheritdoc />
-    public IConfigSection GetSection(string key) => throw new NotImplementedException("Source generation pending");
-
-    /// <inheritdoc />
-    public void Set(string key, string value) => throw new NotImplementedException("Source generation pending");
-
-    /// <inheritdoc />
-    public bool Exists(string key) => throw new NotImplementedException("Source generation pending");
-
-    /// <inheritdoc />
-    public Task ReloadAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException("Source generation pending");
-
-    /// <inheritdoc />
-    public event EventHandler<ConfigChangedEventArgs>? ConfigChanged
-    {
-        add => throw new NotImplementedException("Source generation pending");
-        remove => throw new NotImplementedException("Source generation pending");
-    }
+    // Source generator will implement all interface methods below
 }
+

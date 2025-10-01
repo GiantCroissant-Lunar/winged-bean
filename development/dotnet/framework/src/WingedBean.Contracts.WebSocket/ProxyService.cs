@@ -21,25 +21,6 @@ public partial class ProxyService : IWebSocketService
         _registry = registry;
     }
 
-    // TODO: Source gen will fill in these methods with proper delegation to registry
-    // For now, providing stub implementations to allow compilation
-
-    /// <inheritdoc />
-    public void Start(int port)
-    {
-        throw new NotImplementedException("Source generation pending");
-    }
-
-    /// <inheritdoc />
-    public void Broadcast(string message)
-    {
-        throw new NotImplementedException("Source generation pending");
-    }
-
-    /// <inheritdoc />
-    public event Action<string> MessageReceived
-    {
-        add => throw new NotImplementedException("Source generation pending");
-        remove => throw new NotImplementedException("Source generation pending");
-    }
+    // Source generator will implement all interface methods below
 }
+
