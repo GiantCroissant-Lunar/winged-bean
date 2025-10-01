@@ -124,10 +124,10 @@ This plugin is decorated with the `[Plugin]` attribute:
 
 ## Dependencies
 
-- Microsoft.Extensions.Configuration 9.0.0
-- Microsoft.Extensions.Configuration.Json 9.0.0
-- Microsoft.Extensions.Configuration.EnvironmentVariables 9.0.0
-- Microsoft.Extensions.Configuration.Binder 9.0.0
+- Microsoft.Extensions.Configuration 8.0.0
+- Microsoft.Extensions.Configuration.Json 8.0.0
+- Microsoft.Extensions.Configuration.EnvironmentVariables 8.0.0
+- Microsoft.Extensions.Configuration.Binder 8.0.0
 - WingedBean.Contracts.Core
 - WingedBean.Contracts.Config
 
