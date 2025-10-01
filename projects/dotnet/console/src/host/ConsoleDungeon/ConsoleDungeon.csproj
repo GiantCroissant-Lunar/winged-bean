@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <RootNamespace>ConsoleDungeon</RootNamespace>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>12.0</LangVersion>
+    <StartupObject>ConsoleDungeon.Program</StartupObject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Reference contract projects only - no direct platform dependencies -->
+    <ProjectReference Include="..\..\..\framework\src\WingedBean.Contracts.Core\WingedBean.Contracts.Core.csproj" />
+    <ProjectReference Include="..\..\..\framework\src\WingedBean.Contracts.WebSocket\WingedBean.Contracts.WebSocket.csproj" />
+    <ProjectReference Include="..\..\..\framework\src\WingedBean.Contracts.TerminalUI\WingedBean.Contracts.TerminalUI.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>
