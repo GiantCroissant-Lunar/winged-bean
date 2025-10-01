@@ -20,7 +20,7 @@ public class AdvancedPluginScenariosE2ETests : IDisposable
         _tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
         _pluginsDir = Path.Combine(_tempDir, "plugins");
         _registryPath = Path.Combine(_tempDir, "registry.json");
-        
+
         Directory.CreateDirectory(_tempDir);
         Directory.CreateDirectory(_pluginsDir);
 
@@ -30,11 +30,11 @@ public class AdvancedPluginScenariosE2ETests : IDisposable
         // Setup host bootstrap with services
         var hostVersion = SemanticVersion.Parse("2.0.0");
         _hostBootstrap = new HostBootstrap(hostVersion);
-        
+
         var services = new ServiceCollection();
         services.AddSingleton<IPluginRegistry>(new FilePluginRegistry(_registryPath));
         services.AddLogging(builder => builder.AddConsole().SetMinimumLevel(LogLevel.Debug));
-        
+
         _hostBootstrap.RegisterHostServices(services);
         _serviceProvider = services.BuildServiceProvider();
     }
@@ -49,7 +49,7 @@ public class AdvancedPluginScenariosE2ETests : IDisposable
         // All plugins are signed and have specific permissions
 
         var corePlugin = await CreateSignedPlugin("core-plugin", "1.2.0", "Core functionality provider");
-        var utilPlugin = await CreateSignedPlugin("util-plugin", "1.0.0", "Utility functions", 
+        var utilPlugin = await CreateSignedPlugin("util-plugin", "1.0.0", "Utility functions",
             ("core-plugin", "^1.0.0"));
         var featurePlugin = await CreateSignedPlugin("feature-plugin", "2.1.0", "Feature implementation",
             ("core-plugin", "^1.0.0"), ("util-plugin", "^1.0.0"));
@@ -80,7 +80,7 @@ public class AdvancedPluginScenariosE2ETests : IDisposable
 
         // Act 3: Simulate complete plugin lifecycle through HostBootstrap
         var activatedPlugins = new List<string>();
-        
+
         foreach (var manifest in orderedManifests)
         {
             // Simulate security verification
@@ -151,7 +151,7 @@ public class AdvancedPluginScenariosE2ETests : IDisposable
             updatedBasePlugin,
             dependentPlugin
         };
-        
+
         var hasConflicts = !resolver.ValidateDependencies(allPlugins);
 
         // Assert 3: Should detect dependency conflicts
@@ -173,7 +173,7 @@ public class AdvancedPluginScenariosE2ETests : IDisposable
 
         // Act 5: Verify system state after rollback
         var currentBasePlugin = await registry.GetPluginAsync("base-service");
-        
+
         // Assert 5: Should be back to original version
         currentBasePlugin.Should().NotBeNull();
         // Note: In a real implementation, this would actually revert the version
@@ -185,7 +185,7 @@ public class AdvancedPluginScenariosE2ETests : IDisposable
     {
         // Arrange: Create a malicious plugin with invalid signature
         var maliciousPlugin = await CreateUnsignedPlugin("malicious-plugin", "1.0.0", "Malicious plugin");
-        
+
         // Tamper with the signature to simulate malicious modification
         maliciousPlugin.Security!.Signature!.Data = "invalid-signature-data";
 
@@ -214,7 +214,7 @@ public class AdvancedPluginScenariosE2ETests : IDisposable
     {
         // Arrange: Create plugin with limited permissions
         var restrictedPlugin = await CreateSignedPlugin("restricted-plugin", "1.0.0", "Plugin with limited permissions");
-        
+
         // Override permissions to be very restrictive
         restrictedPlugin.Security!.Permissions = new PluginPermissions
         {
@@ -284,7 +284,7 @@ public class AdvancedPluginScenariosE2ETests : IDisposable
         // Arrange: Create diverse plugin ecosystem
         var plugins = new[]
         {
-            await CreateSignedPlugin("auth-plugin", "1.0.0", "Authentication provider", author: "SecurityCorp", 
+            await CreateSignedPlugin("auth-plugin", "1.0.0", "Authentication provider", author: "SecurityCorp",
                 capabilities: new[] { "auth", "security" }, profiles: new[] { "web", "console" }),
             await CreateSignedPlugin("database-plugin", "2.1.0", "Database connector", author: "DataCorp",
                 capabilities: new[] { "database", "storage" }, profiles: new[] { "web", "service" }),
@@ -361,7 +361,7 @@ public class AdvancedPluginScenariosE2ETests : IDisposable
     private async Task<PluginManifest> CreateSignedPlugin(string id, string version, string description,
         params (string depId, string depVersion)[] dependencies)
     {
-        return await CreateSignedPlugin(id, version, description, "TestCorp", 
+        return await CreateSignedPlugin(id, version, description, "TestCorp",
             new[] { "core" }, new[] { "console" }, dependencies);
     }
 
@@ -422,7 +422,7 @@ public class AdvancedPluginScenariosE2ETests : IDisposable
         {
             WriteIndented = true
         });
-        
+
         await File.WriteAllTextAsync(manifestPath, json);
         await File.WriteAllTextAsync(pluginPath, pluginContent);
 

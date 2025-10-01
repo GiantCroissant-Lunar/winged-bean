@@ -97,37 +97,37 @@ public class UnityPluginPermissionEnforcer : IPluginPermissionEnforcer
             "unity.gameobject.find" => permissions.Unity.CanFindGameObjects,
             "unity.component.add" => permissions.Unity.CanAddComponents,
             "unity.component.remove" => permissions.Unity.CanRemoveComponents,
-            
+
             // Scene permissions
             "unity.scene.load" => permissions.Unity.CanLoadScenes,
             "unity.scene.unload" => permissions.Unity.CanUnloadScenes,
             "unity.scene.create" => permissions.Unity.CanCreateScenes,
-            
+
             // Asset permissions
             "unity.assets.load" => permissions.Unity.CanLoadAssets,
             "unity.assets.instantiate" => permissions.Unity.CanInstantiateAssets,
             "unity.resources.load" => permissions.Unity.CanAccessResources,
-            
+
             // Input permissions
             "unity.input.access" => permissions.Unity.CanAccessInput,
-            
+
             // Rendering permissions
             "unity.camera.access" => permissions.Unity.CanAccessCamera,
             "unity.rendering.modify" => permissions.Unity.CanModifyRendering,
-            
+
             // Audio permissions
             "unity.audio.play" => permissions.Unity.CanPlayAudio,
             "unity.audio.record" => permissions.Unity.CanRecordAudio,
-            
+
             // Animation permissions
             "unity.animation.control" => permissions.Unity.CanControlAnimations,
-            
+
             // Physics permissions
             "unity.physics.modify" => permissions.Unity.CanModifyPhysics,
-            
+
             // Editor permissions (only in editor builds)
             "unity.editor.access" => permissions.Unity.CanAccessEditor,
-            
+
             _ => false
         };
     }
@@ -164,38 +164,38 @@ public class UnitySpecificPermissions
     public bool CanAddComponents { get; set; } = true;
     public bool CanRemoveComponents { get; set; } = false;
     public List<string> AllowedComponentTypes { get; set; } = new();
-    
+
     // Scene management permissions
     public bool CanLoadScenes { get; set; } = false;
     public bool CanUnloadScenes { get; set; } = false;
     public bool CanCreateScenes { get; set; } = false;
     public List<string> AllowedScenes { get; set; } = new();
-    
+
     // Asset and Resources permissions
     public bool CanLoadAssets { get; set; } = true;
     public bool CanInstantiateAssets { get; set; } = true;
     public bool CanAccessResources { get; set; } = true;
     public List<string> AllowedAssetPaths { get; set; } = new();
-    
+
     // Input system permissions
     public bool CanAccessInput { get; set; } = true;
     public List<string> AllowedInputActions { get; set; } = new();
-    
+
     // Rendering permissions
     public bool CanAccessCamera { get; set; } = false;
     public bool CanModifyRendering { get; set; } = false;
     public List<string> AllowedCameraTags { get; set; } = new();
-    
+
     // Audio permissions
     public bool CanPlayAudio { get; set; } = true;
     public bool CanRecordAudio { get; set; } = false;
-    
+
     // Animation permissions
     public bool CanControlAnimations { get; set; } = true;
-    
+
     // Physics permissions
     public bool CanModifyPhysics { get; set; } = false;
-    
+
     // Editor-only permissions
     public bool CanAccessEditor { get; set; } = false;
 }
@@ -275,7 +275,7 @@ public class UnityPluginSecurityVerifier
 
 #if UNITY
         var currentVersion = Application.unityVersion;
-        
+
         // Check minimum Unity version
         if (!string.IsNullOrEmpty(manifest.Unity.MinUnityVersion))
         {
@@ -314,7 +314,7 @@ public class UnityPluginSecurityVerifier
 
         // In a real implementation, this would check Unity's Package Manager
         // For now, we'll assume packages are available
-        _logger?.LogDebug("Checking {PackageCount} Unity package dependencies", 
+        _logger?.LogDebug("Checking {PackageCount} Unity package dependencies",
             manifest.Unity.RequiredPackages.Count);
 
         foreach (var package in manifest.Unity.RequiredPackages)

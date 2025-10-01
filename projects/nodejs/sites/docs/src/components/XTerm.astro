@@ -7,23 +7,29 @@ interface Props {
 
 const {
   id = 'live-terminal',
-  websocketUrl = 'ws://localhost:4040'
+  websocketUrl = 'ws://localhost:4041'
 } = Astro.props as Props;
 ---
 
 <link rel="stylesheet" href="/node_modules/xterm/css/xterm.css" />
 
-<div id={id} data-ws-url={websocketUrl} style="width: 100%; height: 400px; border: 1px solid #ccc; border-radius: 4px; background: #1e1e1e;">
+<div id={id} data-ws-url={websocketUrl} data-terminal-id={id} style="width: 100%; height: 400px; border: 1px solid #ccc; border-radius: 4px; background: #1e1e1e;">
 </div>
 
 <script>
   import { Terminal } from 'xterm';
 
   document.addEventListener('DOMContentLoaded', async () => {
-    const container = document.getElementById('live-terminal');
-    const wsUrl = (container && container.dataset && container.dataset.wsUrl) ? container.dataset.wsUrl : 'ws://localhost:4040';
+    // Find all terminal containers with data-terminal-id attribute
+    const containers = document.querySelectorAll('[data-terminal-id]');
 
-    if (container) {
+    containers.forEach(container => {
+      const terminalId = container.dataset.terminalId;
+      const wsUrl = container.dataset.wsUrl || 'ws://localhost:4041';
+
+      if (container && !container.dataset.initialized) {
+        // Mark as initialized to prevent double initialization
+        container.dataset.initialized = 'true';
       // Clear loading message
       container.innerHTML = '';
 
@@ -83,7 +89,7 @@ const {
         ws.onmessage = (event) => {
           // Handle text data from ConsoleDungeon
           const message = event.data;
-          
+
           // Check if it's a screen update message
           if (message.startsWith('screen:')) {
             const screenContent = message.substring(7); // Remove 'screen:' prefix
@@ -114,7 +120,15 @@ const {
         }
       });
 
+      // Handle terminal resize
+      terminal.onResize(({cols, rows}) => {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({type: 'resize', cols, rows}));
+        }
+      });
+
       connectWebSocket();
-    }
+      }
+    });
   });
 </script>

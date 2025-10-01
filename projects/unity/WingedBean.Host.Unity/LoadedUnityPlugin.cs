@@ -166,7 +166,7 @@ public class LoadedUnityPlugin : ILoadedPlugin
 #if UNITY
         // Register Unity-specific services that plugins might need
         Services.AddSingleton<IUnityPluginServices>(new UnityPluginServices(this));
-        
+
         // Register GameObject container if available
         if (GameObjectContainer != null)
         {
@@ -197,7 +197,7 @@ public class LoadedUnityPlugin : ILoadedPlugin
                 if (component != null)
                 {
                     MonoBehaviourComponents.Add(component);
-                    
+
                     // Initialize component if it implements initialization interface
                     if (component is IPluginComponent pluginComponent)
                     {
@@ -347,7 +347,7 @@ public class UnityPluginServices : IUnityPluginServices
     public T? AddComponent<T>() where T : MonoBehaviour
     {
         if (_plugin.GameObjectContainer == null) return null;
-        
+
         var component = _plugin.GameObjectContainer.AddComponent<T>();
         if (component != null)
         {

@@ -206,7 +206,7 @@ public class HybridClrPluginLoader : IPluginLoader
         {
             // Read assembly bytes
             var assemblyBytes = await File.ReadAllBytesAsync(assemblyPath, ct);
-            
+
             // Cache for potential reload
             _assemblyCache[pluginId] = assemblyBytes;
 
@@ -215,7 +215,7 @@ public class HybridClrPluginLoader : IPluginLoader
 
             // Load the assembly
             var assembly = Assembly.Load(assemblyBytes);
-            
+
             _logger?.LogDebug("Loaded assembly via HybridCLR: {AssemblyName}", assembly.FullName);
             return assembly;
         }
@@ -290,7 +290,7 @@ public class HybridClrPluginLoader : IPluginLoader
     /// <summary>
     /// Get currently loaded plugins
     /// </summary>
-    public IReadOnlyDictionary<string, ILoadedPlugin> LoadedPlugins => 
+    public IReadOnlyDictionary<string, ILoadedPlugin> LoadedPlugins =>
         _loadedPlugins.ToDictionary(kvp => kvp.Key, kvp => (ILoadedPlugin)kvp.Value);
 
     /// <summary>

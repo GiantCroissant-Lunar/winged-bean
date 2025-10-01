@@ -381,7 +381,7 @@ public class PluginSecurityTests
         enforcer.RegisterPermissions("test-plugin", permissions);
 
         // Act & Assert
-        Assert.Throws<UnauthorizedAccessException>(() => 
+        Assert.Throws<UnauthorizedAccessException>(() =>
             enforcer.EnforcePermission("test-plugin", "filesystem.write"));
     }
 

@@ -37,10 +37,10 @@ public class PluginLifecycleIntegrationTests : IDisposable
         var loader = new PluginLoader();
         var registry = _serviceProvider.GetRequiredService<IPluginRegistry>();
         var updateManager = _serviceProvider.GetRequiredService<IPluginUpdateManager>();
-        
+
         var pluginDir = Path.Combine(_tempDir, "test-plugin");
         Directory.CreateDirectory(pluginDir);
-        
+
         var manifest = await CreateTestPluginWithManifest(pluginDir, "test-plugin", "1.0.0");
         var pluginPath = Path.Combine(pluginDir, "plugin.dll");
         await File.WriteAllTextAsync(pluginPath, "fake dll content"); // Mock DLL
@@ -48,7 +48,7 @@ public class PluginLifecycleIntegrationTests : IDisposable
         // Act 1: Load and register plugin
         await registry.RegisterPluginAsync(manifest);
         var registeredPlugin = await registry.GetPluginAsync("test-plugin");
-        
+
         // Assert 1: Plugin should be registered
         registeredPlugin.Should().NotBeNull();
         registeredPlugin!.Id.Should().Be("test-plugin");
@@ -56,15 +56,15 @@ public class PluginLifecycleIntegrationTests : IDisposable
         // Act 2: Check for updates (simulate newer version available)
         var newManifest = await CreateTestPluginWithManifest(pluginDir, "test-plugin", "1.1.0");
         await registry.RegisterPluginAsync(newManifest);
-        
+
         var updateAvailable = await updateManager.CheckForUpdatesAsync("test-plugin");
-        
+
         // Assert 2: Update should be available
         updateAvailable.Should().BeTrue();
 
         // Act 3: Get plugin statistics
         var stats = await registry.GetStatisticsAsync();
-        
+
         // Assert 3: Statistics should reflect registered plugins
         stats.TotalPlugins.Should().BeGreaterThan(0);
         stats.UniquePlugins.Should().BeGreaterThan(0);
@@ -76,7 +76,7 @@ public class PluginLifecycleIntegrationTests : IDisposable
         // Arrange
         var signatureVerifier = _serviceProvider.GetRequiredService<IPluginSignatureVerifier>();
         var permissionEnforcer = _serviceProvider.GetRequiredService<IPluginPermissionEnforcer>();
-        
+
         var pluginDir = Path.Combine(_tempDir, "secure-plugin");
         Directory.CreateDirectory(pluginDir);
 
@@ -87,9 +87,9 @@ public class PluginLifecycleIntegrationTests : IDisposable
 
         var manifest = await CreateSecurePluginWithManifest(pluginDir, "secure-plugin", "1.0.0", publicKey);
         var pluginContent = "test plugin content";
-        
+
         // Sign the plugin content
-        var signature = _testRsa.SignData(System.Text.Encoding.UTF8.GetBytes(pluginContent), 
+        var signature = _testRsa.SignData(System.Text.Encoding.UTF8.GetBytes(pluginContent),
             HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
         manifest.Security!.Signature!.Data = Convert.ToBase64String(signature);
 
@@ -102,16 +102,16 @@ public class PluginLifecycleIntegrationTests : IDisposable
 
         // Act 2: Register permissions and test enforcement
         permissionEnforcer.RegisterPermissions("secure-plugin", manifest.Security.Permissions!);
-        
+
         var canRead = permissionEnforcer.HasPermission("secure-plugin", "filesystem.read");
         var canWrite = permissionEnforcer.HasPermission("secure-plugin", "filesystem.write");
 
         // Assert 2: Permissions should be enforced correctly
         canRead.Should().BeTrue();
         canWrite.Should().BeFalse();
-        
+
         // Assert 3: Unauthorized access should throw
-        Assert.Throws<UnauthorizedAccessException>(() => 
+        Assert.Throws<UnauthorizedAccessException>(() =>
             permissionEnforcer.EnforcePermission("secure-plugin", "filesystem.write"));
     }
 
@@ -140,7 +140,7 @@ public class PluginLifecycleIntegrationTests : IDisposable
 
         var manifestD = await CreateTestPluginWithManifest(pluginDDir, "plugin-d", "1.3.0");
         var manifestC = await CreateTestPluginWithManifest(pluginCDir, "plugin-c", "2.1.5");
-        var manifestB = await CreateTestPluginWithManifest(pluginBDir, "plugin-b", "1.2.0", 
+        var manifestB = await CreateTestPluginWithManifest(pluginBDir, "plugin-b", "1.2.0",
             ("plugin-d", "^1.0.0"));
         var manifestA = await CreateTestPluginWithManifest(pluginADir, "plugin-a", "1.0.0",
             ("plugin-b", "^1.0.0"), ("plugin-c", "~2.1.0"));
@@ -160,7 +160,7 @@ public class PluginLifecycleIntegrationTests : IDisposable
         // Assert
         isValid.Should().BeTrue();
         loadOrder.Should().HaveCount(4);
-        
+
         // Verify load order (dependencies should be loaded before dependents)
         var indexD = loadOrder.FindIndex(m => m.Id == "plugin-d");
         var indexC = loadOrder.FindIndex(m => m.Id == "plugin-c");
@@ -195,12 +195,12 @@ public class PluginLifecycleIntegrationTests : IDisposable
         var rollbackCompleted = false;
 
         // Subscribe to events
-        updateManager.PluginUpdateAvailable += (sender, args) => 
+        updateManager.PluginUpdateAvailable += (sender, args) =>
         {
             updateAvailable = true;
         };
-        
-        updateManager.PluginUpdateCompleted += (sender, args) => 
+
+        updateManager.PluginUpdateCompleted += (sender, args) =>
         {
             updateCompleted = true;
         };
@@ -214,7 +214,7 @@ public class PluginLifecycleIntegrationTests : IDisposable
 
         // Act 2: Simulate successful hot update
         await updateManager.CreateRollbackPointAsync("updatable-plugin");
-        
+
         // Simulate update completion event
         updateManager.OnPluginUpdateCompleted("updatable-plugin", "1.1.0");
 
@@ -222,7 +222,7 @@ public class PluginLifecycleIntegrationTests : IDisposable
         updateCompleted.Should().BeTrue();
 
         // Act 3: Simulate rollback
-        updateManager.PluginUpdateCompleted += (sender, args) => 
+        updateManager.PluginUpdateCompleted += (sender, args) =>
         {
             if (args.PluginId == "updatable-plugin" && args.NewVersion == "1.0.0")
                 rollbackCompleted = true;
@@ -283,7 +283,7 @@ public class PluginLifecycleIntegrationTests : IDisposable
         return manifest;
     }
 
-    private async Task<PluginManifest> CreateSecurePluginWithManifest(string pluginDir, string id, string version, 
+    private async Task<PluginManifest> CreateSecurePluginWithManifest(string pluginDir, string id, string version,
         string publicKey)
     {
         var manifest = new PluginManifest
@@ -334,7 +334,7 @@ public class PluginLifecycleIntegrationTests : IDisposable
     {
         _serviceProvider?.Dispose();
         _testRsa?.Dispose();
-        
+
         if (Directory.Exists(_tempDir))
         {
             Directory.Delete(_tempDir, recursive: true);
@@ -363,10 +363,10 @@ public class PluginRegistryIntegrationTests : IDisposable
         {
             var manifest1 = CreateTestManifest("plugin1", "1.0.0");
             var manifest2 = CreateTestManifest("plugin2", "2.0.0");
-            
+
             await registry1.RegisterPluginAsync(manifest1);
             await registry1.RegisterPluginAsync(manifest2);
-            
+
             stats1 = await registry1.GetStatisticsAsync();
         }
 
@@ -383,7 +383,7 @@ public class PluginRegistryIntegrationTests : IDisposable
         stats1.TotalPlugins.Should().Be(2);
         stats2.TotalPlugins.Should().Be(2);
         stats1.UniquePlugins.Should().Be(stats2.UniquePlugins);
-        
+
         recoveredPlugin.Should().NotBeNull();
         recoveredPlugin!.Id.Should().Be("plugin1");
         recoveredPlugin.Version.Should().Be("1.0.0");
@@ -413,7 +413,7 @@ public class PluginRegistryIntegrationTests : IDisposable
         // Assert: Verify all plugins were registered
         using var finalRegistry = new FilePluginRegistry(_registryPath);
         var stats = await finalRegistry.GetStatisticsAsync();
-        
+
         stats.TotalPlugins.Should().Be(concurrentOperations);
         stats.UniquePlugins.Should().Be(concurrentOperations);
     }

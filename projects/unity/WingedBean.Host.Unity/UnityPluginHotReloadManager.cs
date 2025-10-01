@@ -25,8 +25,8 @@ public class UnityPluginHotReloadManager
     /// <param name="updateManager">Base update manager</param>
     /// <param name="logger">Logger instance</param>
     public UnityPluginHotReloadManager(
-        HybridClrPluginLoader pluginLoader, 
-        IPluginUpdateManager updateManager, 
+        HybridClrPluginLoader pluginLoader,
+        IPluginUpdateManager updateManager,
         ILogger<UnityPluginHotReloadManager>? logger = null)
     {
         _pluginLoader = pluginLoader;
@@ -52,7 +52,7 @@ public class UnityPluginHotReloadManager
         try
         {
             // Find the plugin
-            if (!_pluginLoader.LoadedPlugins.TryGetValue(pluginId, out var plugin) || 
+            if (!_pluginLoader.LoadedPlugins.TryGetValue(pluginId, out var plugin) ||
                 plugin is not LoadedUnityPlugin unityPlugin)
             {
                 _logger?.LogWarning("Plugin not found or not a Unity plugin: {PluginId}", pluginId);
@@ -73,7 +73,7 @@ public class UnityPluginHotReloadManager
             await _pluginLoader.ReloadPluginAsync(plugin, ct);
 
             // Find the new plugin instance
-            if (_pluginLoader.LoadedPlugins.TryGetValue(pluginId, out var newPlugin) && 
+            if (_pluginLoader.LoadedPlugins.TryGetValue(pluginId, out var newPlugin) &&
                 newPlugin is LoadedUnityPlugin newUnityPlugin)
             {
                 // Restore state if we preserved it
@@ -92,7 +92,7 @@ public class UnityPluginHotReloadManager
         catch (Exception ex)
         {
             _logger?.LogError(ex, "Hot-reload failed for Unity plugin: {PluginId}", pluginId);
-            
+
             // Attempt rollback
             try
             {
@@ -146,7 +146,7 @@ public class UnityPluginHotReloadManager
         // Store the state
         _pluginStates[plugin.Id] = state;
 
-        _logger?.LogDebug("Preserved state for {ComponentCount} components in plugin: {PluginId}", 
+        _logger?.LogDebug("Preserved state for {ComponentCount} components in plugin: {PluginId}",
             state.ComponentStates.Count, plugin.Id);
 
         return state;
@@ -297,7 +297,7 @@ public class UnityPluginHotReloadManager
 
         // Get serializable fields (public or with SerializeField attribute)
         var fieldInfos = type.GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-        
+
         foreach (var field in fieldInfos)
         {
             if (IsSerializableType(field.FieldType))
@@ -345,12 +345,12 @@ public class UnityPluginHotReloadManager
     /// </summary>
     private bool IsSerializableType(Type type)
     {
-        return type.IsPrimitive || 
-               type == typeof(string) || 
-               type == typeof(Vector3) || 
-               type == typeof(Vector2) || 
-               type == typeof(Quaternion) || 
-               type == typeof(Color) || 
+        return type.IsPrimitive ||
+               type == typeof(string) ||
+               type == typeof(Vector3) ||
+               type == typeof(Vector2) ||
+               type == typeof(Quaternion) ||
+               type == typeof(Color) ||
                type.IsEnum;
     }
 #endif
@@ -410,7 +410,7 @@ public class UnityPluginState
     public bool WasActivated { get; set; }
     public DateTimeOffset PreservationTime { get; set; }
     public List<ComponentState> ComponentStates { get; set; } = new();
-    
+
 #if UNITY
     public GameObjectState? GameObjectState { get; set; }
 #endif

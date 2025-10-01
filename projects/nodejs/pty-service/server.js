@@ -8,7 +8,7 @@ const WS_PORT = 4041;
 // Terminal.Gui application configuration
 const DOTNET_PROJECT_PATH = path.resolve(
   __dirname,
-  "../../../projects/dotnet/console/src/host/TerminalGui.PtyHost/TerminalGui.PtyHost.csproj",
+  "../../dotnet/console/src/host/TerminalGui.PtyHost/TerminalGui.PtyHost.csproj",
 );
 
 console.log("Terminal.Gui PTY Service starting...");
