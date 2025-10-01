@@ -1,3 +1,4 @@
+using System;
 using WingedBean.Contracts.Core;
 
 namespace WingedBean.Contracts.TerminalUI;
