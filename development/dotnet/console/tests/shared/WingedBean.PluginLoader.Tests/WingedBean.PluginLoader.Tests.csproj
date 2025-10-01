@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
@@ -24,8 +24,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\WingedBean.PluginLoader\WingedBean.PluginLoader.csproj" />
-    <ProjectReference Include="..\..\src\WingedBean.Providers.AssemblyContext\WingedBean.Providers.AssemblyContext.csproj" />
+    <ProjectReference Include="../../../src/shared/WingedBean.PluginLoader/WingedBean.PluginLoader.csproj" />
+    <ProjectReference Include="../../../src/providers/WingedBean.Providers.AssemblyContext/WingedBean.Providers.AssemblyContext.csproj" />
   </ItemGroup>
 
 </Project>

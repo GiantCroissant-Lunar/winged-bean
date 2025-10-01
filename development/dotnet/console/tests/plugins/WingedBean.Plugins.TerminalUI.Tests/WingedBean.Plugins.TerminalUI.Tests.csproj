@@ -24,8 +24,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\WingedBean.Plugins.TerminalUI\WingedBean.Plugins.TerminalUI.csproj" />
-    <ProjectReference Include="../../../framework/src/WingedBean.Contracts.TerminalUI/WingedBean.Contracts.TerminalUI.csproj" />
+    <ProjectReference Include="../../../src/plugins/WingedBean.Plugins.TerminalUI/WingedBean.Plugins.TerminalUI.csproj" />
+    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.TerminalUI/WingedBean.Contracts.TerminalUI.csproj" />
   </ItemGroup>
 
 </Project>
