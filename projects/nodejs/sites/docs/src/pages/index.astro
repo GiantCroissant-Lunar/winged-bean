@@ -49,6 +49,15 @@ const defaultCast = '/example.cast';
         <XTerm id="live-terminal" websocketUrl="ws://localhost:4040" />
       </section>
 
+      <section>
+        <h2 style="margin-bottom: 0.75rem;">Live Terminal (PTY via node-pty)</h2>
+        <p style="margin-bottom: 1rem;">
+          Connect to Terminal.Gui running inside a real PTY spawned by Node.js (node-pty) on port 4041.
+          Start the PTY service first, then use this terminal to interact with it.
+        </p>
+        <XTerm id="pty-terminal" websocketUrl="ws://localhost:4041" />
+      </section>
+
       <script>
         document.addEventListener('DOMContentLoaded', () => {
           const select = document.getElementById('cast-select');
