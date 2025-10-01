@@ -125,7 +125,3 @@ PRE_COMMANDS:
 POST_COMMANDS:
   - command: echo "MegaLinter validation completed"
     cwd: workspace
-
-# Plugin configuration
-PLUGINS:
-  - https://raw.githubusercontent.com/megalinter/megalinter/main/TEMPLATES/mega-linter.yml
