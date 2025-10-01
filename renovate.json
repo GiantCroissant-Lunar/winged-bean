@@ -1,1 +1,106 @@
-{}
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    ":preserveSemverRanges"
+  ],
+  "timezone": "Asia/Singapore",
+  "schedule": [
+    "before 6am on Monday"
+  ],
+  "labels": [
+    "dependencies"
+  ],
+  "assignees": [],
+  "reviewers": [],
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+  "separateMajorMinor": true,
+  "separateMinorPatch": false,
+  "rangeStrategy": "bump",
+  "packageRules": [
+    {
+      "description": "Group all .NET NuGet dependencies",
+      "matchManagers": ["nuget"],
+      "groupName": ".NET dependencies",
+      "schedule": [
+        "before 6am on Monday"
+      ]
+    },
+    {
+      "description": "Group Node.js dependencies by workspace",
+      "matchManagers": ["npm"],
+      "matchPaths": ["projects/nodejs/**"],
+      "groupName": "Node.js dependencies",
+      "schedule": [
+        "before 6am on Monday"
+      ]
+    },
+    {
+      "description": "Group Python dependencies",
+      "matchManagers": ["pip_requirements", "pip_setup", "poetry"],
+      "matchPaths": ["projects/python/**"],
+      "groupName": "Python dependencies",
+      "schedule": [
+        "before 6am on Monday"
+      ]
+    },
+    {
+      "description": "Group Terraform dependencies",
+      "matchManagers": ["terraform"],
+      "groupName": "Terraform dependencies",
+      "schedule": [
+        "before 6am on Monday"
+      ]
+    },
+    {
+      "description": "Group GitHub Actions",
+      "matchManagers": ["github-actions"],
+      "groupName": "GitHub Actions",
+      "schedule": [
+        "before 6am on Monday"
+      ],
+      "automerge": false
+    },
+    {
+      "description": "Auto-merge patch updates for dev dependencies",
+      "matchUpdateTypes": ["patch"],
+      "matchDepTypes": ["devDependencies"],
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash"
+    },
+    {
+      "description": "Require approval for major updates",
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true
+    },
+    {
+      "description": "Pin GitHub Actions to commit SHA",
+      "matchManagers": ["github-actions"],
+      "pinDigests": true
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "labels": ["security"],
+    "assignees": [],
+    "reviewers": []
+  },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": [
+      "before 6am on the first day of the month"
+    ]
+  },
+  "ignoreDeps": [],
+  "ignorePaths": [
+    "**/node_modules/**",
+    "**/bower_components/**",
+    "**/vendor/**",
+    "**/.venv/**",
+    "**/venv/**",
+    "**/ref-projects/**"
+  ]
+}
