@@ -12,6 +12,7 @@
     <ProjectReference Include="../../../../shared/WingedBean.Host/WingedBean.Host.csproj" />
     <ProjectReference Include="../../host/WingedBean.Host.Console/WingedBean.Host.Console.csproj" />
     <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Core/WingedBean.Contracts.Core.csproj" />
+    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Pty/WingedBean.Contracts.Pty.csproj" />
   </ItemGroup>
 
   <ItemGroup>

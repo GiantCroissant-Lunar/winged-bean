@@ -8,8 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../WingedBean.Host/WingedBean.Host.csproj" />
-    <ProjectReference Include="../WingedBean.Contracts/WingedBean.Contracts.csproj" />
+    <ProjectReference Include="../../../../shared/WingedBean.Host/WingedBean.Host.csproj" />
+    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Core/WingedBean.Contracts.Core.csproj" />
+    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Pty/WingedBean.Contracts.Pty.csproj" />
   </ItemGroup>
 
   <ItemGroup>
