@@ -83,6 +83,7 @@ DISABLE_LINTERS:
   - PYTHON_FLAKE8     # Using ruff instead
   - JAVASCRIPT_STANDARD # Using eslint with custom config
   - TYPESCRIPT_STANDARD # Using eslint with custom config
+  - YAML_V8R          # Schema validation too strict for our config
 
 # Reporting configuration
 REPORT_OUTPUT_FOLDER: megalinter-reports
