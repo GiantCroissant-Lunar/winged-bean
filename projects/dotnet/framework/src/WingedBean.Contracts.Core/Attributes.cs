@@ -1,3 +1,5 @@
+using System;
+
 namespace WingedBean.Contracts.Core;
 
 /// <summary>
