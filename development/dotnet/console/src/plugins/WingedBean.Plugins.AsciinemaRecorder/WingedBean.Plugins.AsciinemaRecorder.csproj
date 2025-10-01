@@ -11,6 +11,7 @@
     <ProjectReference Include="../../../../shared/WingedBean.Host/WingedBean.Host.csproj" />
     <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Core/WingedBean.Contracts.Core.csproj" />
     <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Pty/WingedBean.Contracts.Pty.csproj" />
+    <ProjectReference Include="../../../../framework/src/WingedBean.SourceGenerators.Proxy/WingedBean.SourceGenerators.Proxy.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <ItemGroup>
