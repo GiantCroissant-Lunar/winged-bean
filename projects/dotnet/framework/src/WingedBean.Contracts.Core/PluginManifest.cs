@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace WingedBean.Contracts.Core;
 
 /// <summary>
@@ -5,8 +7,8 @@ namespace WingedBean.Contracts.Core;
 /// </summary>
 public record PluginManifest
 {
-    public required string Id { get; init; }
-    public required string Version { get; init; }
+    public string Id { get; init; } = string.Empty;
+    public string Version { get; init; } = string.Empty;
     public string? Name { get; init; }
     public string? Description { get; init; }
     public string? Author { get; init; }
@@ -23,7 +25,7 @@ public record PluginManifest
 /// </summary>
 public record PluginDependency
 {
-    public required string PluginId { get; init; }
+    public string PluginId { get; init; } = string.Empty;
     public string? VersionRange { get; init; }
     public bool Optional { get; init; }
 }
