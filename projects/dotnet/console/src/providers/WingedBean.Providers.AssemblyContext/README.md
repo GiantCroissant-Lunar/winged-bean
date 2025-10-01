@@ -88,7 +88,7 @@ dotnet test
 
 ## Dependencies
 
-- .NET 9.0
+- .NET 8.0
 - Microsoft.Extensions.Logging.Abstractions (for logging support)
 
 ## References
