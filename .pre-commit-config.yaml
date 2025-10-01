@@ -9,8 +9,12 @@ repos:
     hooks:
       - id: trailing-whitespace
         exclude: |
-          ^projects/dotnet/.*\.(cs|vb|fs)$  # Let dotnet format handle .NET files
-          ^infra/terraform/.*\.(tf|tfvars)$  # Let terraform fmt handle terraform files
+          (?x)^(
+            projects/dotnet/.*\.(cs|vb|fs)|  # Let dotnet format handle .NET files
+            development/dotnet/.*\.(cs|vb|fs)|  # Let dotnet format handle .NET files
+            infra/terraform/.*\.(tf|tfvars)|  # Let terraform fmt handle terraform files
+            .*\.md  # Exclude markdown files (trailing spaces are intentional for line breaks)
+          )$
       - id: end-of-file-fixer
         exclude: ^infra/terraform/.*\.(tf|tfvars)$  # Let terraform fmt handle terraform files
       - id: check-json
