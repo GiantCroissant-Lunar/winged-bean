@@ -63,6 +63,30 @@
       }
     },
     {
+      "id": "wingedbean.plugins.archecs",
+      "path": "plugins/WingedBean.Plugins.ArchECS/bin/Debug/net8.0/WingedBean.Plugins.ArchECS.dll",
+      "priority": 100,
+      "loadStrategy": "Eager",
+      "enabled": true,
+      "metadata": {
+        "description": "High-performance Entity Component System using Arch",
+        "author": "WingedBean",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "wingedbean.plugins.dungeongame",
+      "path": "plugins/WingedBean.Plugins.DungeonGame/bin/Debug/net8.0/WingedBean.Plugins.DungeonGame.dll",
+      "priority": 100,
+      "loadStrategy": "Eager",
+      "enabled": true,
+      "metadata": {
+        "description": "Dungeon crawler game logic with ECS and reactive patterns",
+        "author": "WingedBean",
+        "version": "1.0.0"
+      }
+    },
+    {
       "id": "wingedbean.plugins.consoledungeon",
       "path": "plugins/WingedBean.Plugins.ConsoleDungeon/bin/Debug/net8.0/WingedBean.Plugins.ConsoleDungeon.dll",
       "priority": 50,
