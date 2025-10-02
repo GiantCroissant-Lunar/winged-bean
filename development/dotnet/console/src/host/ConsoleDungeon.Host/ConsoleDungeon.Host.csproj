@@ -24,4 +24,6 @@
     </None>
   </ItemGroup>
 
+  <Import Project="build/copy-plugins.targets" />
+
 </Project>
