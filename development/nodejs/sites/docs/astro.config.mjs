@@ -9,9 +9,12 @@ export default defineConfig({
       title: 'Winged Bean',
       description: 'Multi-tier plugin architecture for Unity/Godot games',
 
-      social: {
-        github: 'https://github.com/GiantCroissant-Lunar/winged-bean',
-      },
+      social: [
+        {
+          name: 'github',
+          url: 'https://github.com/GiantCroissant-Lunar/winged-bean',
+        },
+      ],
 
       sidebar: [
         {
