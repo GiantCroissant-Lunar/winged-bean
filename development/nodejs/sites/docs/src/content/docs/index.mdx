@@ -1,0 +1,62 @@
+---
+title: Winged Bean Documentation
+description: Technical documentation for the Winged Bean project
+---
+
+## Welcome to Winged Bean
+
+Multi-tier plugin architecture for Unity/Godot games with Terminal.Gui integration.
+
+### Quick Links
+
+- [🎮 Try the Live Demo](/demo/) - Terminal.Gui in your browser
+- [📋 RFCs](/docs/rfcs/) - Architecture proposals and decisions
+- [📚 Guides](/docs/guides/) - Development guides and tutorials
+- [🏛️ ADRs](/docs/adr/) - Architecture Decision Records
+
+### Features
+
+- **Cross-platform plugin system** - Works with Unity, Godot, and standalone .NET
+- **Terminal.Gui v2 integration** - Modern TUI framework with PTY support
+- **Dynamic recording** - F9/F10 shortcuts for asciinema recording
+- **Multi-tier architecture** - Clean separation of concerns across 4 tiers
+- **Playwright E2E testing** - Automated visual verification
+
+### Project Status
+
+- ✅ **RFC-0005** - Target Framework Compliance (Implemented)
+- ✅ **RFC-0008** - Playwright and Asciinema Testing (Implemented)
+- ✅ **RFC-0009** - Dynamic Asciinema Recording (Implemented)
+- ✅ **RFC-0011** - Starlight Documentation Integration (In Progress)
+- 🚧 **RFC-0006** - Dynamic Plugin Loading (Proposed)
+- 🚧 **RFC-0007** - Arch ECS Integration (Proposed)
+
+### Getting Started
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/GiantCroissant-Lunar/winged-bean.git
+   cd winged-bean
+   ```
+
+2. **Build the project**
+   ```bash
+   cd build/nuke
+   ./build.sh
+   ```
+
+3. **Try the demo**
+   - Visit [http://localhost:4321/demo/](/demo/)
+   - Press F9 to start recording
+   - Press F10 to stop recording
+
+### Architecture
+
+Winged Bean uses a 4-tier architecture:
+
+- **Tier 1: Contracts** - Interface definitions (.NET Standard 2.1)
+- **Tier 2: Registry** - Service registration and discovery
+- **Tier 3: Plugins** - Implementation of contracts
+- **Tier 4: Host** - Application entry point
+
+See [Architecture Overview](/docs/guides/architecture-overview/) for details.

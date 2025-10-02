@@ -9,9 +9,10 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/starlight": "^0.36.0",
+    "@xterm/addon-fit": "^0.10.0",
     "asciinema-player": "^3.10.0",
     "astro": "^5.14.1",
-    "xterm": "^5.3.0",
-    "@xterm/addon-fit": "^0.10.0"
+    "xterm": "^5.3.0"
   }
 }
