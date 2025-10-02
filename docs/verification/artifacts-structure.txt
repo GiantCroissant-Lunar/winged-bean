@@ -1,0 +1,29 @@
+build/_artifacts/
+└── v0.1.0-dev+d727e0e
+    ├── _logs
+    │   ├── dotnet-build.log
+    │   ├── pty-build.log
+    │   └── web-build.log
+    ├── dotnet
+    │   ├── bin
+    │   ├── logs
+    │   └── recordings
+    ├── pty
+    │   ├── dist
+    │   └── logs
+    └── web
+        ├── dist
+        │   ├── 404.html
+        │   ├── _astro
+        │   ├── adr
+        │   ├── demo
+        │   ├── design
+        │   ├── docs
+        │   ├── guides
+        │   ├── index.html
+        │   ├── pagefind
+        │   └── rfcs
+        ├── logs
+        └── recordings
+
+22 directories, 5 files
