@@ -17,6 +17,32 @@ export default defineConfig({
           ],
         },
         {
+          label: 'RFCs',
+          autogenerate: { directory: 'rfcs' },
+          collapsed: false,
+        },
+        {
+          label: 'Guides',
+          autogenerate: { directory: 'guides' },
+        },
+        {
+          label: 'Architecture',
+          items: [
+            {
+              label: 'ADRs',
+              autogenerate: { directory: 'adr' },
+            },
+            {
+              label: 'Design',
+              autogenerate: { directory: 'design' },
+            },
+          ],
+        },
+        {
+          label: 'Verification',
+          autogenerate: { directory: 'verification' },
+        },
+        {
           label: 'Demo',
           items: [
             {

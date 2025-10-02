@@ -1,3 +1,7 @@
+---
+title: RFC-0008: Playwright and Asciinema Testing Strategy for Terminal.Gui PTY Integration
+---
+
 # RFC-0008: Playwright and Asciinema Testing Strategy for Terminal.Gui PTY Integration
 
 **Status:** ✅ Implemented (CI/CD pending)  

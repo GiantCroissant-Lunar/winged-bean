@@ -1,3 +1,7 @@
+---
+title: Tier 1 Core Contracts Design
+---
+
 # Tier 1 Core Contracts Design
 
 ## Overview

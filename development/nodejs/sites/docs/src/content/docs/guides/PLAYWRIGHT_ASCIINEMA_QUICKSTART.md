@@ -1,3 +1,7 @@
+---
+title: Quick Start: Playwright + Asciinema Testing
+---
+
 # Quick Start: Playwright + Asciinema Testing
 
 This guide helps you quickly set up visual testing and recording for Terminal.Gui v2.

@@ -1,3 +1,7 @@
+---
+title: RFC-0009: Dynamic Asciinema Recording in PTY Service
+---
+
 # RFC-0009: Dynamic Asciinema Recording in PTY Service
 
 **Status:** ✅ Implemented  

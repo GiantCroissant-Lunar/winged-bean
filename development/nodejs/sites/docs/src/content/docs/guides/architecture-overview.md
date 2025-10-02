@@ -1,3 +1,7 @@
+---
+title: WingedBean Architecture Overview
+---
+
 # WingedBean Architecture Overview
 
 This document provides a comprehensive overview of the WingedBean architecture, including the 4-tier structure, framework targeting strategy, and plugin system.

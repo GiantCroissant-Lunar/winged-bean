@@ -1,3 +1,7 @@
+---
+title: ADR-0004: Adopt act for Local GitHub Actions Testing
+---
+
 # ADR-0004: Adopt act for Local GitHub Actions Testing
 
 ## Status

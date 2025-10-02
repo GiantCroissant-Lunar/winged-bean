@@ -1,3 +1,7 @@
+---
+title: Existing WingedBean.Host Analysis
+---
+
 # Existing WingedBean.Host Analysis
 
 ## Overview

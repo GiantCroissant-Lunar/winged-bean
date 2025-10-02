@@ -1,3 +1,7 @@
+---
+title: RFC-0001: Asciinema Recording for PTY Sessions
+---
+
 # RFC-0001: Asciinema Recording for PTY Sessions
 
 ## Status

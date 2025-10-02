@@ -1,3 +1,7 @@
+---
+title: ADR-0006: Use PM2 for Local Development Workflow
+---
+
 # ADR-0006: Use PM2 for Local Development Workflow
 
 **Status:** Accepted

@@ -1,3 +1,7 @@
+---
+title: Terminal.GUI v2 PTY Integration Verification Report
+---
+
 # Terminal.GUI v2 PTY Integration Verification Report
 
 **Date:** 2025-10-01  

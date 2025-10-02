@@ -1,3 +1,7 @@
+---
+title: Console MVP Migration Plan
+---
+
 # Console MVP Migration Plan
 
 ## Overview

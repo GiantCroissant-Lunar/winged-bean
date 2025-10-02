@@ -1,3 +1,7 @@
+---
+title: Framework Targeting Guide
+---
+
 # Framework Targeting Guide
 
 This guide explains the framework targeting strategy for WingedBean projects and how to correctly target frameworks for new projects.

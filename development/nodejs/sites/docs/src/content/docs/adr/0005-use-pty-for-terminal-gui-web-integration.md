@@ -1,3 +1,7 @@
+---
+title: ADR 0005: Use PTY (Pseudo-Terminal) for Terminal.Gui Web Integration
+---
+
 # ADR 0005: Use PTY (Pseudo-Terminal) for Terminal.Gui Web Integration
 
 ## Status

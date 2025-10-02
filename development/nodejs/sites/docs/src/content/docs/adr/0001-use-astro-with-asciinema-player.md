@@ -1,3 +1,7 @@
+---
+title: ADR-0001: Use Astro.js with asciinema player
+---
+
 # ADR-0001: Use Astro.js with asciinema player
 
 ## Status

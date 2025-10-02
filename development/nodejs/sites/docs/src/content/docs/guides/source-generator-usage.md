@@ -1,3 +1,7 @@
+---
+title: Source Generator Usage Guide
+---
+
 # Source Generator Usage Guide
 
 This guide explains how to use the WingedBean source generators to automatically generate service proxy implementations.
