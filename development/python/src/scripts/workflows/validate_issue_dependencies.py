@@ -49,8 +49,8 @@ def extract_blockers(issue_body: str) -> List[int]:
     if re.search(r"\bNone\b", blocked_line, re.IGNORECASE):
         return []
 
-    # Extract issue numbers (with or without #)
-    issue_pattern = r"#?(\d+)"
+    # Extract issue numbers (must have # prefix to avoid false positives like "P3")
+    issue_pattern = r"#(\d+)"
     blockers = [int(m.group(1)) for m in re.finditer(issue_pattern, blocked_line)]
     return blockers
 
