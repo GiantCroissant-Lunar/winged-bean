@@ -1,6 +1,5 @@
 ---
-import '../vendor/asciinema/asciinema-player.css';
-import vendorPlayerUrl from '../vendor/asciinema/asciinema-player.js?url';
+import 'asciinema-player/dist/bundle/asciinema-player.css';
 
 interface Props {
   src: string;
@@ -50,8 +49,7 @@ const filteredOptions = Object.fromEntries(
   data-id={elementId}
 ></div>
 
-<script type="module" define:vars={{ playerUrl: vendorPlayerUrl }}>
-  // Wait for DOM and AsciinemaPlayer global to be ready
+<script type="module" is:inline>
   function initPlayer() {
     const containers = document.querySelectorAll('.asciinema-player');
 

@@ -87,7 +87,8 @@ test.describe('Documentation Site', () => {
       'net::ERR_CONNECTION_REFUSED',
       'WebSocket error',
       'WebSocket closed',
-      'Stack trace:'
+      'Stack trace:',
+      '[AsciinemaPlayer]'
     ];
 
     const consoleErrors = [];

@@ -2,16 +2,17 @@
 import AsciinemaPlayer from '../../components/AsciinemaPlayer.astro';
 import XTerm from '../../components/XTerm.astro';
 import pico from '../../styles/vendor/pico.min.css?url';
-import demoCss from '../../styles/demo.css?url';
-import exampleCast from '../../assets/casts/example.cast?url';
 import asciinemaPlayerJs from '../../vendor/asciinema/asciinema-player.js?url';
 // Standalone demo page: do not use Starlight layout
 
 const pageTitle = 'Winged Bean Docs';
 const castFiles = [
-  { name: 'Hello Example', src: exampleCast }
+  { name: 'Hello Example', src: '/example.cast' },
+  { name: 'NPM Install', src: '/npm-install.cast' },
+  { name: 'Git Commit', src: '/git-commit.cast' },
+  { name: 'Docker Build', src: '/docker-build.cast' }
 ];
-const defaultCast = exampleCast;
+const defaultCast = '/example.cast';
 ---
 
 <html lang="en">
@@ -19,7 +20,6 @@ const defaultCast = exampleCast;
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="stylesheet" href={pico} />
-    <link rel="stylesheet" href={demoCss} />
     <script src={asciinemaPlayerJs}></script>
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
@@ -30,9 +30,6 @@ const defaultCast = exampleCast;
       <header>
         <h1>{pageTitle}</h1>
         <p class="demo-hero">Interactive terminal demos are powered by the embedded Asciinema player below.</p>
-        <nav>
-          <a href="/">← Back to Home</a>
-        </nav>
       </header>
 
   <section class="demo-section">

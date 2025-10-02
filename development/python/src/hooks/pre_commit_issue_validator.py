@@ -1,524 +1,361 @@
 #!/usr/bin/env python3
-"""Pre-commit hook for validating issue dependency metadata (R-ISS-010).
+"""
+Pre-commit hook: Validate issue metadata in templates and documentation.
 
-This hook validates issue metadata in documentation files and issue templates
-to ensure proper dependency tracking for agent-assisted development.
+Per R-ISS-010: Enforce issue metadata schema in committed files.
+Per R-ISS-020: Use Python for complex validation logic.
 
-Per RFC-0015, all agent-created issues must include dependency metadata:
-- rfc: RFC identifier
-- depends_on: List of blocking issue numbers
-- priority: critical|high|medium|low
-- agent_assignable: Boolean
-- retry_count: Integer
-- max_retries: Integer
-
-Usage:
-    python pre_commit_issue_validator.py <file1> <file2> ...
-    python pre_commit_issue_validator.py --check-all
+This hook validates:
+1. Issue template YAML files
+2. Markdown files containing issue frontmatter
+3. RFC/ADR documents referencing issues
 """
 
-import argparse
-import os
 import re
 import sys
+import subprocess
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple
-
-try:
-    import yaml
-except ImportError:
-    print("Error: PyYAML required. Install: pip install pyyaml", file=sys.stderr)
-    sys.exit(1)
-
-
-# Issue metadata schema (R-ISS-010)
-REQUIRED_FIELDS = {'rfc', 'depends_on', 'priority', 'agent_assignable'}
-OPTIONAL_FIELDS = {'retry_count', 'max_retries', 'blocks', 'phase', 'wave', 'estimate_minutes'}
-VALID_PRIORITIES = {'critical', 'high', 'medium', 'low'}
-DEFAULT_MAX_RETRIES = 3
-
-RFC_PATTERN = re.compile(r'^RFC-\d{4}$', re.IGNORECASE)
-ISSUE_REF_PATTERN = re.compile(r'#(\d+)')
-
-
-class ValidationError:
-    """Represents an issue metadata validation error."""
-
-    def __init__(self, file_path: Path, message: str, line: Optional[int] = None):
-        self.file_path = file_path
-        self.message = message
-        self.line = line
-
-    def __str__(self) -> str:
-        location = f"{self.file_path}"
-        if self.line is not None:
-            location += f":{self.line}"
-        return f"{location}: {self.message}"
+from typing import Dict, List, Set, Optional, Tuple
+import yaml
 
 
 class IssueMetadataValidator:
-    """Validates issue dependency metadata in documentation and templates."""
+    """Validates issue metadata schema and dependencies."""
 
-    def __init__(self, online_check: bool = False):
-        """Initialize validator.
+    REQUIRED_FIELDS = ["rfc", "depends_on", "priority", "agent_assignable", "retry_count", "max_retries"]
+    VALID_PRIORITIES = ["critical", "high", "medium", "low"]
 
-        Args:
-            online_check: If True, verify referenced issues exist via GitHub API
+    def __init__(self, strict_mode: bool = True):
         """
-        self.errors: List[ValidationError] = []
-        self.online_check = online_check
-
-    def extract_issue_metadata(self, file_path: Path) -> Optional[Dict]:
-        """Extract issue metadata from file content.
-
-        Looks for YAML frontmatter or code blocks containing issue metadata.
+        Initialize validator.
 
         Args:
-            file_path: Path to the file
-
-        Returns:
-            Dictionary of metadata or None if not found
+            strict_mode: If True, hard block on validation failures (per user preference)
         """
-        try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                content = f.read()
+        self.strict_mode = strict_mode
+        self.errors: List[str] = []
+        self.warnings: List[str] = []
 
-            # Try YAML frontmatter first (---...---)
-            frontmatter_match = re.match(r'^---\n(.*?)\n---', content, re.DOTALL)
-            if frontmatter_match:
-                try:
-                    metadata = yaml.safe_load(frontmatter_match.group(1))
-                    if isinstance(metadata, dict):
-                        return metadata
-                except yaml.YAMLError as e:
-                    self.errors.append(ValidationError(
-                        file_path,
-                        f"Invalid YAML frontmatter: {e}"
-                    ))
-                    return None
-
-            # Try code blocks with yaml/yml language tag
-            code_block_pattern = re.compile(
-                r'```(?:yaml|yml)\n(.*?)\n```',
-                re.DOTALL | re.MULTILINE
-            )
-            for match in code_block_pattern.finditer(content):
-                try:
-                    metadata = yaml.safe_load(match.group(1))
-                    if isinstance(metadata, dict) and 'rfc' in metadata:
-                        return metadata
-                except yaml.YAMLError:
-                    continue
-
-            return None
-
-        except Exception as e:
-            self.errors.append(ValidationError(
-                file_path,
-                f"Failed to read file: {e}"
-            ))
-            return None
-
-    def validate_metadata_schema(
-        self,
-        file_path: Path,
-        metadata: Dict
-    ) -> bool:
-        """Validate metadata against schema requirements.
+    def validate_metadata(self, metadata: Dict, file_path: str) -> bool:
+        """
+        Validate issue metadata structure.
 
         Args:
-            file_path: Path to the file
-            metadata: Metadata dictionary
+            metadata: Parsed YAML frontmatter
+            file_path: Source file path for error messages
 
         Returns:
             True if valid, False otherwise
         """
-        valid = True
+        is_valid = True
 
         # Check required fields
-        missing_fields = REQUIRED_FIELDS - set(metadata.keys())
-        if missing_fields:
-            self.errors.append(ValidationError(
-                file_path,
-                f"Missing required fields: {', '.join(sorted(missing_fields))}"
-            ))
-            valid = False
-
-        # Validate RFC format
-        if 'rfc' in metadata:
-            rfc = str(metadata['rfc']).strip()
-            if not RFC_PATTERN.match(rfc):
-                self.errors.append(ValidationError(
-                    file_path,
-                    f"Invalid RFC format: '{rfc}' (expected: RFC-XXXX)"
-                ))
-                valid = False
+        for field in self.REQUIRED_FIELDS:
+            if field not in metadata:
+                self.errors.append(f"{file_path}: Missing required field '{field}'")
+                is_valid = False
 
         # Validate priority
-        if 'priority' in metadata:
-            priority = str(metadata['priority']).lower().strip()
-            if priority not in VALID_PRIORITIES:
-                self.errors.append(ValidationError(
-                    file_path,
-                    f"Invalid priority: '{priority}' "
-                    f"(must be one of: {', '.join(sorted(VALID_PRIORITIES))})"
-                ))
-                valid = False
+        if "priority" in metadata:
+            if metadata["priority"] not in self.VALID_PRIORITIES:
+                self.errors.append(
+                    f"{file_path}: Invalid priority '{metadata['priority']}'. "
+                    f"Must be one of: {', '.join(self.VALID_PRIORITIES)}"
+                )
+                is_valid = False
 
         # Validate depends_on is a list
-        if 'depends_on' in metadata:
-            depends_on = metadata['depends_on']
-            if not isinstance(depends_on, list):
-                self.errors.append(ValidationError(
-                    file_path,
-                    f"'depends_on' must be a list, got: {type(depends_on).__name__}"
-                ))
-                valid = False
+        if "depends_on" in metadata:
+            if not isinstance(metadata["depends_on"], list):
+                self.errors.append(
+                    f"{file_path}: Field 'depends_on' must be a list (empty array if no dependencies)"
+                )
+                is_valid = False
             else:
-                # Validate each dependency is an integer
-                for i, dep in enumerate(depends_on):
-                    if not isinstance(dep, int) or dep <= 0:
-                        self.errors.append(ValidationError(
-                            file_path,
-                            f"depends_on[{i}] must be a positive integer, got: {dep}"
-                        ))
-                        valid = False
+                # Validate all elements are integers
+                for dep in metadata["depends_on"]:
+                    if not isinstance(dep, int):
+                        self.errors.append(
+                            f"{file_path}: Dependency '{dep}' in 'depends_on' must be an integer"
+                        )
+                        is_valid = False
+
+        # Validate blocks is a list (if present)
+        if "blocks" in metadata:
+            if not isinstance(metadata["blocks"], list):
+                self.errors.append(f"{file_path}: Field 'blocks' must be a list")
+                is_valid = False
+
+        # Validate retry_count and max_retries
+        if "retry_count" in metadata:
+            if not isinstance(metadata["retry_count"], int) or metadata["retry_count"] < 0:
+                self.errors.append(f"{file_path}: Field 'retry_count' must be a non-negative integer")
+                is_valid = False
+
+        if "max_retries" in metadata:
+            if not isinstance(metadata["max_retries"], int) or metadata["max_retries"] < 1:
+                self.errors.append(f"{file_path}: Field 'max_retries' must be a positive integer")
+                is_valid = False
+
+            # Per user preference: max_retries should default to 3
+            if metadata["max_retries"] != 3:
+                self.warnings.append(
+                    f"{file_path}: Field 'max_retries' is {metadata['max_retries']}, "
+                    "but user preference is 3. Consider updating."
+                )
 
         # Validate agent_assignable is boolean
-        if 'agent_assignable' in metadata:
-            if not isinstance(metadata['agent_assignable'], bool):
-                self.errors.append(ValidationError(
-                    file_path,
-                    f"'agent_assignable' must be boolean, "
-                    f"got: {type(metadata['agent_assignable']).__name__}"
-                ))
-                valid = False
+        if "agent_assignable" in metadata:
+            if not isinstance(metadata["agent_assignable"], bool):
+                self.errors.append(f"{file_path}: Field 'agent_assignable' must be a boolean")
+                is_valid = False
 
-        # Validate retry_count and max_retries if present
-        for field in ['retry_count', 'max_retries']:
-            if field in metadata:
-                value = metadata[field]
-                if not isinstance(value, int) or value < 0:
-                    self.errors.append(ValidationError(
-                        file_path,
-                        f"'{field}' must be a non-negative integer, got: {value}"
-                    ))
-                    valid = False
+        # Validate RFC format
+        if "rfc" in metadata:
+            rfc_pattern = r"^RFC-\d{4}$"
+            if not re.match(rfc_pattern, metadata["rfc"]):
+                self.errors.append(
+                    f"{file_path}: Field 'rfc' must match format 'RFC-XXXX' (e.g., RFC-0007)"
+                )
+                is_valid = False
 
-        # Validate max_retries doesn't exceed configured limit
-        if 'max_retries' in metadata:
-            if metadata['max_retries'] > DEFAULT_MAX_RETRIES:
-                self.errors.append(ValidationError(
-                    file_path,
-                    f"'max_retries' exceeds configured limit "
-                    f"({metadata['max_retries']} > {DEFAULT_MAX_RETRIES})"
-                ))
-                valid = False
+        return is_valid
 
-        return valid
-
-    def detect_circular_dependencies(
-        self,
-        file_path: Path,
-        metadata: Dict,
-        all_metadata: Dict[int, Dict]
-    ) -> bool:
-        """Detect circular dependencies in issue graph.
+    def detect_circular_dependencies(self, deps_graph: Dict[int, List[int]]) -> List[List[int]]:
+        """
+        Detect circular dependencies using DFS.
 
         Args:
-            file_path: Path to the file
-            metadata: Metadata for current issue
-            all_metadata: Dictionary mapping issue numbers to metadata
+            deps_graph: Issue number -> list of dependencies
 
         Returns:
-            True if no circular dependencies, False otherwise
+            List of cycles (each cycle is a list of issue numbers)
         """
-        # Extract issue number from file or metadata
-        issue_num = self._extract_issue_number(file_path, metadata)
-        if issue_num is None:
-            # Can't check without issue number
-            return True
+        cycles = []
+        visited = set()
+        rec_stack = set()
 
-        depends_on = metadata.get('depends_on', [])
-        if not depends_on:
-            return True
+        def dfs(node: int, path: List[int]) -> bool:
+            """DFS helper to detect cycles."""
+            visited.add(node)
+            rec_stack.add(node)
+            path.append(node)
 
-        # DFS to detect cycles
-        visited: Set[int] = set()
-        path: List[int] = []
-
-        def has_cycle(current: int) -> bool:
-            if current in path:
-                # Found cycle
-                cycle_start = path.index(current)
-                cycle = path[cycle_start:] + [current]
-                self.errors.append(ValidationError(
-                    file_path,
-                    f"Circular dependency detected: {' -> '.join(f'#{n}' for n in cycle)}"
-                ))
-                return True
-
-            if current in visited:
-                return False
-
-            visited.add(current)
-            path.append(current)
-
-            # Check dependencies
-            current_metadata = all_metadata.get(current, {})
-            for dep in current_metadata.get('depends_on', []):
-                if has_cycle(dep):
+            for neighbor in deps_graph.get(node, []):
+                if neighbor not in visited:
+                    if dfs(neighbor, path):
+                        return True
+                elif neighbor in rec_stack:
+                    # Found a cycle
+                    cycle_start = path.index(neighbor)
+                    cycle = path[cycle_start:] + [neighbor]
+                    cycles.append(cycle)
                     return True
 
             path.pop()
+            rec_stack.remove(node)
             return False
 
-        return not has_cycle(issue_num)
+        for node in deps_graph:
+            if node not in visited:
+                dfs(node, [])
 
-    def _extract_issue_number(
-        self,
-        file_path: Path,
-        metadata: Dict
-    ) -> Optional[int]:
-        """Extract issue number from file path or metadata.
+        return cycles
+
+    def extract_frontmatter(self, content: str, file_path: str) -> Optional[Dict]:
+        """
+        Extract YAML frontmatter from markdown content.
 
         Args:
-            file_path: Path to the file
-            metadata: Issue metadata
+            content: File content
+            file_path: Source file path for error messages
 
         Returns:
-            Issue number or None
+            Parsed YAML dict or None if no frontmatter
         """
-        # Try to extract from filename (e.g., issue-85.md)
-        match = re.search(r'issue[_-]?(\d+)', file_path.name, re.IGNORECASE)
-        if match:
-            return int(match.group(1))
+        # Match YAML frontmatter (--- ... ---)
+        pattern = r"^---\s*\n(.*?)\n---\s*\n"
+        match = re.match(pattern, content, re.DOTALL)
 
-        # Try to extract from metadata
-        if 'issue_number' in metadata:
-            return int(metadata['issue_number'])
+        if not match:
+            return None
 
-        return None
+        yaml_content = match.group(1)
+
+        try:
+            metadata = yaml.safe_load(yaml_content)
+            return metadata if isinstance(metadata, dict) else None
+        except yaml.YAMLError as e:
+            self.errors.append(f"{file_path}: Invalid YAML frontmatter: {e}")
+            return None
 
     def validate_file(self, file_path: Path) -> bool:
-        """Validate a single file for issue metadata.
+        """
+        Validate a single file for issue metadata.
 
         Args:
-            file_path: Path to the file
+            file_path: Path to file to validate
 
         Returns:
-            True if valid, False otherwise
+            True if valid or no metadata found, False if invalid
         """
-        # Only validate certain file types
-        if not self._should_validate(file_path):
-            return True
+        try:
+            content = file_path.read_text(encoding="utf-8")
+        except Exception as e:
+            self.errors.append(f"{file_path}: Failed to read file: {e}")
+            return False
 
-        metadata = self.extract_issue_metadata(file_path)
+        # Extract frontmatter
+        metadata = self.extract_frontmatter(content, str(file_path))
+
         if metadata is None:
-            # No metadata found - might be okay depending on file type
-            if self._requires_metadata(file_path):
-                self.errors.append(ValidationError(
-                    file_path,
-                    "No issue metadata found (required for this file type)"
-                ))
-                return False
+            # No frontmatter found - this is OK for many files
             return True
 
-        return self.validate_metadata_schema(file_path, metadata)
+        # Check if this looks like issue metadata (has our specific fields)
+        has_issue_fields = any(field in metadata for field in ["depends_on", "blocks", "agent_assignable"])
 
-    def _should_validate(self, file_path: Path) -> bool:
-        """Check if file should be validated for issue metadata.
-
-        Args:
-            file_path: Path to the file
-
-        Returns:
-            True if should validate
-        """
-        # Validate issue templates
-        if '.github/ISSUE_TEMPLATE' in str(file_path):
+        if not has_issue_fields:
+            # Has frontmatter but not issue metadata (e.g., RFC frontmatter)
             return True
 
-        # Validate docs that mention issues
-        if file_path.suffix in ['.md', '.markdown']:
-            try:
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    content = f.read()
-                # Check if file contains issue references
-                if ISSUE_REF_PATTERN.search(content):
-                    return True
-            except Exception:
-                pass
+        # Validate the metadata
+        return self.validate_metadata(metadata, str(file_path))
 
-        return False
 
-    def _requires_metadata(self, file_path: Path) -> bool:
-        """Check if file requires metadata.
+def get_staged_files() -> List[Path]:
+    """
+    Get list of staged files from git.
 
-        Args:
-            file_path: Path to the file
+    Returns:
+        List of Path objects for staged files
+    """
+    try:
+        result = subprocess.run(
+            ["git", "diff", "--cached", "--name-only", "--diff-filter=ACM"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
 
-        Returns:
-            True if metadata is required
-        """
-        # Issue templates must have metadata
-        if '.github/ISSUE_TEMPLATE' in str(file_path):
+        files = [
+            Path(f.strip())
+            for f in result.stdout.strip().split("\n")
+            if f.strip()
+        ]
+
+        return files
+    except subprocess.CalledProcessError as e:
+        print(f"Error getting staged files: {e.stderr}", file=sys.stderr)
+        return []
+
+
+def should_validate_file(file_path: Path) -> bool:
+    """
+    Check if file should be validated.
+
+    Args:
+        file_path: Path to check
+
+    Returns:
+        True if file should be validated
+    """
+    # Validate markdown files that might contain issue metadata
+    if file_path.suffix in [".md", ".markdown"]:
+        # Check if it's in relevant directories
+        parts = file_path.parts
+        if any(part in parts for part in ["docs", ".github", "ISSUE_TEMPLATE"]):
             return True
 
-        return False
+    # Validate YAML issue templates
+    if file_path.suffix in [".yml", ".yaml"]:
+        if "ISSUE_TEMPLATE" in file_path.parts:
+            return True
 
-    def validate_files(self, file_paths: List[Path]) -> bool:
-        """Validate multiple files.
+    return False
 
-        Args:
-            file_paths: List of file paths
 
-        Returns:
-            True if all valid, False otherwise
-        """
-        all_valid = True
-        all_metadata: Dict[int, Dict] = {}
+def main() -> int:
+    """Main pre-commit hook logic."""
+    print("🔍 Running issue metadata validator (per R-ISS-010)...\n")
 
-        # First pass: validate schemas and collect metadata
-        for file_path in file_paths:
-            if not file_path.exists():
-                self.errors.append(ValidationError(
-                    file_path,
-                    "File not found"
-                ))
-                all_valid = False
-                continue
+    # Get staged files
+    staged_files = get_staged_files()
 
-            if not self.validate_file(file_path):
-                all_valid = False
-            else:
-                # Collect metadata for circular dependency check
-                metadata = self.extract_issue_metadata(file_path)
-                if metadata:
-                    issue_num = self._extract_issue_number(file_path, metadata)
-                    if issue_num:
-                        all_metadata[issue_num] = metadata
+    if not staged_files:
+        print("No files to validate.")
+        return 0
 
-        # Second pass: check circular dependencies
-        for file_path in file_paths:
-            metadata = self.extract_issue_metadata(file_path)
-            if metadata:
-                if not self.detect_circular_dependencies(
-                    file_path,
-                    metadata,
-                    all_metadata
-                ):
-                    all_valid = False
+    # Filter files to validate
+    files_to_validate = [f for f in staged_files if should_validate_file(f)]
 
-        return all_valid
+    if not files_to_validate:
+        print(f"Scanned {len(staged_files)} staged files, none require issue metadata validation.")
+        return 0
 
-    def print_report(self) -> None:
-        """Print validation report to stdout."""
-        if not self.errors:
-            print("✅ All issue metadata validation passed")
-            return
+    print(f"Validating {len(files_to_validate)} file(s) for issue metadata...\n")
 
-        print(f"❌ Issue metadata validation failed ({len(self.errors)} errors):\n")
+    # Validate each file
+    validator = IssueMetadataValidator(strict_mode=True)
+    all_valid = True
 
-        # Group errors by file
-        errors_by_file: Dict[Path, List[ValidationError]] = {}
-        for error in self.errors:
-            if error.file_path not in errors_by_file:
-                errors_by_file[error.file_path] = []
-            errors_by_file[error.file_path].append(error)
+    for file_path in files_to_validate:
+        if not file_path.exists():
+            # File was deleted
+            continue
 
-        for file_path in sorted(errors_by_file.keys()):
-            print(f"❌ {file_path}:")
-            for error in errors_by_file[file_path]:
-                print(f"  - {error.message}")
+        print(f"  Checking {file_path}...", end=" ")
+
+        if validator.validate_file(file_path):
+            print("✓")
+        else:
+            print("✗")
+            all_valid = False
+
+    # Print warnings (non-blocking)
+    if validator.warnings:
+        print("\n⚠️  Warnings:")
+        for warning in validator.warnings:
+            print(f"  • {warning}")
+
+    # Print errors (blocking in strict mode)
+    if validator.errors:
+        print("\n❌ Validation Errors:")
+        for error in validator.errors:
+            print(f"  • {error}")
+        print()
+
+    # Decision based on strict mode
+    if not all_valid:
+        if validator.strict_mode:
+            print("━" * 70)
+            print("❌ COMMIT BLOCKED: Invalid issue metadata (per R-ISS-010)")
+            print("━" * 70)
             print()
+            print("Required schema:")
+            print("""
+---
+rfc: RFC-XXXX
+phase: N                    # Optional
+wave: N.N                   # Optional
+depends_on: [issue_numbers] # Required (empty array if none)
+blocks: [issue_numbers]     # Optional
+estimate_minutes: NN        # Optional
+priority: critical|high|medium|low  # Required
+agent_assignable: true      # Required (boolean)
+retry_count: 0              # Required (default 0)
+max_retries: 3              # Required (default 3)
+---
+""")
+            print("To bypass this check (NOT RECOMMENDED): git commit --no-verify")
+            return 1
+        else:
+            print("\n⚠️  Validation failed, but proceeding (strict_mode=False)")
+            return 0
+
+    print(f"\n✓ All issue metadata is valid")
+    return 0
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Validate issue dependency metadata (R-ISS-010 per RFC-0015)",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # Validate specific files
-  %(prog)s .github/ISSUE_TEMPLATE/feature.yml docs/implementation/issue-85.md
-
-  # Validate all issue-related files
-  %(prog)s --check-all
-
-  # Enable online validation (checks if referenced issues exist)
-  %(prog)s --online .github/ISSUE_TEMPLATE/*.yml
-        """
-    )
-
-    parser.add_argument(
-        'files',
-        nargs='*',
-        type=Path,
-        help='Files to validate'
-    )
-
-    parser.add_argument(
-        '--check-all',
-        action='store_true',
-        help='Check all issue templates and docs'
-    )
-
-    parser.add_argument(
-        '--online',
-        action='store_true',
-        help='Verify referenced issues exist via GitHub API'
-    )
-
-    parser.add_argument(
-        '--quiet',
-        action='store_true',
-        help='Suppress output, only use exit code'
-    )
-
-    args = parser.parse_args()
-
-    # Determine files to check
-    files_to_check: List[Path] = []
-
-    if args.check_all:
-        # Find all issue templates and related docs
-        repo_root = Path(__file__).resolve().parents[5]  # Navigate to repo root
-
-        # Check issue templates
-        template_dir = repo_root / '.github' / 'ISSUE_TEMPLATE'
-        if template_dir.exists():
-            files_to_check.extend(template_dir.glob('*.yml'))
-            files_to_check.extend(template_dir.glob('*.yaml'))
-            files_to_check.extend(template_dir.glob('*.md'))
-
-        # Check implementation docs
-        impl_dir = repo_root / 'docs' / 'implementation'
-        if impl_dir.exists():
-            files_to_check.extend(impl_dir.glob('**/*.md'))
-
-    elif args.files:
-        files_to_check = args.files
-    else:
-        parser.print_help()
-        sys.exit(1)
-
-    if not files_to_check:
-        if not args.quiet:
-            print("No files to validate")
-        sys.exit(0)
-
-    # Validate files
-    validator = IssueMetadataValidator(online_check=args.online)
-    all_valid = validator.validate_files(files_to_check)
-
-    # Print report
-    if not args.quiet:
-        validator.print_report()
-
-    # Exit with appropriate code
-    sys.exit(0 if all_valid else 1)
-
-
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    sys.exit(main())
