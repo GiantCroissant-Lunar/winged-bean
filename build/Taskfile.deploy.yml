@@ -1,0 +1,69 @@
+# Deployment tasks for Vercel and Fly.io
+# Included by build/Taskfile.yml
+version: '3'
+
+vars:
+  VERSION:
+    sh: dotnet gitversion /showvariable SemVer
+  ARTIFACT_DIR: _artifacts/v{{.VERSION}}
+
+tasks:
+  deploy-vercel-docs:
+    desc: "Deploy docs site to Vercel"
+    dir: ../development/nodejs/sites/docs
+    cmds:
+      - echo "Deploying docs to Vercel (version {{.VERSION}})..."
+      - vercel --prod
+    preconditions:
+      - sh: command -v vercel
+        msg: "Vercel CLI not installed. Run: npm i -g vercel"
+
+  deploy-flyio-pty:
+    desc: "Deploy PTY service to Fly.io"
+    deps: [build-pty]
+    dir: ../development/nodejs/pty-service
+    cmds:
+      - echo "Deploying PTY service to Fly.io (version {{.VERSION}})..."
+      - flyctl deploy --app winged-bean-pty
+    preconditions:
+      - sh: command -v flyctl
+        msg: "Fly.io CLI not installed. Run: curl -L https://fly.io/install.sh | sh"
+    env:
+      FLY_API_TOKEN: '{{.FLY_API_TOKEN}}'
+
+  deploy-all:
+    desc: "Deploy all services (docs + PTY)"
+    cmds:
+      - task: deploy-vercel-docs
+      - task: deploy-flyio-pty
+
+  flyio-start:
+    desc: "Start Fly.io PTY machine"
+    cmds:
+      - |
+        MACHINE_ID=$(flyctl machines list --app winged-bean-pty --json | jq -r '.[0].id')
+        echo "Starting machine: $MACHINE_ID"
+        flyctl machine start $MACHINE_ID --app winged-bean-pty
+        sleep 10
+        flyctl machine status $MACHINE_ID --app winged-bean-pty
+    env:
+      FLY_API_TOKEN: '{{.FLY_API_TOKEN}}'
+
+  flyio-stop:
+    desc: "Stop Fly.io PTY machine"
+    cmds:
+      - |
+        MACHINE_ID=$(flyctl machines list --app winged-bean-pty --json | jq -r '.[0].id')
+        echo "Stopping machine: $MACHINE_ID"
+        flyctl machine stop $MACHINE_ID --app winged-bean-pty
+        flyctl machine status $MACHINE_ID --app winged-bean-pty
+    env:
+      FLY_API_TOKEN: '{{.FLY_API_TOKEN}}'
+
+  flyio-status:
+    desc: "Check Fly.io PTY machine status"
+    cmds:
+      - flyctl status --app winged-bean-pty
+      - flyctl machines list --app winged-bean-pty
+    env:
+      FLY_API_TOKEN: '{{.FLY_API_TOKEN}}'

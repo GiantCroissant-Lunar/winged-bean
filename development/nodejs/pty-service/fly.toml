@@ -1,4 +1,5 @@
 # Fly.io deployment config for PTY service + Terminal.Gui C# console app
+# Aligned with RFC-0010: Uses Task-built artifacts from build/_artifacts/
 app = "winged-bean-pty"
 primary_region = "iad"
 

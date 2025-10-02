@@ -1,5 +1,6 @@
 {
-  "buildCommand": "npm run build",
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "cd ../../../ && task nodejs:build-docs",
   "outputDirectory": "dist",
   "framework": "astro",
   "devCommand": "npm run dev",

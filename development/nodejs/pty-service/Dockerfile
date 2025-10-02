@@ -1,4 +1,6 @@
 # Multi-stage Dockerfile for PTY service + .NET runtime + Terminal.Gui console app
+# Aligned with RFC-0010: Uses Task-built artifacts from build/_artifacts/v{GitVersion}/
+
 FROM node:20-slim AS node-base
 
 # Install .NET 8 SDK and runtime
@@ -25,9 +27,10 @@ RUN npm ci --only=production
 # Copy application code
 COPY . .
 
-# Copy Terminal.Gui console app (if built separately)
-# Adjust path based on your project structure
-# COPY ../../dotnet/console-dungeon/bin/Release/net8.0/ ./console-app/
+# Copy Terminal.Gui console app from Task-built artifacts
+# This will be populated by Task build before Docker build
+# Expected path: build/_artifacts/v{GitVersion}/dotnet/bin/
+COPY --from=artifacts ./console-app/ ./console-app/ 2>/dev/null || true
 
 # Expose PTY service port
 EXPOSE 4041
