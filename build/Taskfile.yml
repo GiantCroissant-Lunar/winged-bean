@@ -39,6 +39,14 @@ tasks:
       - pnpm run build 2>&1 | tee ../../build/{{.ARTIFACT_DIR}}/_logs/web-build.log
       - cp -r sites/docs/dist/* ../../build/{{.ARTIFACT_DIR}}/web/dist/
 
+  build-pty:
+    desc: "Build PTY service"
+    deps: [init-dirs]
+    dir: ../development/nodejs/pty-service
+    cmds:
+      # If build script exists, use it; otherwise copy source
+      - pnpm run build 2>&1 | tee ../../../build/{{.ARTIFACT_DIR}}/_logs/pty-build.log || cp -r src/* ../../../build/{{.ARTIFACT_DIR}}/pty/dist/
+
   clean:
     desc: Clean build artifacts and Task cache
     cmds:
