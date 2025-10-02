@@ -84,13 +84,37 @@ This directory contains RFCs (Request for Comments) documenting major architectu
 - Begin Phase 2 (advanced features)
 
 [Read Full RFC →](./0012-agent-driven-github-automation.md)
-- ✅ OSC sequence protocol for control
-- ✅ Automatic .cast file generation
-- ✅ Multiple recordings per session
 
-**Impact:** Solved WebSocket debugging, enables progress documentation
+---
 
-[Read Full RFC →](./0009-dynamic-asciinema-recording-in-pty.md)
+### RFC-0013: Documentation Automation Tooling
+**Status:** 📝 Draft
+**Date:** 2025-10-02
+**Priority:** P1 (High)
+**Category:** tooling, documentation
+**Estimated Effort:** 2-3 days
+
+**Summary:** Implement Python-based automation tooling for documentation management (Phase 2). Build lightweight scripts for frontmatter validation, orphaned file detection, and automated archival of old chat-history/recordings.
+
+**Phase 2 Tools:**
+- Frontmatter validator (R-DOC-020 enforcement)
+- Orphaned file detector
+- Auto-archival for time-based retention (30-day, 90-day)
+- Pre-commit integration + GitHub Actions workflows
+
+**Context:**
+- Phase 1 (Enhanced Organization) completed: commit 4335330
+- 59 markdown files across 13 categories (2.3MB total)
+- Archival policies defined but not automated
+- Python infrastructure already in place
+
+**Benefits:**
+- ✅ Automated R-DOC-020 compliance (frontmatter validation)
+- ✅ Detect orphaned/unreferenced documentation
+- ✅ Automated archival reduces clutter
+- ✅ Documentation can scale without becoming unmanageable
+
+[Read Full RFC →](./0013-documentation-automation-tooling.md)
 
 ---
 
