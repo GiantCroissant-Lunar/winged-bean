@@ -129,6 +129,47 @@ internal class ArchWorld : IWorld
 
     public int EntityCount => _world.Size;
 
+    /// <summary>
+    /// Create a query object for entities with specific components.
+    /// </summary>
+    /// <typeparam name="T1">First component type to query for.</typeparam>
+    /// <returns>Query object for iterating over matching entities.</returns>
+    public IQuery Query<T1>() where T1 : struct
+    {
+        var queryDescription = new QueryDescription().WithAll<T1>();
+        return new ArchQuery(_world, queryDescription, this);
+    }
+
+    /// <summary>
+    /// Create a query object for entities with specific components.
+    /// </summary>
+    /// <typeparam name="T1">First component type to query for.</typeparam>
+    /// <typeparam name="T2">Second component type to query for.</typeparam>
+    /// <returns>Query object for iterating over matching entities.</returns>
+    public IQuery Query<T1, T2>()
+        where T1 : struct
+        where T2 : struct
+    {
+        var queryDescription = new QueryDescription().WithAll<T1, T2>();
+        return new ArchQuery(_world, queryDescription, this);
+    }
+
+    /// <summary>
+    /// Create a query object for entities with specific components.
+    /// </summary>
+    /// <typeparam name="T1">First component type to query for.</typeparam>
+    /// <typeparam name="T2">Second component type to query for.</typeparam>
+    /// <typeparam name="T3">Third component type to query for.</typeparam>
+    /// <returns>Query object for iterating over matching entities.</returns>
+    public IQuery Query<T1, T2, T3>()
+        where T1 : struct
+        where T2 : struct
+        where T3 : struct
+    {
+        var queryDescription = new QueryDescription().WithAll<T1, T2, T3>();
+        return new ArchQuery(_world, queryDescription, this);
+    }
+
     private Entity ToArchEntity(EntityHandle handle)
     {
         // Create Entity using Unsafe since the constructor is internal
