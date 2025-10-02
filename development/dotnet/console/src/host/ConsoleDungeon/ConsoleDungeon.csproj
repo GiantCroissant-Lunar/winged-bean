@@ -13,6 +13,7 @@
   <ItemGroup>
     <!-- Reference contract projects only - no direct platform dependencies -->
     <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Core/WingedBean.Contracts.Core.csproj" />
+    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.ECS/WingedBean.Contracts.ECS.csproj" />
     <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.WebSocket/WingedBean.Contracts.WebSocket.csproj" />
     <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.TerminalUI/WingedBean.Contracts.TerminalUI.csproj" />
   </ItemGroup>
