@@ -64,6 +64,20 @@ This directory contains practical guides for developers working with the Winged 
 
 ---
 
+#### Plugin Configuration Migration Guide
+**File**: `plugin-configuration-migration-guide.md`
+
+**Covers**:
+- Migrating from static to dynamic plugin loading
+- Troubleshooting common plugin loading issues
+- Best practices for plugin configuration
+- Priority and load strategy guidelines
+- Testing plugin configurations
+
+**Use When**: Migrating existing hosts to dynamic loading or troubleshooting plugin issues
+
+---
+
 ## Guide Categories
 
 ### 🏗️ Framework & Architecture
@@ -235,5 +249,5 @@ When a guide becomes outdated:
 ---
 
 **Last Updated**: 2025-10-02
-**Total Guides**: 6
-**Categories**: Framework & Architecture (3), Testing (1)
+**Total Guides**: 7
+**Categories**: Framework & Architecture (4), Testing (1)
