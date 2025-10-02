@@ -1,0 +1,40 @@
+{
+  "id": "wingedbean.plugins.config",
+  "version": "1.0.0",
+  "name": "Configuration Service",
+  "description": "Configuration service using Microsoft.Extensions.Configuration",
+  "author": "WingedBean Team",
+  "license": "MIT",
+
+  "entryPoint": {
+    "dotnet": "./WingedBean.Plugins.Config.dll",
+    "nodejs": null,
+    "unity": "./WingedBean.Plugins.Config.dll",
+    "godot": "./WingedBean.Plugins.Config.dll"
+  },
+
+  "dependencies": {
+    "wingedbean.contracts": "^1.0.0"
+  },
+
+  "exports": {
+    "services": [
+      {
+        "interface": "WingedBean.Contracts.Config.IConfigService",
+        "implementation": "WingedBean.Plugins.Config.ConfigService",
+        "lifecycle": "singleton"
+      }
+    ]
+  },
+
+  "capabilities": [
+    "configuration",
+    "json-config",
+    "environment-variables"
+  ],
+
+  "supportedProfiles": ["console", "unity", "godot", "web"],
+
+  "loadStrategy": "eager",
+  "priority": 100
+}

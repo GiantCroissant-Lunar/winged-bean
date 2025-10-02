@@ -21,8 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="AsciinemaRecorder.plugin.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Include=".plugin.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
