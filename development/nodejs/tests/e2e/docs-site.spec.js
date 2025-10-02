@@ -160,7 +160,7 @@ test.describe('Documentation Site', () => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto(BASE_URL);
 
-    await expect(page.locator('h1')).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: /Winged Bean/i })).toBeVisible();
     await expect(page.locator('.links')).toBeVisible();
 
     // Test tablet viewport
