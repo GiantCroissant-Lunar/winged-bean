@@ -107,9 +107,8 @@ test.describe('Documentation Site', () => {
     await expect(page).toHaveTitle(/Winged Bean Docs/);
     await expect(page.getByRole('heading', { level: 1, name: 'Winged Bean Docs' })).toBeVisible();
 
-    // Check sections exist
+    // Check sections exist (legacy section removed)
     await expect(page.locator('h2').filter({ hasText: 'Sample Terminal Session' })).toBeVisible();
-    await expect(page.locator('h2').filter({ hasText: 'Live Terminal (Legacy WebSocket)' })).toBeVisible();
     await expect(page.locator('h2').filter({ hasText: 'Live Terminal (PTY via node-pty)' })).toBeVisible();
 
     // Check cast file selector exists
@@ -121,9 +120,9 @@ test.describe('Documentation Site', () => {
     await expect(player).toBeAttached();
     await expect(player).toHaveAttribute('data-src', '/example.cast');
 
-    // Check XTerm containers exist (2 terminals)
+    // Check XTerm containers exist (only PTY terminal remains)
     const xtermContainers = page.locator('.xterm');
-    await expect(xtermContainers).toHaveCount(2);
+    await expect(xtermContainers).toHaveCount(1);
 
     // Wait for any async loading
     await page.waitForTimeout(2000);

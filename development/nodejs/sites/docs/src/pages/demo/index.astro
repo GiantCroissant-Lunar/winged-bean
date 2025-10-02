@@ -40,14 +40,6 @@ const defaultCast = '/example.cast';
         <AsciinemaPlayer src={defaultCast} preload="auto" />
       </section>
 
-      <section>
-        <h2 style="margin-bottom: 0.75rem;">Live Terminal (Legacy WebSocket)</h2>
-        <p style="margin-bottom: 1rem;">
-          Connect to a live Terminal.Gui application using the legacy WebSocket protocol on port 4040.
-          Start the Console Dungeon .NET application first, then use this terminal to interact with it.
-        </p>
-        <XTerm id="live-terminal" websocketUrl="ws://localhost:4040" mode="legacy" />
-      </section>
 
       <section>
         <h2 style="margin-bottom: 0.75rem;">Live Terminal (PTY via node-pty) ⭐ Recommended</h2>

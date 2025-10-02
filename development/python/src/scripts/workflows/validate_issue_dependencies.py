@@ -88,15 +88,20 @@ def main() -> int:
 
     # Check each blocker
     open_blockers = []
+    invalid_blockers = []
     for blocker in blockers:
-        state = run_gh(["issue", "view", str(blocker), "--json", "state", "-q", ".state"])
-        if state == "closed":
-            print(f"   ✓ Issue #{blocker} is closed")
-        else:
-            print(f"   ❌ Blocker #{blocker} is {state}")
-            open_blockers.append(blocker)
+        try:
+            state = run_gh(["issue", "view", str(blocker), "--json", "state", "-q", ".state"])
+            if state == "closed":
+                print(f"   ✓ Issue #{blocker} is closed")
+            else:
+                print(f"   ❌ Blocker #{blocker} is {state}")
+                open_blockers.append(blocker)
+        except subprocess.CalledProcessError:
+            print(f"   ⚠️  Issue #{blocker} not found (invalid blocker)")
+            invalid_blockers.append(blocker)
 
-    if open_blockers:
+    if open_blockers or invalid_blockers:
         print()
         print("━" * 70)
         print(f"⚠️  Issue #{issue_number} is BLOCKED")
@@ -109,20 +114,25 @@ def main() -> int:
         except:
             pass
 
-        # Add comment
-        open_blockers_str = ", ".join(f"#{b}" for b in open_blockers)
-        comment = f"""## ⚠️ Cannot Start Work - Issue is Blocked
+        # Build comment
+        comment_parts = ["## ⚠️ Cannot Start Work - Issue is Blocked\n"]
 
-This issue cannot be worked on until the following blockers are resolved:
+        if open_blockers:
+            open_blockers_str = ", ".join(f"#{b}" for b in open_blockers)
+            comment_parts.append(f"**Open blockers:** {open_blockers_str}\n")
 
-{open_blockers_str}
+        if invalid_blockers:
+            invalid_blockers_str = ", ".join(f"#{b}" for b in invalid_blockers)
+            comment_parts.append(f"**Invalid blockers (not found):** {invalid_blockers_str}\n")
 
+        comment_parts.append("""
 **Action Required:**
-- Complete and close the blocker issues first
-- Or: Update this issue's description to remove invalid blockers
+- Complete and close the open blocker issues first
+- Or: Update this issue's description to remove invalid/resolved blockers
 
 **Per R-ISS-030:** Agents must verify all blockers are closed before starting work.
-"""
+""")
+        comment = "\n".join(comment_parts)
         run_gh(["issue", "comment", issue_number, "--body", comment])
 
         print()
