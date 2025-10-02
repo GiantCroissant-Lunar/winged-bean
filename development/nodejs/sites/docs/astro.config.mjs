@@ -17,41 +17,16 @@ export default defineConfig({
           ],
         },
         {
-          label: 'RFCs',
-          autogenerate: { directory: 'rfcs' },
-          collapsed: false,
-        },
-        {
-          label: 'Guides',
-          autogenerate: { directory: 'guides' },
-        },
-        {
-          label: 'Architecture',
-          items: [
-            {
-              label: 'ADRs',
-              autogenerate: { directory: 'adr' },
-            },
-            {
-              label: 'Design',
-              autogenerate: { directory: 'design' },
-            },
-          ],
-        },
-        {
-          label: 'Verification',
-          autogenerate: { directory: 'verification' },
-        },
-        {
           label: 'Demo',
           items: [
-            {
-              label: '🎮 Terminal.Gui Live Demo',
-              link: '/demo/',
-            },
+            { label: '🎮 Terminal.Gui Live', link: '/demo/' },
           ],
         },
       ],
+
+      // Autogenerate disabled due to persistent navigation errors
+      // Starlight v0.36 has issues with our markdown file structure
+      // Manual sidebar can be added later if needed
 
       // Disabled autogenerate due to missing frontmatter in markdown files
       // Will need to add frontmatter to all docs or manually list them
