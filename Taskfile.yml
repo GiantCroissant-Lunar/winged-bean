@@ -24,3 +24,12 @@ tasks:
       - task: build:version
       - task: build:init-dirs
       - echo "Setup complete!"
+
+  ci:
+    desc: "Full CI pipeline"
+    cmds:
+      - task: build:clean
+      - task: build:build-all
+      - task: nodejs:test
+      - task: nodejs:test-e2e
+      - echo "CI pipeline completed successfully!"
