@@ -1,0 +1,56 @@
+version: '3'
+
+vars:
+  PKG_MANAGER: pnpm
+
+tasks:
+  install:
+    desc: "Install Node.js dependencies"
+    sources:
+      - package.json
+      - pnpm-lock.yaml
+    generates:
+      - node_modules/.pnpm/lock.yaml
+    cmds:
+      - '{{.PKG_MANAGER}} install'
+
+  build:
+    desc: "Build Node.js projects"
+    deps: [install]
+    cmds:
+      - '{{.PKG_MANAGER}} run build'
+
+  test:
+    desc: "Run Node.js unit tests"
+    deps: [install]
+    cmds:
+      - '{{.PKG_MANAGER}} test'
+
+  test-e2e:
+    desc: "Run Playwright E2E tests"
+    deps: [install]
+    cmds:
+      - '{{.PKG_MANAGER}} run test:e2e'
+
+  lint:
+    desc: "Lint JavaScript/TypeScript"
+    deps: [install]
+    cmds:
+      - '{{.PKG_MANAGER}} run lint'
+
+  format:
+    desc: "Format code with Prettier"
+    deps: [install]
+    cmds:
+      - '{{.PKG_MANAGER}} run format'
+
+  dev:
+    desc: "Start development server"
+    deps: [install]
+    cmds:
+      - '{{.PKG_MANAGER}} run dev'
+
+  clean:
+    desc: "Clean Node.js artifacts"
+    cmds:
+      - rm -rf node_modules/ dist/
