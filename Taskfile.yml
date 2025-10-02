@@ -8,6 +8,9 @@ includes:
   nodejs:
     taskfile: ./development/nodejs/Taskfile.yml
     dir: ./development/nodejs
+  game:
+    taskfile: ./development/dotnet/console/Taskfile.yml
+    dir: ./development/dotnet/console
 
 tasks:
   default:

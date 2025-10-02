@@ -1,0 +1,22 @@
+version: '3'
+
+tasks:
+  build:
+    desc: "Build ConsoleDungeon game"
+    cmds:
+      - dotnet build Console.sln
+
+  test:
+    desc: "Run ConsoleDungeon tests"
+    cmds:
+      - dotnet test Console.sln
+
+  run:
+    desc: "Run ConsoleDungeon game"
+    cmds:
+      - dotnet run --project src/host/ConsoleDungeon.Host/ConsoleDungeon.Host.csproj
+
+  clean:
+    desc: "Clean ConsoleDungeon build artifacts"
+    cmds:
+      - dotnet clean Console.sln
