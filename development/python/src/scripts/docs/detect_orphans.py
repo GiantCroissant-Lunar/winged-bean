@@ -231,6 +231,83 @@ class OrphanDetector:
         print(f"\n**Total:** {len(self.orphans)} orphaned files")
         print(f"\n**Scan Date:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
+    def generate_link_suggestions(self) -> None:
+        """Generate markdown link snippets grouped by target README file."""
+        if not self.orphans:
+            print("✅ No orphaned files detected - nothing to link!\n")
+            return
+
+        print("# Suggested Links to Add\n")
+        print("Copy/paste the relevant sections into each README file:\n")
+        print("=" * 70)
+
+        # Group orphans by their suggested target README
+        links_by_readme: Dict[str, List[OrphanedFile]] = {}
+
+        for orphan in self.orphans:
+            # Extract target README from suggestion
+            suggestion = orphan.suggestion.lower()
+
+            if 'link from' in suggestion:
+                # Extract the README path from "Link from docs/xxx/README.md"
+                import re
+                match = re.search(r'link from ([\w/.-]+readme\.md)', suggestion, re.IGNORECASE)
+                if match:
+                    target_readme = match.group(1)
+                else:
+                    target_readme = "Other (manual decision needed)"
+            elif 'archive' in suggestion:
+                # Skip archival candidates
+                continue
+            else:
+                target_readme = "Other (manual decision needed)"
+
+            if target_readme not in links_by_readme:
+                links_by_readme[target_readme] = []
+            links_by_readme[target_readme].append(orphan)
+
+        # Print grouped suggestions
+        for readme_path in sorted(links_by_readme.keys()):
+            orphans = links_by_readme[readme_path]
+
+            print(f"\n## Links to add to `{readme_path}`:\n")
+            print("```markdown")
+
+            for orphan in sorted(orphans, key=lambda o: str(o.path)):
+                # Calculate relative path from README to orphan
+                if readme_path != "Other (manual decision needed)":
+                    readme_dir = Path(readme_path).parent
+                    orphan_path = orphan.path
+
+                    # Make relative path
+                    try:
+                        rel_path = Path(orphan_path).relative_to(readme_dir)
+                        link_path = f"./{rel_path}"
+                    except ValueError:
+                        # Fallback if can't make relative
+                        link_path = f"../{orphan.path}"
+                else:
+                    link_path = f"../{orphan.path}"
+
+                # Generate nice title from filename
+                filename = Path(orphan.path).stem
+                # Convert kebab-case or snake_case to Title Case
+                title = filename.replace('-', ' ').replace('_', ' ').title()
+
+                # Handle special cases
+                if filename.upper().startswith('RFC-'):
+                    title = f"RFC {filename.split('-', 1)[1].replace('-', ' ').title()}"
+                elif filename.upper().startswith('ADR-'):
+                    title = f"ADR {filename.split('-', 1)[1].replace('-', ' ').title()}"
+
+                print(f"- [{title}]({link_path})")
+
+            print("```\n")
+
+        print("=" * 70)
+        print(f"\n**Total files to link:** {sum(len(files) for files in links_by_readme.values())}")
+        print("\n**After adding links, run detector again to verify orphans are fixed.**")
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -247,6 +324,9 @@ Examples:
   # Markdown format for GitHub issues
   %(prog)s --format=markdown > orphan-report.md
 
+  # Generate markdown link snippets to fix orphans
+  %(prog)s --generate-links
+
   # Strict mode (exit 1 if orphans found)
   %(prog)s --strict
         """
@@ -257,6 +337,12 @@ Examples:
         choices=['console', 'json', 'markdown'],
         default='console',
         help='Output format (default: console)'
+    )
+
+    parser.add_argument(
+        '--generate-links',
+        action='store_true',
+        help='Generate markdown link snippets to fix orphans'
     )
 
     parser.add_argument(
@@ -293,7 +379,9 @@ Examples:
     detector.detect_orphans()
 
     # Print report in requested format
-    if args.format == 'json':
+    if args.generate_links:
+        detector.generate_link_suggestions()
+    elif args.format == 'json':
         detector.print_json_report()
     elif args.format == 'markdown':
         detector.print_markdown_report()
