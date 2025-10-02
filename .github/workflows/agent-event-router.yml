@@ -1,0 +1,52 @@
+name: Agent Event Router
+
+# Hub workflow that receives events and dispatches to specialized handlers
+# Part of RFC-0015 event-driven architecture to minimize runner minutes
+
+on:
+  issues:
+    types: [opened, closed, reopened, labeled]
+  pull_request:
+    types: [opened, closed, synchronize, ready_for_review]
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+  actions: write
+
+jobs:
+  route:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install pyyaml
+
+      - name: Route event
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          python development/python/src/workflows/event_router.py \
+            --event-type "${{ github.event_name }}" \
+            --payload "${{ github.event_path }}"
+
+      - name: Log routing decision
+        if: always()
+        run: |
+          echo "Event routed: ${{ github.event_name }}"
+          echo "Action: ${{ github.event.action }}"
+          echo "Timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
