@@ -14,6 +14,11 @@ export default defineConfig({
         { icon: 'github', label: 'GitHub', href: 'https://github.com/GiantCroissant-Lunar/winged-bean' },
       ],
 
+      // Site-wide custom styles
+      customCss: [
+        './src/styles/demo.css',
+      ],
+
       sidebar: [
         {
           label: '🚀 Getting Started',

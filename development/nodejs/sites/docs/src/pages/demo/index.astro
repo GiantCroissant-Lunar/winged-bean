@@ -14,13 +14,13 @@ const defaultCast = '/example.cast';
 ---
 
 <StarlightPage frontmatter={{ title: pageTitle }}>
-  <p>Interactive terminal demos are powered by the embedded Asciinema player below.</p>
+  <p class="demo-hero">Interactive terminal demos are powered by the embedded Asciinema player below.</p>
 
-  <section>
-    <h2 style="margin-bottom: 0.75rem;">Sample Terminal Session</h2>
-    <div style="margin-bottom: 1rem;">
-      <label for="cast-select" style="margin-right: 0.5rem;">Select a demo:</label>
-      <select id="cast-select" style="padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
+  <section class="demo-section">
+    <h2>Sample Terminal Session</h2>
+    <div class="demo-controls">
+      <label for="cast-select">Select a demo:</label>
+      <select id="cast-select">
         {castFiles.map(cast => (
           <option value={cast.src} selected={cast.src === defaultCast}>{cast.name}</option>
         ))}
@@ -29,9 +29,9 @@ const defaultCast = '/example.cast';
     <AsciinemaPlayer src={defaultCast} preload="auto" />
   </section>
 
-  <section>
-    <h2 style="margin-bottom: 0.75rem;">Live Terminal (PTY via node-pty) ⭐ Recommended</h2>
-    <p style="margin-bottom: 1rem;">
+  <section class="demo-section">
+    <h2>Live Terminal (PTY via node-pty) ⭐ Recommended</h2>
+    <p>
       Connect to Terminal.Gui v2 running inside a real PTY spawned by Node.js (node-pty) on port 4041.
       The PTY service is managed by PM2 and automatically spawns the Terminal.Gui application.
       This uses binary streaming for full terminal compatibility.
@@ -86,7 +86,7 @@ const defaultCast = '/example.cast';
     });
   </script>
 
-  <footer style="border-top: 1px solid #e2e8f0; padding-top: 1rem; color: #6b7280;">
+  <footer class="demo-footer">
     <p>
       Replace <code>public/*.cast</code> with your own recordings and reuse the
       <code>AsciinemaPlayer</code> component across pages.
