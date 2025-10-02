@@ -57,6 +57,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WingedBean.Plugins.Asciinem
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WingedBean.Plugins.ArchECS", "src\plugins\WingedBean.Plugins.ArchECS\WingedBean.Plugins.ArchECS.csproj", "{A491FC3F-1D1B-4F63-A33E-19DD05F8B871}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WingedBean.Plugins.ArchECS.Tests", "tests\plugins\WingedBean.Plugins.ArchECS.Tests\WingedBean.Plugins.ArchECS.Tests.csproj", "{FD627051-9DB7-4F19-A3A5-C5439BBAEB4C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -295,6 +297,18 @@ Global
 		{A491FC3F-1D1B-4F63-A33E-19DD05F8B871}.Release|x64.Build.0 = Release|Any CPU
 		{A491FC3F-1D1B-4F63-A33E-19DD05F8B871}.Release|x86.ActiveCfg = Release|Any CPU
 		{A491FC3F-1D1B-4F63-A33E-19DD05F8B871}.Release|x86.Build.0 = Release|Any CPU
+		{FD627051-9DB7-4F19-A3A5-C5439BBAEB4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD627051-9DB7-4F19-A3A5-C5439BBAEB4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD627051-9DB7-4F19-A3A5-C5439BBAEB4C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FD627051-9DB7-4F19-A3A5-C5439BBAEB4C}.Debug|x64.Build.0 = Debug|Any CPU
+		{FD627051-9DB7-4F19-A3A5-C5439BBAEB4C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FD627051-9DB7-4F19-A3A5-C5439BBAEB4C}.Debug|x86.Build.0 = Debug|Any CPU
+		{FD627051-9DB7-4F19-A3A5-C5439BBAEB4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD627051-9DB7-4F19-A3A5-C5439BBAEB4C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD627051-9DB7-4F19-A3A5-C5439BBAEB4C}.Release|x64.ActiveCfg = Release|Any CPU
+		{FD627051-9DB7-4F19-A3A5-C5439BBAEB4C}.Release|x64.Build.0 = Release|Any CPU
+		{FD627051-9DB7-4F19-A3A5-C5439BBAEB4C}.Release|x86.ActiveCfg = Release|Any CPU
+		{FD627051-9DB7-4F19-A3A5-C5439BBAEB4C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -325,5 +339,6 @@ Global
 		{DF0F575D-A469-4128-9D17-060A1F6538B4} = {2D90B387-9E96-A33A-A182-52F1887BC10C}
 		{65F8BC90-2A34-481A-9CE1-5AA8D543AD7E} = {251FA40C-AC2F-1119-6E2C-255695F88EFF}
 		{A491FC3F-1D1B-4F63-A33E-19DD05F8B871} = {58D3A2C3-F96F-5E57-2C6B-ECE59D6A18FC}
+		{FD627051-9DB7-4F19-A3A5-C5439BBAEB4C} = {251FA40C-AC2F-1119-6E2C-255695F88EFF}
 	EndGlobalSection
 EndGlobal
