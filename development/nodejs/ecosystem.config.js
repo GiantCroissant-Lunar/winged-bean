@@ -1,3 +1,15 @@
+const { getArtifactsPath } = require("./get-version");
+const path = require("path");
+
+// Get versioned log paths
+const ptyLogsDir = getArtifactsPath("pty", "logs");
+const webLogsDir = getArtifactsPath("web", "logs");
+
+// Ensure log directories exist
+const fs = require("fs");
+fs.mkdirSync(ptyLogsDir, { recursive: true });
+fs.mkdirSync(webLogsDir, { recursive: true });
+
 module.exports = {
   apps: [
     {
@@ -10,8 +22,8 @@ module.exports = {
         NODE_ENV: "development",
         PORT: 4041,
       },
-      error_file: "./logs/pty-service-error.log",
-      out_file: "./logs/pty-service-out.log",
+      error_file: path.join(ptyLogsDir, "pty-service-error.log"),
+      out_file: path.join(ptyLogsDir, "pty-service-out.log"),
       log_date_format: "YYYY-MM-DD HH:mm:ss Z",
       merge_logs: true,
     },
@@ -25,8 +37,8 @@ module.exports = {
       env: {
         NODE_ENV: "development",
       },
-      error_file: "./logs/docs-site-error.log",
-      out_file: "./logs/docs-site-out.log",
+      error_file: path.join(webLogsDir, "docs-site-error.log"),
+      out_file: path.join(webLogsDir, "docs-site-out.log"),
       log_date_format: "YYYY-MM-DD HH:mm:ss Z",
       merge_logs: true,
     },
