@@ -188,54 +188,338 @@ WingedBean uses a strategic framework targeting approach to ensure maximum compa
 
 ## Plugin System Architecture
 
-WingedBean's plugin system enables dynamic loading and hot-reload:
+WingedBean's plugin system enables dynamic loading and hot-reload through a configuration-driven approach.
+
+### Dynamic Loading Architecture
+
+The plugin system uses a multi-stage loading process coordinated by the host application:
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                        Host Application                      │
-│                    (ConsoleDungeon.Host)                     │
-│                                                              │
-│  ┌───────────────────────────────────────────────────────┐ │
-│  │              HostBootstrap                            │ │
-│  │  1. Discover plugins (scan directories)              │ │
-│  │  2. Resolve dependencies (topological sort)          │ │
-│  │  3. Load plugins (via AlcPluginLoader)               │ │
-│  │  4. Activate plugins (register services)             │ │
-│  └───────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────┘
-                            ↓
-        ┌───────────────────┴───────────────────┐
-        ↓                   ↓                   ↓
-┌───────────────┐  ┌───────────────┐  ┌───────────────┐
-│ Config Plugin │  │WebSocket Plugin│  │TermUI Plugin  │
-│               │  │                │  │               │
-│ ConfigService │  │SuperSocketSvc  │  │TerminalGuiSvc │
-│               │  │                │  │               │
-│ Priority: 100 │  │ Priority: 100  │  │ Priority: 100 │
-└───────────────┘  └───────────────┘  └───────────────┘
-        ↓                   ↓                   ↓
-┌─────────────────────────────────────────────────────────────┐
-│                    Service Registry                          │
-│            (ActualRegistry implements IServiceRegistry)      │
-│                                                              │
-│  ┌────────────────────────────────────────────────────────┐ │
-│  │ IConfigService     → ConfigService (priority: 100)     │ │
-│  │ IWebSocketService  → SuperSocketService (priority: 100)│ │
-│  │ ITerminalUIService → TerminalGuiService (priority: 100)│ │
-│  └────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────┐
+│                      Host Application (Program.cs)                  │
+│                                                                     │
+│  [1] Foundation Services                                           │
+│  ┌──────────────────────────────────────────────────────────────┐ │
+│  │ ActualRegistry (IRegistry)                                    │ │
+│  │ AssemblyContextProvider (IALCProvider)                        │ │
+│  │ ActualPluginLoader (IPluginLoader)                            │ │
+│  └──────────────────────────────────────────────────────────────┘ │
+│                                                                     │
+│  [2] Configuration Loading                                         │
+│  ┌──────────────────────────────────────────────────────────────┐ │
+│  │ Load plugins.json                                             │ │
+│  │   → Parse PluginConfiguration                                 │ │
+│  │   → Filter enabled plugins                                    │ │
+│  │   → Sort by priority (high → low)                            │ │
+│  └──────────────────────────────────────────────────────────────┘ │
+│                         ↓                                          │
+│  [3] Plugin Loading Loop (for each enabled plugin)                │
+│  ┌──────────────────────────────────────────────────────────────┐ │
+│  │ Check LoadStrategy (Eager/Lazy/Explicit)                      │ │
+│  │   → If Eager: Load immediately                               │ │
+│  │   → If Lazy: Skip (load on first use)                        │ │
+│  │   → If Explicit: Skip (load on demand)                       │ │
+│  │                                                               │ │
+│  │ ActualPluginLoader.LoadAsync(path)                            │ │
+│  │   → Create isolated AssemblyLoadContext                       │ │
+│  │   → Load plugin assembly + dependencies                       │ │
+│  │   → Discover types with [Plugin] attribute                    │ │
+│  │   → Create ILoadedPlugin wrapper                             │ │
+│  │                                                               │ │
+│  │ Activate Plugin (if implements IPlugin)                       │ │
+│  │   → Call OnActivateAsync(registry)                           │ │
+│  │   → Plugin performs initialization                            │ │
+│  │                                                               │ │
+│  │ Register Services                                             │ │
+│  │   → Discover service types from plugin                        │ │
+│  │   → Find contract interfaces (WingedBean.Contracts.*)        │ │
+│  │   → Register: registry.Register<TContract>(impl, priority)   │ │
+│  └──────────────────────────────────────────────────────────────┘ │
+│                         ↓                                          │
+│  [4] Service Verification                                          │
+│  ┌──────────────────────────────────────────────────────────────┐ │
+│  │ Verify required services registered                           │ │
+│  │   → IConfigService                                            │ │
+│  │   → IWebSocketService                                         │ │
+│  │   → ITerminalUIService                                        │ │
+│  │   → Fail fast if critical service missing                    │ │
+│  └──────────────────────────────────────────────────────────────┘ │
+│                         ↓                                          │
+│  [5] Application Launch                                            │
+│  ┌──────────────────────────────────────────────────────────────┐ │
+│  │ Start main application logic                                  │ │
+│  │ Services available via registry.Get<TService>()               │ │
+│  └──────────────────────────────────────────────────────────────┘ │
+└────────────────────────────────────────────────────────────────────┘
+
+         Plugin Files on Disk                    Loaded Plugins in Memory
+         ═══════════════════════                 ═══════════════════════════
+    
+    plugins/                                    AssemblyLoadContext 1
+    ├── Config.dll                              ┌─────────────────────────┐
+    ├── Config.pdb                              │  ConfigService          │
+    ├── WebSocket.dll                           │  Priority: 1000         │
+    ├── WebSocket.pdb                           │  Implements:            │
+    ├── TerminalUI.dll                          │  - IConfigService       │
+    ├── TerminalUI.pdb                          └─────────────────────────┘
+    └── [dependencies...]                       
+                                                AssemblyLoadContext 2
+                ↓                               ┌─────────────────────────┐
+                                                │  WebSocketService       │
+         ActualPluginLoader                     │  Priority: 100          │
+         ═════════════════                      │  Implements:            │
+                                                │  - IWebSocketService    │
+    ILoadedPlugin LoadAsync(path)               └─────────────────────────┘
+              ↓                                 
+    1. Create ALC                               AssemblyLoadContext 3
+    2. Load assembly                            ┌─────────────────────────┐
+    3. Scan for [Plugin]                        │  TerminalUIService      │
+    4. Wrap as ILoadedPlugin                    │  Priority: 100          │
+                                                │  Implements:            │
+                                                │  - ITerminalUIService   │
+                ↓                               └─────────────────────────┘
+                                                          ↓
+         Service Registry                       All services registered
+         ═══════════════                        ═══════════════════════
+                                                
+    IRegistry.Register<T>(impl, priority)       registry.Get<IConfigService>()
+              ↓                                          ↓
+    Dictionary<Type, List<(impl, priority)>>    Returns highest priority impl
+              ↓
+    SelectionMode:
+    • One             → Any implementation
+    • HighestPriority → Highest priority impl
+    • All             → All implementations
 ```
 
-### Plugin Lifecycle
+### Plugin Lifecycle States
 
-1. **Discovery** - Scan directories for `.plugin.json` manifests
-2. **Dependency Resolution** - Sort plugins by dependencies (topological)
-3. **Loading** - Load assemblies into AssemblyLoadContext
-4. **Activation** - Call `IPluginActivator.ActivateAsync()`
-5. **Registration** - Plugins register services with the registry
-6. **Ready** - Services available for consumption
+Plugins transition through well-defined states during their lifetime:
 
-### Plugin Manifest Format
+```
+Discovered → Loading → Loaded → Activating → Activated → Ready
+                ↓                               ↓           ↓
+              Failed ← ─────────────────────────┴───────────┘
+                                                    ↓
+                                            Deactivating → Deactivated
+                                                    ↓
+                                             Unloading → Unloaded
+```
+
+#### State Descriptions
+
+1. **Discovered**: Plugin entry found in `plugins.json`, file path validated
+   - Host has discovered the plugin but not yet loaded it
+   - Plugin metadata (id, priority, loadStrategy) available
+   - No assembly loaded yet
+
+2. **Loading**: Assembly being loaded into AssemblyLoadContext
+   - Assembly file being read from disk
+   - Dependencies being resolved
+   - Type scanning in progress
+   - Can fail here if DLL is corrupted or dependencies missing
+
+3. **Loaded**: Assembly loaded, types discovered
+   - Assembly successfully loaded into isolated context
+   - Types with [Plugin] attribute identified
+   - ILoadedPlugin wrapper created
+   - Not yet activated
+
+4. **Activating**: Calling plugin lifecycle hooks
+   - If plugin implements IPlugin, calling OnActivateAsync()
+   - Plugin performing initialization
+   - May connect to external services, validate config
+   - Can fail here if initialization fails
+
+5. **Activated**: Plugin initialized successfully
+   - OnActivateAsync() completed without errors
+   - Plugin ready for service registration
+   - Internal state initialized
+
+6. **Ready**: Services registered with registry
+   - All services from plugin registered with IRegistry
+   - Services available for consumption via registry.Get<T>()
+   - Plugin fully operational
+
+7. **Failed**: Plugin failed to load or activate
+   - Error occurred during Loading, Activating, or service registration
+   - Plugin not available for use
+   - Error logged with details
+   - Other plugins continue loading (unless critical priority >= 1000)
+
+8. **Deactivating**: Calling cleanup hooks
+   - OnDeactivateAsync() being called
+   - Plugin closing connections, releasing resources
+   - Saving state if needed
+
+9. **Deactivated**: Cleanup complete
+   - Resources released
+   - Services unregistered
+   - Ready for unload
+
+10. **Unloading**: Assembly being unloaded from ALC
+    - AssemblyLoadContext.Unload() called
+    - Waiting for GC to collect plugin assemblies
+
+11. **Unloaded**: Assembly unloaded from memory
+    - ALC collected by GC
+    - Memory freed
+    - Plugin fully removed
+
+### Plugin Lifecycle Hooks
+
+Plugins can implement the `IPlugin` interface to receive lifecycle notifications:
+
+```csharp
+public interface IPlugin
+{
+    string Id { get; }
+    string Version { get; }
+    
+    Task OnActivateAsync(IRegistry registry, CancellationToken cancellationToken = default);
+    Task OnDeactivateAsync(CancellationToken cancellationToken = default);
+}
+```
+
+#### OnActivateAsync Hook
+
+Called after assembly is loaded but before services are registered. Use for:
+
+- **Initialization**: Set up internal state, create resources
+- **Validation**: Verify configuration, check dependencies
+- **Connection**: Connect to external services (databases, APIs)
+- **Registration**: Register event handlers, subscribe to events
+
+**Example:**
+```csharp
+public async Task OnActivateAsync(IRegistry registry, CancellationToken cancellationToken)
+{
+    Console.WriteLine($"[{Id}] Activating plugin...");
+    
+    // Validate configuration
+    var config = registry.Get<IConfigService>();
+    if (!ValidateConfiguration(config))
+        throw new InvalidOperationException("Invalid configuration");
+    
+    // Initialize resources
+    await InitializeDatabaseConnectionAsync(cancellationToken);
+    
+    // Register handlers
+    registry.Get<IEventBus>()?.Subscribe("app.shutdown", OnShutdown);
+    
+    Console.WriteLine($"[{Id}] Plugin activated");
+}
+```
+
+#### OnDeactivateAsync Hook
+
+Called before plugin is unloaded. Use for:
+
+- **Cleanup**: Release resources, close connections
+- **Persistence**: Save state, flush buffers
+- **Unregistration**: Remove event handlers, unsubscribe
+- **Graceful Shutdown**: Finish pending work, notify dependents
+
+**Example:**
+```csharp
+public async Task OnDeactivateAsync(CancellationToken cancellationToken)
+{
+    Console.WriteLine($"[{Id}] Deactivating plugin...");
+    
+    // Unregister handlers
+    registry.Get<IEventBus>()?.Unsubscribe("app.shutdown", OnShutdown);
+    
+    // Save state
+    await SaveStateAsync(cancellationToken);
+    
+    // Close connections
+    await _databaseConnection?.DisposeAsync();
+    
+    Console.WriteLine($"[{Id}] Plugin deactivated");
+}
+```
+
+### Configuration-Driven Loading
+
+The plugin system is driven by `plugins.json`, which controls all aspects of plugin loading:
+
+#### plugins.json Structure
+
+```json
+{
+  "version": "1.0",
+  "pluginDirectory": "plugins",
+  "plugins": [
+    {
+      "id": "wingedbean.plugins.config",
+      "path": "plugins/WingedBean.Plugins.Config.dll",
+      "priority": 1000,
+      "loadStrategy": "Eager",
+      "enabled": true,
+      "metadata": {
+        "description": "Configuration service",
+        "author": "WingedBean",
+        "version": "1.0.0"
+      }
+    }
+  ]
+}
+```
+
+#### Configuration Schema
+
+##### Root Configuration (PluginConfiguration)
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `version` | string | ✅ | - | Configuration format version (currently "1.0") |
+| `pluginDirectory` | string | ✅ | "plugins" | Base directory for plugin DLLs (relative to host) |
+| `plugins` | PluginDescriptor[] | ✅ | [] | Array of plugin descriptors |
+
+##### Plugin Descriptor (PluginDescriptor)
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `id` | string | ✅ | - | Unique plugin identifier (lowercase, dot-separated) |
+| `path` | string | ✅ | - | Path to plugin DLL (relative to pluginDirectory) |
+| `priority` | number | ⬜ | 0 | Loading priority (0-1000+, higher loads first) |
+| `loadStrategy` | LoadStrategy | ⬜ | Eager | When to load: Eager, Lazy, or Explicit |
+| `enabled` | boolean | ⬜ | true | Whether plugin is enabled (false = skip loading) |
+| `metadata` | object | ⬜ | null | Custom metadata (description, author, version, etc.) |
+| `dependencies` | string[] | ⬜ | [] | Required plugin IDs (for dependency resolution) |
+
+##### Load Strategy (LoadStrategy enum)
+
+```csharp
+public enum LoadStrategy
+{
+    Eager,    // Load immediately at application startup
+    Lazy,     // Load on first use (when service is first requested)
+    Explicit  // Load only when explicitly requested via API
+}
+```
+
+| Strategy | When Loaded | Use Cases | Example Plugins |
+|----------|-------------|-----------|-----------------|
+| **Eager** | Startup (in Program.cs) | Critical services, infrastructure | Config, Registry, WebSocket |
+| **Lazy** | First service request | Optional features, heavy plugins | Recording, Analytics, ECS |
+| **Explicit** | Manual LoadAsync() call | Dev tools, admin plugins | Debugger, Profiler, Test Harness |
+
+#### Priority System
+
+Plugins are loaded in priority order (highest to lowest). Priority also determines service selection when multiple plugins provide the same contract:
+
+| Range | Purpose | Criticality | Example Plugins |
+|-------|---------|-------------|-----------------|
+| **1000+** | Critical infrastructure | App won't start without these | Configuration, Logging, Registry |
+| **500-999** | Core services | Essential for main functionality | Database, Authentication, Authorization |
+| **100-499** | Standard services | Important features | WebSocket, Terminal UI, PTY |
+| **50-99** | Optional features | Nice-to-have functionality | Recording, Metrics, Notifications |
+| **0-49** | Low priority | Experimental, dev-only | Debug tools, Test plugins |
+
+**Critical Plugin Behavior**: Plugins with priority >= 1000 are considered critical. If they fail to load, the host application aborts startup with an error message.
+
+### Plugin Manifest Format (.plugin.json)
 
 ```json
 {
