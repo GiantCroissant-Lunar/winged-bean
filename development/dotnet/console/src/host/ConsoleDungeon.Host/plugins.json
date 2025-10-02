@@ -4,7 +4,7 @@
   "plugins": [
     {
       "id": "wingedbean.plugins.config",
-      "path": "plugins/WingedBean.Plugins.Config.dll",
+      "path": "plugins/WingedBean.Plugins.Config/bin/Debug/net8.0/WingedBean.Plugins.Config.dll",
       "priority": 1000,
       "loadStrategy": "Eager",
       "enabled": true,
@@ -16,7 +16,7 @@
     },
     {
       "id": "wingedbean.plugins.websocket",
-      "path": "plugins/WingedBean.Plugins.WebSocket.dll",
+      "path": "plugins/WingedBean.Plugins.WebSocket/bin/Debug/net8.0/WingedBean.Plugins.WebSocket.dll",
       "priority": 100,
       "loadStrategy": "Eager",
       "enabled": true,
@@ -28,7 +28,7 @@
     },
     {
       "id": "wingedbean.plugins.terminalui",
-      "path": "plugins/WingedBean.Plugins.TerminalUI.dll",
+      "path": "plugins/WingedBean.Plugins.TerminalUI/bin/Debug/net8.0/WingedBean.Plugins.TerminalUI.dll",
       "priority": 100,
       "loadStrategy": "Eager",
       "enabled": true,
@@ -40,7 +40,7 @@
     },
     {
       "id": "wingedbean.plugins.ptyservice",
-      "path": "plugins/WingedBean.Plugins.PtyService.dll",
+      "path": "plugins/WingedBean.Plugins.PtyService/bin/Debug/net8.0/WingedBean.Plugins.PtyService.dll",
       "priority": 90,
       "loadStrategy": "Eager",
       "enabled": true,
@@ -52,7 +52,7 @@
     },
     {
       "id": "wingedbean.plugins.asciinemarecorder",
-      "path": "plugins/WingedBean.Plugins.AsciinemaRecorder.dll",
+      "path": "plugins/WingedBean.Plugins.AsciinemaRecorder/bin/Debug/net8.0/WingedBean.Plugins.AsciinemaRecorder.dll",
       "priority": 80,
       "loadStrategy": "Lazy",
       "enabled": true,
@@ -64,7 +64,7 @@
     },
     {
       "id": "wingedbean.plugins.consoledungeon",
-      "path": "plugins/WingedBean.Plugins.ConsoleDungeon.dll",
+      "path": "plugins/WingedBean.Plugins.ConsoleDungeon/bin/Debug/net8.0/WingedBean.Plugins.ConsoleDungeon.dll",
       "priority": 50,
       "loadStrategy": "Eager",
       "enabled": true,

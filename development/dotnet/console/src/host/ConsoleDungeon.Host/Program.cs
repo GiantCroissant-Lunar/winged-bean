@@ -86,8 +86,8 @@ public class Program
 
             // Step 4: Verify required services
             System.Console.WriteLine("[4/5] Verifying service registry...");
-            System.Console.WriteLine($"  IRegistry registered: {registry.IsRegistered<IRegistry>()}");
-            System.Console.WriteLine($"  IPluginLoader registered: {registry.IsRegistered<IPluginLoader>()}");
+            VerifyRequiredServices(registry);
+            System.Console.WriteLine("✓ All required services registered");
             System.Console.WriteLine();
 
             // Step 5: Launch ConsoleDungeon with Registry
@@ -122,15 +122,20 @@ public class Program
         return config ?? throw new System.InvalidOperationException("Failed to parse plugin configuration");
     }
 
-    private static System.Threading.Tasks.Task RegisterPluginServicesAsync(
+    private static async System.Threading.Tasks.Task RegisterPluginServicesAsync(
         IRegistry registry,
         ILoadedPlugin plugin,
         int priority)
     {
+        // Activate plugin (if it implements IPlugin)
+        await plugin.ActivateAsync();
+
+        // Get all services from plugin
         var services = plugin.GetServices();
 
         foreach (var service in services)
         {
+            // Find the contract interface (in WingedBean.Contracts.* namespace)
             var serviceType = service.GetType().GetInterfaces()
                 .FirstOrDefault(i => i.Namespace?.StartsWith("WingedBean.Contracts") == true);
 
@@ -142,10 +147,28 @@ public class Program
                 
                 registerMethod?.Invoke(registry, new object[] { service, priority });
                 
-                System.Console.WriteLine($"    ✓ {serviceType.Name} <- {service.GetType().Name} (priority: {priority})");
+                System.Console.WriteLine($"      → Registered: {serviceType.Name} (priority: {priority})");
+            }
+            else
+            {
+                System.Console.WriteLine($"      ⚠ Warning: Service {service.GetType().Name} has no contract interface");
             }
         }
+    }
 
-        return System.Threading.Tasks.Task.CompletedTask;
+    private static void VerifyRequiredServices(IRegistry registry)
+    {
+        // Verify foundation services
+        if (!registry.IsRegistered<IRegistry>())
+        {
+            throw new System.InvalidOperationException("IRegistry is not registered");
+        }
+        if (!registry.IsRegistered<IPluginLoader>())
+        {
+            throw new System.InvalidOperationException("IPluginLoader is not registered");
+        }
+
+        System.Console.WriteLine("  ✓ IRegistry registered");
+        System.Console.WriteLine("  ✓ IPluginLoader registered");
     }
 }

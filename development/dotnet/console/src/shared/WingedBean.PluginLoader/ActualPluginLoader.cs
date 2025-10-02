@@ -56,11 +56,13 @@ public class ActualPluginLoader : IPluginLoader
 
         // Create a simple manifest from the path
         var pluginId = Path.GetFileNameWithoutExtension(pluginPath);
+        var fullPath = Path.GetFullPath(pluginPath);
         var manifest = new PluginManifest
         {
             Id = pluginId,
             Version = "1.0.0",
-            LoadStrategy = LoadStrategy.Explicit
+            LoadStrategy = LoadStrategy.Explicit,
+            EntryPoints = new Dictionary<string, string> { { "assembly", fullPath } }
         };
 
         // Delegate to LoadAsync(PluginManifest)
@@ -97,8 +99,10 @@ public class ActualPluginLoader : IPluginLoader
             _logger?.LogDebug("Created assembly context: {ContextName}", contextName);
 
             // Determine plugin assembly path
-            // For now, use Id as file name if no explicit path is provided
-            var assemblyPath = Path.GetFullPath($"{manifest.Id}.dll");
+            // Use path from EntryPoints if available, otherwise use Id as file name
+            var assemblyPath = manifest.EntryPoints?.ContainsKey("assembly") == true
+                ? manifest.EntryPoints["assembly"]
+                : Path.GetFullPath($"{manifest.Id}.dll");
 
             // Load the plugin assembly using Tier 4 provider
             var assembly = _contextProvider.LoadAssembly(contextName, assemblyPath);
