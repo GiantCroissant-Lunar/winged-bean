@@ -12,6 +12,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="WingedBean.Plugins.ArchECS.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Arch" Version="2.0.0" />
   </ItemGroup>
 
