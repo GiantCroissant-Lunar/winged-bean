@@ -121,6 +121,14 @@ repos:
         pass_filenames: true
         always_run: false
 
+      - id: validate-doc-frontmatter
+        name: Validate RFC/ADR Frontmatter (R-DOC-020)
+        entry: python development/python/src/scripts/docs/validate_frontmatter.py
+        language: system
+        files: ^docs/(rfcs|adr)/.*\.md$
+        exclude: ^docs/(rfcs|adr)/README\.md$
+        pass_filenames: true
+
   # JetBrains CLI tools (comprehensive analysis - manual only)
   - repo: local
     hooks:
