@@ -21,6 +21,7 @@ This directory contains practical guides for developers working with the Winged 
 ### Framework & Architecture
 
 - [Architecture Overview](./architecture-overview.md) - High-level architecture guide
+- [Plugin Development Guide](./plugin-development-guide.md) - Complete guide for creating .NET plugins
 
 #### Framework Targeting Guide
 **File**: `framework-targeting-guide.md`
@@ -45,6 +46,21 @@ This directory contains practical guides for developers working with the Winged 
 - Debugging source generators
 
 **Use When**: Creating code generation tools or analyzers
+
+---
+
+#### Plugin Development Guide
+**File**: `plugin-development-guide.md`
+
+**Covers**:
+- Creating new plugins from scratch
+- Plugin manifest (.plugin.json) format
+- Service registration patterns
+- Plugin lifecycle and activation
+- Host configuration (plugins.json)
+- Best practices and troubleshooting
+
+**Use When**: Creating new plugins or understanding the plugin system
 
 ---
 
@@ -219,5 +235,5 @@ When a guide becomes outdated:
 ---
 
 **Last Updated**: 2025-10-02
-**Total Guides**: 2
-**Categories**: Framework & Architecture (2)
+**Total Guides**: 6
+**Categories**: Framework & Architecture (3), Testing (1)
