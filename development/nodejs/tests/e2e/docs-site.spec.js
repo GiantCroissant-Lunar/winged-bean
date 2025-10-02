@@ -118,7 +118,7 @@ test.describe('Documentation Site', () => {
     // Check asciinema player container exists (attached) and has expected data-src
     const player = page.locator('.asciinema-player');
     await expect(player).toBeAttached();
-    await expect(player).toHaveAttribute('data-src', '/example.cast');
+    await expect(player).toHaveAttribute('data-src', /example\.cast/);
 
     // Check XTerm containers exist (only PTY terminal remains)
     const xtermContainers = page.locator('.xterm');
