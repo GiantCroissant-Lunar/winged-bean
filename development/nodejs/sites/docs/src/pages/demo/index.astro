@@ -2,6 +2,7 @@
 import AsciinemaPlayer from '../../components/AsciinemaPlayer.astro';
 import XTerm from '../../components/XTerm.astro';
 import pico from '../../styles/vendor/pico.min.css?url';
+import asciinemaPlayerJs from '../../vendor/asciinema/asciinema-player.js?url';
 // Standalone demo page: do not use Starlight layout
 
 const pageTitle = 'Winged Bean Docs';
@@ -19,6 +20,7 @@ const defaultCast = '/example.cast';
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="stylesheet" href={pico} />
+    <script src={asciinemaPlayerJs}></script>
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <title>{pageTitle}</title>
