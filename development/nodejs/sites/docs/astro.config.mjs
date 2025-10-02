@@ -17,32 +17,6 @@ export default defineConfig({
           ],
         },
         {
-          label: 'RFCs',
-          autogenerate: { directory: 'rfcs' },
-          collapsed: false,
-        },
-        {
-          label: 'Guides',
-          autogenerate: { directory: 'guides' },
-        },
-        {
-          label: 'Architecture',
-          items: [
-            {
-              label: 'ADRs',
-              autogenerate: { directory: 'adr' },
-            },
-            {
-              label: 'Design',
-              autogenerate: { directory: 'design' },
-            },
-          ],
-        },
-        {
-          label: 'Verification',
-          autogenerate: { directory: 'verification' },
-        },
-        {
           label: 'Demo',
           items: [
             {
@@ -52,6 +26,10 @@ export default defineConfig({
           ],
         },
       ],
+
+      // Disabled autogenerate due to missing frontmatter in markdown files
+      // Will need to add frontmatter to all docs or manually list them
+      // TODO: Add proper Starlight frontmatter to all markdown files
     }),
   ],
 });
