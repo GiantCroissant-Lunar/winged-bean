@@ -1,5 +1,5 @@
 ---
-title: RFC-0005 Phase 5.3: xterm.js Integration Verification
+title: "RFC-0005 Phase 5.3: xterm.js Integration Verification"
 ---
 
 # RFC-0005 Phase 5.3: xterm.js Integration Verification

@@ -1,5 +1,5 @@
 ---
-title: RFC-0003: Plugin Architecture Foundation
+title: "RFC-0003: Plugin Architecture Foundation"
 ---
 
 # RFC-0003: Plugin Architecture Foundation

@@ -1,5 +1,5 @@
 ---
-title: RFC-0005: Target Framework Compliance for Multi-Platform Support
+title: "RFC-0005: Target Framework Compliance for Multi-Platform Support"
 ---
 
 # RFC-0005: Target Framework Compliance for Multi-Platform Support

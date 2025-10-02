@@ -1,5 +1,5 @@
 ---
-title: RFC-0011: Starlight Documentation Integration
+title: "RFC-0011: Starlight Documentation Integration"
 ---
 
 # RFC-0011: Starlight Documentation Integration

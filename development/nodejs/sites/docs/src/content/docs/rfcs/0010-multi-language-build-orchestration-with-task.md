@@ -1,5 +1,5 @@
 ---
-title: RFC-0010: Multi-Language Build Orchestration with Task
+title: "RFC-0010: Multi-Language Build Orchestration with Task"
 ---
 
 # RFC-0010: Multi-Language Build Orchestration with Task

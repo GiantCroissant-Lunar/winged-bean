@@ -1,5 +1,5 @@
 ---
-title: Quick Start: Playwright + Asciinema Testing
+title: "Quick Start: Playwright + Asciinema Testing"
 ---
 
 # Quick Start: Playwright + Asciinema Testing

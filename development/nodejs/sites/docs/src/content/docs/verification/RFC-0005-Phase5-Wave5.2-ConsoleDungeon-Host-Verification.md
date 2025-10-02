@@ -1,5 +1,5 @@
 ---
-title: RFC-0005 Phase 5 Wave 5.2: ConsoleDungeon.Host Verification Report
+title: "RFC-0005 Phase 5 Wave 5.2: ConsoleDungeon.Host Verification Report"
 ---
 
 # RFC-0005 Phase 5 Wave 5.2: ConsoleDungeon.Host Verification Report
