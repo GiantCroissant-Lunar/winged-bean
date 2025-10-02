@@ -1,0 +1,78 @@
+{
+  "version": "1.0",
+  "pluginDirectory": "plugins",
+  "plugins": [
+    {
+      "id": "wingedbean.plugins.config",
+      "path": "plugins/WingedBean.Plugins.Config.dll",
+      "priority": 1000,
+      "loadStrategy": "Eager",
+      "enabled": true,
+      "metadata": {
+        "description": "Configuration service using Microsoft.Extensions.Configuration",
+        "author": "WingedBean",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "wingedbean.plugins.websocket",
+      "path": "plugins/WingedBean.Plugins.WebSocket.dll",
+      "priority": 100,
+      "loadStrategy": "Eager",
+      "enabled": true,
+      "metadata": {
+        "description": "WebSocket service using SuperSocket",
+        "author": "WingedBean",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "wingedbean.plugins.terminalui",
+      "path": "plugins/WingedBean.Plugins.TerminalUI.dll",
+      "priority": 100,
+      "loadStrategy": "Eager",
+      "enabled": true,
+      "metadata": {
+        "description": "Terminal UI service using Terminal.Gui v2",
+        "author": "WingedBean",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "wingedbean.plugins.ptyservice",
+      "path": "plugins/WingedBean.Plugins.PtyService.dll",
+      "priority": 90,
+      "loadStrategy": "Eager",
+      "enabled": true,
+      "metadata": {
+        "description": "Pseudo-terminal (PTY) service",
+        "author": "WingedBean",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "wingedbean.plugins.asciinemarecorder",
+      "path": "plugins/WingedBean.Plugins.AsciinemaRecorder.dll",
+      "priority": 80,
+      "loadStrategy": "Lazy",
+      "enabled": true,
+      "metadata": {
+        "description": "Records PTY sessions to asciicast v2 format",
+        "author": "WingedBean",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "id": "wingedbean.plugins.consoledungeon",
+      "path": "plugins/WingedBean.Plugins.ConsoleDungeon.dll",
+      "priority": 50,
+      "loadStrategy": "Eager",
+      "enabled": true,
+      "metadata": {
+        "description": "Console dungeon game plugin",
+        "author": "WingedBean",
+        "version": "1.0.0"
+      }
+    }
+  ]
+}

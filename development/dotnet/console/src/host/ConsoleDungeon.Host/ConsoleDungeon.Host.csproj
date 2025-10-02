@@ -18,4 +18,10 @@
     <ProjectReference Include="../../plugins/WingedBean.Plugins.Config/WingedBean.Plugins.Config.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="plugins.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
