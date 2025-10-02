@@ -48,6 +48,42 @@ This directory contains RFCs (Request for Comments) documenting major architectu
 **Key Achievements:**
 - ✅ RecordingManager class (36/36 tests passing)
 - ✅ F9/F10 keyboard shortcuts in Terminal.Gui
+
+---
+
+### RFC-0012: Agent-Driven GitHub Automation
+**Status:** ⚡ In Progress (Phase 1)
+**Date:** 2025-10-02
+**Started:** 2025-10-02
+**Priority:** P0 (Foundation)
+**Category:** infra, tooling
+
+**Summary:** Implement event-driven GitHub Actions workflows and pre-commit hooks for multi-agent collaboration (GitHub Copilot, Claude Code, Windsurf). Features issue dependency validation, PR hygiene enforcement, and agent auto-retry on failure.
+
+**Key Achievements:**
+- ✅ Phase 0: Foundation Complete (2025-10-02)
+  - 3 workflows: PR validation, dependency validation, agent auto-retry
+  - 4 Python scripts in proper project structure
+  - 6 new agent rules (R-PRC-050, R-ISS-010 through R-ISS-050)
+  - Local testing with `act`
+  - Pre-commit hook for dependency validation
+- ⚡ Phase 1: Real-world Testing (In Progress)
+  - Issue template with dependency fields
+  - Monitoring runner minute usage
+  - Iterating based on feedback
+
+**Cost Savings:**
+- $329.84/month vs. reference project (no cron polling)
+- $75-125 saved per agent failure recovery
+- $0 development testing (using `act`)
+
+**Next Steps:**
+- Monitor workflows in production
+- Create tracking issue for Phase 1
+- Adjust retry limits based on data
+- Begin Phase 2 (advanced features)
+
+[Read Full RFC →](./0012-agent-driven-github-automation.md)
 - ✅ OSC sequence protocol for control
 - ✅ Automatic .cast file generation
 - ✅ Multiple recordings per session

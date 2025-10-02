@@ -53,7 +53,7 @@ test.describe('Documentation Site', () => {
     await expect(page.locator('.site-title')).toContainText('Winged Bean');
 
     // Check main content
-    await expect(page.locator('h1')).toContainText('Winged Bean Documentation');
+    await expect(page.getByRole('heading', { level: 1, name: /Documentation/i })).toBeVisible();
 
     // Check sidebar exists
     const sidebar = page.locator('nav.sidebar');
@@ -63,7 +63,7 @@ test.describe('Documentation Site', () => {
     await expect(sidebar.locator('text=Getting Started')).toBeVisible();
 
     // Check sidebar has Demo link
-    await expect(sidebar.locator('text=Terminal.Gui Live')).toBeVisible();
+    await expect(sidebar.locator('text=Terminal.Gui Live Demo')).toBeVisible();
 
     // Check search button exists
     await expect(page.locator('button[data-open-modal]')).toBeVisible();
@@ -101,11 +101,9 @@ test.describe('Documentation Site', () => {
 
     await page.goto(`${BASE_URL}/demo/`);
 
-    // Check page title
+    // Check page title & main heading
     await expect(page).toHaveTitle(/Winged Bean Docs/);
-
-    // Check main heading
-    await expect(page.locator('h1')).toContainText('Winged Bean Docs');
+    await expect(page.getByRole('heading', { level: 1, name: 'Winged Bean Docs' })).toBeVisible();
 
     // Check sections exist
     await expect(page.locator('h2').filter({ hasText: 'Sample Terminal Session' })).toBeVisible();
@@ -141,9 +139,9 @@ test.describe('Documentation Site', () => {
     await expect(page.locator('.site-title')).toContainText('Winged Bean');
 
     // Navigate to demo from sidebar
-    await page.click('text=Terminal.Gui Live');
+    await page.click('text=Terminal.Gui Live Demo');
     await expect(page).toHaveURL(`${BASE_URL}/demo/`);
-    await expect(page.locator('h1')).toContainText('Winged Bean Docs');
+    await expect(page.getByRole('heading', { level: 1, name: 'Winged Bean Docs' })).toBeVisible();
 
     // Go back to landing page
     await page.goto(BASE_URL);
@@ -171,8 +169,7 @@ test.describe('Documentation Site', () => {
     // Test desktop viewport
     await page.setViewportSize({ width: 1920, height: 1080 });
     await page.goto(`${BASE_URL}/demo/`);
-
-    await expect(page.locator('h1')).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: /Winged Bean Docs/i })).toBeVisible();
   });
 
   test('all pages return 200 status', async ({ page }) => {

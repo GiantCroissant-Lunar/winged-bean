@@ -9,6 +9,11 @@ export default defineConfig({
       title: 'Winged Bean',
       description: 'Multi-tier plugin architecture for Unity/Godot games',
 
+      // Starlight v0.33+ requires social to be an array of link items
+      social: [
+        { icon: 'github', label: 'GitHub', href: 'https://github.com/GiantCroissant-Lunar/winged-bean' },
+      ],
+
       sidebar: [
         {
           label: 'Getting Started',

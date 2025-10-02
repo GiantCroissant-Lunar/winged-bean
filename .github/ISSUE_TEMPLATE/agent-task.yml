@@ -1,0 +1,125 @@
+name: Agent Task
+description: Create a task for AI coding agents (GitHub Copilot, Claude Code, Windsurf)
+title: "[COMPONENT] Short description"
+labels: ["agent-task"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Agent Task Template
+
+        Use this template to create well-defined tasks for AI coding agents.
+
+        **Per R-ISS-010 through R-ISS-050:**
+        - Specify dependencies (Blocked By)
+        - Specify which agent should work on this
+        - Provide clear acceptance criteria
+        - Follow naming conventions
+
+  - type: input
+    id: rfc_reference
+    attributes:
+      label: RFC Reference
+      description: "Link to related RFC (e.g., RFC-0012, RFC-0007-01)"
+      placeholder: "RFC-0012"
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: One-paragraph description of the task
+      placeholder: "Implement issue dependency validation workflow that checks if an issue has unresolved blockers..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance Criteria
+      description: Checklist the agent must satisfy to complete this task
+      value: |
+        - [ ] Code compiles without errors
+        - [ ] Tests pass (if applicable)
+        - [ ] Follows .editorconfig and coding standards
+        - [ ] PR links to this issue with "Closes #<issue>"
+        - [ ] Documentation updated (if needed)
+    validations:
+      required: true
+
+  - type: input
+    id: blocked_by
+    attributes:
+      label: Blocked By
+      description: "Issue numbers that must be closed first (comma-separated, or 'None')"
+      placeholder: "None"
+    validations:
+      required: true
+
+  - type: input
+    id: blocks
+    attributes:
+      label: Blocks
+      description: "Issue numbers that depend on this one (comma-separated, or leave empty)"
+      placeholder: "#47, #48"
+
+  - type: dropdown
+    id: agent
+    attributes:
+      label: Assigned Agent
+      description: Which agent should work on this task?
+      options:
+        - GitHub Copilot (incremental PRs)
+        - Claude Code (deep analysis, architecture)
+        - Windsurf (context-aware editing)
+        - Human (manual work)
+        - Unassigned (to be determined)
+      default: 4
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Task priority level
+      options:
+        - P0 (Critical - blocks other work)
+        - P1 (High - important feature)
+        - P2 (Medium - nice to have)
+        - P3 (Low - future enhancement)
+      default: 2
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope Boundaries
+      description: What is IN scope and OUT of scope for this task?
+      placeholder: |
+        **In Scope:**
+        - Create workflow YAML file
+        - Write Python validation script
+        - Add tests
+
+        **Out of Scope:**
+        - Modifying existing workflows
+        - Changing agent rules
+
+  - type: textarea
+    id: technical_notes
+    attributes:
+      label: Technical Notes
+      description: Implementation hints, gotchas, or constraints
+      placeholder: |
+        - Use Python for complex logic (R-PRC-050)
+        - Scripts go in development/python/src/scripts/workflows/
+        - Test locally with `act` before deploying
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: Links to docs, RFCs, ADRs, or related issues
+      placeholder: |
+        - RFC: docs/rfcs/0012-agent-driven-github-automation.md
+        - Related: #45, #46
+        - Docs: https://docs.github.com/en/actions

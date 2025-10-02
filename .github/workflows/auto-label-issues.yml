@@ -1,0 +1,90 @@
+name: Auto-Label Issues
+
+on:
+  issues:
+    types: [opened, edited]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Add agent label based on selection
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          ISSUE_BODY=$(gh issue view "$ISSUE_NUMBER" --json body -q .body)
+
+          # Extract agent from "Assigned Agent: GitHub Copilot"
+          if echo "$ISSUE_BODY" | grep -q "Assigned Agent.*GitHub Copilot"; then
+            echo "Adding label: agent:copilot"
+            gh issue edit "$ISSUE_NUMBER" --add-label "agent:copilot"
+          elif echo "$ISSUE_BODY" | grep -q "Assigned Agent.*Claude Code"; then
+            echo "Adding label: agent:claude-code"
+            gh issue edit "$ISSUE_NUMBER" --add-label "agent:claude-code"
+          elif echo "$ISSUE_BODY" | grep -q "Assigned Agent.*Windsurf"; then
+            echo "Adding label: agent:windsurf"
+            gh issue edit "$ISSUE_NUMBER" --add-label "agent:windsurf"
+          elif echo "$ISSUE_BODY" | grep -q "Assigned Agent.*Human"; then
+            echo "Adding label: agent:human"
+            gh issue edit "$ISSUE_NUMBER" --add-label "agent:human"
+          fi
+
+      - name: Add priority label
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          ISSUE_BODY=$(gh issue view "$ISSUE_NUMBER" --json body -q .body)
+
+          if echo "$ISSUE_BODY" | grep -q "Priority.*P0"; then
+            gh issue edit "$ISSUE_NUMBER" --add-label "priority:critical"
+          elif echo "$ISSUE_BODY" | grep -q "Priority.*P1"; then
+            gh issue edit "$ISSUE_NUMBER" --add-label "priority:high"
+          elif echo "$ISSUE_BODY" | grep -q "Priority.*P2"; then
+            gh issue edit "$ISSUE_NUMBER" --add-label "priority:medium"
+          elif echo "$ISSUE_BODY" | grep -q "Priority.*P3"; then
+            gh issue edit "$ISSUE_NUMBER" --add-label "priority:low"
+          fi
+
+      - name: Add RFC label if referenced
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          ISSUE_BODY=$(gh issue view "$ISSUE_NUMBER" --json body -q .body)
+
+          # Extract RFC reference (e.g., RFC-0012)
+          RFC_REF=$(echo "$ISSUE_BODY" | grep -oiE 'RFC-[0-9]{4}' | head -1 | tr '[:upper:]' '[:lower:]')
+
+          if [ -n "$RFC_REF" ]; then
+            echo "Adding label: $RFC_REF"
+            gh issue edit "$ISSUE_NUMBER" --add-label "$RFC_REF"
+          fi
+
+      - name: Check for blockers
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          ISSUE_BODY=$(gh issue view "$ISSUE_NUMBER" --json body -q .body)
+
+          # Check if "Blocked By" field has issues (not "None")
+          BLOCKED_BY=$(echo "$ISSUE_BODY" | grep -i "Blocked By" | grep -v -i "None" | grep -oE '#[0-9]+')
+
+          if [ -n "$BLOCKED_BY" ]; then
+            echo "Issue has blockers, adding has-blockers label"
+            gh issue edit "$ISSUE_NUMBER" --add-label "has-blockers"
+          fi
