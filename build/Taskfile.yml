@@ -23,6 +23,14 @@ tasks:
       - mkdir -p {{.ARTIFACT_DIR}}/pty/{dist,logs}
       - mkdir -p {{.ARTIFACT_DIR}}/_logs
 
+  build-dotnet:
+    desc: "Build .NET projects via Nuke"
+    deps: [init-dirs]
+    cmds:
+      - ./nuke/build.sh Compile 2>&1 | tee {{.ARTIFACT_DIR}}/_logs/dotnet-build.log
+      # Adjust copy based on actual Nuke output location
+      - cp -r ../bin/Release/net8.0/* {{.ARTIFACT_DIR}}/dotnet/bin/ || true
+
   clean:
     desc: Clean build artifacts and Task cache
     cmds:
