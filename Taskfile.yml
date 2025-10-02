@@ -1,0 +1,20 @@
+# Taskfile.yml (root)
+version: '3'
+
+includes:
+  build:
+    taskfile: ./build/Taskfile.yml
+    dir: ./build
+
+tasks:
+  default:
+    desc: "Show available tasks"
+    cmds:
+      - task --list
+
+  setup:
+    desc: "Initial project setup"
+    cmds:
+      - task: build:version
+      - task: build:init-dirs
+      - echo "Setup complete!"
