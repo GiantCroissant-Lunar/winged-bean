@@ -1,0 +1,3 @@
+{"version": 2, "width": 80, "height": 24, "timestamp": 0, "env": {"SHELL": "/bin/bash", "TERM": "xterm-256color"}}
+[0.1, "o", "\u001b[1;32m$\u001b[0m echo Hello, world!\r\n"]
+[0.2, "o", "Hello, world!\r\n"]

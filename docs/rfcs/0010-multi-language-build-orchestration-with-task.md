@@ -1,6 +1,6 @@
 # RFC-0010: Multi-Language Build Orchestration with Task
 
-**Status:** Proposed
+**Status:** Implemented
 **Date:** 2025-10-02
 **Author:** Development Team
 **Category:** infra, tooling
