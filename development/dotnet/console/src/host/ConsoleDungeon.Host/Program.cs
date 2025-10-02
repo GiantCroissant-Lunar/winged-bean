@@ -142,7 +142,13 @@ public class Program
             if (serviceType != null)
             {
                 // Use reflection to call the generic Register method
-                var registerMethod = typeof(IRegistry).GetMethod("Register")
+                // We need to specify parameter types to disambiguate overloads
+                var registerMethod = typeof(IRegistry).GetMethods()
+                    .Where(m => m.Name == "Register" && m.IsGenericMethod)
+                    .Where(m => m.GetParameters().Length == 2)
+                    .Where(m => m.GetParameters()[0].ParameterType.IsGenericParameter)
+                    .Where(m => m.GetParameters()[1].ParameterType == typeof(int))
+                    .FirstOrDefault()
                     ?.MakeGenericMethod(serviceType);
                 
                 registerMethod?.Invoke(registry, new object[] { service, priority });
