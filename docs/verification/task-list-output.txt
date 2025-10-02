@@ -1,0 +1,23 @@
+task: Available tasks for this project:
+* ci:                       Full CI pipeline
+* default:                  Show available tasks
+* setup:                    Initial project setup
+* build:build-all:          Build all components
+* build:build-dotnet:       Build .NET projects via Nuke
+* build:build-pty:          Build PTY service
+* build:build-web:          Build web projects
+* build:clean:              Clean build artifacts and Task cache
+* build:init-dirs:          Initialize build artifact directories
+* build:version:            Show current GitVersion
+* game:build:               Build ConsoleDungeon game
+* game:clean:               Clean ConsoleDungeon build artifacts
+* game:run:                 Run ConsoleDungeon game
+* game:test:                Run ConsoleDungeon tests
+* nodejs:build:             Build Node.js projects
+* nodejs:clean:             Clean Node.js artifacts
+* nodejs:dev:               Start development server
+* nodejs:format:            Format code with Prettier
+* nodejs:install:           Install Node.js dependencies
+* nodejs:lint:              Lint JavaScript/TypeScript
+* nodejs:test:              Run Node.js unit tests
+* nodejs:test-e2e:          Run Playwright E2E tests

@@ -18,6 +18,9 @@ mega-linter.log
 # Node.js
 node_modules/
 
+# Task checksum cache
+.task/
+
 # Act configuration with secrets
 .env.act
 
