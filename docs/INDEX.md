@@ -187,6 +187,7 @@
 - [Recent ADRs](./adr/) - Latest decisions
 
 ### Getting Started
+- [Plugin Development Guide](./guides/plugin-development-guide.md) - Creating .NET plugins
 - [Framework Targeting Guide](./guides/framework-targeting-guide.md)
 - [Unity Plugin System](./unity/README.md)
 - [Development Workflows](./development/)
