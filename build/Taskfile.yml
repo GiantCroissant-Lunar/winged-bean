@@ -31,6 +31,14 @@ tasks:
       # Adjust copy based on actual Nuke output location
       - cp -r ../bin/Release/net8.0/* {{.ARTIFACT_DIR}}/dotnet/bin/ || true
 
+  build-web:
+    desc: "Build web projects"
+    deps: [init-dirs]
+    dir: ../development/nodejs
+    cmds:
+      - pnpm run build 2>&1 | tee ../../build/{{.ARTIFACT_DIR}}/_logs/web-build.log
+      - cp -r sites/docs/dist/* ../../build/{{.ARTIFACT_DIR}}/web/dist/
+
   clean:
     desc: Clean build artifacts and Task cache
     cmds:
