@@ -49,6 +49,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WingedBean.Plugins.Terminal
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WingedBean.Plugins.WebSocket.Tests", "tests\plugins\WingedBean.Plugins.WebSocket.Tests\WingedBean.Plugins.WebSocket.Tests.csproj", "{AF3F2573-45C4-4F50-B47B-1833D9031CBE}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "host", "host", "{2D90B387-9E96-A33A-A182-52F1887BC10C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleDungeon.Host.Tests", "tests\host\ConsoleDungeon.Host.Tests\ConsoleDungeon.Host.Tests.csproj", "{DF0F575D-A469-4128-9D17-060A1F6538B4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -251,6 +255,18 @@ Global
 		{AF3F2573-45C4-4F50-B47B-1833D9031CBE}.Release|x64.Build.0 = Release|Any CPU
 		{AF3F2573-45C4-4F50-B47B-1833D9031CBE}.Release|x86.ActiveCfg = Release|Any CPU
 		{AF3F2573-45C4-4F50-B47B-1833D9031CBE}.Release|x86.Build.0 = Release|Any CPU
+		{DF0F575D-A469-4128-9D17-060A1F6538B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF0F575D-A469-4128-9D17-060A1F6538B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF0F575D-A469-4128-9D17-060A1F6538B4}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DF0F575D-A469-4128-9D17-060A1F6538B4}.Debug|x64.Build.0 = Debug|Any CPU
+		{DF0F575D-A469-4128-9D17-060A1F6538B4}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DF0F575D-A469-4128-9D17-060A1F6538B4}.Debug|x86.Build.0 = Debug|Any CPU
+		{DF0F575D-A469-4128-9D17-060A1F6538B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF0F575D-A469-4128-9D17-060A1F6538B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF0F575D-A469-4128-9D17-060A1F6538B4}.Release|x64.ActiveCfg = Release|Any CPU
+		{DF0F575D-A469-4128-9D17-060A1F6538B4}.Release|x64.Build.0 = Release|Any CPU
+		{DF0F575D-A469-4128-9D17-060A1F6538B4}.Release|x86.ActiveCfg = Release|Any CPU
+		{DF0F575D-A469-4128-9D17-060A1F6538B4}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -277,5 +293,7 @@ Global
 		{7BDAD76D-3EE5-4F5D-A3C1-BA25A3BE803B} = {251FA40C-AC2F-1119-6E2C-255695F88EFF}
 		{26AF5731-0D3D-47B4-B7C3-250D83F70D54} = {251FA40C-AC2F-1119-6E2C-255695F88EFF}
 		{AF3F2573-45C4-4F50-B47B-1833D9031CBE} = {251FA40C-AC2F-1119-6E2C-255695F88EFF}
+		{2D90B387-9E96-A33A-A182-52F1887BC10C} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{DF0F575D-A469-4128-9D17-060A1F6538B4} = {2D90B387-9E96-A33A-A182-52F1887BC10C}
 	EndGlobalSection
 EndGlobal
