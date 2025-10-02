@@ -1,7 +1,7 @@
 ---
 import AsciinemaPlayer from '../../components/AsciinemaPlayer.astro';
 import XTerm from '../../components/XTerm.astro';
-import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+// Standalone demo page: do not use Starlight layout
 
 const pageTitle = 'Winged Bean Docs';
 const castFiles = [
@@ -13,8 +13,21 @@ const castFiles = [
 const defaultCast = '/example.cast';
 ---
 
-<StarlightPage frontmatter={{ title: pageTitle }}>
-  <p class="demo-hero">Interactive terminal demos are powered by the embedded Asciinema player below.</p>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@2.0.6/css/pico.min.css" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{pageTitle}</title>
+  </head>
+  <body>
+    <main class="container">
+      <header>
+        <h1>{pageTitle}</h1>
+        <p class="demo-hero">Interactive terminal demos are powered by the embedded Asciinema player below.</p>
+      </header>
 
   <section class="demo-section">
     <h2>Sample Terminal Session</h2>
@@ -92,4 +105,6 @@ const defaultCast = '/example.cast';
       <code>AsciinemaPlayer</code> component across pages.
     </p>
   </footer>
-</StarlightPage>
+    </main>
+  </body>
+</html>

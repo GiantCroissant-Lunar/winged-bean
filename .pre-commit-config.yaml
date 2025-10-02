@@ -115,8 +115,8 @@ repos:
 
       - id: validate-issue-dependencies
         name: Validate Issue Dependencies (R-ISS-030)
-        entry: scripts/hooks/validate-issue-dependencies.sh
-        language: script
+        entry: python development/python/src/scripts/validate_issue_dependencies.py
+        language: system
         stages: [commit-msg]
         pass_filenames: true
         always_run: false
