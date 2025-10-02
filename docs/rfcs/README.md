@@ -14,29 +14,6 @@ This directory contains RFCs (Request for Comments) documenting major architectu
 
 ## Active RFCs
 
-### RFC-0005: Target Framework Compliance for Multi-Platform Support
-**Status:** Proposed
-**Date:** 2025-10-01
-**Priority:** CRITICAL (P0)
-**Estimated Effort:** 2-3 days
-
-**Summary:** Update all projects to use appropriate target frameworks: `.NET Standard 2.1` for Tier 1/2 (Unity/Godot compatibility), `.NET 8.0` for Tier 3/4 Console (LTS support), and `.NET Standard 2.0` for source generators.
-
-**Key Changes:**
-- All contract projects → `netstandard2.1`
-- Registry → `netstandard2.1`
-- Console projects → `net8.0`
-- Source generators → `netstandard2.0`
-
-**Impact:** Enables Unity and Godot support, provides LTS stability
-
-**Dependencies:** None
-**Blocks:** RFC-0006, RFC-0007
-
-[Read Full RFC →](./0005-target-framework-compliance.md)
-
----
-
 ### RFC-0006: Dynamic Plugin Loading and Runtime Composition
 **Status:** Proposed
 **Date:** 2025-10-01
@@ -141,6 +118,35 @@ development/dotnet/
 ```
 
 [Read Full RFC →](./0004-project-organization-and-folder-structure.md)
+
+---
+
+### RFC-0005: Target Framework Compliance for Multi-Platform Support
+**Status:** ✅ Implemented
+**Date:** 2025-10-01
+**Priority:** CRITICAL (P0)
+**Completed:** 2025-10-01
+
+**Summary:** Updated all projects to use appropriate target frameworks: `.NET Standard 2.1` for Tier 1/2 (Unity/Godot compatibility), `.NET 8.0` for Tier 3/4 Console (LTS support), and `.NET Standard 2.0` for source generators.
+
+**Key Changes:**
+- ✅ All contract projects → `netstandard2.1`
+- ✅ Registry → `netstandard2.1`
+- ✅ Console projects → `net8.0`
+- ✅ Source generators → `netstandard2.0`
+
+**Impact:** Enables Unity and Godot support, provides LTS stability
+
+**Verification:**
+- ✅ All 95 tests passing
+- ✅ ConsoleDungeon.Host verified
+- ✅ xterm.js integration verified
+
+**Documentation:**
+- [Framework Targeting Guide](../guides/framework-targeting-guide.md)
+- [Source Generator Usage Guide](../guides/source-generator-usage.md)
+
+[Read Full RFC →](./0005-target-framework-compliance.md)
 
 ---
 
