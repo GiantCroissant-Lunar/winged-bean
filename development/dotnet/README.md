@@ -1,6 +1,6 @@
 # WingedBean Plugin Architecture Implementation
 
-This directory contains the implementation of RFC-0003: Plugin Architecture Foundation for the WingedBean project.
+This directory contains the implementation of RFC-0003: Plugin Architecture Foundation and RFC-0005: Target Framework Compliance for the WingedBean project.
 
 ## 🎯 Implementation Status
 
@@ -11,6 +11,15 @@ This directory contains the implementation of RFC-0003: Plugin Architecture Foun
 - **WingedBean.Contracts** - Shared interfaces for plugin implementations
 - **WingedBean.Plugins.AsciinemaRecorder** - Sample plugin demonstrating the architecture
 - **WingedBean.Demo** - Console application demonstrating the plugin system
+
+✅ **RFC-0005 Complete** - Framework targeting for multi-platform support:
+
+- **Tier 1 Contracts**: `.NET Standard 2.1` (Unity/Godot compatible)
+- **Tier 2 Infrastructure**: `.NET Standard 2.1` (Portable)
+- **Tier 3/4 Console**: `.NET 8.0` LTS (Modern features)
+- **Source Generators**: `.NET Standard 2.0` (Roslyn compatible)
+
+[Framework Targeting Guide →](../../docs/guides/framework-targeting-guide.md)
 
 ## 🏗️ Architecture Overview
 

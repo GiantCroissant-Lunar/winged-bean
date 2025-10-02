@@ -48,15 +48,22 @@ winged-bean/
 
 ### Plugin Architecture (.NET)
 
-✅ **Phase 1 Complete** - Core plugin system foundation:
+✅ **Multi-Platform Ready** - Framework targeting for Unity/Godot compatibility:
 
 - **AssemblyLoadContext (ALC)** based plugin loading with hot-reload
 - **Dependency Resolution** - Topological sort with circular dependency detection
 - **Profile-Agnostic Design** - Console, Unity, Godot, and Web profiles
 - **Service Integration** - Full dependency injection support
 - **Manifest-Based Discovery** - JSON-based plugin metadata
+- **Framework Targeting** - netstandard2.1 (Tier 1/2), net8.0 (Tier 3/4)
 
-[Learn more →](projects/dotnet/README.md)
+**Framework Compliance:**
+- ✅ Contracts: `.NET Standard 2.1` for Unity/Godot compatibility
+- ✅ Infrastructure: `.NET Standard 2.1` for portability
+- ✅ Console: `.NET 8.0` LTS for modern features
+- ✅ Source Generators: `.NET Standard 2.0` for Roslyn compatibility
+
+[Learn more →](development/dotnet/README.md) | [Framework Guide →](docs/guides/framework-targeting-guide.md)
 
 ### Infrastructure Automation
 
