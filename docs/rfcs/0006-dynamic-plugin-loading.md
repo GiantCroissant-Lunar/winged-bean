@@ -2,7 +2,7 @@
 
 ## Status
 
-**Proposed** - Ready for Implementation
+**✅ Implemented** - Dynamic plugin loading is active in ConsoleDungeon.Host
 
 ## Date
 
