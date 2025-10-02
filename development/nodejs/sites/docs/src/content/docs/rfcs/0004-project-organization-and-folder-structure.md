@@ -1,5 +1,6 @@
 ---
 title: "RFC-0004: Project Organization and Folder Structure"
+description: "Documentation for RFC-0004: Project Organization and Folder Structure"
 ---
 
 # RFC-0004: Project Organization and Folder Structure

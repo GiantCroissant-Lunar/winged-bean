@@ -1,5 +1,6 @@
 ---
 title: Console MVP Migration Plan
+description: "Documentation for Console MVP Migration Plan"
 ---
 
 # Console MVP Migration Plan

@@ -1,0 +1,51 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - link "Skip to content" [ref=e2] [cursor=pointer]:
+    - /url: "#_top"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - link "Winged Bean" [ref=e7] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e8] [cursor=pointer]: Winged Bean
+        - button "Search" [ref=e11] [cursor=pointer]:
+          - img [ref=e12] [cursor=pointer]
+          - generic [ref=e14] [cursor=pointer]: Search
+          - generic [ref=e15] [cursor=pointer]:
+            - generic [ref=e16] [cursor=pointer]: ⌘
+            - generic [ref=e17] [cursor=pointer]: K
+        - generic [ref=e21]:
+          - generic [ref=e22]: Select theme
+          - img
+          - combobox "Select theme" [ref=e23] [cursor=pointer]:
+            - option "Dark"
+            - option "Light"
+            - option "Auto" [selected]
+          - img
+    - main [ref=e27]:
+      - generic [ref=e29]:
+        - generic [ref=e32]:
+          - heading "404" [level=1] [ref=e33]
+          - generic [ref=e34]: Page not found. Check the URL or try using the search bar.
+        - link "Next 🎮 Terminal.Gui Live" [ref=e37] [cursor=pointer]:
+          - /url: /demo/
+          - img [ref=e38] [cursor=pointer]
+          - generic [ref=e40] [cursor=pointer]:
+            - text: Next
+            - generic [ref=e41] [cursor=pointer]: 🎮 Terminal.Gui Live
+  - generic [ref=e44]:
+    - button "Menu" [ref=e45]:
+      - img [ref=e47]
+      - generic: Menu
+    - button "Inspect" [ref=e51]:
+      - img [ref=e53]
+      - generic: Inspect
+    - button "Audit" [ref=e55]:
+      - img [ref=e57]
+      - generic: Audit
+    - button "Settings" [ref=e60]:
+      - img [ref=e62]
+      - generic: Settings
+```

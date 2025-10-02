@@ -1,0 +1,51 @@
+name: Agent Auto-Retry on Failure
+
+on:
+  workflow_run:
+    workflows: ["MegaLinter", "Qodana"]
+    types: [completed]
+
+permissions:
+  issues: write
+  pull-requests: write
+  contents: write
+  actions: read
+
+jobs:
+  handle-failure:
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Get PR number from workflow run
+        id: get-pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_NUM=$(gh api repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }} \
+            --jq '.pull_requests[0].number // empty')
+
+          if [ -z "$PR_NUM" ]; then
+            echo "No PR associated with this workflow run"
+            echo "pr_number=" >> $GITHUB_OUTPUT
+          else
+            echo "pr_number=$PR_NUM" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Handle agent failure
+        if: steps.get-pr.outputs.pr_number != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          PR_NUMBER: ${{ steps.get-pr.outputs.pr_number }}
+          WORKFLOW_NAME: ${{ github.event.workflow_run.name }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python -m scripts.workflows.handle_agent_failure
+        working-directory: ./development/python/src

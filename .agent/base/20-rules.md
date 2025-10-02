@@ -44,6 +44,33 @@ R-PRC-010: When uncertain about architectural decisions, propose options rather 
 R-PRC-020: Use TodoWrite tool for multi-step tasks to track progress and give visibility.
 R-PRC-030: Do not duplicate full rule text in adapters; adapters cite rule IDs only.
 R-PRC-040: Never renumber or reuse a retired rule ID; create a new ID for semantic changes.
+R-PRC-050: Use Python instead of embedded shell scripts for complex logic in workflows/hooks.
+  - Shell is acceptable for simple conditionals (< 10 lines)
+  - Python is required for: parsing JSON, complex string manipulation, error handling, API calls
+  - Place Python scripts in `scripts/hooks/` or `scripts/workflows/`
+  - Keep workflow YAML minimal - delegate to Python scripts
+
+## Issue Management
+R-ISS-010: When creating issues, always specify dependencies in the issue body.
+  - Format: `**Blocked By:** #XX, #YY` (comma-separated issue numbers, or "None")
+  - Format: `**Blocks:** #ZZ` (issues that depend on this one)
+  - Pre-commit hook validates dependencies before allowing commits (hard block)
+R-ISS-020: When creating issues, specify the intended agent.
+  - Use labels: `agent:copilot`, `agent:claude-code`, or `agent:windsurf`
+  - If unsure, use `agent:unassigned` and let human decide
+R-ISS-030: Before starting work on an issue, verify all blockers are closed.
+  - Check `**Blocked By:**` field in issue body
+  - Query each blocker's status via `gh issue view <num> --json state`
+  - If any blocker is open, do not start work (pre-commit hook enforces this)
+R-ISS-040: When a PR fails CI, the agent that created it must fix it (3 retry limit).
+  - Read failure logs in issue comments
+  - Analyze what went wrong
+  - Create new PR with fixes
+  - Do not require human intervention unless 3 attempts fail
+R-ISS-050: Issue titles must follow naming convention.
+  - Format: `RFC-XXXX-YY: Short description` (for RFC-related work)
+  - Format: `[COMPONENT] Short description` (for general work)
+  - Examples: `RFC-0007-01: Create ECS contracts`, `[CI] Fix MegaLinter timeout`
 
 ## Deprecated Rules
 (None yet)

@@ -1,0 +1,55 @@
+name: PR Issue Link Enforcement
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for issue link
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          echo "Validating PR body for issue link..."
+          echo "Per R-GIT-010: PRs must link to an issue"
+
+          # Check for "Closes #XX", "Fixes #XX", "Resolves #XX", etc.
+          if echo "$PR_BODY" | grep -qiE 'close[sd]? #[0-9]+|fixe?[sd]? #[0-9]+|resolve[sd]? #[0-9]+'; then
+            ISSUE_NUM=$(echo "$PR_BODY" | grep -oiE 'close[sd]? #[0-9]+|fixe?[sd]? #[0-9]+|resolve[sd]? #[0-9]+' | head -1 | grep -oE '[0-9]+')
+            echo "✓ Issue link found: #$ISSUE_NUM"
+            exit 0
+          fi
+
+          # Also check title (some PRs have issue in title)
+          if echo "$PR_TITLE" | grep -qiE 'close[sd]? #[0-9]+|fixe?[sd]? #[0-9]+|resolve[sd]? #[0-9]+'; then
+            ISSUE_NUM=$(echo "$PR_TITLE" | grep -oiE 'close[sd]? #[0-9]+|fixe?[sd]? #[0-9]+|resolve[sd]? #[0-9]+' | head -1 | grep -oE '[0-9]+')
+            echo "✓ Issue link found in title: #$ISSUE_NUM"
+            exit 0
+          fi
+
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "❌ ERROR: PR body must contain 'Closes #<issue>' or 'Fixes #<issue>'"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          echo "This PR does not link to an issue. Every PR must be tied to an issue."
+          echo ""
+          echo "Add one of these to your PR description:"
+          echo "  • Closes #<issue-number>"
+          echo "  • Fixes #<issue-number>"
+          echo "  • Resolves #<issue-number>"
+          echo ""
+          echo "Example:"
+          echo "  Closes #45"
+          echo ""
+          echo "  Implements IWorld interface for ECS Tier 1 contracts."
+          echo ""
+          echo "Per R-GIT-010: All PRs must link to an issue for traceability"
+          echo ""
+          exit 1

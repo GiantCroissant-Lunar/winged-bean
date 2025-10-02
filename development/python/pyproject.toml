@@ -26,6 +26,14 @@ dependencies = [
     "python-dotenv>=1.0.0",
 ]
 
+[project.scripts]
+# Pre-commit hooks (per R-ISS-030)
+validate-issue-dependencies = "scripts.validate_issue_dependencies:main"
+# GitHub Actions workflow scripts (per R-PRC-050)
+validate-pr-issue-link = "scripts.workflows.validate_pr_issue_link:main"
+validate-issue-deps-workflow = "scripts.workflows.validate_issue_dependencies:main"
+handle-agent-failure = "scripts.workflows.handle_agent_failure:main"
+
 [project.optional-dependencies]
 dev = [
     "pytest>=7.4.0",

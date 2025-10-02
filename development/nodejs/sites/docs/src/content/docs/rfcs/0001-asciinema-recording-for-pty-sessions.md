@@ -1,5 +1,6 @@
 ---
 title: "RFC-0001: Asciinema Recording for PTY Sessions"
+description: "Documentation for RFC-0001: Asciinema Recording for PTY Sessions"
 ---
 
 # RFC-0001: Asciinema Recording for PTY Sessions

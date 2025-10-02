@@ -1,5 +1,6 @@
 ---
 title: Terminal.GUI v2 PTY Integration Verification Report
+description: "Documentation for Terminal.GUI v2 PTY Integration Verification Report"
 ---
 
 # Terminal.GUI v2 PTY Integration Verification Report

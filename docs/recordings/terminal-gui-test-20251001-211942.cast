@@ -1,0 +1,3 @@
+{"version":3,"term":{"cols":80,"rows":24},"timestamp":1759324782,"command":"cd development/dotnet/console && timeout 10s bash -c 'TERM=xterm-256color COLORTERM=truecolor dotnet run --project src/host/TerminalGui.PtyHost/TerminalGui.PtyHost.csproj'","env":{"SHELL":"/bin/zsh"}}
+[0.005319, "o", "/bin/sh: timeout: command not found\r\n"]
+[0.000623, "x", "127"]

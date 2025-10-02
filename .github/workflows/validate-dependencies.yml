@@ -1,0 +1,28 @@
+name: Validate Issue Dependencies
+
+on:
+  issues:
+    types: [assigned, labeled, edited]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Validate dependencies
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: python -m scripts.workflows.validate_issue_dependencies
+        working-directory: ./development/python/src

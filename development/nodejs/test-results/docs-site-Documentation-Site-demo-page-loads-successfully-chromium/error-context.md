@@ -1,0 +1,628 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e4]:
+  - generic [ref=e5]:
+    - checkbox "Use dark theme" [ref=e6]
+    - generic [ref=e7] [cursor=pointer]:
+      - img [ref=e8] [cursor=pointer]
+      - img [ref=e12] [cursor=pointer]
+      - generic [ref=e16] [cursor=pointer]: Use dark theme
+  - banner [ref=e17]:
+    - generic [ref=e18]:
+      - heading "FailedToLoadModuleSSR" [level=2] [ref=e19]
+      - heading "Could not import file." [level=1] [ref=e20]
+    - img [ref=e23]
+  - generic [ref=e26]:
+    - generic [ref=e27]:
+      - img [ref=e29]
+      - generic [ref=e31]:
+        - text: Could not import
+        - code [ref=e32]: ../components/AsciinemaPlayer.astro
+        - text: .
+      - link "See Docs Reference" [ref=e34] [cursor=pointer]:
+        - /url: https://docs.astro.build/en/reference/errors/failed-to-load-module-ssr/
+        - text: See Docs Reference
+        - img [ref=e35] [cursor=pointer]
+    - generic [ref=e38]:
+      - img [ref=e40]
+      - generic [ref=e42]: This is often caused by a typo in the import path. Please make sure the file exists.
+  - generic [ref=e43]:
+    - generic [ref=e44]:
+      - heading "demo/index.astro:2:29" [level=2] [ref=e45]
+      - button "Open in editor" [ref=e47]:
+        - text: Open in editor
+        - img [ref=e48]
+    - code [ref=e53]:
+      - generic [ref=e55]: "---"
+      - generic [ref=e56]:
+        - generic [ref=e57]: import
+        - generic [ref=e58]: AsciinemaPlayer
+        - generic [ref=e59]: from
+        - generic [ref=e60]: "'../components/AsciinemaPlayer.astro'"
+        - generic [ref=e61]: ;
+      - generic [ref=e63]: ^
+      - generic [ref=e64]:
+        - generic [ref=e65]: import
+        - generic [ref=e66]: XTerm
+        - generic [ref=e67]: from
+        - generic [ref=e68]: "'../components/XTerm.astro'"
+        - generic [ref=e69]: ;
+      - generic [ref=e71]:
+        - generic [ref=e72]: const
+        - generic [ref=e73]: pageTitle
+        - generic [ref=e74]: =
+        - generic [ref=e75]: "'Winged Bean Docs'"
+        - generic [ref=e76]: ;
+      - generic [ref=e77]:
+        - generic [ref=e78]: const
+        - generic [ref=e79]: castFiles
+        - generic [ref=e80]: =
+        - generic [ref=e81]: "["
+      - generic [ref=e82]:
+        - generic [ref=e83]: "{ name"
+        - generic [ref=e84]: ":"
+        - generic [ref=e85]: "'Hello Example'"
+        - generic [ref=e86]: ","
+        - generic [ref=e87]: src
+        - generic [ref=e88]: ":"
+        - generic [ref=e89]: "'/example.cast'"
+        - generic [ref=e90]: "}"
+        - generic [ref=e91]: ","
+      - generic [ref=e92]:
+        - generic [ref=e93]: "{ name"
+        - generic [ref=e94]: ":"
+        - generic [ref=e95]: "'NPM Install'"
+        - generic [ref=e96]: ","
+        - generic [ref=e97]: src
+        - generic [ref=e98]: ":"
+        - generic [ref=e99]: "'/npm-install.cast'"
+        - generic [ref=e100]: "}"
+        - generic [ref=e101]: ","
+      - generic [ref=e102]:
+        - generic [ref=e103]: "{ name"
+        - generic [ref=e104]: ":"
+        - generic [ref=e105]: "'Git Commit'"
+        - generic [ref=e106]: ","
+        - generic [ref=e107]: src
+        - generic [ref=e108]: ":"
+        - generic [ref=e109]: "'/git-commit.cast'"
+        - generic [ref=e110]: "}"
+        - generic [ref=e111]: ","
+      - generic [ref=e112]:
+        - generic [ref=e113]: "{ name"
+        - generic [ref=e114]: ":"
+        - generic [ref=e115]: "'Docker Build'"
+        - generic [ref=e116]: ","
+        - generic [ref=e117]: src
+        - generic [ref=e118]: ":"
+        - generic [ref=e119]: "'/docker-build.cast'"
+        - generic [ref=e120]: "}"
+      - generic [ref=e122]: "];"
+      - generic [ref=e123]:
+        - generic [ref=e124]: const
+        - generic [ref=e125]: defaultCast
+        - generic [ref=e126]: =
+        - generic [ref=e127]: "'/example.cast'"
+        - generic [ref=e128]: ;
+      - generic [ref=e130]: "---"
+      - generic [ref=e132]:
+        - generic [ref=e133]: <
+        - generic [ref=e134]: html
+        - generic [ref=e135]: lang
+        - generic [ref=e136]: =
+        - generic [ref=e137]: "\"en\""
+        - generic [ref=e138]: ">"
+      - generic [ref=e139]:
+        - generic [ref=e140]: <
+        - generic [ref=e141]: head
+        - generic [ref=e142]: ">"
+      - generic [ref=e143]:
+        - generic [ref=e144]: <
+        - generic [ref=e145]: meta
+        - generic [ref=e146]: charset
+        - generic [ref=e147]: =
+        - generic [ref=e148]: "\"utf-8\""
+        - generic [ref=e149]: />
+      - generic [ref=e150]:
+        - generic [ref=e151]: <
+        - generic [ref=e152]: link
+        - generic [ref=e153]: rel
+        - generic [ref=e154]: =
+        - generic [ref=e155]: "\"icon\""
+        - generic [ref=e156]: type
+        - generic [ref=e157]: =
+        - generic [ref=e158]: "\"image/svg+xml\""
+        - generic [ref=e159]: href
+        - generic [ref=e160]: =
+        - generic [ref=e161]: "\"/favicon.svg\""
+        - generic [ref=e162]: />
+      - generic [ref=e163]:
+        - generic [ref=e164]: <
+        - generic [ref=e165]: meta
+        - generic [ref=e166]: name
+        - generic [ref=e167]: =
+        - generic [ref=e168]: "\"viewport\""
+        - generic [ref=e169]: content
+        - generic [ref=e170]: =
+        - generic [ref=e171]: "\"width=device-width\""
+        - generic [ref=e172]: />
+      - generic [ref=e173]:
+        - generic [ref=e174]: <
+        - generic [ref=e175]: meta
+        - generic [ref=e176]: name
+        - generic [ref=e177]: =
+        - generic [ref=e178]: "\"generator\""
+        - generic [ref=e179]: content
+        - generic [ref=e180]: =
+        - generic [ref=e181]: "{"
+        - generic [ref=e182]: Astro
+        - generic [ref=e183]: ".generator} />"
+      - generic [ref=e184]:
+        - generic [ref=e185]: <
+        - generic [ref=e186]: title
+        - generic [ref=e187]: ">{pageTitle}</"
+        - generic [ref=e188]: title
+        - generic [ref=e189]: ">"
+      - generic [ref=e190]:
+        - generic [ref=e191]: </
+        - generic [ref=e192]: head
+        - generic [ref=e193]: ">"
+      - generic [ref=e194]:
+        - generic [ref=e195]: <
+        - generic [ref=e196]: body
+        - generic [ref=e197]: style
+        - generic [ref=e198]: =
+        - generic [ref=e199]: "\"font-family: system-ui, sans-serif; margin: 2rem; line-height: 1.5;\""
+        - generic [ref=e200]: ">"
+      - generic [ref=e201]:
+        - generic [ref=e202]: <
+        - generic [ref=e203]: main
+        - generic [ref=e204]: style
+        - generic [ref=e205]: =
+        - generic [ref=e206]: "\"max-width: 960px; margin: 0 auto; display: grid; gap: 2rem;\""
+        - generic [ref=e207]: ">"
+      - generic [ref=e208]:
+        - generic [ref=e209]: <
+        - generic [ref=e210]: header
+        - generic [ref=e211]: ">"
+      - generic [ref=e212]:
+        - generic [ref=e213]: <
+        - generic [ref=e214]: h1
+        - generic [ref=e215]: style
+        - generic [ref=e216]: =
+        - generic [ref=e217]: "\"margin-bottom: 0.5rem;\""
+        - generic [ref=e218]: ">{pageTitle}</"
+        - generic [ref=e219]: h1
+        - generic [ref=e220]: ">"
+      - generic [ref=e221]:
+        - generic [ref=e222]: <
+        - generic [ref=e223]: p
+        - generic [ref=e224]: ">Interactive terminal demos are powered by the embedded Asciinema player below.</"
+        - generic [ref=e225]: p
+        - generic [ref=e226]: ">"
+      - generic [ref=e227]:
+        - generic [ref=e228]: </
+        - generic [ref=e229]: header
+        - generic [ref=e230]: ">"
+      - generic [ref=e232]:
+        - generic [ref=e233]: <
+        - generic [ref=e234]: section
+        - generic [ref=e235]: ">"
+      - generic [ref=e236]:
+        - generic [ref=e237]: <
+        - generic [ref=e238]: h2
+        - generic [ref=e239]: style
+        - generic [ref=e240]: =
+        - generic [ref=e241]: "\"margin-bottom: 0.75rem;\""
+        - generic [ref=e242]: ">Sample Terminal Session</"
+        - generic [ref=e243]: h2
+        - generic [ref=e244]: ">"
+      - generic [ref=e245]:
+        - generic [ref=e246]: <
+        - generic [ref=e247]: div
+        - generic [ref=e248]: style
+        - generic [ref=e249]: =
+        - generic [ref=e250]: "\"margin-bottom: 1rem;\""
+        - generic [ref=e251]: ">"
+      - generic [ref=e252]:
+        - generic [ref=e253]: <
+        - generic [ref=e254]: label
+        - generic [ref=e255]: for
+        - generic [ref=e256]: =
+        - generic [ref=e257]: "\"cast-select\""
+        - generic [ref=e258]: style
+        - generic [ref=e259]: =
+        - generic [ref=e260]: "\"margin-right: 0.5rem;\""
+        - generic [ref=e261]: ">Select a demo:</"
+        - generic [ref=e262]: label
+        - generic [ref=e263]: ">"
+      - generic [ref=e264]:
+        - generic [ref=e265]: <
+        - generic [ref=e266]: select
+        - generic [ref=e267]: id
+        - generic [ref=e268]: =
+        - generic [ref=e269]: "\"cast-select\""
+        - generic [ref=e270]: style
+        - generic [ref=e271]: =
+        - generic [ref=e272]: "\"padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;\""
+        - generic [ref=e273]: ">"
+      - generic [ref=e274]:
+        - generic [ref=e275]: "{"
+        - generic [ref=e276]: castFiles
+        - generic [ref=e277]: .map
+        - generic [ref=e278]: (cast
+        - generic [ref=e279]: =>
+        - generic [ref=e280]: (
+      - generic [ref=e281]:
+        - generic [ref=e282]: <
+        - generic [ref=e283]: option
+        - generic [ref=e284]: value
+        - generic [ref=e285]: =
+        - generic [ref=e286]: "{"
+        - generic [ref=e287]: cast
+        - generic [ref=e288]: ".src}"
+        - generic [ref=e289]: selected
+        - generic [ref=e290]: =
+        - generic [ref=e291]: "{"
+        - generic [ref=e292]: cast
+        - generic [ref=e293]: .src
+        - generic [ref=e294]: ===
+        - generic [ref=e295]: "defaultCast}>{"
+        - generic [ref=e296]: cast
+        - generic [ref=e297]: ".name}</"
+        - generic [ref=e298]: option
+        - generic [ref=e299]: ">"
+      - generic [ref=e301]: "))}"
+      - generic [ref=e302]:
+        - generic [ref=e303]: </
+        - generic [ref=e304]: select
+        - generic [ref=e305]: ">"
+      - generic [ref=e306]:
+        - generic [ref=e307]: </
+        - generic [ref=e308]: div
+        - generic [ref=e309]: ">"
+      - generic [ref=e310]:
+        - generic [ref=e311]: <
+        - generic [ref=e312]: AsciinemaPlayer
+        - generic [ref=e313]: src
+        - generic [ref=e314]: =
+        - generic [ref=e315]: "{defaultCast}"
+        - generic [ref=e316]: preload
+        - generic [ref=e317]: =
+        - generic [ref=e318]: "\"auto\""
+        - generic [ref=e319]: />
+      - generic [ref=e320]:
+        - generic [ref=e321]: </
+        - generic [ref=e322]: section
+        - generic [ref=e323]: ">"
+      - generic [ref=e325]:
+        - generic [ref=e326]: <
+        - generic [ref=e327]: section
+        - generic [ref=e328]: ">"
+      - generic [ref=e329]:
+        - generic [ref=e330]: <
+        - generic [ref=e331]: h2
+        - generic [ref=e332]: style
+        - generic [ref=e333]: =
+        - generic [ref=e334]: "\"margin-bottom: 0.75rem;\""
+        - generic [ref=e335]: ">Live Terminal (Legacy WebSocket)</"
+        - generic [ref=e336]: h2
+        - generic [ref=e337]: ">"
+      - generic [ref=e338]:
+        - generic [ref=e339]: <
+        - generic [ref=e340]: p
+        - generic [ref=e341]: style
+        - generic [ref=e342]: =
+        - generic [ref=e343]: "\"margin-bottom: 1rem;\""
+        - generic [ref=e344]: ">"
+      - generic [ref=e346]: Connect to a live Terminal.Gui application using the legacy WebSocket protocol on port 4040.
+      - generic [ref=e348]: Start the Console Dungeon .NET application first, then use this terminal to interact with it.
+      - generic [ref=e349]:
+        - generic [ref=e350]: </
+        - generic [ref=e351]: p
+        - generic [ref=e352]: ">"
+      - generic [ref=e353]:
+        - generic [ref=e354]: <
+        - generic [ref=e355]: XTerm
+        - generic [ref=e356]: id
+        - generic [ref=e357]: =
+        - generic [ref=e358]: "\"live-terminal\""
+        - generic [ref=e359]: websocketUrl
+        - generic [ref=e360]: =
+        - generic [ref=e361]: "\"ws://localhost:4040\""
+        - generic [ref=e362]: mode
+        - generic [ref=e363]: =
+        - generic [ref=e364]: "\"legacy\""
+        - generic [ref=e365]: />
+      - generic [ref=e366]:
+        - generic [ref=e367]: </
+        - generic [ref=e368]: section
+        - generic [ref=e369]: ">"
+      - generic [ref=e371]:
+        - generic [ref=e372]: <
+        - generic [ref=e373]: section
+        - generic [ref=e374]: ">"
+      - generic [ref=e375]:
+        - generic [ref=e376]: <
+        - generic [ref=e377]: h2
+        - generic [ref=e378]: style
+        - generic [ref=e379]: =
+        - generic [ref=e380]: "\"margin-bottom: 0.75rem;\""
+        - generic [ref=e381]: ">Live Terminal (PTY via node-pty) ⭐ Recommended</"
+        - generic [ref=e382]: h2
+        - generic [ref=e383]: ">"
+      - generic [ref=e384]:
+        - generic [ref=e385]: <
+        - generic [ref=e386]: p
+        - generic [ref=e387]: style
+        - generic [ref=e388]: =
+        - generic [ref=e389]: "\"margin-bottom: 1rem;\""
+        - generic [ref=e390]: ">"
+      - generic [ref=e392]: Connect to Terminal.Gui v2 running inside a real PTY spawned by Node.js (node-pty) on port 4041.
+      - generic [ref=e394]: The PTY service is managed by PM2 and automatically spawns the Terminal.Gui application.
+      - generic [ref=e396]: This uses binary streaming for full terminal compatibility.
+      - generic [ref=e397]:
+        - generic [ref=e398]: </
+        - generic [ref=e399]: p
+        - generic [ref=e400]: ">"
+      - generic [ref=e401]:
+        - generic [ref=e402]: <
+        - generic [ref=e403]: XTerm
+        - generic [ref=e404]: id
+        - generic [ref=e405]: =
+        - generic [ref=e406]: "\"pty-terminal\""
+        - generic [ref=e407]: websocketUrl
+        - generic [ref=e408]: =
+        - generic [ref=e409]: "\"ws://localhost:4041\""
+        - generic [ref=e410]: mode
+        - generic [ref=e411]: =
+        - generic [ref=e412]: "\"pty\""
+        - generic [ref=e413]: />
+      - generic [ref=e414]:
+        - generic [ref=e415]: </
+        - generic [ref=e416]: section
+        - generic [ref=e417]: ">"
+      - generic [ref=e419]:
+        - generic [ref=e420]: <
+        - generic [ref=e421]: script
+        - generic [ref=e422]: ">"
+      - generic [ref=e423]:
+        - generic [ref=e424]: document
+        - generic [ref=e425]: .addEventListener
+        - generic [ref=e426]: (
+        - generic [ref=e427]: "'DOMContentLoaded'"
+        - generic [ref=e428]: ","
+        - generic [ref=e429]: ()
+        - generic [ref=e430]: =>
+        - generic [ref=e431]: "{"
+      - generic [ref=e432]:
+        - generic [ref=e433]: const
+        - generic [ref=e434]: select
+        - generic [ref=e435]: =
+        - generic [ref=e436]: document
+        - generic [ref=e437]: .getElementById
+        - generic [ref=e438]: (
+        - generic [ref=e439]: "'cast-select'"
+        - generic [ref=e440]: );
+      - generic [ref=e441]:
+        - generic [ref=e442]: let
+        - generic [ref=e443]: currentPlayer
+        - generic [ref=e444]: =
+        - generic [ref=e445]: "null"
+        - generic [ref=e446]: ;
+      - generic [ref=e448]:
+        - generic [ref=e449]: select
+        - generic [ref=e450]: .addEventListener
+        - generic [ref=e451]: (
+        - generic [ref=e452]: "'change'"
+        - generic [ref=e453]: ","
+        - generic [ref=e454]: async
+        - generic [ref=e455]: ()
+        - generic [ref=e456]: =>
+        - generic [ref=e457]: "{"
+      - generic [ref=e458]:
+        - generic [ref=e459]: const
+        - generic [ref=e460]: selectedSrc
+        - generic [ref=e461]: =
+        - generic [ref=e462]: select
+        - generic [ref=e463]: .value;
+      - generic [ref=e464]:
+        - generic [ref=e465]: const
+        - generic [ref=e466]: container
+        - generic [ref=e467]: =
+        - generic [ref=e468]: document
+        - generic [ref=e469]: .querySelector
+        - generic [ref=e470]: (
+        - generic [ref=e471]: "'.asciinema-player'"
+        - generic [ref=e472]: );
+      - generic [ref=e475]: // Dispose current player if exists
+      - generic [ref=e476]:
+        - generic [ref=e477]: if
+        - generic [ref=e478]: (currentPlayer
+        - generic [ref=e479]: "&&"
+        - generic [ref=e480]: typeof
+        - generic [ref=e481]: currentPlayer
+        - generic [ref=e482]: .dispose
+        - generic [ref=e483]: ===
+        - generic [ref=e484]: "'function'"
+        - generic [ref=e485]: ") {"
+      - generic [ref=e486]:
+        - generic [ref=e487]: currentPlayer
+        - generic [ref=e488]: .dispose
+        - generic [ref=e489]: ();
+      - generic [ref=e491]: "}"
+      - generic [ref=e494]: // Clear container
+      - generic [ref=e495]:
+        - generic [ref=e496]: container
+        - generic [ref=e497]: .innerHTML
+        - generic [ref=e498]: =
+        - generic [ref=e499]: "''"
+        - generic [ref=e500]: ;
+      - generic [ref=e501]:
+        - generic [ref=e502]: container
+        - generic [ref=e503]: .
+        - generic [ref=e504]: dataset
+        - generic [ref=e505]: .src
+        - generic [ref=e506]: =
+        - generic [ref=e507]: selectedSrc;
+      - generic [ref=e510]: // Wait for AsciinemaPlayer to be available
+      - generic [ref=e511]:
+        - generic [ref=e512]: const
+        - generic [ref=e513]: checkPlayer
+        - generic [ref=e514]: =
+        - generic [ref=e515]: ()
+        - generic [ref=e516]: =>
+        - generic [ref=e517]: "{"
+      - generic [ref=e518]:
+        - generic [ref=e519]: return
+        - generic [ref=e520]: new
+        - generic [ref=e521]: Promise
+        - generic [ref=e522]: ((resolve)
+        - generic [ref=e523]: =>
+        - generic [ref=e524]: "{"
+      - generic [ref=e525]:
+        - generic [ref=e526]: const
+        - generic [ref=e527]: interval
+        - generic [ref=e528]: =
+        - generic [ref=e529]: setInterval
+        - generic [ref=e530]: (()
+        - generic [ref=e531]: =>
+        - generic [ref=e532]: "{"
+      - generic [ref=e533]:
+        - generic [ref=e534]: if
+        - generic [ref=e535]: (
+        - generic [ref=e536]: window
+        - generic [ref=e537]: ".AsciinemaPlayer) {"
+      - generic [ref=e538]:
+        - generic [ref=e539]: clearInterval
+        - generic [ref=e540]: (interval);
+      - generic [ref=e541]:
+        - generic [ref=e542]: resolve
+        - generic [ref=e543]: (
+        - generic [ref=e544]: window
+        - generic [ref=e545]: .AsciinemaPlayer);
+      - generic [ref=e547]: "}"
+      - generic [ref=e548]:
+        - generic [ref=e549]: "}"
+        - generic [ref=e550]: ","
+        - generic [ref=e551]: "100"
+        - generic [ref=e552]: );
+      - generic [ref=e554]: "});"
+      - generic [ref=e556]: "};"
+      - generic [ref=e558]:
+        - generic [ref=e559]: try
+        - generic [ref=e560]: "{"
+      - generic [ref=e561]:
+        - generic [ref=e562]: const
+        - generic [ref=e563]: AsciinemaPlayer
+        - generic [ref=e564]: =
+        - generic [ref=e565]: await
+        - generic [ref=e566]: checkPlayer
+        - generic [ref=e567]: ();
+      - generic [ref=e568]:
+        - generic [ref=e569]: currentPlayer
+        - generic [ref=e570]: =
+        - generic [ref=e571]: AsciinemaPlayer
+        - generic [ref=e572]: .create
+        - generic [ref=e573]: (selectedSrc
+        - generic [ref=e574]: ","
+        - generic [ref=e575]: container
+        - generic [ref=e576]: ","
+        - generic [ref=e577]: "{"
+      - generic [ref=e578]:
+        - generic [ref=e579]: cols
+        - generic [ref=e580]: ":"
+        - generic [ref=e581]: "80"
+        - generic [ref=e582]: ","
+      - generic [ref=e583]:
+        - generic [ref=e584]: rows
+        - generic [ref=e585]: ":"
+        - generic [ref=e586]: "24"
+        - generic [ref=e587]: ","
+      - generic [ref=e588]:
+        - generic [ref=e589]: autoplay
+        - generic [ref=e590]: ":"
+        - generic [ref=e591]: "false"
+        - generic [ref=e592]: ","
+      - generic [ref=e593]:
+        - generic [ref=e594]: preload
+        - generic [ref=e595]: ":"
+        - generic [ref=e596]: "'auto'"
+        - generic [ref=e597]: ","
+      - generic [ref=e598]:
+        - generic [ref=e599]: loop
+        - generic [ref=e600]: ":"
+        - generic [ref=e601]: "false"
+      - generic [ref=e603]: "});"
+      - generic [ref=e604]:
+        - generic [ref=e605]: "}"
+        - generic [ref=e606]: catch
+        - generic [ref=e607]: "(error) {"
+      - generic [ref=e608]:
+        - generic [ref=e609]: console
+        - generic [ref=e610]: .error
+        - generic [ref=e611]: (
+        - generic [ref=e612]: "'Failed to load selected cast:'"
+        - generic [ref=e613]: ","
+        - generic [ref=e614]: error);
+      - generic [ref=e615]:
+        - generic [ref=e616]: container
+        - generic [ref=e617]: .textContent
+        - generic [ref=e618]: =
+        - generic [ref=e619]: "'Failed to load selected demo.'"
+        - generic [ref=e620]: ;
+      - generic [ref=e622]: "}"
+      - generic [ref=e624]: "});"
+      - generic [ref=e626]: "});"
+      - generic [ref=e627]:
+        - generic [ref=e628]: </
+        - generic [ref=e629]: script
+        - generic [ref=e630]: ">"
+      - generic [ref=e632]:
+        - generic [ref=e633]: <
+        - generic [ref=e634]: footer
+        - generic [ref=e635]: style
+        - generic [ref=e636]: =
+        - generic [ref=e637]: "\"border-top: 1px solid #e2e8f0; padding-top: 1rem; color: #6b7280;\""
+        - generic [ref=e638]: ">"
+      - generic [ref=e639]:
+        - generic [ref=e640]: <
+        - generic [ref=e641]: p
+        - generic [ref=e642]: ">"
+      - generic [ref=e643]:
+        - generic [ref=e644]: Replace <
+        - generic [ref=e645]: code
+        - generic [ref=e646]: ">public/*.cast</"
+        - generic [ref=e647]: code
+        - generic [ref=e648]: "> with your own recordings and reuse the"
+      - generic [ref=e649]:
+        - generic [ref=e650]: <
+        - generic [ref=e651]: code
+        - generic [ref=e652]: ">AsciinemaPlayer</"
+        - generic [ref=e653]: code
+        - generic [ref=e654]: "> component across pages."
+      - generic [ref=e655]:
+        - generic [ref=e656]: </
+        - generic [ref=e657]: p
+        - generic [ref=e658]: ">"
+      - generic [ref=e659]:
+        - generic [ref=e660]: </
+        - generic [ref=e661]: footer
+        - generic [ref=e662]: ">"
+      - generic [ref=e663]:
+        - generic [ref=e664]: </
+        - generic [ref=e665]: main
+        - generic [ref=e666]: ">"
+      - generic [ref=e667]:
+        - generic [ref=e668]: </
+        - generic [ref=e669]: body
+        - generic [ref=e670]: ">"
+      - generic [ref=e671]:
+        - generic [ref=e672]: </
+        - generic [ref=e673]: html
+        - generic [ref=e674]: ">"
+  - generic [ref=e676]:
+    - heading "Stack Trace" [level=2] [ref=e677]
+    - generic [ref=e678]: "Error: Failed to load url ../components/AsciinemaPlayer.astro (resolved id: ../components/AsciinemaPlayer.astro) in /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/nodejs/sites/docs/src/pages/demo/index.astro. Does the file exist? at loadAndTransform (file:///Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/nodejs/node_modules/.pnpm/vite@6.3.6_@types+node@24.5.2/node_modules/vite/dist/node/chunks/dep-Bu492Fnd.js:35728:17)"
+```

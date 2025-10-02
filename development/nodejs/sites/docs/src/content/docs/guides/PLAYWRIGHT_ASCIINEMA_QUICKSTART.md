@@ -1,5 +1,6 @@
 ---
 title: "Quick Start: Playwright + Asciinema Testing"
+description: "Documentation for Quick Start: Playwright + Asciinema Testing"
 ---
 
 # Quick Start: Playwright + Asciinema Testing

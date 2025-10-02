@@ -1,5 +1,6 @@
 ---
 title: "RFC-0007: Arch ECS Integration for Dungeon Crawler Gameplay"
+description: "Documentation for RFC-0007: Arch ECS Integration for Dungeon Crawler Gameplay"
 ---
 
 # RFC-0007: Arch ECS Integration for Dungeon Crawler Gameplay

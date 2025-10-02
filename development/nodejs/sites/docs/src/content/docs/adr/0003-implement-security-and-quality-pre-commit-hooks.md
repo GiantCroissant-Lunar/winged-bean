@@ -1,5 +1,6 @@
 ---
 title: "ADR-0003: Implement Security and Quality Pre-commit Hooks"
+description: "Documentation for ADR-0003: Implement Security and Quality Pre-commit Hooks"
 ---
 
 # ADR-0003: Implement Security and Quality Pre-commit Hooks

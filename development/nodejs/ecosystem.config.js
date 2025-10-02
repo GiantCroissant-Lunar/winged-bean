@@ -21,6 +21,7 @@ module.exports = {
       script: "npm",
       args: "run dev",
       watch: false, // Astro has its own file watcher via Vite
+      node_args: "--no-experimental-strip-types", // Disable Node.js type stripping for Starlight compatibility
       env: {
         NODE_ENV: "development",
       },

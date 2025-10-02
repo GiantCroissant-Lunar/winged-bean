@@ -38,3 +38,5 @@ obj/
 
 # Test results
 TestResults/
+.actrc
+.github/workflows/test-events/*.json

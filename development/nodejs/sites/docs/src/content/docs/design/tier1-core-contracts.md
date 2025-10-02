@@ -1,5 +1,6 @@
 ---
 title: Tier 1 Core Contracts Design
+description: "Documentation for Tier 1 Core Contracts Design"
 ---
 
 # Tier 1 Core Contracts Design

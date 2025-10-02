@@ -1,5 +1,6 @@
 ---
 title: "ADR-0002: Use Native Tools for Pre-commit Hooks"
+description: "Documentation for ADR-0002: Use Native Tools for Pre-commit Hooks"
 ---
 
 # ADR-0002: Use Native Tools for Pre-commit Hooks

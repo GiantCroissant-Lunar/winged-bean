@@ -1,5 +1,6 @@
 ---
 title: Source Generator Usage Guide
+description: "Documentation for Source Generator Usage Guide"
 ---
 
 # Source Generator Usage Guide

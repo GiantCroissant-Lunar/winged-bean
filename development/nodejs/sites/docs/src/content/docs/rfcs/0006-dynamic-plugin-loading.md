@@ -1,5 +1,6 @@
 ---
 title: "RFC-0006: Dynamic Plugin Loading and Runtime Composition"
+description: "Documentation for RFC-0006: Dynamic Plugin Loading and Runtime Composition"
 ---
 
 # RFC-0006: Dynamic Plugin Loading and Runtime Composition

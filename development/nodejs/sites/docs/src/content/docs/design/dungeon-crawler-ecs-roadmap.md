@@ -1,5 +1,6 @@
 ---
 title: Dungeon Crawler ECS Enhancement Roadmap
+description: "Documentation for Dungeon Crawler ECS Enhancement Roadmap"
 ---
 
 # Dungeon Crawler ECS Enhancement Roadmap

@@ -1,5 +1,6 @@
 ---
 title: "RFC-0002: Service Platform Core (4-Tier, Multi-Profile Architecture)"
+description: "Documentation for RFC-0002: Service Platform Core (4-Tier, Multi-Profile Architecture)"
 ---
 
 # RFC-0002: Service Platform Core (4-Tier, Multi-Profile Architecture)

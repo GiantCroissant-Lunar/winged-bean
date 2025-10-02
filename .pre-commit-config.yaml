@@ -113,6 +113,14 @@ repos:
         pass_filenames: false
         require_serial: true
 
+      - id: validate-issue-dependencies
+        name: Validate Issue Dependencies (R-ISS-030)
+        entry: scripts/hooks/validate-issue-dependencies.sh
+        language: script
+        stages: [commit-msg]
+        pass_filenames: true
+        always_run: false
+
   # JetBrains CLI tools (comprehensive analysis - manual only)
   - repo: local
     hooks:

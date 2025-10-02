@@ -1,5 +1,6 @@
 ---
 title: WingedBean Architecture Overview
+description: "Documentation for WingedBean Architecture Overview"
 ---
 
 # WingedBean Architecture Overview

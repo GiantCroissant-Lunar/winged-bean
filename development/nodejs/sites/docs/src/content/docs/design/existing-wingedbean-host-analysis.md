@@ -1,5 +1,6 @@
 ---
 title: Existing WingedBean.Host Analysis
+description: "Documentation for Existing WingedBean.Host Analysis"
 ---
 
 # Existing WingedBean.Host Analysis
