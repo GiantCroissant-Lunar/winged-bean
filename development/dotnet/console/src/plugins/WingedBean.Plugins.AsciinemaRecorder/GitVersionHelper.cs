@@ -5,7 +5,7 @@ namespace WingedBean.Plugins.AsciinemaRecorder;
 /// <summary>
 /// Helper class to retrieve GitVersion for artifact paths
 /// </summary>
-internal static class GitVersionHelper
+public static class GitVersionHelper
 {
     private static string? _cachedVersion;
 
