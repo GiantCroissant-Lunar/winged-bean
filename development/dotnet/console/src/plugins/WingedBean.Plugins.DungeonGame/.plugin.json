@@ -1,0 +1,15 @@
+{
+  "id": "wingedbean.plugins.dungeongame",
+  "name": "Dungeon Game Logic",
+  "version": "1.0.0",
+  "description": "Dungeon crawler game logic plugin with ECS and reactive patterns",
+  "author": "WingedBean",
+  "provides": [
+    "WingedBean.Contracts.Game.IDungeonGameService"
+  ],
+  "requires": [
+    "WingedBean.Contracts.ECS.IECSService"
+  ],
+  "priority": 100,
+  "loadStrategy": "Eager"
+}

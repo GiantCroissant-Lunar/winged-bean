@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <AssemblyTitle>WingedBean Dungeon Game Logic Plugin</AssemblyTitle>
+    <AssemblyDescription>Plugin that provides dungeon crawler game logic using ECS and reactive patterns</AssemblyDescription>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="WingedBean.Plugins.DungeonGame.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Reactive" Version="6.0.0" />
+    <PackageReference Include="ReactiveUI" Version="20.1.1" />
+    <PackageReference Include="MessagePipe" Version="1.8.1" />
+    <PackageReference Include="ObservableCollections" Version="3.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Core/WingedBean.Contracts.Core.csproj" />
+    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.ECS/WingedBean.Contracts.ECS.csproj" />
+    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Game/WingedBean.Contracts.Game.csproj" />
+    <ProjectReference Include="../../../../framework/src/WingedBean.SourceGenerators.Proxy/WingedBean.SourceGenerators.Proxy.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include=".plugin.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
