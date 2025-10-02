@@ -16,8 +16,9 @@ public class AsciinemaRecorder : IRecorder
     public AsciinemaRecorder(ILogger<AsciinemaRecorder> logger)
     {
         _logger = logger;
-        _recordingsDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "wingedbean-recordings");
+        _recordingsDirectory = GitVersionHelper.GetRecordingsDirectory();
         Directory.CreateDirectory(_recordingsDirectory);
+        _logger.LogInformation("Asciinema recordings will be saved to: {RecordingsDirectory}", _recordingsDirectory);
     }
 
     public async Task StartRecordingAsync(string sessionId, SessionMetadata metadata, CancellationToken ct = default)
