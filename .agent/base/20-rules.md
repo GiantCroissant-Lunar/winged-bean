@@ -51,26 +51,71 @@ R-PRC-050: Use Python instead of embedded shell scripts for complex logic in wor
   - Keep workflow YAML minimal - delegate to Python scripts
 
 ## Issue Management
-R-ISS-010: When creating issues, always specify dependencies in the issue body.
-  - Format: `**Blocked By:** #XX, #YY` (comma-separated issue numbers, or "None")
-  - Format: `**Blocks:** #ZZ` (issues that depend on this one)
-  - Pre-commit hook validates dependencies before allowing commits (hard block)
+R-ISS-010: When creating issues programmatically (via API, templates, or documentation), agents MUST include YAML frontmatter with required metadata.
+  - Required fields:
+    * `rfc`: RFC identifier (format: `RFC-XXXX`, e.g., RFC-0007)
+    * `depends_on`: List of blocking issue numbers (empty array `[]` if none)
+    * `priority`: One of `critical`, `high`, `medium`, `low`
+    * `agent_assignable`: Boolean (default `true`)
+    * `retry_count`: Integer (default `0`)
+    * `max_retries`: Integer (default `3`, per user preference)
+  - Optional fields:
+    * `phase`: Integer (e.g., `1`)
+    * `wave`: Float (e.g., `1.1`)
+    * `blocks`: List of issue numbers that depend on this one
+    * `estimate_minutes`: Integer (estimated completion time)
+  - Example:
+    ```yaml
+    ---
+    rfc: RFC-0007
+    phase: 1
+    wave: 1.1
+    depends_on: [48, 62]
+    blocks: [86, 87]
+    estimate_minutes: 30
+    priority: critical
+    agent_assignable: true
+    retry_count: 0
+    max_retries: 3
+    ---
+    ```
+  - Pre-commit hook validates metadata schema before allowing commits (hard block per R-PRC-050)
+  - Legacy format (body text `**Blocked By:** #XX`) is still supported but should migrate to frontmatter
+
 R-ISS-020: When creating issues, specify the intended agent.
   - Use labels: `agent:copilot`, `agent:claude-code`, or `agent:windsurf`
   - If unsure, use `agent:unassigned` and let human decide
+
 R-ISS-030: Before starting work on an issue, verify all blockers are closed.
-  - Check `**Blocked By:**` field in issue body
+  - Check `depends_on` field in issue frontmatter OR `**Blocked By:**` in issue body
   - Query each blocker's status via `gh issue view <num> --json state`
-  - If any blocker is open, do not start work (pre-commit hook enforces this)
+  - If any blocker is open, do not start work (workflow enforces this)
+  - Workflow scripts: `development/python/src/scripts/workflows/validate_issue_dependencies.py`
+
 R-ISS-040: When a PR fails CI, the agent that created it must fix it (3 retry limit).
   - Read failure logs in issue comments
   - Analyze what went wrong
   - Create new PR with fixes
   - Do not require human intervention unless 3 attempts fail
+  - Retry count tracked in issue metadata (`retry_count` field)
+
 R-ISS-050: Issue titles must follow naming convention.
   - Format: `RFC-XXXX-YY: Short description` (for RFC-related work)
   - Format: `[COMPONENT] Short description` (for general work)
   - Examples: `RFC-0007-01: Create ECS contracts`, `[CI] Fix MegaLinter timeout`
+
+R-ISS-060: Workflow inline scripts exceeding complexity threshold MUST be extracted to Python modules.
+  - Threshold: 50 lines OR complex logic (loops, conditionals, regex, JSON parsing)
+  - Extract to: `development/python/src/workflows/` (for workflow scripts) or `development/python/src/hooks/` (for git hooks)
+  - NO embedded Bash scripts with Perl/awk - use Python for portability
+  - Per R-PRC-050: Keep workflow YAML minimal, delegate to Python scripts
+
+R-ISS-070: Before pushing new or modified GitHub workflows, MUST test locally using `act` or workflow testing harness.
+  - Testing guide: `.github/workflows/TESTING.md`
+  - Fast validation: `development/python/test_scripts.sh` (syntax checks)
+  - Full validation: `act -W .github/workflows/<workflow>.yml` (simulates GitHub Actions)
+  - Test harness: `development/python/src/testing/test_workflows.py` (automated tests)
+  - Saves runner minutes and catches errors before deployment (per RFC-0015 goals)
 
 ## Deprecated Rules
 (None yet)
