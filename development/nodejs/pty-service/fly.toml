@@ -1,0 +1,39 @@
+# Fly.io deployment config for PTY service + Terminal.Gui C# console app
+app = "winged-bean-pty"
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "4041"
+  NODE_ENV = "production"
+
+[http_service]
+  internal_port = 4041
+  force_https = false
+  auto_stop_machines = false
+  auto_start_machines = false
+  min_machines_running = 0
+
+[[services]]
+  protocol = "tcp"
+  internal_port = 4041
+
+  [[services.ports]]
+    port = 80
+    handlers = ["http"]
+
+  [[services.ports]]
+    port = 443
+    handlers = ["tls", "http"]
+
+  [services.concurrency]
+    type = "connections"
+    hard_limit = 25
+    soft_limit = 20
+
+[[vm]]
+  memory = '512mb'
+  cpu_kind = 'shared'
+  cpus = 1

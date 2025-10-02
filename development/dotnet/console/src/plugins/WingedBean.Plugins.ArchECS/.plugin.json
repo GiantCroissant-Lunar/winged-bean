@@ -1,0 +1,40 @@
+{
+  "id": "wingedbean.plugins.archecs",
+  "version": "1.0.0",
+  "name": "Arch ECS Service",
+  "description": "High-performance Entity Component System using Arch",
+  "author": "WingedBean Team",
+  "license": "MIT",
+
+  "entryPoint": {
+    "dotnet": "./WingedBean.Plugins.ArchECS.dll",
+    "nodejs": null,
+    "unity": "./WingedBean.Plugins.ArchECS.dll",
+    "godot": "./WingedBean.Plugins.ArchECS.dll"
+  },
+
+  "dependencies": {
+    "wingedbean.contracts": "^1.0.0"
+  },
+
+  "exports": {
+    "services": [
+      {
+        "interface": "WingedBean.Contracts.ECS.IECSService",
+        "implementation": "WingedBean.Plugins.ArchECS.ArchECSService",
+        "lifecycle": "singleton"
+      }
+    ]
+  },
+
+  "capabilities": [
+    "ecs",
+    "arch",
+    "entity-management"
+  ],
+
+  "supportedProfiles": ["console", "unity", "godot"],
+
+  "loadStrategy": "lazy",
+  "priority": 100
+}

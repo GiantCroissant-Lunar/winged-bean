@@ -1,0 +1,82 @@
+name: Fly.io Scheduled Start/Stop
+
+on:
+  schedule:
+    # Start at 8 AM UTC (adjust to your timezone)
+    - cron: '0 8 * * *'
+    # Stop at 12 PM UTC (4 hours later)
+    - cron: '0 12 * * *'
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: true
+        type: choice
+        options:
+          - start
+          - stop
+          - status
+
+jobs:
+  manage-flyio-machine:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Fly.io CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Determine action
+        id: determine_action
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "action=${{ inputs.action }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event.schedule }}" = "0 8 * * *" ]; then
+            echo "action=start" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event.schedule }}" = "0 12 * * *" ]; then
+            echo "action=stop" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Get machine ID
+        id: get_machine
+        run: |
+          MACHINE_ID=$(flyctl machines list --app winged-bean-pty --json | jq -r '.[0].id')
+          echo "machine_id=$MACHINE_ID" >> $GITHUB_OUTPUT
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Start Fly.io machine
+        if: steps.determine_action.outputs.action == 'start'
+        run: |
+          echo "Starting Fly.io machine: ${{ steps.get_machine.outputs.machine_id }}"
+          flyctl machine start ${{ steps.get_machine.outputs.machine_id }} --app winged-bean-pty
+          echo "Waiting for machine to be ready..."
+          sleep 30
+          flyctl machine status ${{ steps.get_machine.outputs.machine_id }} --app winged-bean-pty
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Stop Fly.io machine
+        if: steps.determine_action.outputs.action == 'stop'
+        run: |
+          echo "Stopping Fly.io machine: ${{ steps.get_machine.outputs.machine_id }}"
+          flyctl machine stop ${{ steps.get_machine.outputs.machine_id }} --app winged-bean-pty
+          flyctl machine status ${{ steps.get_machine.outputs.machine_id }} --app winged-bean-pty
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Check machine status
+        if: steps.determine_action.outputs.action == 'status'
+        run: |
+          echo "Checking Fly.io machine status: ${{ steps.get_machine.outputs.machine_id }}"
+          flyctl machine status ${{ steps.get_machine.outputs.machine_id }} --app winged-bean-pty
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "::error::Failed to ${{ steps.determine_action.outputs.action }} Fly.io machine"
+          echo "Machine ID: ${{ steps.get_machine.outputs.machine_id }}"
+          echo "Check Fly.io dashboard: https://fly.io/apps/winged-bean-pty"

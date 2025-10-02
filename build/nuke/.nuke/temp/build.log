@@ -1,0 +1,127 @@
+17:57:56.650 | V |                      | ArgumentsFromParametersFile.OnBuildCreated (150)
+17:57:56.659 | V |                      | HandleReSharperSurrogateArguments.OnBuildCreated (150)
+17:57:56.659 | V |                      | InjectParameterValues.OnBuildCreated (100)
+17:57:56.669 | V |                      | HandleShellCompletion.OnBuildCreated (75)
+17:57:56.837 | V |                      | GenerateBuildServerConfigurations.OnBuildCreated (50)
+17:57:56.837 | V |                      | InvokeBuildServerConfigurationGeneration.OnBuildCreated (45)
+17:57:56.845 | V |                      | UpdateNotification.OnBuildCreated (10)
+17:57:56.845 | V |                      | UnsetVisualStudioEnvironmentVariables.OnBuildCreated (0)
+17:57:56.845 | V |                      | HandleVisualStudioDebugging.OnBuildCreated (0)
+17:57:56.846 | V |                      | EventInvoker.OnBuildCreated (-3.4028235E+38)
+17:57:56.853 | V |                      | HandlePlanRequests.OnBuildInitialized (10)
+17:57:56.853 | V |                      | HandleHelpRequests.OnBuildInitialized (5)
+17:57:56.853 | V |                      | Telemetry.OnBuildInitialized (0)
+17:57:57.223 | V |                      | Sending BuildStarted telemetry event ...
+17:57:57.224 | V |                      |   build_components         =
+17:57:57.224 | V |                      |   build_type               = Project
+17:57:57.224 | V |                      |   compile_time             = <null>
+17:57:57.224 | V |                      |   config_generators        =
+17:57:57.224 | V |                      |   host                     = Terminal
+17:57:57.224 | V |                      |   num_custom_components    = 0
+17:57:57.224 | V |                      |   num_custom_extensions    = 0
+17:57:57.224 | V |                      |   num_partitioned_targets  = 0
+17:57:57.224 | V |                      |   num_secrets              = 0
+17:57:57.224 | V |                      |   num_targets              = 3
+17:57:57.224 | V |                      |   os_architecture          = Arm64
+17:57:57.224 | V |                      |   os_platform              = OSX
+17:57:57.224 | V |                      |   target_framework         = .NETCoreApp,Version=v8.0
+17:57:57.224 | V |                      |   version_dotnet_sdk       = 9.0.305
+17:57:57.224 | V |                      |   version_nuke_common      = 9.0.4
+17:57:57.224 | V |                      |   version_nuke_global_tool = <null>
+17:57:58.078 | V |                      | InjectNonParameterValues.OnBuildInitialized (-100)
+17:57:58.088 | V |                      | EventInvoker.OnBuildInitialized (-3.4028235E+38)
+17:57:58.092 | V | Restore              | EventInvoker.OnTargetRunning (-3.4028235E+38)
+17:57:58.110 | I | Restore              | > /usr/local/share/dotnet/dotnet restore /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/Console.sln
+17:57:58.112 | V | Restore              | @ /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/nuke
+17:57:59.614 | D | Restore              |   Determining projects to restore...
+17:58:00.313 | D | Restore              |   All projects are up-to-date for restore.
+17:58:00.419 | V | Restore              | Telemetry.OnTargetSucceeded (0)
+17:58:00.535 | V | Restore              | Sending TargetSucceeded telemetry event ...
+17:58:00.535 | V | Restore              |   build_components         =
+17:58:00.535 | V | Restore              |   build_type               = Project
+17:58:00.535 | V | Restore              |   compile_time             = <null>
+17:58:00.535 | V | Restore              |   config_generators        =
+17:58:00.535 | V | Restore              |   host                     = Terminal
+17:58:00.535 | V | Restore              |   num_custom_components    = 0
+17:58:00.535 | V | Restore              |   num_custom_extensions    = 0
+17:58:00.535 | V | Restore              |   num_partitioned_targets  = 0
+17:58:00.535 | V | Restore              |   num_secrets              = 0
+17:58:00.535 | V | Restore              |   num_targets              = 3
+17:58:00.535 | V | Restore              |   os_architecture          = Arm64
+17:58:00.535 | V | Restore              |   os_platform              = OSX
+17:58:00.535 | V | Restore              |   target_current_partition = 1
+17:58:00.535 | V | Restore              |   target_duration          = 2
+17:58:00.535 | V | Restore              |   target_framework         = .NETCoreApp,Version=v8.0
+17:58:00.535 | V | Restore              |   target_name              = Restore
+17:58:00.535 | V | Restore              |   target_total_partitions  = 1
+17:58:00.535 | V | Restore              |   version_dotnet_sdk       = 9.0.305
+17:58:00.535 | V | Restore              |   version_nuke_common      = 9.0.4
+17:58:00.535 | V | Restore              |   version_nuke_global_tool = <null>
+17:58:00.919 | V | Restore              | EventInvoker.OnTargetSucceeded (-3.4028235E+38)
+17:58:00.920 | V | Compile              | EventInvoker.OnTargetRunning (-3.4028235E+38)
+17:58:00.926 | I | Compile              | > /usr/local/share/dotnet/dotnet build /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/Console.sln --configuration Debug --output /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/nuke/bin/Debug --no-restore
+17:58:00.926 | V | Compile              | @ /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/nuke
+17:58:01.299 | D | Compile              | /usr/local/share/dotnet/sdk/9.0.305/Current/SolutionFile/ImportAfter/Microsoft.NET.Sdk.Solution.targets(36,5): warning NETSDK1194: The "--output" option isn't supported when building a solution. Specifying a solution-level output path results in all projects copying outputs to the same directory, which can lead to inconsistent builds. [/Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/Console.sln]
+17:58:02.360 | D | Compile              |   WingedBean.Providers.AssemblyContext -> /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/nuke/bin/Debug/WingedBean.Providers.AssemblyContext.dll
+17:58:02.569 | D | Compile              |   WingedBean.Host -> /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/nuke/bin/Debug/WingedBean.Host.dll
+17:58:02.578 | D | Compile              |   WingedBean.Contracts.Core -> /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/nuke/bin/Debug/WingedBean.Contracts.Core.dll
+17:58:02.594 | D | Compile              |   WingedBean.Contracts.Pty -> /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/nuke/bin/Debug/WingedBean.Contracts.Pty.dll
+17:58:02.703 | D | Compile              |   WingedBean.Providers.AssemblyContext.Tests -> /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/nuke/bin/Debug/WingedBean.Providers.AssemblyContext.Tests.dll
+17:58:02.733 | D | Compile              |   WingedBean.PluginLoader -> /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/nuke/bin/Debug/WingedBean.PluginLoader.dll
+17:58:02.756 | D | Compile              |   WingedBean.Host.Console -> /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/nuke/bin/Debug/WingedBean.Host.Console.dll
+17:58:02.789 | D | Compile              |   WingedBean.SourceGenerators.Proxy -> /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/nuke/bin/Debug/WingedBean.SourceGenerators.Proxy.dll
+17:58:03.100 | D | Compile              |   WingedBean.Contracts.WebSocket -> /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/nuke/bin/Debug/WingedBean.Contracts.WebSocket.dll
+17:58:03.114 | D | Compile              |   WingedBean.Plugins.AsciinemaRecorder -> /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/nuke/bin/Debug/WingedBean.Plugins.AsciinemaRecorder.dll
+17:58:03.131 | D | Compile              |   WingedBean.Contracts.Config -> /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/nuke/bin/Debug/WingedBean.Contracts.Config.dll
+17:58:03.171 | D | Compile              |   WingedBean.Plugins.PtyService -> /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/nuke/bin/Debug/WingedBean.Plugins.PtyService.dll
+17:58:03.238 | D | Compile              |   WingedBean.Contracts.TerminalUI -> /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/nuke/bin/Debug/WingedBean.Contracts.TerminalUI.dll
+17:58:03.300 | D | Compile              |   WingedBean.Plugins.ConsoleDungeon -> /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/nuke/bin/Debug/WingedBean.Plugins.ConsoleDungeon.dll
+17:58:03.300 | D | Compile              |   WingedBean.Plugins.WebSocket -> /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/nuke/bin/Debug/WingedBean.Plugins.WebSocket.dll
+17:58:03.315 | D | Compile              |   WingedBean.PluginLoader.Tests -> /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/nuke/bin/Debug/WingedBean.PluginLoader.Tests.dll
+17:58:03.407 | D | Compile              |   WingedBean.Plugins.Config -> /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/nuke/bin/Debug/WingedBean.Plugins.Config.dll
+17:58:03.795 | D | Compile              |   WingedBean.Plugins.TerminalUI -> /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/nuke/bin/Debug/WingedBean.Plugins.TerminalUI.dll
+17:58:03.860 | W | Compile              | /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/src/host/ConsoleDungeon/Program.cs(90,62): warning CS1998: This async method lacks 'await' operators and will run synchronously. Consider using the 'await' operator to await non-blocking API calls, or 'await Task.Run(...)' to do CPU-bound work on a background thread. [/Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/src/host/ConsoleDungeon/ConsoleDungeon.csproj]
+17:58:03.960 | D | Compile              |   WingedBean.Plugins.WebSocket.Tests -> /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/nuke/bin/Debug/WingedBean.Plugins.WebSocket.Tests.dll
+17:58:03.995 | D | Compile              |   ConsoleDungeon -> /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/nuke/bin/Debug/ConsoleDungeon.dll
+17:58:04.152 | D | Compile              |   WingedBean.Plugins.AsciinemaRecorder.Tests -> /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/nuke/bin/Debug/WingedBean.Plugins.AsciinemaRecorder.Tests.dll
+17:58:04.179 | D | Compile              |   WingedBean.Plugins.Config.Tests -> /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/nuke/bin/Debug/WingedBean.Plugins.Config.Tests.dll
+17:58:04.209 | D | Compile              |   WingedBean.Registry -> /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/nuke/bin/Debug/WingedBean.Registry.dll
+17:58:04.313 | D | Compile              |   WingedBean.Plugins.TerminalUI.Tests -> /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/nuke/bin/Debug/WingedBean.Plugins.TerminalUI.Tests.dll
+17:58:04.556 | D | Compile              |   ConsoleDungeon.Host -> /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/nuke/bin/Debug/ConsoleDungeon.Host.dll
+17:58:04.574 | D | Compile              |   ========================================
+17:58:04.574 | D | Compile              |   Copying plugin assemblies...
+17:58:04.574 | D | Compile              |   ========================================
+17:58:04.669 | D | Compile              |   Copied 167 plugin files to /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/nuke/bin/Debug/plugins/
+17:58:05.761 | D | Compile              |   ConsoleDungeon.Host.Tests -> /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/nuke/bin/Debug/ConsoleDungeon.Host.Tests.dll
+17:58:05.834 | D | Compile              |
+17:58:05.834 | D | Compile              | Build succeeded.
+17:58:05.835 | D | Compile              |
+17:58:05.835 | D | Compile              | /usr/local/share/dotnet/sdk/9.0.305/Current/SolutionFile/ImportAfter/Microsoft.NET.Sdk.Solution.targets(36,5): warning NETSDK1194: The "--output" option isn't supported when building a solution. Specifying a solution-level output path results in all projects copying outputs to the same directory, which can lead to inconsistent builds. [/Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/Console.sln]
+17:58:05.835 | W | Compile              | /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/src/host/ConsoleDungeon/Program.cs(90,62): warning CS1998: This async method lacks 'await' operators and will run synchronously. Consider using the 'await' operator to await non-blocking API calls, or 'await Task.Run(...)' to do CPU-bound work on a background thread. [/Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/src/host/ConsoleDungeon/ConsoleDungeon.csproj]
+17:58:05.835 | D | Compile              |     2 Warning(s)
+17:58:05.835 | D | Compile              |     0 Error(s)
+17:58:05.835 | D | Compile              |
+17:58:05.835 | D | Compile              | Time Elapsed 00:00:04.73
+17:58:05.857 | V | Compile              | Telemetry.OnTargetSucceeded (0)
+17:58:05.975 | V | Compile              | Sending TargetSucceeded telemetry event ...
+17:58:05.975 | V | Compile              |   build_components         =
+17:58:05.975 | V | Compile              |   build_type               = Project
+17:58:05.975 | V | Compile              |   compile_time             = <null>
+17:58:05.975 | V | Compile              |   config_generators        =
+17:58:05.975 | V | Compile              |   host                     = Terminal
+17:58:05.975 | V | Compile              |   num_custom_components    = 0
+17:58:05.975 | V | Compile              |   num_custom_extensions    = 0
+17:58:05.975 | V | Compile              |   num_partitioned_targets  = 0
+17:58:05.975 | V | Compile              |   num_secrets              = 0
+17:58:05.975 | V | Compile              |   num_targets              = 3
+17:58:05.975 | V | Compile              |   os_architecture          = Arm64
+17:58:05.975 | V | Compile              |   os_platform              = OSX
+17:58:05.975 | V | Compile              |   target_current_partition = 1
+17:58:05.975 | V | Compile              |   target_duration          = 5
+17:58:05.975 | V | Compile              |   target_framework         = .NETCoreApp,Version=v8.0
+17:58:05.975 | V | Compile              |   target_name              = Compile
+17:58:05.975 | V | Compile              |   target_total_partitions  = 1
+17:58:05.975 | V | Compile              |   version_dotnet_sdk       = 9.0.305
+17:58:05.975 | V | Compile              |   version_nuke_common      = 9.0.4
+17:58:05.975 | V | Compile              |   version_nuke_global_tool = <null>
+17:58:06.385 | V | Compile              | EventInvoker.OnTargetSucceeded (-3.4028235E+38)
