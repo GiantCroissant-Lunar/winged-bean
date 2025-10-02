@@ -105,6 +105,24 @@ public static class GitVersionHelper
     }
 
     /// <summary>
+    /// Gets the versioned artifacts logs directory path
+    /// </summary>
+    public static string GetLogsDirectory()
+    {
+        var version = GetVersion();
+        
+        // Find repository root by looking for .git directory
+        var repoRoot = FindRepositoryRoot();
+        if (repoRoot != null)
+        {
+            return Path.Combine(repoRoot, "build", "_artifacts", $"v{version}", "dotnet", "logs");
+        }
+
+        // Fallback: use a relative path from current directory
+        return Path.Combine(Directory.GetCurrentDirectory(), "build", "_artifacts", $"v{version}", "dotnet", "logs");
+    }
+
+    /// <summary>
     /// Finds the repository root by walking up the directory tree looking for .git
     /// </summary>
     private static string? FindRepositoryRoot()
