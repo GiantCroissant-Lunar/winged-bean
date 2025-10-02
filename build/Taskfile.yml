@@ -26,10 +26,10 @@ tasks:
   build-dotnet:
     desc: "Build .NET projects via Nuke"
     deps: [init-dirs]
+    dir: nuke
     cmds:
-      - ./nuke/build.sh Compile 2>&1 | tee {{.ARTIFACT_DIR}}/_logs/dotnet-build.log
-      # Adjust copy based on actual Nuke output location
-      - cp -r ../bin/Release/net8.0/* {{.ARTIFACT_DIR}}/dotnet/bin/ || true
+      - ./build.sh Compile 2>&1 | tee ../_artifacts/v{{.VERSION}}/_logs/dotnet-build.log
+      - cp -r bin/Debug/* ../_artifacts/v{{.VERSION}}/dotnet/bin/ || true
 
   build-web:
     desc: "Build web projects"
@@ -44,8 +44,10 @@ tasks:
     deps: [init-dirs]
     dir: ../development/nodejs/pty-service
     cmds:
-      # If build script exists, use it; otherwise copy source
-      - pnpm run build 2>&1 | tee ../../../build/{{.ARTIFACT_DIR}}/_logs/pty-build.log || cp -r src/* ../../../build/{{.ARTIFACT_DIR}}/pty/dist/
+      # PTY service is plain JS - copy source files to artifacts
+      - |
+        echo "Copying PTY service files..." | tee ../../../build/{{.ARTIFACT_DIR}}/_logs/pty-build.log
+        cp -v *.js package*.json ../../../build/{{.ARTIFACT_DIR}}/pty/dist/ 2>&1 | tee -a ../../../build/{{.ARTIFACT_DIR}}/_logs/pty-build.log
 
   build-all:
     desc: "Build all components"
