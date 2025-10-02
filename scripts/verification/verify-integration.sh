@@ -1,6 +1,6 @@
 #!/bin/bash
 # RFC-0005 Phase 5.3: xterm.js Integration Verification Script
-# 
+#
 # This script verifies that xterm.js integration works after refactoring:
 # - Starts ConsoleDungeon.Host (WebSocket server on port 4040)
 # - Starts Astro dev server (port 4321)

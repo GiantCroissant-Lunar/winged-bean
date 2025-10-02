@@ -22,4 +22,3 @@ public partial class ProxyService : IConfigService
 
     // Source generator will implement all interface methods below
 }
-

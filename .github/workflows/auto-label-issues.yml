@@ -27,19 +27,20 @@ jobs:
         run: |
           ISSUE_BODY=$(gh issue view "$ISSUE_NUMBER" --json body -q .body)
 
-          # Extract agent from "Assigned Agent: GitHub Copilot"
-          if echo "$ISSUE_BODY" | grep -q "Assigned Agent.*GitHub Copilot"; then
+          # Extract agent from "Assigned Agent: GitHub Copilot" or "**Assigned Agent:** GitHub Copilot"
+          # Handle markdown bold markers
+          if echo "$ISSUE_BODY" | grep -qiE '\*?\*?Assigned Agent:?\*?\*?.*Copilot'; then
             echo "Adding label: agent:copilot"
-            gh issue edit "$ISSUE_NUMBER" --add-label "agent:copilot"
-          elif echo "$ISSUE_BODY" | grep -q "Assigned Agent.*Claude Code"; then
+            gh issue edit "$ISSUE_NUMBER" --add-label "agent:copilot" || echo "Label might not exist yet, continuing..."
+          elif echo "$ISSUE_BODY" | grep -qiE '\*?\*?Assigned Agent:?\*?\*?.*Claude'; then
             echo "Adding label: agent:claude-code"
-            gh issue edit "$ISSUE_NUMBER" --add-label "agent:claude-code"
-          elif echo "$ISSUE_BODY" | grep -q "Assigned Agent.*Windsurf"; then
+            gh issue edit "$ISSUE_NUMBER" --add-label "agent:claude-code" || echo "Label might not exist yet, continuing..."
+          elif echo "$ISSUE_BODY" | grep -qiE '\*?\*?Assigned Agent:?\*?\*?.*Windsurf'; then
             echo "Adding label: agent:windsurf"
-            gh issue edit "$ISSUE_NUMBER" --add-label "agent:windsurf"
-          elif echo "$ISSUE_BODY" | grep -q "Assigned Agent.*Human"; then
+            gh issue edit "$ISSUE_NUMBER" --add-label "agent:windsurf" || echo "Label might not exist yet, continuing..."
+          elif echo "$ISSUE_BODY" | grep -qiE '\*?\*?Assigned Agent:?\*?\*?.*Human'; then
             echo "Adding label: agent:human"
-            gh issue edit "$ISSUE_NUMBER" --add-label "agent:human"
+            gh issue edit "$ISSUE_NUMBER" --add-label "agent:human" || echo "Label might not exist yet, continuing..."
           fi
 
       - name: Add priority label
@@ -49,14 +50,14 @@ jobs:
         run: |
           ISSUE_BODY=$(gh issue view "$ISSUE_NUMBER" --json body -q .body)
 
-          if echo "$ISSUE_BODY" | grep -q "Priority.*P0"; then
-            gh issue edit "$ISSUE_NUMBER" --add-label "priority:critical"
-          elif echo "$ISSUE_BODY" | grep -q "Priority.*P1"; then
-            gh issue edit "$ISSUE_NUMBER" --add-label "priority:high"
-          elif echo "$ISSUE_BODY" | grep -q "Priority.*P2"; then
-            gh issue edit "$ISSUE_NUMBER" --add-label "priority:medium"
-          elif echo "$ISSUE_BODY" | grep -q "Priority.*P3"; then
-            gh issue edit "$ISSUE_NUMBER" --add-label "priority:low"
+          if echo "$ISSUE_BODY" | grep -qiE '\*?\*?Priority:?\*?\*?.*P0'; then
+            gh issue edit "$ISSUE_NUMBER" --add-label "priority:critical" || echo "Label might not exist yet, continuing..."
+          elif echo "$ISSUE_BODY" | grep -qiE '\*?\*?Priority:?\*?\*?.*P1'; then
+            gh issue edit "$ISSUE_NUMBER" --add-label "priority:high" || echo "Label might not exist yet, continuing..."
+          elif echo "$ISSUE_BODY" | grep -qiE '\*?\*?Priority:?\*?\*?.*P2'; then
+            gh issue edit "$ISSUE_NUMBER" --add-label "priority:medium" || echo "Label might not exist yet, continuing..."
+          elif echo "$ISSUE_BODY" | grep -qiE '\*?\*?Priority:?\*?\*?.*P3'; then
+            gh issue edit "$ISSUE_NUMBER" --add-label "priority:low" || echo "Label might not exist yet, continuing..."
           fi
 
       - name: Add RFC label if referenced
@@ -66,12 +67,12 @@ jobs:
         run: |
           ISSUE_BODY=$(gh issue view "$ISSUE_NUMBER" --json body -q .body)
 
-          # Extract RFC reference (e.g., RFC-0012)
+          # Extract RFC reference (e.g., RFC-0012), handle markdown bold
           RFC_REF=$(echo "$ISSUE_BODY" | grep -oiE 'RFC-[0-9]{4}' | head -1 | tr '[:upper:]' '[:lower:]')
 
           if [ -n "$RFC_REF" ]; then
             echo "Adding label: $RFC_REF"
-            gh issue edit "$ISSUE_NUMBER" --add-label "$RFC_REF"
+            gh issue edit "$ISSUE_NUMBER" --add-label "$RFC_REF" || echo "Label might not exist yet, continuing..."
           fi
 
       - name: Check for blockers
@@ -81,10 +82,10 @@ jobs:
         run: |
           ISSUE_BODY=$(gh issue view "$ISSUE_NUMBER" --json body -q .body)
 
-          # Check if "Blocked By" field has issues (not "None")
-          BLOCKED_BY=$(echo "$ISSUE_BODY" | grep -i "Blocked By" | grep -v -i "None" | grep -oE '#[0-9]+')
+          # Check if "Blocked By" field has issues (not "None"), handle markdown bold
+          BLOCKED_BY=$(echo "$ISSUE_BODY" | grep -iE '\*?\*?Blocked By:?\*?\*?' | grep -v -i "None" | grep -oE '#?[0-9]+')
 
           if [ -n "$BLOCKED_BY" ]; then
             echo "Issue has blockers, adding has-blockers label"
-            gh issue edit "$ISSUE_NUMBER" --add-label "has-blockers"
+            gh issue edit "$ISSUE_NUMBER" --add-label "has-blockers" || echo "Label might not exist yet, continuing..."
           fi

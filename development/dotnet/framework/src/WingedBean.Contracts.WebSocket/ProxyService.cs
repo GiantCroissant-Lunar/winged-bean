@@ -23,4 +23,3 @@ public partial class ProxyService : IWebSocketService
 
     // Source generator will implement all interface methods below
 }
-

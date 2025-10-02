@@ -1,6 +1,6 @@
 /**
  * RFC-0005 Phase 5.3: WebSocket Connection Test
- * 
+ *
  * Simple WebSocket client to test ConsoleDungeon.Host connection
  */
 
@@ -20,7 +20,7 @@ let receivedData = false;
 ws.on('open', function open() {
     console.log('  ✓ WebSocket connection established');
     connected = true;
-    
+
     console.log('[2/4] Sending "init" message...');
     ws.send('init');
 });
@@ -29,24 +29,24 @@ ws.on('message', function message(data) {
     console.log('[3/4] Received response from server');
     console.log('  ✓ Server responded to init message');
     receivedData = true;
-    
+
     const dataStr = data.toString();
-    
+
     // Check if it's a screen update
     if (dataStr.startsWith('screen:')) {
         const screenContent = dataStr.substring(7);
         console.log('  ✓ Screen content received');
         console.log('  Screen content preview (first 200 chars):');
         console.log('  ' + screenContent.substring(0, 200).replace(/\r?\n/g, '\n  '));
-        
+
         // Check for Terminal.Gui elements
         const hasConsoleDungeon = screenContent.includes('Console Dungeon');
         const hasWebSocket = screenContent.includes('WebSocket') || screenContent.includes('4040');
-        
+
         console.log('\n[4/4] Verifying Terminal.Gui interface elements:');
         console.log(`  Console Dungeon title: ${hasConsoleDungeon ? '✓ Found' : '✗ Not found'}`);
         console.log(`  WebSocket info:        ${hasWebSocket ? '✓ Found' : '✗ Not found'}`);
-        
+
         console.log('\n========================================');
         console.log('Test Results');
         console.log('========================================');
@@ -54,7 +54,7 @@ ws.on('message', function message(data) {
         console.log(`Server Response:        ${receivedData ? '✅ PASS' : '❌ FAIL'}`);
         console.log(`Terminal.Gui Elements:  ${(hasConsoleDungeon || hasWebSocket) ? '✅ PASS' : '❌ FAIL'}`);
         console.log('========================================\n');
-        
+
         if (connected && receivedData && (hasConsoleDungeon || hasWebSocket)) {
             console.log('✅ SUCCESS: xterm.js integration is working!\n');
             ws.close();

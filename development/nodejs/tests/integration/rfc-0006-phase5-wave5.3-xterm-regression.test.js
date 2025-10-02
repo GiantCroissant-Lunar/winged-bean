@@ -37,13 +37,13 @@ describe("RFC-0006 Phase 5 Wave 5.3: xterm.js Integration Test", () => {
 
     // Start ConsoleDungeon.Host with dynamic plugin loading
     console.log("Starting ConsoleDungeon.Host with dynamic plugin loading...");
-    
+
     // Must run from bin/Debug/net8.0 directory where plugins.json and plugins/ exist
     const hostBinPath = path.join(
       __dirname,
       "../../../dotnet/console/src/host/ConsoleDungeon.Host/bin/Debug/net8.0"
     );
-    
+
     consoleDungeonHost = spawn("dotnet", ["ConsoleDungeon.Host.dll"], {
       cwd: hostBinPath,
       env: { ...process.env },
@@ -55,7 +55,7 @@ describe("RFC-0006 Phase 5 Wave 5.3: xterm.js Integration Test", () => {
     consoleDungeonHost.stdout.on("data", (data) => {
       const output = data.toString();
       console.log(`[Host] ${output.trim()}`);
-      
+
       // Check for dynamic plugin loading markers
       if (output.includes("Dynamic Plugin Mode")) {
         console.log("  ✓ Dynamic Plugin Mode confirmed");
@@ -64,7 +64,7 @@ describe("RFC-0006 Phase 5 Wave 5.3: xterm.js Integration Test", () => {
         pluginsLoaded = true;
         console.log("  ✓ Plugins loaded successfully");
       }
-      if (output.includes("Running. Press Ctrl+C to exit") || 
+      if (output.includes("Running. Press Ctrl+C to exit") ||
           output.includes("WebSocket server started")) {
         hostStartupComplete = true;
       }
@@ -100,7 +100,7 @@ describe("RFC-0006 Phase 5 Wave 5.3: xterm.js Integration Test", () => {
     // Start Astro dev server
     console.log("Starting Astro frontend...");
     const astroPath = path.join(__dirname, "../../sites/docs");
-    
+
     astroServer = spawn("npm", ["run", "dev"], {
       cwd: astroPath,
       env: { ...process.env },
@@ -207,10 +207,10 @@ describe("RFC-0006 Phase 5 Wave 5.3: xterm.js Integration Test", () => {
 
     expect(terminalContent).toBeTruthy();
     expect(terminalContent.length).toBeGreaterThan(0);
-    
+
     // Check for WebSocket connection indicators
-    const hasWebSocketInfo = 
-      terminalContent.includes("WebSocket") || 
+    const hasWebSocketInfo =
+      terminalContent.includes("WebSocket") ||
       terminalContent.includes("4040") ||
       terminalContent.includes("Terminal.Gui v2");
 
@@ -236,11 +236,11 @@ describe("RFC-0006 Phase 5 Wave 5.3: xterm.js Integration Test", () => {
 
     // Verify Terminal.Gui interface elements (flexible checks for different UI versions)
     const hasTerminalGui = terminalContent.includes("Terminal.Gui");
-    const hasSuccess = 
-      terminalContent.includes("SUCCESS") || 
+    const hasSuccess =
+      terminalContent.includes("SUCCESS") ||
       terminalContent.includes("Console Dungeon");
-    const hasWebSocket = 
-      terminalContent.includes("4040") || 
+    const hasWebSocket =
+      terminalContent.includes("4040") ||
       terminalContent.includes("WebSocket");
 
     expect(hasTerminalGui).toBe(true);
@@ -271,22 +271,22 @@ describe("RFC-0006 Phase 5 Wave 5.3: xterm.js Integration Test", () => {
 
     // Comprehensive verification of xterm.js functionality
     const checks = [
-      { 
-        name: "xterm.js terminal loaded", 
-        condition: terminalContent.length > 0 
+      {
+        name: "xterm.js terminal loaded",
+        condition: terminalContent.length > 0
       },
-      { 
-        name: "WebSocket connection active", 
-        condition: terminalContent.includes("4040") || 
-                   terminalContent.includes("WebSocket") 
+      {
+        name: "WebSocket connection active",
+        condition: terminalContent.includes("4040") ||
+                   terminalContent.includes("WebSocket")
       },
-      { 
-        name: "Terminal.Gui interface present", 
-        condition: terminalContent.includes("Terminal.Gui") 
+      {
+        name: "Terminal.Gui interface present",
+        condition: terminalContent.includes("Terminal.Gui")
       },
-      { 
-        name: "Content renders in terminal", 
-        condition: terminalContent.includes("SUCCESS") || 
+      {
+        name: "Content renders in terminal",
+        condition: terminalContent.includes("SUCCESS") ||
                    terminalContent.includes("Console Dungeon") ||
                    terminalContent.includes("PTY")
       },
@@ -316,10 +316,10 @@ describe("RFC-0006 Phase 5 Wave 5.3: xterm.js Integration Test", () => {
 
     // Verify that services from dynamically loaded plugins are working
     // WebSocket plugin = working WebSocket connection
-    const websocketPluginWorking = 
-      terminalContent.includes("4040") || 
+    const websocketPluginWorking =
+      terminalContent.includes("4040") ||
       terminalContent.includes("WebSocket");
-    
+
     // TerminalUI plugin = Terminal.Gui interface visible
     const terminalUIPluginWorking = terminalContent.includes("Terminal.Gui");
 

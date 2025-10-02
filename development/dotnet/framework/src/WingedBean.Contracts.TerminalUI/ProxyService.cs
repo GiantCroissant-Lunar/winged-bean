@@ -23,4 +23,3 @@ public partial class ProxyService : ITerminalUIService
 
     // Source generator will implement all interface methods below
 }
-

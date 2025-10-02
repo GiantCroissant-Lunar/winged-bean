@@ -8,40 +8,49 @@ import os
 import re
 import subprocess
 import sys
+import time
 from typing import List
 
 
-def run_gh(args: List[str]) -> str:
-    """Run GitHub CLI command."""
-    try:
-        result = subprocess.run(
-            ["gh"] + args,
-            capture_output=True,
-            text=True,
-            check=True,
-            env=os.environ,
-        )
-        return result.stdout.strip()
-    except subprocess.CalledProcessError as e:
-        print(f"Error running gh command: {e.stderr}", file=sys.stderr)
-        raise
+def run_gh(args: List[str], max_retries: int = 3) -> str:
+    """Run GitHub CLI command with retry logic for transient failures."""
+    for attempt in range(max_retries):
+        try:
+            result = subprocess.run(
+                ["gh"] + args,
+                capture_output=True,
+                text=True,
+                check=True,
+                env=os.environ,
+            )
+            return result.stdout.strip()
+        except subprocess.CalledProcessError as e:
+            # Check if it's a label-not-found error
+            if "not found" in e.stderr and attempt < max_retries - 1:
+                print(f"⏳ Retry {attempt + 1}/{max_retries - 1}: {e.stderr.strip()}", file=sys.stderr)
+                time.sleep(2 ** attempt)  # Exponential backoff: 1s, 2s
+                continue
+            print(f"Error running gh command: {e.stderr}", file=sys.stderr)
+            raise
+    return ""
 
 
 def extract_blockers(issue_body: str) -> List[int]:
     """Extract blocker issue numbers from issue body."""
-    pattern = r"Blocked By:.*"
-    match = re.search(pattern, issue_body, re.IGNORECASE)
+    # Match "Blocked By:" with optional markdown bold markers (**) around both parts
+    pattern = r"(?:\*\*)?Blocked By:?(?:\*\*)?\s*(.*)$"
+    match = re.search(pattern, issue_body, re.IGNORECASE | re.MULTILINE)
     if not match:
         return []
 
-    blocked_line = match.group(0)
+    blocked_line = match.group(1).strip()
 
     # Check for explicit "None"
     if re.search(r"\bNone\b", blocked_line, re.IGNORECASE):
         return []
 
-    # Extract issue numbers
-    issue_pattern = r"#(\d+)"
+    # Extract issue numbers (with or without #)
+    issue_pattern = r"#?(\d+)"
     blockers = [int(m.group(1)) for m in re.finditer(issue_pattern, blocked_line)]
     return blockers
 
