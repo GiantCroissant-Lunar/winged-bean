@@ -5,6 +5,9 @@ includes:
   build:
     taskfile: ./build/Taskfile.yml
     dir: ./build
+  nodejs:
+    taskfile: ./development/nodejs/Taskfile.yml
+    dir: ./development/nodejs
 
 tasks:
   default:
