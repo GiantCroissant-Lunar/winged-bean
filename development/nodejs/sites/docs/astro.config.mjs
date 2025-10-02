@@ -16,14 +16,15 @@ export default defineConfig({
 
       sidebar: [
         {
-          label: 'Getting Started',
+          label: '🚀 Getting Started',
           items: [
             { label: 'Introduction', link: '/' },
           ],
         },
         {
-          label: 'RFCs',
+          label: '📄 RFCs',
           collapsed: false,
+          badge: 'Reference',
           items: [
             { label: 'RFC-0001: Asciinema Recording', link: '/rfcs/0001-asciinema-recording-for-pty-sessions/' },
             { label: 'RFC-0002: Service Platform Core', link: '/rfcs/0002-service-platform-core-4-tier-architecture/' },
@@ -39,7 +40,8 @@ export default defineConfig({
           ],
         },
         {
-          label: 'Guides',
+          label: '🧭 Guides',
+          badge: 'How-To',
           items: [
             { label: 'Architecture Overview', link: '/guides/architecture-overview/' },
             { label: 'Framework Targeting', link: '/guides/framework-targeting-guide/' },
@@ -48,7 +50,8 @@ export default defineConfig({
           ],
         },
         {
-          label: 'Architecture',
+          label: '🏗️ Architecture',
+          badge: 'Design',
           items: [
             {
               label: 'ADRs',
@@ -73,7 +76,8 @@ export default defineConfig({
           ],
         },
         {
-          label: 'Verification',
+          label: '🧪 Verification',
+          badge: 'QA',
           items: [
             { label: 'ConsoleDungeon Host', link: '/verification/rfc-0005-phase5-wave5.2-consoledungeon-host-verification/' },
             { label: 'xterm.js Integration', link: '/verification/rfc-0005-phase5-wave5.3-xterm-integration-verification/' },
@@ -81,7 +85,8 @@ export default defineConfig({
           ],
         },
         {
-          label: 'Demo',
+          label: '🎮 Demo',
+          badge: 'Live',
           items: [
             { label: '🎮 Terminal.Gui Live Demo', link: '/demo/' },
           ],
