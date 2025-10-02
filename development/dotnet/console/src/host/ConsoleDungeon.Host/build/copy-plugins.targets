@@ -1,0 +1,31 @@
+<Project>
+  <Target Name="CopyPlugins" AfterTargets="Build">
+    <Message Importance="high" Text="========================================" />
+    <Message Importance="high" Text="Copying plugin assemblies..." />
+    <Message Importance="high" Text="========================================" />
+
+    <ItemGroup>
+      <!-- Get all plugin DLLs and dependencies -->
+      <PluginFiles Include="../../plugins/**/bin/$(Configuration)/$(TargetFramework)/*.dll" />
+      <PluginFiles Include="../../plugins/**/bin/$(Configuration)/$(TargetFramework)/*.pdb" />
+      <PluginFiles Include="../../plugins/**/bin/$(Configuration)/$(TargetFramework)/.plugin.json" />
+    </ItemGroup>
+
+    <!-- Create plugins directory -->
+    <MakeDir Directories="$(OutDir)plugins/" Condition="!Exists('$(OutDir)plugins/')" />
+
+    <!-- Copy plugins to preserve directory structure for manifests -->
+    <Copy
+      SourceFiles="@(PluginFiles)"
+      DestinationFiles="@(PluginFiles->'$(OutDir)plugins/%(RecursiveDir)%(Filename)%(Extension)')"
+      SkipUnchangedFiles="true"
+      OverwriteReadOnlyFiles="true" />
+
+    <Message Importance="high" Text="Copied @(PluginFiles->Count()) plugin files to $(OutDir)plugins/" />
+  </Target>
+
+  <Target Name="CleanPlugins" AfterTargets="Clean">
+    <Message Importance="high" Text="Cleaning plugin directory..." />
+    <RemoveDir Directories="$(OutDir)plugins/" Condition="Exists('$(OutDir)plugins/')" />
+  </Target>
+</Project>
