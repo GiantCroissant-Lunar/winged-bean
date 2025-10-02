@@ -1,1 +1,8 @@
-_artifacts/
+# Task checksum cache
+.task/
+
+# Build artifacts (versioned outputs - too large for git)
+_artifacts/*/
+
+# Allow selective commits for critical recordings if needed
+# !_artifacts/v1.0.0/dotnet/recordings/critical-bug.cast
