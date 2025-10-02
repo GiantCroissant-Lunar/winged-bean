@@ -14,7 +14,7 @@ namespace WingedBean.Plugins.ArchECS;
 internal class ArchWorld : IWorld
 {
     private readonly World _world;
-    
+
     // Helper struct to construct Entity instances via Unsafe
     [StructLayout(LayoutKind.Sequential)]
     private struct EntityData
@@ -134,11 +134,11 @@ internal class ArchWorld : IWorld
         // Create Entity using Unsafe since the constructor is internal
         // Note: We use version 1 as default since we don't track versions in EntityHandle
         // This is a known limitation of the abstraction layer
-        var data = new EntityData 
-        { 
-            Id = handle.Id, 
-            WorldId = handle.WorldId, 
-            Version = 1 
+        var data = new EntityData
+        {
+            Id = handle.Id,
+            WorldId = handle.WorldId,
+            Version = 1
         };
         return Unsafe.As<EntityData, Entity>(ref data);
     }
