@@ -3,9 +3,9 @@ version: '3'
 
 vars:
   VERSION:
-    sh: dotnet gitversion /showvariable SemVer
+    sh: ./get-version.sh
   FULL_VERSION:
-    sh: dotnet gitversion /showvariable FullSemVer
+    sh: ./get-version.sh
   ARTIFACT_DIR: _artifacts/v{{.VERSION}}
 
 tasks:
