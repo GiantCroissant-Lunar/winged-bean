@@ -14,6 +14,50 @@ This directory contains RFCs (Request for Comments) documenting major architectu
 
 ## Active RFCs
 
+### RFC-0008: Playwright and Asciinema Testing Strategy
+**Status:** ✅ Implemented (CI/CD pending)
+**Date:** 2025-10-01
+**Completed:** 2025-10-01
+**Priority:** HIGH (P1)
+
+**Summary:** Implement Playwright for E2E visual testing and asciinema for recording Terminal.Gui sessions. Enables automated verification that Terminal.Gui renders correctly in browser and provides documentation through recordings.
+
+**Key Achievements:**
+- ✅ Playwright E2E tests (3/3 passing)
+- ✅ Visual verification of Terminal.Gui in browser
+- ✅ Screenshot generation for regression testing
+- ✅ Asciinema recording scripts
+- ✅ Dynamic recording via F9/F10 (RFC-0009)
+
+**Follow-Up Tasks:**
+- ⚠️ GitHub Actions CI/CD workflow (pending)
+- ⚠️ Asciinema-player integration for docs
+
+[Read Full RFC →](./0008-playwright-and-asciinema-testing-strategy.md)
+
+---
+
+### RFC-0009: Dynamic Asciinema Recording in PTY
+**Status:** ✅ Implemented
+**Date:** 2025-10-01
+**Completed:** 2025-10-01
+**Priority:** HIGH (P1)
+
+**Summary:** Add dynamic asciinema recording to PTY service with F9/F10 keyboard shortcuts. Enables on-demand recording of Terminal.Gui sessions for debugging and documentation.
+
+**Key Achievements:**
+- ✅ RecordingManager class (36/36 tests passing)
+- ✅ F9/F10 keyboard shortcuts in Terminal.Gui
+- ✅ OSC sequence protocol for control
+- ✅ Automatic .cast file generation
+- ✅ Multiple recordings per session
+
+**Impact:** Solved WebSocket debugging, enables progress documentation
+
+[Read Full RFC →](./0009-dynamic-asciinema-recording-in-pty.md)
+
+---
+
 ### RFC-0006: Dynamic Plugin Loading and Runtime Composition
 **Status:** Proposed
 **Date:** 2025-10-01
