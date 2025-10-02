@@ -129,6 +129,13 @@ repos:
         exclude: ^docs/(rfcs|adr)/README\.md$
         pass_filenames: true
 
+      - id: validate-issue-metadata
+        name: Validate Issue Dependency Metadata (R-ISS-010)
+        entry: python development/python/src/hooks/pre_commit_issue_validator.py
+        language: system
+        files: ^(\.github/ISSUE_TEMPLATE/.*\.(yml|yaml|md)|docs/implementation/.*\.md)$
+        pass_filenames: true
+
   # JetBrains CLI tools (comprehensive analysis - manual only)
   - repo: local
     hooks:

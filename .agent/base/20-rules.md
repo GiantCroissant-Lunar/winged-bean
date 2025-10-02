@@ -51,26 +51,47 @@ R-PRC-050: Use Python instead of embedded shell scripts for complex logic in wor
   - Keep workflow YAML minimal - delegate to Python scripts
 
 ## Issue Management
-R-ISS-010: When creating issues, always specify dependencies in the issue body.
-  - Format: `**Blocked By:** #XX, #YY` (comma-separated issue numbers, or "None")
-  - Format: `**Blocks:** #ZZ` (issues that depend on this one)
-  - Pre-commit hook validates dependencies before allowing commits (hard block)
+R-ISS-010: When creating issues programmatically, include YAML metadata block (RFC-0015).
+  - Required fields: `rfc`, `depends_on` (list), `priority` (critical|high|medium|low), `agent_assignable` (bool)
+  - Optional fields: `retry_count`, `max_retries`, `blocks`, `phase`, `wave`, `estimate_minutes`
+  - Format: YAML frontmatter (---...---) or code block (```yaml...```)
+  - Pre-commit hook validates schema before allowing commits (hard block)
+  - Example:
+    ```yaml
+    rfc: RFC-0007
+    depends_on: [48, 62]
+    blocks: [86, 87]
+    priority: critical
+    agent_assignable: true
+    retry_count: 0
+    max_retries: 3
+    ```
 R-ISS-020: When creating issues, specify the intended agent.
   - Use labels: `agent:copilot`, `agent:claude-code`, or `agent:windsurf`
   - If unsure, use `agent:unassigned` and let human decide
-R-ISS-030: Before starting work on an issue, verify all blockers are closed.
-  - Check `**Blocked By:**` field in issue body
+R-ISS-030: Before starting work on an issue, verify all dependencies are resolved.
+  - Check `depends_on` field in issue metadata
   - Query each blocker's status via `gh issue view <num> --json state`
-  - If any blocker is open, do not start work (pre-commit hook enforces this)
+  - If any blocker is open, do not start work (enforced by workflow)
 R-ISS-040: When a PR fails CI, the agent that created it must fix it (3 retry limit).
   - Read failure logs in issue comments
   - Analyze what went wrong
   - Create new PR with fixes
-  - Do not require human intervention unless 3 attempts fail
+  - Retry count tracked in issue metadata (`retry_count` field)
+  - Do not require human intervention unless max_retries exceeded
 R-ISS-050: Issue titles must follow naming convention.
   - Format: `RFC-XXXX-YY: Short description` (for RFC-related work)
   - Format: `[COMPONENT] Short description` (for general work)
   - Examples: `RFC-0007-01: Create ECS contracts`, `[CI] Fix MegaLinter timeout`
+R-ISS-060: Workflow scripts exceeding 50 lines OR using complex logic must use Python (RFC-0015).
+  - Shell is acceptable for simple conditionals (< 10 lines)
+  - Python required for: parsing JSON, complex string manipulation, error handling, API calls
+  - NO Perl, awk, sed for complex operations
+  - Place Python scripts in `development/python/src/workflows/` or `development/python/src/hooks/`
+R-ISS-070: Before pushing new/modified workflows, test locally using nektos/act (RFC-0015).
+  - Run `python development/python/src/testing/test_workflows.py --workflow <file>`
+  - Or use workflow testing harness for comprehensive validation
+  - Prevents runner minute waste from untested workflows
 
 ## Deprecated Rules
 (None yet)
