@@ -63,6 +63,46 @@ internal class LoadedPluginWrapper : ILoadedPlugin
         _pluginInstance = pluginInstance;
         _contextProvider = contextProvider ?? throw new ArgumentNullException(nameof(contextProvider));
         _state = PluginState.Loaded;
+        
+        // Auto-discover and instantiate services from assembly
+        DiscoverServices();
+    }
+    
+    /// <summary>
+    /// Discover and instantiate all services that implement WingedBean.Contracts interfaces.
+    /// </summary>
+    private void DiscoverServices()
+    {
+        // Find all types that implement interfaces in WingedBean.Contracts.* namespace
+        var serviceTypes = _assembly.GetTypes()
+            .Where(t => !t.IsInterface && !t.IsAbstract && t.IsClass)
+            .Where(t => t.GetInterfaces().Any(i => i.Namespace?.StartsWith("WingedBean.Contracts") == true))
+            .ToList();
+        
+        foreach (var serviceType in serviceTypes)
+        {
+            try
+            {
+                // Create instance of the service
+                var instance = Activator.CreateInstance(serviceType);
+                if (instance != null)
+                {
+                    // Register it for all contract interfaces it implements
+                    var contractInterfaces = serviceType.GetInterfaces()
+                        .Where(i => i.Namespace?.StartsWith("WingedBean.Contracts") == true);
+                    
+                    foreach (var contractInterface in contractInterfaces)
+                    {
+                        _services[contractInterface] = instance;
+                    }
+                }
+            }
+            catch
+            {
+                // Ignore services that can't be instantiated with parameterless constructor
+                // They may need dependency injection which isn't available yet
+            }
+        }
     }
 
     /// <summary>
