@@ -1,56 +1,81 @@
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using Arch.Core;
 using WingedBean.Contracts.ECS;
 
 namespace WingedBean.Plugins.ArchECS;
 
 /// <summary>
 /// Arch-based implementation of <see cref="IEntity"/>.
-/// Wraps an EntityHandle and provides component operations through the world.
+/// Wraps Arch.Core.Entity to provide platform-agnostic entity operations.
 /// </summary>
 internal class ArchEntity : IEntity
 {
-    private readonly EntityHandle _handle;
-    private readonly IWorld _world;
+    private readonly Entity _entity;
+    private readonly World _world;
 
-    public ArchEntity(EntityHandle handle, IWorld world)
+    // Helper struct to construct Entity instances via Unsafe
+    [StructLayout(LayoutKind.Sequential)]
+    private struct EntityData
     {
-        _handle = handle;
+        public int Id;
+        public int WorldId;
+        public int Version;
+    }
+
+    public ArchEntity(EntityHandle handle, World world)
+    {
+        _entity = ToArchEntity(handle);
         _world = world;
     }
 
-    public int Id => _handle.Id;
+    public int Id => _entity.Id;
 
-    public bool IsAlive => _world.IsAlive(_handle);
+    public bool IsAlive => _world.IsAlive(_entity);
 
     public void AddComponent<T>(T component) where T : struct
     {
-        _world.AttachComponent(_handle, component);
+        _world.Add(_entity, component);
     }
 
     public ref T GetComponent<T>() where T : struct
     {
-        return ref _world.GetComponent<T>(_handle);
+        return ref _world.Get<T>(_entity);
     }
 
     public bool HasComponent<T>() where T : struct
     {
-        return _world.HasComponent<T>(_handle);
+        return _world.Has<T>(_entity);
     }
 
     public void RemoveComponent<T>() where T : struct
     {
-        _world.DetachComponent<T>(_handle);
+        _world.Remove<T>(_entity);
     }
 
     public void SetComponent<T>(T component) where T : struct
     {
-        if (HasComponent<T>())
+        if (_world.Has<T>(_entity))
         {
-            ref var existing = ref GetComponent<T>();
-            existing = component;
+            _world.Set(_entity, component);
         }
         else
         {
-            AddComponent(component);
+            _world.Add(_entity, component);
         }
+    }
+
+    private Entity ToArchEntity(EntityHandle handle)
+    {
+        // Create Entity using Unsafe since the constructor is internal
+        // Note: We use version 1 as default since we don't track versions in EntityHandle
+        // This is a known limitation of the abstraction layer
+        var data = new EntityData
+        {
+            Id = handle.Id,
+            WorldId = handle.WorldId,
+            Version = 1
+        };
+        return Unsafe.As<EntityData, Entity>(ref data);
     }
 }

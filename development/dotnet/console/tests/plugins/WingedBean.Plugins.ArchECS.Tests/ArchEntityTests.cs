@@ -15,10 +15,11 @@ public class ArchEntityTests
         return service.CreateWorld();
     }
 
-    private IEntity CreateEntity(IWorld world)
+    private IEntity CreateEntity(IWorld world, EntityHandle handle)
     {
-        var handle = world.CreateEntity();
-        return new ArchEntity(handle, world);
+        // Access internal ArchWorld to get the underlying Arch.Core.World
+        var archWorld = (ArchWorld)world;
+        return new ArchEntity(handle, archWorld.GetArchWorld());
     }
 
     [Fact]
@@ -27,7 +28,7 @@ public class ArchEntityTests
         // Arrange
         var world = CreateWorld();
         var handle = world.CreateEntity();
-        var entity = new ArchEntity(handle, world);
+        var entity = CreateEntity(world, handle);
 
         // Act
         var id = entity.Id;
@@ -41,7 +42,8 @@ public class ArchEntityTests
     {
         // Arrange
         var world = CreateWorld();
-        var entity = CreateEntity(world);
+        var handle = world.CreateEntity();
+        var entity = CreateEntity(world, handle);
 
         // Act
         var isAlive = entity.IsAlive;
@@ -56,7 +58,7 @@ public class ArchEntityTests
         // Arrange
         var world = CreateWorld();
         var handle = world.CreateEntity();
-        var entity = new ArchEntity(handle, world);
+        var entity = CreateEntity(world, handle);
 
         // Act
         world.DestroyEntity(handle);
@@ -71,7 +73,8 @@ public class ArchEntityTests
     {
         // Arrange
         var world = CreateWorld();
-        var entity = CreateEntity(world);
+        var handle = world.CreateEntity();
+        var entity = CreateEntity(world, handle);
         var position = new Position { X = 10, Y = 20 };
 
         // Act
@@ -86,7 +89,8 @@ public class ArchEntityTests
     {
         // Arrange
         var world = CreateWorld();
-        var entity = CreateEntity(world);
+        var handle = world.CreateEntity();
+        var entity = CreateEntity(world, handle);
         var position = new Position { X = 10, Y = 20 };
         entity.AddComponent(position);
 
@@ -103,7 +107,8 @@ public class ArchEntityTests
     {
         // Arrange
         var world = CreateWorld();
-        var entity = CreateEntity(world);
+        var handle = world.CreateEntity();
+        var entity = CreateEntity(world, handle);
         var position = new Position { X = 10, Y = 20 };
         entity.AddComponent(position);
 
@@ -119,25 +124,12 @@ public class ArchEntityTests
     }
 
     [Fact]
-    public void HasComponent_ReturnsFalseForNonExistentComponent()
-    {
-        // Arrange
-        var world = CreateWorld();
-        var entity = CreateEntity(world);
-
-        // Act
-        var hasComponent = entity.HasComponent<Position>();
-
-        // Assert
-        hasComponent.Should().BeFalse();
-    }
-
-    [Fact]
     public void HasComponent_ReturnsTrueForExistingComponent()
     {
         // Arrange
         var world = CreateWorld();
-        var entity = CreateEntity(world);
+        var handle = world.CreateEntity();
+        var entity = CreateEntity(world, handle);
         var position = new Position { X = 10, Y = 20 };
         entity.AddComponent(position);
 
@@ -149,11 +141,27 @@ public class ArchEntityTests
     }
 
     [Fact]
+    public void HasComponent_ReturnsFalseForNonExistentComponent()
+    {
+        // Arrange
+        var world = CreateWorld();
+        var handle = world.CreateEntity();
+        var entity = CreateEntity(world, handle);
+
+        // Act
+        var hasComponent = entity.HasComponent<Position>();
+
+        // Assert
+        hasComponent.Should().BeFalse();
+    }
+
+    [Fact]
     public void RemoveComponent_RemovesComponentFromEntity()
     {
         // Arrange
         var world = CreateWorld();
-        var entity = CreateEntity(world);
+        var handle = world.CreateEntity();
+        var entity = CreateEntity(world, handle);
         var position = new Position { X = 10, Y = 20 };
         entity.AddComponent(position);
 
@@ -165,11 +173,12 @@ public class ArchEntityTests
     }
 
     [Fact]
-    public void SetComponent_AddsComponentIfNotPresent()
+    public void SetComponent_AddsComponentWhenNotPresent()
     {
         // Arrange
         var world = CreateWorld();
-        var entity = CreateEntity(world);
+        var handle = world.CreateEntity();
+        var entity = CreateEntity(world, handle);
         var position = new Position { X = 10, Y = 20 };
 
         // Act
@@ -183,11 +192,12 @@ public class ArchEntityTests
     }
 
     [Fact]
-    public void SetComponent_UpdatesComponentIfPresent()
+    public void SetComponent_UpdatesComponentWhenPresent()
     {
         // Arrange
         var world = CreateWorld();
-        var entity = CreateEntity(world);
+        var handle = world.CreateEntity();
+        var entity = CreateEntity(world, handle);
         var position = new Position { X = 10, Y = 20 };
         entity.AddComponent(position);
 
@@ -207,7 +217,8 @@ public class ArchEntityTests
     {
         // Arrange
         var world = CreateWorld();
-        var entity = CreateEntity(world);
+        var handle = world.CreateEntity();
+        var entity = CreateEntity(world, handle);
 
         // Act
         entity.AddComponent(new Position { X = 10, Y = 20 });

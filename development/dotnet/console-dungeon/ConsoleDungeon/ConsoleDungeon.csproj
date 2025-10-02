@@ -18,4 +18,8 @@
     <PackageReference Include="Terminal.Gui" Version="2.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="../../framework/src/WingedBean.Contracts.ECS/WingedBean.Contracts.ECS.csproj" />
+  </ItemGroup>
+
 </Project>
