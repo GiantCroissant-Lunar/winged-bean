@@ -20,6 +20,8 @@ This directory contains practical guides for developers working with the Winged 
 
 ### Framework & Architecture
 
+- [Architecture Overview](./architecture-overview.md) - High-level architecture guide
+
 #### Framework Targeting Guide
 **File**: `framework-targeting-guide.md`
 
@@ -60,6 +62,8 @@ Tool setup, configuration, and usage guides
 
 ### 🧪 Testing
 Testing strategies, frameworks, and best practices
+
+- [Playwright Asciinema Quickstart](./PLAYWRIGHT_ASCIINEMA_QUICKSTART.md) - Quick start guide for E2E testing
 
 ### 📦 Deployment
 Build, packaging, and deployment guides

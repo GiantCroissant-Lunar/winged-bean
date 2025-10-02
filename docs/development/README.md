@@ -64,7 +64,15 @@ Team conventions and best practices
 
 ## Current Documents
 
-*No development documents currently indexed*
+### Development Tools & Setup
+
+- [ACT Usage](./ACT_USAGE.md) - Local GitHub Actions testing with `act`
+- [Linting](./LINTING.md) - Code linting setup and configuration
+- [Renovate Setup](./RENOVATE_SETUP.md) - Dependency update automation
+
+### Advanced Topics
+
+- [Advanced Plugin Features](./ADVANCED_PLUGIN_FEATURES.md) - Advanced plugin development patterns
 
 ---
 

@@ -45,6 +45,11 @@ graph TD
 
 ## Getting Started
 
+### Documentation
+
+- [HybridCLR Setup Guide](./hybridclr-setup-guide.md) - Setting up HybridCLR for hot-reload
+- [Plugin Development Guide](./plugin-development-guide.md) - Creating Unity plugins
+
 ### Prerequisites
 
 - Unity 2022.3 LTS or later

@@ -52,6 +52,16 @@ This directory contains design documents that don't fit the formal structure of 
 
 ---
 
+#### [Tier1 Core Contracts](./tier1-core-contracts.md)
+**Focus**: Core contract definitions for Tier 1 architecture
+
+**Topics**:
+- Contract interface design
+- Platform-agnostic abstractions
+- Service definitions
+
+---
+
 ### GitHub Automation
 
 #### [GitHub Automation - Critical Issues Analysis](./github-automation-critical-issues-analysis.md)

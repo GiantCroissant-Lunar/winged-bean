@@ -76,8 +76,19 @@ Architecture Decision Records capture important architectural decisions along wi
 
 ---
 
-### ADR-0004: [Title TBD]
-**Status**: Reserved for future use
+### ADR-0004: Adopt act for Local GitHub Actions Testing
+**Date**: 2025-09-30
+
+**Decision**: Use `act` tool for local GitHub Actions testing to improve development workflow efficiency
+
+**Context**: Slow feedback loops and expensive CI minutes when testing GitHub Actions changes
+
+**Consequences**:
+- ✅ Instant local testing of workflows
+- ✅ Reduced CI costs
+- ✅ Faster debugging cycle
+
+[Read Full ADR →](./0004-adopt-act-for-local-github-actions-testing.md)
 
 ---
 

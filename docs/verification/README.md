@@ -33,6 +33,19 @@ This directory contains verification reports that validate RFC implementations a
 
 ---
 
+### RFC-0006: Dynamic Plugin Loading
+**Phase**: Phase 5 Wave 5.1
+**Report**: [Build Verification](RFC-0006-Phase5-Wave5.1-Build-Verification.md)
+**Status**: ✅ PASSED
+
+---
+
+### Terminal.Gui PTY Integration
+**Report**: [Terminal.Gui PTY Verification Report](TERMINAL_GUI_PTY_VERIFICATION_REPORT.md)
+**Status**: ✅ PASSED
+
+---
+
 ## Document Types
 
 ### RFC Verification Reports

@@ -73,6 +73,9 @@ This directory contains detailed implementation plans and progress tracking for 
 ### RFC-0005: Target Framework Compliance
 **Status**: ✅ Completed (2025-10-01)
 
+- [Execution Plan](./rfc-0005-execution-plan.md)
+- [WingedBean.sln Verification](./rfc-0005-wingedbean-sln-verification.md)
+
 **Deliverables**:
 - All projects updated to appropriate frameworks
 - 95 tests passing
@@ -80,8 +83,46 @@ This directory contains detailed implementation plans and progress tracking for 
 
 ---
 
-### Active Checklists
+### RFC-0006: Dynamic Plugin Loading
+**Status**: Proposed
+
+- [Execution Plan](./rfc-0006-execution-plan.md)
+
+---
+
+### RFC-0007: Arch ECS Integration
+**Status**: Proposed
+
+- [Execution Plan](./rfc-0007-execution-plan.md)
+
+---
+
+### RFC-0008: Playwright and Asciinema Testing
+**Status**: ✅ Implemented
+
+- [Implementation Report](./RFC-0008-IMPLEMENTATION-REPORT.md)
+
+---
+
+### RFC-0010: Multi-Language Build Orchestration
+**Status**: In Progress
+
+- [Execution Plan](./rfc-0010-execution-plan.md)
+- [GitHub Issues](./rfc-0010-github-issues.md)
+- [Phase 2 Build All Verification](./rfc-0010-phase2-build-all-verification.md)
+
+---
+
+### RFC-0012: Agent-Driven GitHub Automation
+**Status**: In Progress
+
+- [Production Validation](./rfc-0012-production-validation.md)
+
+---
+
+### Active Checklists & Verification
 - [Immediate Actions Checklist](./IMMEDIATE-ACTIONS-CHECKLIST.md)
+- [Tier1 Build Verification](./tier1-build-verification.md)
 
 ---
 

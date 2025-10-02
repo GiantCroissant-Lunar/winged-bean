@@ -33,6 +33,13 @@ This directory contains reports from test executions, verification runs, and qua
 
 ---
 
+### Phase 3.9 Summary
+**File**: `PHASE3-9-SUMMARY.md`
+
+**Focus**: Summary of Phase 3.9 test results
+
+---
+
 ## Document Types
 
 ### Test Execution Reports
