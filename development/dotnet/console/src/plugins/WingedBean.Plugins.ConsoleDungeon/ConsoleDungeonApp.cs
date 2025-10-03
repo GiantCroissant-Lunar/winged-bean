@@ -170,7 +170,11 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
                         if (_statusLabel != null)
                         {
                             var text = $"HP: {stats.CurrentHP}/{stats.MaxHP} | MP: {stats.CurrentMana}/{stats.MaxMana} | Lvl: {stats.Level} | XP: {stats.Experience} | M=Menu";
-                            _statusLabel.Text = text;
+                            Application.Invoke(() =>
+                            {
+                                _statusLabel.Text = text;
+                                _statusLabel.SetNeedsDisplay();
+                            });
                         }
                     });
                     
