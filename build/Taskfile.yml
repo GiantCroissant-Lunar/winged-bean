@@ -123,9 +123,9 @@ tasks:
     cmds:
       - echo "Starting development services with PM2..."
       - pm2 start ecosystem.config.js
-      - pm2 start dotnet --name console-dungeon --cwd ../dotnet/console/src/host/ConsoleDungeon.Host/bin/Debug/net8.0 -- ConsoleDungeon.Host.dll
       - pm2 save
       - echo "✅ All services started. Use 'task dev:status' to check status"
+      - echo 'Note - Console uses ConsoleDungeon.Host (plugin-based architecture)'
 
   dev:stop:
     desc: "Stop all development services"
@@ -149,6 +149,7 @@ tasks:
       - echo ""
       - echo "=== Service URLs ==="
       - echo "Astro Web - http://localhost:4321/"
+      - echo "Live Terminal (PTY) - http://localhost:4321/demo/"
       - echo "PTY Service - WebSocket on port 4041"
       - echo "Console Dungeon - Running via PTY service"
 
