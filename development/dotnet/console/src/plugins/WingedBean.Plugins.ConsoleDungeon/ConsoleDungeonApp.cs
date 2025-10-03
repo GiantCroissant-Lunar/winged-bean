@@ -173,7 +173,7 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
                             Application.Invoke(() =>
                             {
                                 _statusLabel.Text = text;
-                                _statusLabel.SetNeedsDisplay();
+                                // In Terminal.Gui v2, SetNeedsDisplay() is automatically called when Text changes
                             });
                         }
                     });

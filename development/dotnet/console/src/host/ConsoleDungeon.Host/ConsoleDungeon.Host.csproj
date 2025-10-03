@@ -8,15 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Reference the ConsoleDungeon app -->
-    <ProjectReference Include="../ConsoleDungeon/ConsoleDungeon.csproj" />
-
     <!-- Reference foundation services for dynamic plugin loading -->
     <ProjectReference Include="../../../../framework/src/WingedBean.Registry/WingedBean.Registry.csproj" />
-    <ProjectReference Include="../../shared/WingedBean.PluginLoader/WingedBean.PluginLoader.csproj" />
+    <ProjectReference Include="../../../../framework/src/WingedBean.PluginLoader/WingedBean.PluginLoader.csproj" />
     <ProjectReference Include="../../providers/WingedBean.Providers.AssemblyContext/WingedBean.Providers.AssemblyContext.csproj" />
     <!-- Contracts for Terminal apps -->
     <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Pty/WingedBean.Contracts.Pty.csproj" />
+    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Game/WingedBean.Contracts.Game.csproj" />
   </ItemGroup>
 
   <ItemGroup>

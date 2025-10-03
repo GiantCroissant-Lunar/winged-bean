@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using WingedBean.Contracts;
-using WingedBean.Host;
+using WingedBean.PluginSystem;
 
 namespace WingedBean.Plugins.PtyService;
 

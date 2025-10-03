@@ -30,13 +30,20 @@ public abstract class SystemBase : IECSSystem
     /// Execute system logic for this frame.
     /// </summary>
     /// <param name="ecs">The ECS service providing access to entities and components.</param>
+    /// <param name="world">The world this system should operate on.</param>
     /// <param name="deltaTime">Time elapsed since the last frame in seconds.</param>
-    public void Execute(IECSService ecs, float deltaTime)
+    public void Execute(IECSService ecs, IWorld world, float deltaTime)
     {
+        // Update world reference if provided
+        if (world != null)
+        {
+            World = world;
+        }
+
         if (World == null)
         {
             throw new System.InvalidOperationException(
-                "System not initialized. Call Initialize(world) before Execute.");
+                "System not initialized. Call Initialize(world) before Execute or provide world parameter.");
         }
 
         OnUpdate(deltaTime);

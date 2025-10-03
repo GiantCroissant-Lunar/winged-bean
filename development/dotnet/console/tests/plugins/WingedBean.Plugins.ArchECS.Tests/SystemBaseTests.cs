@@ -97,7 +97,7 @@ public class SystemBaseTests
         var service = new ArchECSService();
 
         // Act
-        var act = () => system.Execute(service, 0.016f);
+        var act = () => system.Execute(service, default!, 0.016f);
 
         // Assert
         act.Should().Throw<System.InvalidOperationException>()
@@ -114,7 +114,7 @@ public class SystemBaseTests
         system.Initialize(world);
 
         // Act
-        system.Execute(service, 0.016f);
+        system.Execute(service, world, 0.016f);
 
         // Assert
         system.UpdateCallCount.Should().Be(1);
@@ -131,9 +131,9 @@ public class SystemBaseTests
         system.Initialize(world);
 
         // Act
-        system.Execute(service, 0.016f);
-        system.Execute(service, 0.033f);
-        system.Execute(service, 0.050f);
+        system.Execute(service, world, 0.016f);
+        system.Execute(service, world, 0.033f);
+        system.Execute(service, world, 0.050f);
 
         // Assert
         system.UpdateCallCount.Should().Be(3);
@@ -268,7 +268,7 @@ public class SystemBaseTests
         // No velocity component
 
         // Act
-        system.Execute(service, 0.016f);
+        system.Execute(service, world, 0.016f);
 
         // Assert
         system.EntitiesProcessed.Should().Be(2); // Only entities with both Position and Velocity
