@@ -1,0 +1,52 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Winged Bean Docs" [level=1] [ref=e4]
+      - paragraph [ref=e5]: Interactive terminal demos are powered by the embedded Asciinema player below.
+    - generic [ref=e6]:
+      - heading "Sample Terminal Session" [level=2] [ref=e7]
+      - generic [ref=e8]:
+        - generic [ref=e9]: "Select a demo:"
+        - combobox "Select a demo:" [ref=e10]:
+          - option "Hello Example" [selected]
+          - option "NPM Install"
+          - option "Git Commit"
+          - option "Docker Build"
+      - generic [ref=e13]:
+        - generic [ref=e15]:
+          - button "Play" [ref=e17] [cursor=pointer]
+          - textbox [ref=e19]:
+            - generic [ref=e20]: "--:--"
+          - button "Toggle fullscreen mode" [ref=e24] [cursor=pointer]:
+            - img [ref=e25] [cursor=pointer]
+        - generic [ref=e29]: 💥
+    - generic [ref=e30]:
+      - heading "Live Terminal (PTY via node-pty) ⭐ Recommended" [level=2] [ref=e31]
+      - paragraph [ref=e32]: Connect to Terminal.Gui v2 running inside a real PTY spawned by Node.js (node-pty) on port 4041. The PTY service is managed by PM2 and automatically spawns the Terminal.Gui application. This uses binary streaming for full terminal compatibility.
+      - textbox "Terminal input" [ref=e37]
+    - paragraph [ref=e65]:
+      - text: Replace
+      - code [ref=e66]: public/*.cast
+      - text: with your own recordings and reuse the
+      - code [ref=e67]: AsciinemaPlayer
+      - text: component across pages.
+  - generic [ref=e69]: WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+  - generic [ref=e72]:
+    - button "Menu" [ref=e73]:
+      - img [ref=e75]
+      - generic: Menu
+    - button "Inspect" [ref=e79]:
+      - img [ref=e81]
+      - generic: Inspect
+    - button "Audit" [ref=e83]:
+      - generic [ref=e84]:
+        - img [ref=e85]
+        - img [ref=e88]
+      - generic: Audit
+    - button "Settings" [ref=e91]:
+      - img [ref=e93]
+      - generic: Settings
+```

@@ -9,20 +9,15 @@ namespace WingedBean.Plugins.DungeonGame.Systems;
 /// </summary>
 public class AISystem : IECSSystem
 {
-    private IWorld? _world;
-
-    public void Execute(IECSService ecs, float deltaTime)
+    public void Execute(IECSService ecs, IWorld world, float deltaTime)
     {
-        // Get or create the world reference
-        _world ??= ecs.GetWorld(0) ?? ecs.CreateWorld();
-
         // Find player position
         Position? playerPosition = null;
         EntityHandle? playerHandle = null;
 
-        foreach (var entity in _world.CreateQuery<Player, Position>())
+        foreach (var entity in world.CreateQuery<Player, Position>())
         {
-            playerPosition = _world.GetComponent<Position>(entity);
+            playerPosition = world.GetComponent<Position>(entity);
             playerHandle = entity;
             break;
         }
@@ -31,10 +26,10 @@ public class AISystem : IECSSystem
             return;
 
         // Process each enemy
-        foreach (var enemyEntity in _world.CreateQuery<Enemy, Position>())
+        foreach (var enemyEntity in world.CreateQuery<Enemy, Position>())
         {
-            ref var enemy = ref _world.GetComponent<Enemy>(enemyEntity);
-            ref var enemyPos = ref _world.GetComponent<Position>(enemyEntity);
+            ref var enemy = ref world.GetComponent<Enemy>(enemyEntity);
+            ref var enemyPos = ref world.GetComponent<Position>(enemyEntity);
 
             // Calculate distance to player
             float distance = CalculateDistance(enemyPos, playerPosition.Value);

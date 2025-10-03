@@ -1,0 +1,48 @@
+name: Planning - Validate and Render
+
+on:
+  pull_request:
+    paths:
+      - 'planning/**'
+      - '.github/workflows/plan-check.yml'
+  push:
+    branches: [ main ]
+    paths:
+      - 'planning/**'
+      - '.github/workflows/plan-check.yml'
+
+jobs:
+  validate-plan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install --upgrade pip pyyaml
+
+      - name: Validate plan and render Mermaid
+        run: python3 planning/scripts/validate_and_render.py
+
+      - name: Upload Mermaid diagram
+        uses: actions/upload-artifact@v4
+        with:
+          name: plan-mermaid
+          path: docs/development/plan.mmd
+          if-no-files-found: warn
+
+      - name: Add job summary
+        run: |
+          echo '## Planning Validation Summary' >> $GITHUB_STEP_SUMMARY
+          echo '' >> $GITHUB_STEP_SUMMARY
+          echo '- Status: success' >> $GITHUB_STEP_SUMMARY
+          echo '- Diagram: plan-mermaid artifact (docs/development/plan.mmd)' >> $GITHUB_STEP_SUMMARY

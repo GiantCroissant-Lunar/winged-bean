@@ -1,6 +1,14 @@
 # build/Taskfile.yml
 version: '3'
 
+includes:
+  nodejs:
+    taskfile: ../development/nodejs/Taskfile.yml
+    dir: ../development/nodejs
+  console:
+    taskfile: ../development/dotnet/console/Taskfile.yml
+    dir: ../development/dotnet/console
+
 vars:
   VERSION:
     sh: ./get-version.sh
@@ -9,6 +17,28 @@ vars:
   ARTIFACT_DIR: _artifacts/v{{.VERSION}}
 
 tasks:
+  default:
+    desc: "Show available build tasks"
+    cmds:
+      - task --list
+
+  setup:
+    desc: "Initial project setup"
+    cmds:
+      - task: version
+      - task: init-dirs
+      - task: nodejs:install
+      - echo "Setup complete!"
+
+  ci:
+    desc: "Full CI pipeline"
+    cmds:
+      - task: clean
+      - task: build-all
+      - task: nodejs:test
+      - task: nodejs:test-e2e
+      - echo "CI pipeline completed successfully!"
+
   version:
     desc: Show current GitVersion
     cmds:
@@ -62,3 +92,92 @@ tasks:
     desc: Clean build artifacts and Task cache
     cmds:
       - rm -rf _artifacts/* .task/
+
+  verify:console:
+    desc: "Run ConsoleDungeon tests"
+    dir: ../development/dotnet/console
+    cmds:
+      - bash -lc 'TERM=xterm-256color dotnet test Console.sln'
+
+  verify:web:
+    desc: "Run Node.js unit tests"
+    cmds:
+      - task: nodejs:test
+
+  verify:pty:
+    desc: "Build PTY service bundle"
+    cmds:
+      - task: build-pty
+
+  verify:xterm:
+    desc: "Smoke test xterm.js integration (starts services briefly)"
+    deps:
+      - build-dotnet
+    dir: ..
+    cmds:
+      - bash -lc 'timeout 45 ./scripts/verification/verify-integration.sh'
+
+  dev:start:
+    desc: "Start all development services (PTY, docs-site, console) with PM2"
+    dir: ../development/nodejs
+    cmds:
+      - echo "Starting development services with PM2..."
+      - pm2 start ecosystem.config.js
+      - pm2 start dotnet --name console-dungeon --cwd ../dotnet/console/src/host/ConsoleDungeon.Host/bin/Debug/net8.0 -- ConsoleDungeon.Host.dll
+      - pm2 save
+      - echo "✅ All services started. Use 'task dev:status' to check status"
+
+  dev:stop:
+    desc: "Stop all development services"
+    dir: ../development/nodejs
+    cmds:
+      - pm2 stop all
+      - echo "✅ All services stopped"
+
+  dev:restart:
+    desc: "Restart all development services"
+    dir: ../development/nodejs
+    cmds:
+      - pm2 restart all
+      - echo "✅ All services restarted"
+
+  dev:status:
+    desc: "Show status of all development services"
+    dir: ../development/nodejs
+    cmds:
+      - pm2 list
+      - echo ""
+      - echo "=== Service URLs ==="
+      - echo "Astro Web - http://localhost:4321/"
+      - echo "PTY Service - WebSocket on port 4041"
+      - echo "Console Dungeon - Running via PTY service"
+
+  dev:logs:
+    desc: "Show logs for all development services"
+    dir: ../development/nodejs
+    cmds:
+      - pm2 logs --lines 50
+
+  capture:state:
+    desc: "Capture complete application state for current version (screenshots, logs, terminal buffers)"
+    dir: ../development/nodejs
+    cmds:
+      - echo "📸 Capturing versioned state for {{.VERSION}}..."
+      - pnpm exec playwright test capture-versioned-state.spec.js --reporter=list
+      - echo "✅ Artifacts saved to {{.ARTIFACT_DIR}}/web/"
+      - echo ""
+      - echo "📁 Screenshots: {{.ARTIFACT_DIR}}/web/screenshots/"
+      - echo "📁 Terminal captures: {{.ARTIFACT_DIR}}/web/terminal-captures/"
+      - echo "📁 Verification logs: {{.ARTIFACT_DIR}}/web/logs/"
+
+  capture:quick:
+    desc: "Quick state check without assertions (for rapid iteration)"
+    dir: ../development/nodejs
+    cmds:
+      - pnpm exec playwright test check-dungeon-display.spec.js --reporter=list
+
+  verify:visual:
+    desc: "Run visual verification tests with assertions"
+    dir: ../development/nodejs
+    cmds:
+      - pnpm exec playwright test verify-dungeon-gameplay.spec.js --reporter=list

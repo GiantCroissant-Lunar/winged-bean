@@ -21,8 +21,11 @@ public class DungeonGamePlugin : IPlugin
 
     public async Task OnActivateAsync(IRegistry registry, CancellationToken ct = default)
     {
+        System.Console.WriteLine($"      [DungeonGamePlugin] OnActivateAsync called");
         _service = new DungeonGameService(registry);
+        System.Console.WriteLine($"      [DungeonGamePlugin] Created DungeonGameService instance");
         registry.Register<IDungeonGameService>(_service);
+        System.Console.WriteLine($"      [DungeonGamePlugin] Registered IDungeonGameService");
         await Task.CompletedTask;
     }
 

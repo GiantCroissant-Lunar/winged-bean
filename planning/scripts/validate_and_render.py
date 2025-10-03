@@ -49,7 +49,8 @@ def validate_structure(plan: Dict[str, Any]) -> List[str]:
         errors.append("'tasks' must be a list")
         return errors
 
-    # Check each task has required fields
+    # Check each task has required fields and unique IDs
+    seen_ids: Set[str] = set()
     for i, task in enumerate(plan["tasks"]):
         if not isinstance(task, dict):
             errors.append(f"Task {i} is not a dictionary")
@@ -57,6 +58,12 @@ def validate_structure(plan: Dict[str, Any]) -> List[str]:
 
         if "id" not in task:
             errors.append(f"Task {i} missing 'id' field")
+        else:
+            tid = task["id"]
+            if tid in seen_ids:
+                errors.append(f"Duplicate task id detected: '{tid}'")
+            else:
+                seen_ids.add(tid)
         if "desc" not in task:
             errors.append(f"Task {i} missing 'desc' field")
 
@@ -89,6 +96,8 @@ def build_dependency_graph(plan: Dict[str, Any]) -> tuple[Dict[str, List[str]], 
         for dep in needs:
             if dep not in task_ids:
                 errors.append(f"Task '{task_id}': unknown dependency '{dep}'")
+            if dep == task_id:
+                errors.append(f"Task '{task_id}': cannot depend on itself")
 
         graph[task_id] = needs
 
@@ -136,9 +145,9 @@ def detect_cycles(graph: Dict[str, List[str]]) -> List[str]:
 
 
 def validate_labels(plan: Dict[str, Any]) -> List[str]:
-    """Validate label conventions."""
-    errors = []
-    valid_agent_labels = {"agent:copilot", "agent:cascade", "agent:claude"}
+    """Validate size/domain label conventions."""
+    errors: List[str] = []
+    allowed_sizes = {"size:XS", "size:S", "size:M", "size:L", "size:XL"}
 
     for task in plan["tasks"]:
         if "id" not in task:
@@ -151,10 +160,15 @@ def validate_labels(plan: Dict[str, Any]) -> List[str]:
             errors.append(f"Task '{task_id}': 'labels' must be a list")
             continue
 
-        # Check for agent assignment
-        agent_labels = [l for l in labels if l.startswith("agent:")]
-        if len(agent_labels) > 1:
-            errors.append(f"Task '{task_id}': multiple agent labels {agent_labels}")
+        size_labels = [l for l in labels if l.startswith("size:")]
+        if len(size_labels) > 1:
+            errors.append(f"Task '{task_id}': multiple size labels {size_labels}")
+        elif len(size_labels) == 1 and size_labels[0] not in allowed_sizes:
+            errors.append(f"Task '{task_id}': unknown size label '{size_labels[0]}' (allowed: {sorted(allowed_sizes)})")
+
+        domain_labels = [l for l in labels if l.startswith("domain:")]
+        if len(domain_labels) > 1:
+            errors.append(f"Task '{task_id}': multiple domain labels {domain_labels}")
 
     return errors
 
@@ -168,14 +182,12 @@ def generate_mermaid(plan: Dict[str, Any], output_path: Path) -> None:
         task_id = task.get("id", "")
         desc = task.get("desc", "")[:50]  # Truncate long descriptions
 
-        # Style by agent type
+        # Style by size: XS/S => simple, M/L/XL => complex
         labels = task.get("labels", [])
-        if "agent:copilot" in labels:
-            lines.append(f'  {task_id}["{task_id}<br/>{desc}"]:::copilot')
-        elif "agent:cascade" in labels:
-            lines.append(f'  {task_id}["{task_id}<br/>{desc}"]:::cascade')
-        elif "agent:claude" in labels:
-            lines.append(f'  {task_id}["{task_id}<br/>{desc}"]:::claude')
+        if any(s in labels for s in ("size:XS", "size:S")):
+            lines.append(f'  {task_id}["{task_id}<br/>{desc}"]:::simple')
+        elif any(s in labels for s in ("size:M", "size:L", "size:XL")):
+            lines.append(f'  {task_id}["{task_id}<br/>{desc}"]:::complex')
         else:
             lines.append(f'  {task_id}["{task_id}<br/>{desc}"]')
 
@@ -190,9 +202,8 @@ def generate_mermaid(plan: Dict[str, Any], output_path: Path) -> None:
     # Add styling
     lines.extend([
         "",
-        "classDef copilot fill:#e1f5e1,stroke:#4caf50,stroke-width:2px;",
-        "classDef cascade fill:#e3f2fd,stroke:#2196f3,stroke-width:2px;",
-        "classDef claude fill:#fce4ec,stroke:#e91e63,stroke-width:2px;"
+        "classDef simple fill:#e1f5e1,stroke:#4caf50,stroke-width:2px;",
+        "classDef complex fill:#fff3e0,stroke:#fb8c00,stroke-width:2px;"
     ])
 
     output_path.parent.mkdir(parents=True, exist_ok=True)

@@ -1,0 +1,20 @@
+graph TD;
+  RFC-001["RFC-001<br/>Draft terminal emulation RFC with acceptance crite"]:::simple
+  PTY-SERVICE["PTY-SERVICE<br/>Implement PTY service abstraction layer"]:::simple
+  TERM-GUI-SHELL["TERM-GUI-SHELL<br/>Create Terminal.Gui shell application"]:::complex
+  PTY-INTEGRATION["PTY-INTEGRATION<br/>Wire PTY service to Terminal.Gui shell"]:::complex
+  PLUGIN-API["PLUGIN-API<br/>Design and implement plugin API interface"]:::complex
+  UNITY-PLUGIN["UNITY-PLUGIN<br/>Create Unity integration plugin"]:::complex
+  DEPLOYMENT-SETUP["DEPLOYMENT-SETUP<br/>Set up CI/CD pipeline and deployment infrastructur"]:::complex
+
+  RFC-001 --> PTY-SERVICE;
+  RFC-001 --> TERM-GUI-SHELL;
+  PTY-SERVICE --> PTY-INTEGRATION;
+  TERM-GUI-SHELL --> PTY-INTEGRATION;
+  RFC-001 --> PLUGIN-API;
+  PLUGIN-API --> UNITY-PLUGIN;
+  PTY-INTEGRATION --> UNITY-PLUGIN;
+  PTY-INTEGRATION --> DEPLOYMENT-SETUP;
+
+classDef simple fill:#e1f5e1,stroke:#4caf50,stroke-width:2px;
+classDef complex fill:#fff3e0,stroke:#fb8c00,stroke-width:2px;

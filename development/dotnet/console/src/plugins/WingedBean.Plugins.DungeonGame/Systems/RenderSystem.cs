@@ -9,22 +9,18 @@ namespace WingedBean.Plugins.DungeonGame.Systems;
 /// </summary>
 public class RenderSystem : IECSSystem
 {
-    private IWorld? _world;
     private readonly List<(Position pos, Renderable render)> _renderBuffer = new();
 
-    public void Execute(IECSService ecs, float deltaTime)
+    public void Execute(IECSService ecs, IWorld world, float deltaTime)
     {
-        // Get or create the world reference
-        _world ??= ecs.GetWorld(0) ?? ecs.CreateWorld();
-
         // Clear the render buffer
         _renderBuffer.Clear();
 
         // Collect all renderable entities
-        foreach (var entity in _world.CreateQuery<Position, Renderable>())
+        foreach (var entity in world.CreateQuery<Position, Renderable>())
         {
-            var pos = _world.GetComponent<Position>(entity);
-            var render = _world.GetComponent<Renderable>(entity);
+            var pos = world.GetComponent<Position>(entity);
+            var render = world.GetComponent<Renderable>(entity);
             _renderBuffer.Add((pos, render));
         }
 
@@ -57,20 +53,18 @@ public class RenderSystem : IECSSystem
         }
 
         // Render UI at the bottom
-        RenderUI();
+        RenderUI(world);
 
         // Reset console colors
         Console.ResetColor();
     }
 
-    private void RenderUI()
+    private static void RenderUI(IWorld world)
     {
-        if (_world == null) return;
-
         // Find player and render stats
-        foreach (var entity in _world.CreateQuery<Player, Stats>())
+        foreach (var entity in world.CreateQuery<Player, Stats>())
         {
-            var stats = _world.GetComponent<Stats>(entity);
+            var stats = world.GetComponent<Stats>(entity);
 
             // Render stats at bottom of screen
             int uiY = Math.Max(0, Console.WindowHeight - 1);

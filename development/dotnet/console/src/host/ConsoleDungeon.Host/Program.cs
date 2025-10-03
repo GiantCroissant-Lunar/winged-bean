@@ -147,6 +147,15 @@ public class Program
         ILoadedPlugin plugin,
         int priority)
     {
+        // Set registry on plugin BEFORE activation (required for OnActivateAsync)
+        // Use reflection to call SetRegistry if it exists (LoadedPluginWrapper has this method)
+        var setRegistryMethod = plugin.GetType().GetMethod("SetRegistry", 
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
+        if (setRegistryMethod != null)
+        {
+            setRegistryMethod.Invoke(plugin, new object[] { registry });
+        }
+        
         // Activate plugin (if it implements IPlugin)
         await plugin.ActivateAsync();
 

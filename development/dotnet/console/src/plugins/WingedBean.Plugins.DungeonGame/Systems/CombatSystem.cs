@@ -9,16 +9,11 @@ namespace WingedBean.Plugins.DungeonGame.Systems;
 /// </summary>
 public class CombatSystem : IECSSystem
 {
-    private IWorld? _world;
-
-    public void Execute(IECSService ecs, float deltaTime)
+    public void Execute(IECSService ecs, IWorld world, float deltaTime)
     {
-        // Get or create the world reference
-        _world ??= ecs.GetWorld(0) ?? ecs.CreateWorld();
-
         // Find player entity
         EntityHandle? playerHandle = null;
-        foreach (var entity in _world.CreateQuery<Player, Position, Stats>())
+        foreach (var entity in world.CreateQuery<Player, Position, Stats>())
         {
             playerHandle = entity;
             break;
@@ -27,17 +22,17 @@ public class CombatSystem : IECSSystem
         if (!playerHandle.HasValue)
             return;
 
-        ref var playerPos = ref _world.GetComponent<Position>(playerHandle.Value);
-        ref var playerStats = ref _world.GetComponent<Stats>(playerHandle.Value);
+        ref var playerPos = ref world.GetComponent<Position>(playerHandle.Value);
+        ref var playerStats = ref world.GetComponent<Stats>(playerHandle.Value);
 
         // Track entities to destroy (can't destroy during iteration)
         var entitiesToDestroy = new List<EntityHandle>();
 
         // Check all enemies for combat
-        foreach (var enemyEntity in _world.CreateQuery<Enemy, Position, Stats>())
+        foreach (var enemyEntity in world.CreateQuery<Enemy, Position, Stats>())
         {
-            ref var enemyPos = ref _world.GetComponent<Position>(enemyEntity);
-            ref var enemyStats = ref _world.GetComponent<Stats>(enemyEntity);
+            ref var enemyPos = ref world.GetComponent<Position>(enemyEntity);
+            ref var enemyStats = ref world.GetComponent<Stats>(enemyEntity);
 
             // Combat occurs when entities are adjacent (including diagonals)
             if (IsAdjacent(playerPos, enemyPos))
@@ -84,8 +79,8 @@ public class CombatSystem : IECSSystem
         // Destroy dead entities
         foreach (var entity in entitiesToDestroy)
         {
-            _world.DestroyEntity(entity);
-        }
+            world.DestroyEntity(entity);
+    }
     }
 
     private static bool IsAdjacent(Position a, Position b)

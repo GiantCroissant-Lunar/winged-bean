@@ -2,7 +2,7 @@ name: Validate Issue Dependencies
 
 on:
   issues:
-    types: [assigned, labeled, edited]
+    types: [opened, reopened, assigned, labeled, unlabeled, edited]
 
 permissions:
   issues: write
@@ -19,6 +19,13 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
+      - name: Ensure GitHub CLI
+        run: |
+          if ! command -v gh >/dev/null 2>&1; then
+            sudo apt-get update && sudo apt-get install -y gh || echo "gh install skipped"
+          fi
+          gh --version
 
       - name: Validate dependencies
         env:

@@ -2,6 +2,7 @@ const pty = require("node-pty");
 const WebSocket = require("ws");
 const path = require("path");
 const RecordingManager = require("./recording-manager");
+const { getArtifactsPath } = require("../get-version");
 
 // WebSocket server configuration
 const WS_PORT = 4041;
@@ -20,8 +21,8 @@ const DOTNET_DLL = "ConsoleDungeon.Host.dll";
 
 console.log("Terminal.Gui PTY Service starting...");
 
-// Create recording manager
-const recordingsDir = path.resolve(__dirname, "../../../docs/recordings");
+// Create recording manager with versioned artifacts path (per RFC-0010)
+const recordingsDir = getArtifactsPath("pty", "recordings");
 const recordingManager = new RecordingManager(recordingsDir);
 console.log(`Recording manager initialized: ${recordingsDir}`);
 

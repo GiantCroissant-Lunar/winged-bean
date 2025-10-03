@@ -217,9 +217,10 @@ internal class LoadedPluginWrapper : ILoadedPlugin
 
     /// <summary>
     /// Set the registry for plugin activation.
+    /// Must be called before ActivateAsync() to enable OnActivateAsync() callback.
     /// </summary>
     /// <param name="registry">Service registry</param>
-    internal void SetRegistry(IRegistry registry)
+    public void SetRegistry(IRegistry registry)
     {
         _registry = registry;
     }

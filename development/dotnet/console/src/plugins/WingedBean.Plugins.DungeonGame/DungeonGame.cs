@@ -190,7 +190,7 @@ public class DungeonGame
         // Execute all systems
         foreach (var system in _systems)
         {
-            system.Execute(_ecs, deltaTime);
+            system.Execute(_ecs, _world, deltaTime);
         }
     }
 

@@ -14,6 +14,7 @@ public interface IECSSystem
     /// Execute system logic for this frame.
     /// </summary>
     /// <param name="ecs">The ECS service providing access to entities and components.</param>
+    /// <param name="world">The world this system should operate on.</param>
     /// <param name="deltaTime">Time elapsed since the last frame in seconds.</param>
-    void Execute(IECSService ecs, float deltaTime);
+    void Execute(IECSService ecs, IWorld world, float deltaTime);
 }

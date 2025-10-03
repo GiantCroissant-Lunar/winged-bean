@@ -42,8 +42,10 @@ public class ArchECSService : IECSService
         {
             if (!_defaultRuntimeHandle.IsValid)
             {
-                var existing = GetRuntimeWorlds().FirstOrDefault(handle => handle.IsValid);
-                _defaultRuntimeHandle = existing.IsValid ? existing : CreateRuntimeWorld("runtime-0");
+                var existing = GetRuntimeWorlds().FirstOrDefault();
+                _defaultRuntimeHandle = existing.IsValid && existing.Kind == WorldKind.Runtime
+                    ? existing
+                    : CreateRuntimeWorld("runtime-0");
             }
 
             return _defaultRuntimeHandle;

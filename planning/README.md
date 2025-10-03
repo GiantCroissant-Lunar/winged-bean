@@ -45,6 +45,12 @@ python3 planning/scripts/open_issues_from_plan.py --dry-run
 python3 planning/scripts/open_issues_from_plan.py
 ```
 
+When not using --dry-run, the script will:
+
+- Create issues in topological order so dependencies exist first
+- Write an issues map artifact to `build/_artifacts/issues-map.json`
+- Do a second pass to comment real "Blocked By: #<num>" on dependent issues and add the `status:blocked` label
+
 ## plan.yaml Format
 
 ```yaml
@@ -58,7 +64,7 @@ tasks:
   - id: TASK-ID
     desc: "Human-readable description"
     needs: [DEPENDENCY-1, DEPENDENCY-2]
-    labels: [agent:copilot, area:backend]
+    labels: [size:S, domain:backend]
     estimate: 8h
     files: [path/to/affected/files/]
     acceptance_criteria:
@@ -66,11 +72,13 @@ tasks:
       - "AC 2"
 ```
 
-## Agent Routing
+## Size & Domain Routing (tool-agnostic)
 
-- `agent:copilot` → GitHub Copilot Coding Agent (parallel leaves, <15 files)
-- `agent:cascade` → Windsurf Cascade (frontend, multi-file refactoring)
-- `agent:claude` → Claude Code (integration, risky changes, E2E)
+- `size:*` → Effort/complexity signal (XS, S, M, L, XL)
+  - XS/S ≈ small/simple; M/L/XL ≈ larger/complex
+- `domain:*` → Context of work, e.g. `domain:frontend`, `domain:backend`, `domain:infra`, `domain:docs`, `domain:test`
+
+These labels describe the nature and scope of the task (not which agent brand does it). Assignment can be manual or automated later based on size/domain.
 
 ## CI Integration
 
@@ -149,13 +157,13 @@ Update an existing plan based on feedback.
 ## Dependencies
 
 - Python 3.11+
-- `pyyaml` (for validation script)
+- `pyyaml`
 
 - Optional: Camel-AI OWL for advanced planning
 
 Install Python deps:
 ```bash
-pip install pyyaml networkx
+pip install pyyaml
 ```
 
 All planning scripts are Python 3.9+. No Node.js dependencies required.

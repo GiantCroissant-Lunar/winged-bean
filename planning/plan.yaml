@@ -10,24 +10,29 @@ meta:
     prefer_parallel_leaves: true
     test_coverage_threshold: 80
   routing:
-    # Routing rules for different agent types
-    copilot: "Parallelizable leaves with clear specs, <15 files, isolated changes"
-    cascade: "Frontend/UI work, multi-file refactoring, cross-cutting concerns"
-    claude: "Integration work, risky changes, E2E testing, architecture decisions"
+    # Size (effort) guidance (tool-agnostic)
+    size:XS: "≤1 hr"
+    size:S: "≈1–3 hrs"
+    size:M: "≈0.5–1 day"
+    size:L: "≈1–2 days"
+    size:XL: ">2 days"
+    domain:frontend: "UI, UX, rendering and input"
+    domain:backend: "Services, APIs, frameworks, data and logic"
+    domain:infra: "CI/CD, infra-as-code, deployment"
 
 tasks:
   # Example task structure - replace with actual project tasks
   - id: RFC-001
     desc: "Draft terminal emulation RFC with acceptance criteria"
     needs: []
-    labels: [doc, planner, rfc]
+    labels: [domain:docs, size:S]
     estimate: 2h
     files: [docs/rfcs/]
 
   - id: PTY-SERVICE
     desc: "Implement PTY service abstraction layer"
     needs: [RFC-001]
-    labels: [agent:copilot, area:backend, parallel-safe]
+    labels: [size:M, domain:backend, parallel:true]
     estimate: 8h
     files: [development/nodejs/pty-service/]
     acceptance_criteria:
@@ -39,7 +44,7 @@ tasks:
   - id: TERM-GUI-SHELL
     desc: "Create Terminal.Gui shell application"
     needs: [RFC-001]
-    labels: [agent:cascade, area:frontend, parallel-safe]
+    labels: [size:L, domain:frontend, parallel:true]
     estimate: 12h
     files: [development/dotnet/console/]
     acceptance_criteria:
@@ -51,7 +56,7 @@ tasks:
   - id: PTY-INTEGRATION
     desc: "Wire PTY service to Terminal.Gui shell"
     needs: [PTY-SERVICE, TERM-GUI-SHELL]
-    labels: [agent:claude, integration, test:e2e]
+    labels: [size:M, domain:integration, test:e2e]
     estimate: 6h
     files: [development/dotnet/console/, development/nodejs/pty-service/]
     acceptance_criteria:
@@ -63,7 +68,7 @@ tasks:
   - id: PLUGIN-API
     desc: "Design and implement plugin API interface"
     needs: [RFC-001]
-    labels: [agent:copilot, area:backend, architecture]
+    labels: [size:L, domain:backend, architecture]
     estimate: 10h
     files: [development/dotnet/framework/]
     acceptance_criteria:
@@ -75,7 +80,7 @@ tasks:
   - id: UNITY-PLUGIN
     desc: "Create Unity integration plugin"
     needs: [PLUGIN-API, PTY-INTEGRATION]
-    labels: [agent:cascade, area:unity, parallel-safe]
+    labels: [size:L, domain:unity, parallel:true]
     estimate: 16h
     files: [development/unity/]
     acceptance_criteria:
@@ -87,7 +92,7 @@ tasks:
   - id: DEPLOYMENT-SETUP
     desc: "Set up CI/CD pipeline and deployment infrastructure"
     needs: [PTY-INTEGRATION]
-    labels: [agent:claude, infra, deployment]
+    labels: [size:M, domain:infra, deployment]
     estimate: 8h
     files: [infra/terraform/, .github/workflows/]
     acceptance_criteria:

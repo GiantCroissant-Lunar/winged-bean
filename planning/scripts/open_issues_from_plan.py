@@ -19,6 +19,8 @@ import argparse
 import subprocess
 from pathlib import Path
 from typing import Dict, List, Any
+import json
+import re
 import yaml
 
 
@@ -149,6 +151,56 @@ def create_issue(task: Task, dry_run: bool) -> bool:
         sys.exit(1)
 
 
+def parse_issue_number_from_url(url: str) -> int | None:
+    """Extract issue number from GitHub issue URL."""
+    # Expected format: https://github.com/<owner>/<repo>/issues/<number>
+    m = re.search(r"/issues/(\d+)(?:$|\s|#)", url)
+    if m:
+        return int(m.group(1))
+    # Fallback: last path segment if digits
+    try:
+        tail = url.rstrip("/\n").split("/")[-1]
+        return int(tail) if tail.isdigit() else None
+    except Exception:
+        return None
+
+
+def gh_issue_comment(issue_number: int, body: str, dry_run: bool) -> bool:
+    """Add a comment to an issue."""
+    if dry_run:
+        print(f"Would comment on issue #{issue_number}:\n{body}")
+        return True
+    try:
+        subprocess.run(
+            ["gh", "issue", "comment", str(issue_number), "--body", body],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Failed to comment on issue #{issue_number}: {e.stderr}", file=sys.stderr)
+        return False
+
+
+def gh_issue_add_label(issue_number: int, label: str, dry_run: bool) -> bool:
+    """Add a label to an issue."""
+    if dry_run:
+        print(f"Would add label '{label}' to issue #{issue_number}")
+        return True
+    try:
+        subprocess.run(
+            ["gh", "issue", "edit", str(issue_number), "--add-label", label],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Failed to add label to issue #{issue_number}: {e.stderr}", file=sys.stderr)
+        return False
+
+
 def topological_sort(plan: Plan) -> List[Task]:
     """
     Sort tasks in topological order so dependencies are created first.
@@ -162,9 +214,10 @@ def topological_sort(plan: Plan) -> List[Task]:
 
     # Calculate in-degrees
     for task in plan.tasks:
+        # Edge is dep -> task.id, so increment in-degree of the dependent
         for dep in task.needs:
-            if dep in in_degree:
-                in_degree[dep] += 1
+            if task.id in in_degree:
+                in_degree[task.id] += 1
 
     # Find nodes with no incoming edges (dependencies)
     queue = [task_id for task_id, degree in in_degree.items() if degree == 0]
@@ -186,6 +239,14 @@ def topological_sort(plan: Plan) -> List[Task]:
                     in_degree[other_task.id] -= 1
                     if in_degree[other_task.id] == 0:
                         queue.append(other_task.id)
+
+    # If there was a cycle or unknown dependency, some tasks may remain
+    if len(sorted_tasks) != len(plan.tasks):
+        remaining = set(t.id for t in plan.tasks) - set(t.id for t in sorted_tasks)
+        print(
+            f"⚠️  Warning: {len(remaining)} task(s) could not be ordered due to cycles or missing deps: {sorted(list(remaining))}",
+            file=sys.stderr,
+        )
 
     return sorted_tasks
 
@@ -231,14 +292,60 @@ def main():
     # Create issues
     success_count = 0
     fail_count = 0
+    task_to_issue: Dict[str, int] = {}
 
     for task in sorted_tasks:
-        if create_issue(task, args.dry_run):
+        if args.dry_run:
+            # Dry-run: simulate creation only
+            if create_issue(task, True):
+                success_count += 1
+            else:
+                fail_count += 1
+            continue
+
+        # Real creation
+        title = f"{task.id}: {task.desc}"
+        body = build_issue_body(task)
+        labels = ",".join(task.labels) if task.labels else ""
+        cmd = ["gh", "issue", "create", "--title", title, "--body", body]
+        if labels:
+            cmd.extend(["--label", labels])
+
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            issue_url = result.stdout.strip()
+            num = parse_issue_number_from_url(issue_url)
+            if num is not None:
+                task_to_issue[task.id] = num
+            print(f"✅ Created issue: {title}")
+            print(f"   {issue_url}")
             success_count += 1
-        else:
+        except subprocess.CalledProcessError as e:
+            print(f"❌ Failed to create issue: {title}", file=sys.stderr)
+            print(f"   Error: {e.stderr.strip()}", file=sys.stderr)
             fail_count += 1
-            if not args.dry_run:
-                print("Continuing with remaining tasks...\n")
+            print("Continuing with remaining tasks...\n")
+
+    # Write issues map artifact (only when not dry-run)
+    if not args.dry_run:
+        artifacts_dir = repo_root / "build" / "_artifacts"
+        artifacts_dir.mkdir(parents=True, exist_ok=True)
+        issues_map_path = artifacts_dir / "issues-map.json"
+        with open(issues_map_path, "w") as f:
+            json.dump({k: v for k, v in sorted(task_to_issue.items())}, f, indent=2)
+        print(f"📝 Wrote issues map: {issues_map_path}")
+
+        # Second pass: add real Blocked By references and status label
+        for task in sorted_tasks:
+            this_num = task_to_issue.get(task.id)
+            if not this_num:
+                continue
+            if task.needs:
+                blocker_nums = [task_to_issue.get(dep) for dep in task.needs if task_to_issue.get(dep)]
+                if blocker_nums:
+                    comment = "Blocked By: " + ", ".join(f"#{n}" for n in blocker_nums)
+                    gh_issue_comment(this_num, comment, dry_run=False)
+                    gh_issue_add_label(this_num, "status:blocked", dry_run=False)
 
     # Summary
     print("\n" + "=" * 80)

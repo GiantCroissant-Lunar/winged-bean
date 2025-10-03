@@ -11,39 +11,35 @@ public class MovementSystem : IECSSystem
 {
     private const int DungeonWidth = 80;
     private const int DungeonHeight = 24;
-    private IWorld? _world;
 
-    public void Execute(IECSService ecs, float deltaTime)
+    public void Execute(IECSService ecs, IWorld world, float deltaTime)
     {
-        // Get or create the world reference
-        _world ??= ecs.GetWorld(0) ?? ecs.CreateWorld();
-
         // Query all entities with Position components
         // Movement is typically triggered by input handlers that modify Position directly
         // This system ensures positions stay within bounds
-        foreach (var entity in _world.CreateQuery<Position>())
+        foreach (var entity in world.CreateQuery<Position>())
         {
-            ref var pos = ref _world.GetComponent<Position>(entity);
+            ref var pos = ref world.GetComponent<Position>(entity);
 
             // Clamp to dungeon bounds
             pos.X = Math.Clamp(pos.X, 0, DungeonWidth - 1);
             pos.Y = Math.Clamp(pos.Y, 0, DungeonHeight - 1);
 
             // Check for collisions with blocking entities
-            if (_world.HasComponent<Player>(entity))
+            if (world.HasComponent<Player>(entity))
             {
                 // Check if there's a blocking entity at the player's position
-                foreach (var otherEntity in _world.CreateQuery<Position>())
+                foreach (var otherEntity in world.CreateQuery<Position>())
                 {
                     if (entity == otherEntity)
                         continue;
 
                     // Only check entities with Blocking component
-                    if (!_world.HasComponent<Blocking>(otherEntity))
+                    if (!world.HasComponent<Blocking>(otherEntity))
                         continue;
 
-                    ref var otherPos = ref _world.GetComponent<Position>(otherEntity);
-                    var blocking = _world.GetComponent<Blocking>(otherEntity);
+                    ref var otherPos = ref world.GetComponent<Position>(otherEntity);
+                    var blocking = world.GetComponent<Blocking>(otherEntity);
 
                     // If positions overlap and entity blocks movement
                     if (pos.X == otherPos.X && pos.Y == otherPos.Y && pos.Floor == otherPos.Floor &&
