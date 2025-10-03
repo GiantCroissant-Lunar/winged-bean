@@ -78,10 +78,10 @@ repos:
     hooks:
       - id: terraform_fmt
         files: ^infra/terraform/.*\.tf$
-  stages: [manual]
+        stages: [manual]
       - id: terraform_validate
         files: ^infra/terraform/.*\.tf$
-  stages: [manual]
+        stages: [manual]
       # terraform_tflint requires tflint installation, disabled for now
       # - id: terraform_tflint
       #   files: ^infra/terraform/.*\.tf$

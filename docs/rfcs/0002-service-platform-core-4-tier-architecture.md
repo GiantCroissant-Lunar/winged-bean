@@ -81,6 +81,9 @@ Like pinto-bean, winged-bean is a **cross-profile service platform** where servi
                                           ↓
 ┌────────────────────────────────────────────────────────────────────────────────────┐
 │ Tier 3: Adapters (Cross-Cutting Concerns, Profile-Aware)                          │
+│ NOTE: These are REAL services with full implementations, not just wrappers.       │
+│       "Adapter" refers to the design pattern - they adapt providers with enhanced │
+│       functionality (resilience, telemetry, etc.) across different profiles.      │
 │ - Resilience: IResilienceExecutor (Polly-based retry, circuit breaker, timeout)   │
 │ - Load Context: ILoadContext (ALC on .NET/Godot, HybridCLR on Unity, N/A on Web)  │
 │ - Telemetry: IAspectRuntime (OpenTelemetry traces, metrics, logs)                 │
@@ -316,6 +319,12 @@ public partial class PtyService : IPtyService
 #### Tier 3: Adapters (Cross-Cutting Concerns)
 
 **Profile-aware adapters that wrap Tier-4 providers.**
+
+> **Important**: These are **real services** with full implementations, not just simple wrappers.
+> The term "adapter" comes from the Adapter design pattern - they adapt and enhance Tier-4
+> providers with cross-cutting concerns (resilience, telemetry, scheduling, etc.) while
+> remaining profile-aware. They contain substantial business logic and are registered in the
+> DI container like any other service.
 
 **Resilience Adapter:**
 
