@@ -91,7 +91,7 @@ projects/dotnet/console/
 │       └── ConsoleDungeon.Host.csproj     # References ConsoleDungeon
 │
 ├── tests/
-│   └── ConsoleDungeon.Tests/              # NEW: Test project (placeholder)
+│   └── WingedBean.Plugins.DungeonGame.Tests/ # Plugin-level gameplay tests
 │
 ├── Console.sln                            # NEW: Solution file
 └── README.md                              # NEW: Documentation

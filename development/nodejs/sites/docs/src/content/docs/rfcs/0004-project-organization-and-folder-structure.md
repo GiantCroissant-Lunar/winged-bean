@@ -84,10 +84,10 @@ projects/dotnet/
 │   │   ├── WingedBean.Plugins.PtyService/       # Tier 3: PTY service (existing)
 │   │   ├── WingedBean.Plugins.AsciinemaRecorder/ # Tier 3: Recording (existing)
 │   │   │
-│   │   └── ConsoleDungeon/                      # The TUI application
+│   │   └── ConsoleDungeon/                      # TUI shell that renders gameplay from plugins
 │   │
 │   ├── tests/
-│   │   ├── ConsoleDungeon.Tests/
+│   │   ├── WingedBean.Plugins.DungeonGame.Tests/
 │   │   ├── WingedBean.PluginLoader.Tests/
 │   │   └── WingedBean.Plugins.*.Tests/
 │   │
@@ -331,7 +331,7 @@ The existing `console-dungeon` app demonstrates:
    │       └── ConsoleDungeon.Host.csproj
    │
    ├── tests/
-   │   └── ConsoleDungeon.Tests/
+   │   └── WingedBean.Plugins.DungeonGame.Tests/
    │
    └── Console.sln
    ```

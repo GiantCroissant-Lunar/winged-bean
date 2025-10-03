@@ -241,7 +241,7 @@ Based on Arch ECS benchmarks:
 - `ArchEntityTests`: 13 tests for entity operations
 - `ArchQueryTests`: 11 tests for query operations
 
-**System Tests** (`ConsoleDungeon.Tests`):
+**System Tests** (`WingedBean.Plugins.DungeonGame.Tests`):
 - `MovementSystemTests`: 6 tests for movement logic
 - `CombatSystemTests`: 6 tests for combat mechanics
 - `AISystemTests`: 6 tests for AI behavior
