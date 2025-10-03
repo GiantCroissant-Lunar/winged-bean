@@ -72,6 +72,10 @@ class FrontmatterValidator:
 
             # Check for YAML frontmatter delimiters
             if not lines or not lines[0].strip() == '---':
+                self.errors.append(FrontmatterError(
+                    file_path,
+                    "Missing frontmatter: file must start with '---' delimiter"
+                ))
                 return None
 
             # Find closing delimiter
