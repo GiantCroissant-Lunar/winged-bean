@@ -1,3 +1,12 @@
+---
+id: RFC-0001
+title: Asciinema Recording for PTY Sessions
+status: Proposed
+category: pty, recording, tooling
+created: 2025-09-30
+updated: 2025-09-30
+---
+
 # RFC-0001: Asciinema Recording for PTY Sessions
 
 ## Status

@@ -1,3 +1,10 @@
+---
+id: ADR-0001
+title: Use Astro.js with asciinema player
+status: Accepted
+date: 2025-09-29
+---
+
 # ADR-0001: Use Astro.js with asciinema player
 
 ## Status

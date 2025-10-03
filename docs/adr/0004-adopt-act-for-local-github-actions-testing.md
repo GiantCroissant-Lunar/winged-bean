@@ -1,3 +1,10 @@
+---
+id: ADR-0004
+title: Adopt act for Local GitHub Actions Testing
+status: Accepted
+date: 2025-09-29
+---
+
 # ADR-0004: Adopt act for Local GitHub Actions Testing
 
 ## Status

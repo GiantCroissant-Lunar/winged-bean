@@ -1,3 +1,12 @@
+---
+id: RFC-0003
+title: Plugin Architecture Foundation
+status: Draft
+category: architecture, plugins
+created: 2025-09-30
+updated: 2025-09-30
+---
+
 # RFC-0003: Plugin Architecture Foundation
 
 ## Status

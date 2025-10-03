@@ -1,3 +1,12 @@
+---
+id: RFC-0005
+title: Target Framework Compliance for Multi-Platform Support
+status: Implemented
+category: dotnet, framework, compatibility
+created: 2025-10-01
+updated: 2025-10-01
+---
+
 # RFC-0005: Target Framework Compliance for Multi-Platform Support
 
 ## Status

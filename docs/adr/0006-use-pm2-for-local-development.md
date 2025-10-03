@@ -1,3 +1,10 @@
+---
+id: ADR-0006
+title: Use PM2 for Local Development Workflow
+status: Accepted
+date: 2025-09-30
+---
+
 # ADR-0006: Use PM2 for Local Development Workflow
 
 **Status:** Accepted

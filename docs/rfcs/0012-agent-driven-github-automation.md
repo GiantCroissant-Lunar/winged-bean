@@ -1,13 +1,13 @@
-# RFC-0012: Agent-Driven GitHub Automation
-
 ---
-id: 0012
+id: RFC-0012
 title: Agent-Driven GitHub Automation
 status: Draft
-category: infra, tooling
+category: infra, tooling, automation
 created: 2025-10-02
-author: GitHub Copilot
+updated: 2025-10-02
 ---
+
+# RFC-0012: Agent-Driven GitHub Automation
 
 ## Summary
 

@@ -1,3 +1,10 @@
+---
+id: ADR-0002
+title: Use Native Tools for Pre-commit Hooks
+status: Accepted
+date: 2025-09-29
+---
+
 # ADR-0002: Use Native Tools for Pre-commit Hooks
 
 ## Status

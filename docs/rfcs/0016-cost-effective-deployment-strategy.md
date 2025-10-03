@@ -1,11 +1,22 @@
+---
+id: RFC-0016
+title: Cost-Effective Deployment Strategy with Vercel and Fly.io
+status: Proposed
+category: infra, deployment
+created: 2025-10-02
+updated: 2025-10-02
+priority: P2
+effort: 6-8 hours
+---
+
 # RFC-0016: Cost-Effective Deployment Strategy with Vercel and Fly.io
 
-**Status:** Proposed  
-**Date:** 2025-10-02  
-**Author:** Development Team  
-**Category:** infra, deployment  
-**Priority:** MEDIUM (P2)  
-**Estimated Effort:** 6-8 hours  
+**Status:** Proposed
+**Date:** 2025-10-02
+**Author:** Development Team
+**Category:** infra, deployment
+**Priority:** MEDIUM (P2)
+**Estimated Effort:** 6-8 hours
 
 ---
 

@@ -1,3 +1,10 @@
+---
+id: ADR-0003
+title: Implement Security and Quality Pre-commit Hooks
+status: Accepted
+date: 2025-09-29
+---
+
 # ADR-0003: Implement Security and Quality Pre-commit Hooks
 
 ## Status

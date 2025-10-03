@@ -1,3 +1,14 @@
+---
+id: RFC-0010
+title: Multi-Language Build Orchestration with Task
+status: Implemented
+category: infra, tooling, build
+created: 2025-10-02
+updated: 2025-10-02
+priority: P1
+effort: 4-6 hours
+---
+
 # RFC-0010: Multi-Language Build Orchestration with Task
 
 **Status:** Implemented

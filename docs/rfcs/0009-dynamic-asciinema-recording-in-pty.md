@@ -1,11 +1,22 @@
+---
+id: RFC-0009
+title: Dynamic Asciinema Recording in PTY Service
+status: Implemented
+category: pty, recording, tooling
+created: 2025-10-01
+updated: 2025-10-01
+priority: P1
+effort: 2.5 hours
+---
+
 # RFC-0009: Dynamic Asciinema Recording in PTY Service
 
-**Status:** ✅ Implemented  
-**Date:** 2025-10-01  
-**Completed:** 2025-10-01  
-**Author:** Development Team  
-**Priority:** HIGH (P1)  
-**Actual Effort:** 2.5 hours  
+**Status:** ✅ Implemented
+**Date:** 2025-10-01
+**Completed:** 2025-10-01
+**Author:** Development Team
+**Priority:** HIGH (P1)
+**Actual Effort:** 2.5 hours
 
 ---
 

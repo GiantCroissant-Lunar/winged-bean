@@ -1,3 +1,12 @@
+---
+id: RFC-0006
+title: Dynamic Plugin Loading and Runtime Composition
+status: Implemented
+category: plugins, architecture
+created: 2025-10-01
+updated: 2025-10-01
+---
+
 # RFC-0006: Dynamic Plugin Loading and Runtime Composition
 
 ## Status

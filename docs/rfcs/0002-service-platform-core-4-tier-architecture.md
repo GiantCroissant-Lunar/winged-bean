@@ -1,3 +1,12 @@
+---
+id: RFC-0002
+title: Service Platform Core (4-Tier, Multi-Profile Architecture)
+status: Draft
+category: architecture, platform
+created: 2025-09-30
+updated: 2025-09-30
+---
+
 # RFC-0002: Service Platform Core (4-Tier, Multi-Profile Architecture)
 
 ## Status
