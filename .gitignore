@@ -1,3 +1,7 @@
+## Build (NUKE) temp artifacts
+build/nuke/.nuke/temp/
+build/nuke/.nuke/*.log
+
 .vscode/
 
 ref-projects/

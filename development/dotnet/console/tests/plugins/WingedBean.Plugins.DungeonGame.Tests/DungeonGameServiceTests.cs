@@ -101,6 +101,57 @@ public class DungeonGameServiceTests
         entities.Select(e => e.RenderLayer).Should().OnlyContain(layer => layer >= 0);
     }
 
+
+    [Fact]
+    public void RuntimeWorldHandle_IsValidAfterInitialize()
+    {
+        var service = new DungeonGameService(_registry);
+        service.Initialize();
+
+        service.RuntimeWorldHandle.IsValid.Should().BeTrue();
+        service.RuntimeWorldHandle.Kind.Should().Be(WorldKind.Runtime);
+        service.RuntimeWorlds.Should().Contain(service.RuntimeWorldHandle);
+    }
+
+    [Fact]
+    public void SetMode_RaisesModeChanged()
+    {
+        var service = new DungeonGameService(_registry);
+        service.Initialize();
+
+        GameMode observed = service.CurrentMode;
+        service.ModeChanged += (_, mode) => observed = mode;
+
+        service.SetMode(GameMode.EditOverlay);
+
+        observed.Should().Be(GameMode.EditOverlay);
+        service.CurrentMode.Should().Be(GameMode.EditOverlay);
+    }
+
+    [Fact]
+    public void CreateRuntimeWorld_ReturnsHandleAndInitializes()
+    {
+        var service = new DungeonGameService(_registry);
+        service.Initialize();
+
+        var handle = service.CreateRuntimeWorld("test-world");
+
+        handle.IsValid.Should().BeTrue();
+        service.RuntimeWorlds.Should().Contain(handle);
+    }
+
+    [Fact]
+    public void SwitchRuntimeWorld_ChangesActiveWorld()
+    {
+        var service = new DungeonGameService(_registry);
+        service.Initialize();
+
+        var handle = service.CreateRuntimeWorld("secondary");
+        service.SwitchRuntimeWorld(handle);
+
+        service.RuntimeWorldHandle.Should().Be(handle);
+    }
+
     private sealed class TestRegistry : IRegistry
     {
         private readonly Dictionary<Type, List<Entry>> _services = new();

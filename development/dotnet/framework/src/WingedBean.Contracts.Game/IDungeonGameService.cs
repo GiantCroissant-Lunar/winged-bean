@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using WingedBean.Contracts.ECS;
 
 namespace WingedBean.Contracts.Game;
@@ -49,6 +50,21 @@ public interface IDungeonGameService
     /// Updates when HP, MP, level, etc. change.
     /// </summary>
     IObservable<PlayerStats> PlayerStatsObservable { get; }
+
+    WorldHandle RuntimeWorldHandle { get; }
+
+    IEnumerable<WorldHandle> RuntimeWorlds { get; }
+
+    GameMode CurrentMode { get; }
+
+    event EventHandler<GameMode>? ModeChanged;
+
+    void SetMode(GameMode mode);
+
+    WorldHandle CreateRuntimeWorld(string name);
+
+    void SwitchRuntimeWorld(WorldHandle handle);
+
 
     /// <summary>
     /// Direct access to ECS world for advanced queries.

@@ -16,6 +16,7 @@ public class DungeonGame
     private readonly List<IECSSystem> _systems = new();
     private DateTime _lastUpdateTime;
     private bool _isInitialized = false;
+    private WorldHandle _runtimeHandle = WorldHandle.Invalid;
 
     public DungeonGame(IRegistry registry)
     {
@@ -33,9 +34,9 @@ public class DungeonGame
 
         Console.WriteLine("Initializing DungeonGame with ECS...");
 
-        // Create the ECS world
-        _world = _ecs.CreateWorld();
-        Console.WriteLine($"✓ ECS World created (ID: {_world.EntityCount})");
+        // Resolve default runtime world but delay population until systems registered
+        EnsureRuntimeWorld(_ecs.DefaultRuntimeWorld, populateIfEmpty: false);
+        Console.WriteLine($"✓ Runtime world ready ({_runtimeHandle})");
 
         // Register systems in execution order
         RegisterSystems();
@@ -62,6 +63,11 @@ public class DungeonGame
 
     private void InitializeWorld()
     {
+        if (_world.EntityCount > 0)
+        {
+            return;
+        }
+
         // Create the player entity
         CreatePlayer();
 
@@ -235,4 +241,38 @@ public class DungeonGame
     /// Get the number of entities in the world.
     /// </summary>
     public int EntityCount => _world?.EntityCount ?? 0;
+
+    public WorldHandle RuntimeHandle => _runtimeHandle;
+
+    public void EnsureRuntimeWorld(WorldHandle handle)
+    {
+        EnsureRuntimeWorld(handle, populateIfEmpty: true);
+    }
+
+    public void SwitchRuntimeWorld(WorldHandle handle)
+    {
+        EnsureRuntimeWorld(handle, populateIfEmpty: true);
+    }
+
+    private void EnsureRuntimeWorld(WorldHandle handle, bool populateIfEmpty)
+    {
+        if (!handle.IsValid)
+        {
+            throw new ArgumentException("Runtime world handle is invalid", nameof(handle));
+        }
+
+        var world = _ecs.GetWorld(handle);
+        if (world == null)
+        {
+            throw new InvalidOperationException($"Runtime world '{handle}' does not exist.");
+        }
+
+        _runtimeHandle = handle;
+        _world = world;
+
+        if (populateIfEmpty && _world.EntityCount == 0)
+        {
+            InitializeWorld();
+        }
+    }
 }

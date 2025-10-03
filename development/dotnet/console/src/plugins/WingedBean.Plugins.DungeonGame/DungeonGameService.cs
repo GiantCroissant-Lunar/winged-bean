@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reactive.Subjects;
 using WingedBean.Contracts.Core;
 using WingedBean.Contracts.ECS;
@@ -10,22 +9,28 @@ using WingedBean.Plugins.DungeonGame.Components;
 namespace WingedBean.Plugins.DungeonGame;
 
 /// <summary>
-/// Implementation of IDungeonGameService with reactive patterns.
+/// Implementation of IDungeonGameService with reactive patterns and multi-world support.
 /// Wraps the core DungeonGame class and exposes observables for game state.
 /// </summary>
-public class DungeonGameService : IDungeonGameService
+public class DungeonGameService : IDungeonGameService, IDisposable
 {
     private readonly IRegistry _registry;
+    private readonly IECSService _ecs;
     private readonly DungeonGame _game;
 
     private readonly BehaviorSubject<GameState> _gameStateSubject;
     private readonly BehaviorSubject<IReadOnlyList<EntitySnapshot>> _entitiesSubject;
     private readonly BehaviorSubject<PlayerStats> _playerStatsSubject;
 
+    public event EventHandler<GameMode>? ModeChanged;
+
     public DungeonGameService(IRegistry registry)
     {
         _registry = registry ?? throw new ArgumentNullException(nameof(registry));
+        _ecs = _registry.Get<IECSService>();
         _game = new DungeonGame(registry);
+
+        _ecs.ModeChanged += HandleModeChanged;
 
         _gameStateSubject = new BehaviorSubject<GameState>(GameState.NotStarted);
         _entitiesSubject = new BehaviorSubject<IReadOnlyList<EntitySnapshot>>(Array.Empty<EntitySnapshot>());
@@ -35,6 +40,7 @@ public class DungeonGameService : IDungeonGameService
     public void Initialize()
     {
         _game.Initialize();
+        _ecs.SetMode(GameMode.Play);
         _gameStateSubject.OnNext(GameState.Running);
         UpdateSnapshots();
     }
@@ -51,16 +57,20 @@ public class DungeonGameService : IDungeonGameService
         _gameStateSubject.OnCompleted();
         _entitiesSubject.OnCompleted();
         _playerStatsSubject.OnCompleted();
+        _ecs.ModeChanged -= HandleModeChanged;
     }
 
     public void HandleInput(GameInput input)
     {
-        if (_game.World == null) return;
-
-        // Find player and apply input
-        foreach (var entity in _game.World.CreateQuery<Player, Components.Position>())
+        var world = _game.World;
+        if (world == null)
         {
-            ref var pos = ref _game.World.GetComponent<Components.Position>(entity);
+            return;
+        }
+
+        foreach (var entity in world.CreateQuery<Player, Components.Position>())
+        {
+            ref var pos = ref world.GetComponent<Components.Position>(entity);
 
             switch (input.Type)
             {
@@ -81,25 +91,53 @@ public class DungeonGameService : IDungeonGameService
                     break;
             }
 
-            break; // Only one player
+            break;
         }
 
         UpdateSnapshots();
     }
 
+    public WorldHandle RuntimeWorldHandle => _game.RuntimeHandle;
+
+    public IEnumerable<WorldHandle> RuntimeWorlds => _ecs.GetRuntimeWorlds();
+
+    public GameMode CurrentMode => _ecs.CurrentMode;
+
+    public void SetMode(GameMode mode)
+    {
+        _ecs.SetMode(mode);
+    }
+
+    public WorldHandle CreateRuntimeWorld(string name)
+    {
+        var handle = _ecs.CreateRuntimeWorld(name);
+        _game.EnsureRuntimeWorld(handle);
+        UpdateSnapshots();
+        return handle;
+    }
+
+    public void SwitchRuntimeWorld(WorldHandle handle)
+    {
+        _game.SwitchRuntimeWorld(handle);
+        UpdateSnapshots();
+    }
+
     private void UpdateSnapshots()
     {
-        if (_game.World == null) return;
-
-        // Update entity snapshots
-        var snapshots = new List<EntitySnapshot>();
-        foreach (var entity in _game.World.CreateQuery<Components.Position, Renderable>())
+        var world = _game.World;
+        if (world == null)
         {
-            var pos = _game.World.GetComponent<Components.Position>(entity);
-            var render = _game.World.GetComponent<Renderable>(entity);
+            return;
+        }
+
+        var snapshots = new List<EntitySnapshot>();
+        foreach (var entity in world.CreateQuery<Components.Position, Renderable>())
+        {
+            var pos = world.GetComponent<Components.Position>(entity);
+            var render = world.GetComponent<Renderable>(entity);
 
             snapshots.Add(new EntitySnapshot(
-                Guid.NewGuid(), // TODO: Add proper entity ID tracking
+                Guid.NewGuid(),
                 new Contracts.Game.Position(pos.X, pos.Y, pos.Floor),
                 render.Symbol,
                 render.ForegroundColor,
@@ -109,10 +147,9 @@ public class DungeonGameService : IDungeonGameService
         }
         _entitiesSubject.OnNext(snapshots);
 
-        // Update player stats
-        foreach (var entity in _game.World.CreateQuery<Player, Stats>())
+        foreach (var entity in world.CreateQuery<Player, Stats>())
         {
-            var stats = _game.World.GetComponent<Stats>(entity);
+            var stats = world.GetComponent<Stats>(entity);
             var playerStats = new PlayerStats(
                 stats.CurrentHP,
                 stats.MaxHP,
@@ -126,8 +163,13 @@ public class DungeonGameService : IDungeonGameService
                 stats.Defense
             );
             _playerStatsSubject.OnNext(playerStats);
-            break; // Only one player
+            break;
         }
+    }
+
+    private void HandleModeChanged(object? sender, GameMode mode)
+    {
+        ModeChanged?.Invoke(this, mode);
     }
 
     public IObservable<GameState> GameStateObservable => _gameStateSubject;
@@ -136,4 +178,9 @@ public class DungeonGameService : IDungeonGameService
     public IWorld? World => _game.World;
     public GameState CurrentState => _gameStateSubject.Value;
     public PlayerStats CurrentPlayerStats => _playerStatsSubject.Value;
+
+    public void Dispose()
+    {
+        _ecs.ModeChanged -= HandleModeChanged;
+    }
 }

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using WingedBean.Contracts.Core;
+using WingedBean.Contracts.ECS;
 using WingedBean.Contracts.Game;
 using WingedBean.Contracts.TerminalUI;
 using WingedBean.Contracts.WebSocket;
@@ -28,6 +29,9 @@ public sealed class Program : IDisposable
     private readonly object _stateLock = new();
     private IReadOnlyList<EntitySnapshot> _currentEntities = Array.Empty<EntitySnapshot>();
     private PlayerStats _currentPlayerStats = EmptyPlayerStats();
+    private readonly List<WorldHandle> _runtimeWorlds = new();
+    private int _currentWorldIndex;
+    private GameMode _cachedMode = GameMode.Play;
 
     private IDisposable? _entitiesSubscription;
     private IDisposable? _playerStatsSubscription;
@@ -53,6 +57,9 @@ public sealed class Program : IDisposable
         _gameService = _registry.Get<IDungeonGameService>();
         SubscribeToGameStreams();
         _gameService.Initialize();
+        _cachedMode = _gameService.CurrentMode;
+        _gameService.ModeChanged += OnModeChanged;
+        RefreshRuntimeWorlds();
 
         TryLoadWebSocketService();
         TryLoadTerminalUIService();
@@ -210,7 +217,10 @@ public sealed class Program : IDisposable
             entityCount = _currentEntities.Count;
         }
 
-        _statsLabel.Text = $"HP: {stats.CurrentHP}/{stats.MaxHP}  " +
+        var mode = _gameService?.CurrentMode ?? GameMode.Play;
+        var worldHandle = _gameService?.RuntimeWorldHandle ?? WorldHandle.Invalid;
+
+        _statsLabel.Text = $"Mode: {mode}  World: {FormatWorld(worldHandle)}  HP: {stats.CurrentHP}/{stats.MaxHP}  " +
                            $"MP: {stats.CurrentMana}/{stats.MaxMana}  " +
                            $"Lvl: {stats.Level}  " +
                            $"XP: {stats.Experience}  " +
@@ -238,6 +248,18 @@ public sealed class Program : IDisposable
             case Key.D or Key.CursorRight:
                 _gameService.HandleInput(new GameInput(InputType.MoveRight));
                 break;
+            case Key.M:
+                CycleGameMode();
+                break;
+            case Key.C:
+                CreateAndSwitchRuntimeWorld();
+                break;
+            case Key.Tab:
+                CycleRuntimeWorld();
+                break;
+            case Key.Tab | Key.ShiftMask:
+                CycleRuntimeWorld(forward: false);
+                break;
             case Key.Q:
                 _gameService.HandleInput(new GameInput(InputType.Quit));
                 _gameRunning = false;
@@ -259,6 +281,8 @@ public sealed class Program : IDisposable
     private string GetGameScreenContent()
     {
         var (entities, stats) = GetCurrentState();
+        var mode = _gameService?.CurrentMode ?? GameMode.Play;
+        var worldHandle = _gameService?.RuntimeWorldHandle ?? WorldHandle.Invalid;
 
         var sb = new StringBuilder();
         sb.Append("\x1b[H\x1b[2J");
@@ -285,7 +309,7 @@ public sealed class Program : IDisposable
         }
 
         sb.Append($"\x1b[{TargetHeight + 1};1H");
-        sb.Append($"HP: {stats.CurrentHP}/{stats.MaxHP}  MP: {stats.CurrentMana}/{stats.MaxMana}  ");
+        sb.Append($"Mode: {mode}  World: {FormatWorld(worldHandle)}  HP: {stats.CurrentHP}/{stats.MaxHP}  MP: {stats.CurrentMana}/{stats.MaxMana}  ");
         sb.Append($"Lvl: {stats.Level}  XP: {stats.Experience}");
 
         return sb.ToString();
@@ -332,6 +356,19 @@ public sealed class Program : IDisposable
             case "arrowright":
                 _gameService.HandleInput(new GameInput(InputType.MoveRight));
                 break;
+            case "m":
+                CycleGameMode();
+                break;
+            case "c":
+                CreateAndSwitchRuntimeWorld();
+                break;
+            case "tab":
+                CycleRuntimeWorld();
+                break;
+            case "shift+tab":
+            case "backtab":
+                CycleRuntimeWorld(forward: false);
+                break;
         }
     }
 
@@ -366,6 +403,96 @@ public sealed class Program : IDisposable
             }
         }));
     }
+
+    private void CycleGameMode(bool forward = true)
+    {
+        if (_gameService == null)
+        {
+            return;
+        }
+
+        var modes = new[] { GameMode.Play, GameMode.EditOverlay, GameMode.EditPaused };
+        var currentIndex = Array.IndexOf(modes, _gameService.CurrentMode);
+        if (currentIndex < 0)
+        {
+            currentIndex = 0;
+        }
+        currentIndex = forward
+            ? (currentIndex + 1) % modes.Length
+            : (currentIndex - 1 + modes.Length) % modes.Length;
+
+        _gameService.SetMode(modes[currentIndex]);
+        _cachedMode = modes[currentIndex];
+        UpdateStatsLabel();
+    }
+
+    private void CreateAndSwitchRuntimeWorld()
+    {
+        if (_gameService == null)
+        {
+            return;
+        }
+
+        var handle = _gameService.CreateRuntimeWorld($"runtime-{DateTime.Now:HHmmss}");
+        _gameService.SwitchRuntimeWorld(handle);
+        RefreshRuntimeWorlds();
+        UpdateStatsLabel();
+    }
+
+    private void CycleRuntimeWorld(bool forward = true)
+    {
+        if (_gameService == null)
+        {
+            return;
+        }
+
+        RefreshRuntimeWorlds();
+        if (_runtimeWorlds.Count == 0)
+        {
+            return;
+        }
+
+        var currentHandle = _gameService.RuntimeWorldHandle;
+        var currentIndex = _runtimeWorlds.FindIndex(handle => handle.Equals(currentHandle));
+        if (currentIndex < 0)
+        {
+            currentIndex = 0;
+        }
+
+        currentIndex = forward
+            ? (currentIndex + 1) % _runtimeWorlds.Count
+            : (currentIndex - 1 + _runtimeWorlds.Count) % _runtimeWorlds.Count;
+
+        var target = _runtimeWorlds[currentIndex];
+        _gameService.SwitchRuntimeWorld(target);
+        RefreshRuntimeWorlds();
+        UpdateStatsLabel();
+    }
+
+    private void RefreshRuntimeWorlds()
+    {
+        if (_gameService == null)
+        {
+            return;
+        }
+
+        _runtimeWorlds.Clear();
+        _runtimeWorlds.AddRange(_gameService.RuntimeWorlds);
+        _currentWorldIndex = _runtimeWorlds.FindIndex(handle => handle.Equals(_gameService.RuntimeWorldHandle));
+        if (_currentWorldIndex < 0 && _runtimeWorlds.Count > 0)
+        {
+            _currentWorldIndex = 0;
+        }
+    }
+
+    private void OnModeChanged(object? sender, GameMode mode)
+    {
+        _cachedMode = mode;
+        UpdateStatsLabel();
+    }
+
+    private static string FormatWorld(WorldHandle handle) => handle.IsValid ? handle.ToString() : "n/a";
+
 
     private IReadOnlyList<EntitySnapshot> GetCurrentEntitiesSnapshot()
     {
@@ -410,6 +537,10 @@ public sealed class Program : IDisposable
         _entitiesSubscription?.Dispose();
         _playerStatsSubscription?.Dispose();
         _gameStateSubscription?.Dispose();
+        if (_gameService != null)
+        {
+            _gameService.ModeChanged -= OnModeChanged;
+        }
     }
 
     private sealed class AnonymousObserver<T> : IObserver<T>
