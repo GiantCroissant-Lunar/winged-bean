@@ -1,0 +1,135 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Winged Bean Docs" [level=1] [ref=e4]
+      - paragraph [ref=e5]: Interactive terminal demos are powered by the embedded Asciinema player below.
+    - generic [ref=e6]:
+      - heading "Sample Terminal Session" [level=2] [ref=e7]
+      - generic [ref=e8]:
+        - generic [ref=e9]: "Select a demo:"
+        - combobox "Select a demo:" [ref=e10]:
+          - option "Hello Example" [selected]
+          - option "NPM Install"
+          - option "Git Commit"
+          - option "Docker Build"
+      - generic [ref=e13]:
+        - generic [ref=e15]:
+          - button "Play" [ref=e17] [cursor=pointer]
+          - textbox [ref=e19]:
+            - generic [ref=e20]: "--:--"
+          - button "Toggle fullscreen mode" [ref=e24] [cursor=pointer]:
+            - img [ref=e25] [cursor=pointer]
+        - generic [ref=e29]: 💥
+    - generic [ref=e30]:
+      - heading "Live Terminal (PTY via node-pty) ⭐ Recommended" [level=2] [ref=e31]
+      - paragraph [ref=e32]: Connect to Terminal.Gui v2 running inside a real PTY spawned by Node.js (node-pty) on port 4041. The PTY service is managed by PM2 and automatically spawns the Terminal.Gui application. This uses binary streaming for full terminal compatibility.
+      - generic [ref=e36]:
+        - textbox "Terminal input" [ref=e37]
+        - generic [ref=e38]:
+          - generic [ref=e40]: ┌┤Console Dungeon - ECS Dungeon Crawler | M=Menu├──────────────────────────────┐
+          - generic [ref=e41]:
+            - generic [ref=e42]: │
+            - generic [ref=e43]: .
+            - generic [ref=e44]: ...........................................................
+            - generic [ref=e46]: │
+          - generic [ref=e47]:
+            - generic [ref=e48]: │
+            - generic [ref=e49]: ............................................................
+            - generic [ref=e51]: │
+          - generic [ref=e52]:
+            - generic [ref=e53]: │
+            - generic [ref=e54]: ............................................................
+            - generic [ref=e56]: │
+          - generic [ref=e57]:
+            - generic [ref=e58]: │
+            - generic [ref=e59]: ............................................................
+            - generic [ref=e61]: │
+          - generic [ref=e62]:
+            - generic [ref=e63]: │
+            - generic [ref=e64]: ............................................................
+            - generic [ref=e66]: │
+          - generic [ref=e67]:
+            - generic [ref=e68]: │
+            - generic [ref=e69]: ............................................................
+            - generic [ref=e71]: │
+          - generic [ref=e72]:
+            - generic [ref=e73]: │
+            - generic [ref=e74]: ....................................gg......................
+            - generic [ref=e76]: │
+          - generic [ref=e77]:
+            - generic [ref=e78]: │
+            - generic [ref=e79]: ............................................................
+            - generic [ref=e81]: │
+          - generic [ref=e82]:
+            - generic [ref=e83]: │
+            - generic [ref=e84]: ............................................................
+            - generic [ref=e86]: │
+          - generic [ref=e87]:
+            - generic [ref=e88]: │
+            - generic [ref=e89]: ..............................@.................g..g........
+            - generic [ref=e91]: │
+          - generic [ref=e92]:
+            - generic [ref=e93]: │
+            - generic [ref=e94]: ............................................................
+            - generic [ref=e96]: │
+          - generic [ref=e97]:
+            - generic [ref=e98]: │
+            - generic [ref=e99]: ............................................................
+            - generic [ref=e101]: │
+          - generic [ref=e102]:
+            - generic [ref=e103]: │
+            - generic [ref=e104]: ............................................................
+            - generic [ref=e106]: │
+          - generic [ref=e107]:
+            - generic [ref=e108]: │
+            - generic [ref=e109]: .............g..............................................
+            - generic [ref=e111]: │
+          - generic [ref=e112]:
+            - generic [ref=e113]: │
+            - generic [ref=e114]: ............................................................
+            - generic [ref=e116]: │
+          - generic [ref=e117]:
+            - generic [ref=e118]: │
+            - generic [ref=e119]: ............................................................
+            - generic [ref=e121]: │
+          - generic [ref=e122]:
+            - generic [ref=e123]: │
+            - generic [ref=e124]: ............................................................
+            - generic [ref=e126]: │
+          - generic [ref=e127]:
+            - generic [ref=e128]: │
+            - generic [ref=e129]: ............................................................
+            - generic [ref=e131]: │
+          - generic [ref=e132]:
+            - generic [ref=e133]: │
+            - generic [ref=e135]: │
+          - generic [ref=e137]: │ │
+          - generic [ref=e139]: │ │
+          - generic [ref=e141]: "│HP: 100/100 | MP: 50/50 | Lvl: 1 | XP: 0 | M=Menu │"
+          - generic [ref=e143]: └──────────────────────────────────────────────────────────────────────────────┘
+    - paragraph [ref=e145]:
+      - text: Replace
+      - code [ref=e146]: public/*.cast
+      - text: with your own recordings and reuse the
+      - code [ref=e147]: AsciinemaPlayer
+      - text: component across pages.
+  - generic [ref=e149]: ┘┘┘┘┘┘┘┘┘┘┘┘┘┘┘┘┘┘┘┘┘┘┘┘┘┘┘┘┘┘┘┘
+  - generic [ref=e152]:
+    - button "Menu" [ref=e153]:
+      - img [ref=e155]
+      - generic: Menu
+    - button "Inspect" [ref=e159]:
+      - img [ref=e161]
+      - generic: Inspect
+    - button "Audit" [ref=e163]:
+      - generic [ref=e164]:
+        - img [ref=e165]
+        - img [ref=e168]
+      - generic: Audit
+    - button "Settings" [ref=e171]:
+      - img [ref=e173]
+      - generic: Settings
+```
