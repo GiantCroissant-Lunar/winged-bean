@@ -62,7 +62,6 @@ dotnet build Framework.sln
 - [ ] `console/src/plugins/WingedBean.Plugins.PtyService/WingedBean.Plugins.PtyService.csproj`
 - [ ] `console/src/plugins/WingedBean.Plugins.AsciinemaRecorder/WingedBean.Plugins.AsciinemaRecorder.csproj`
 - [ ] `console/src/plugins/WingedBean.Plugins.ConsoleDungeon/WingedBean.Plugins.ConsoleDungeon.csproj`
-- [ ] `console/src/host/ConsoleDungeon/ConsoleDungeon.csproj`
 - [ ] `console/src/host/ConsoleDungeon.Host/ConsoleDungeon.Host.csproj`
 
 **Change:**
