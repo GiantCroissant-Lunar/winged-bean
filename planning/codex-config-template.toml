@@ -1,0 +1,30 @@
+# Codex CLI Configuration Template
+# Location: ~/.codex/config.toml
+#
+# This configures the OWL planner as an MCP server for OpenAI Codex CLI.
+# Codex will be able to call planning tools using your ChatGPT plan subscription.
+#
+# Setup:
+# 1. Copy this section to ~/.codex/config.toml
+# 2. Replace /absolute/path/to/winged-bean with your actual repo path
+# 3. Set GITHUB_TOKEN in your shell environment
+# 4. Test: codex (in repo root) and ask "list available MCP tools"
+
+[mcp_servers.owl-planner]
+type = "stdio"
+command = "python3"
+args = ["/absolute/path/to/winged-bean/planning/owl/planner_server.py"]
+
+[mcp_servers.owl-planner.env]
+OWL_MCP_CONFIG = "/absolute/path/to/winged-bean/planning/owl/mcp_servers_config.json"
+REPO_ROOT = "/absolute/path/to/winged-bean"
+GITHUB_TOKEN = "$GITHUB_TOKEN"
+
+# Alternative: Use environment variable expansion if your Codex version supports it
+# [mcp_servers.owl-planner]
+# type = "stdio"
+# command = "python3"
+# args = ["${REPO_ROOT}/planning/owl/planner_server.py"]
+# env.OWL_MCP_CONFIG = "${REPO_ROOT}/planning/owl/mcp_servers_config.json"
+# env.REPO_ROOT = "${REPO_ROOT}"
+# env.GITHUB_TOKEN = "${GITHUB_TOKEN}"

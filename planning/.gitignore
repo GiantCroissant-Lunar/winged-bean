@@ -1,0 +1,7 @@
+# Ignore Python bytecode and caches
+__pycache__/
+*.pyc
+*.pyo
+
+# Local test artifacts
+.pytest_cache/

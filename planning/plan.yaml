@@ -1,0 +1,100 @@
+# WingedBean Project Plan
+# This file serves as the single source of truth for task decomposition and dependencies.
+# It's consumed by the OWL planner, validated in CI, and used to generate GitHub issues.
+
+meta:
+  project: winged-bean
+  description: Cross-platform terminal GUI framework with plugin architecture
+  rules:
+    max_touch_files_per_task: 15
+    prefer_parallel_leaves: true
+    test_coverage_threshold: 80
+  routing:
+    # Routing rules for different agent types
+    copilot: "Parallelizable leaves with clear specs, <15 files, isolated changes"
+    cascade: "Frontend/UI work, multi-file refactoring, cross-cutting concerns"
+    claude: "Integration work, risky changes, E2E testing, architecture decisions"
+
+tasks:
+  # Example task structure - replace with actual project tasks
+  - id: RFC-001
+    desc: "Draft terminal emulation RFC with acceptance criteria"
+    needs: []
+    labels: [doc, planner, rfc]
+    estimate: 2h
+    files: [docs/rfcs/]
+
+  - id: PTY-SERVICE
+    desc: "Implement PTY service abstraction layer"
+    needs: [RFC-001]
+    labels: [agent:copilot, area:backend, parallel-safe]
+    estimate: 8h
+    files: [development/nodejs/pty-service/]
+    acceptance_criteria:
+      - PTY creation and destruction
+      - Input/output streaming
+      - Process lifecycle management
+      - Unit tests with >80% coverage
+
+  - id: TERM-GUI-SHELL
+    desc: "Create Terminal.Gui shell application"
+    needs: [RFC-001]
+    labels: [agent:cascade, area:frontend, parallel-safe]
+    estimate: 12h
+    files: [development/dotnet/console/]
+    acceptance_criteria:
+      - Window layout and rendering
+      - Keyboard input handling
+      - Theme support
+      - Basic navigation
+
+  - id: PTY-INTEGRATION
+    desc: "Wire PTY service to Terminal.Gui shell"
+    needs: [PTY-SERVICE, TERM-GUI-SHELL]
+    labels: [agent:claude, integration, test:e2e]
+    estimate: 6h
+    files: [development/dotnet/console/, development/nodejs/pty-service/]
+    acceptance_criteria:
+      - PTY output renders in Terminal.Gui
+      - Keyboard input flows to PTY
+      - E2E test with real shell session
+      - Error handling and recovery
+
+  - id: PLUGIN-API
+    desc: "Design and implement plugin API interface"
+    needs: [RFC-001]
+    labels: [agent:copilot, area:backend, architecture]
+    estimate: 10h
+    files: [development/dotnet/framework/]
+    acceptance_criteria:
+      - IPlugin interface definition
+      - Plugin lifecycle (init/dispose)
+      - Event subscription model
+      - API documentation
+
+  - id: UNITY-PLUGIN
+    desc: "Create Unity integration plugin"
+    needs: [PLUGIN-API, PTY-INTEGRATION]
+    labels: [agent:cascade, area:unity, parallel-safe]
+    estimate: 16h
+    files: [development/unity/]
+    acceptance_criteria:
+      - Unity editor integration
+      - Scene view terminal window
+      - Play mode support
+      - Sample project
+
+  - id: DEPLOYMENT-SETUP
+    desc: "Set up CI/CD pipeline and deployment infrastructure"
+    needs: [PTY-INTEGRATION]
+    labels: [agent:claude, infra, deployment]
+    estimate: 8h
+    files: [infra/terraform/, .github/workflows/]
+    acceptance_criteria:
+      - Multi-platform builds (Windows/macOS/Linux)
+      - Automated testing in CI
+      - Release artifact generation
+      - Deployment to staging
+
+# DAG edges are derived from task.needs relationships
+# CI will validate this forms a proper DAG (no cycles)
