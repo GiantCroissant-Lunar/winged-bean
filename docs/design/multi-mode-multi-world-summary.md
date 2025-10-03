@@ -117,6 +117,8 @@ public interface IRuntimeBuilder { }
 
 ### Phase 1: Extend IECSService (Immediate)
 
+✅ Completed in code (2025-10-03)
+
 1. Add multi-world methods to `IECSService`
 2. Add mode service properties to `IECSService`
 3. Add authoring mapping methods to `IECSService`

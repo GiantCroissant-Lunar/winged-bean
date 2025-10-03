@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using FluentAssertions;
 using WingedBean.Contracts.ECS;
 using Xunit;
@@ -48,6 +50,72 @@ public class ArchECSServiceTests
         world1.Should().NotBeNull();
         world2.Should().NotBeNull();
         world1.Should().NotBeSameAs(world2);
+    }
+
+    [Fact]
+    public void AuthoringWorld_IsCreatedLazily()
+    {
+        // Arrange
+        var service = new ArchECSService();
+
+        // Act
+        var authoringHandle = service.AuthoringWorld;
+        var authoringWorld = service.GetWorld(authoringHandle);
+
+        // Assert
+        authoringHandle.Kind.Should().Be(WorldKind.Authoring);
+        authoringWorld.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void CreateRuntimeWorld_ReturnsHandle()
+    {
+        // Arrange
+        var service = new ArchECSService();
+
+        // Act
+        var handle = service.CreateRuntimeWorld("combat-simulation");
+        var runtimeWorld = service.GetWorld(handle);
+
+        // Assert
+        handle.Kind.Should().Be(WorldKind.Runtime);
+        runtimeWorld.Should().NotBeNull();
+        service.GetRuntimeWorlds().Should().Contain(handle);
+    }
+
+    [Fact]
+    public void SetMode_RaisesEvent()
+    {
+        // Arrange
+        var service = new ArchECSService();
+        GameMode observedMode = service.CurrentMode;
+
+        service.ModeChanged += (_, mode) => observedMode = mode;
+
+        // Act
+        service.SetMode(GameMode.EditOverlay);
+
+        // Assert
+        observedMode.Should().Be(GameMode.EditOverlay);
+    }
+
+    [Fact]
+    public void MapAuthoringToRuntime_StoresMapping()
+    {
+        // Arrange
+        var service = new ArchECSService();
+        var runtimeHandle = service.CreateRuntimeWorld("primary");
+        var runtimeWorld = service.GetWorld(runtimeHandle)!;
+        var entity = runtimeWorld.CreateEntity();
+        var authoringId = AuthoringNodeId.New();
+
+        // Act
+        service.MapAuthoringToRuntime(authoringId, runtimeHandle, entity);
+        var resolved = service.GetRuntimeEntity(authoringId);
+
+        // Assert
+        resolved.Should().NotBeNull();
+        resolved!.Value.Should().Be(entity);
     }
 
     [Fact]
