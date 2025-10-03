@@ -1,5 +1,5 @@
 # Agent Instruction Base
-Version: 1.0.0
+Version: 1.1.0
 Source of Truth for all automated assistant behavior in Winged Bean project.
 
 ## Project Context

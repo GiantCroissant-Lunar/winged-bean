@@ -1,5 +1,5 @@
 # Claude Code Adapter
-Base-Version-Expected: 1.0.0
+Base-Version-Expected: 1.1.0
 
 References base rule set in `.agent/base/`. The base canon prevails on conflict.
 
@@ -35,6 +35,12 @@ References base rule set in `.agent/base/`. The base canon prevails on conflict.
 - Use `git commit -F <file>` for commit bodies with proper formatting (R-GIT-010).
 - Include Claude co-authorship footer in commits.
 - Never commit files likely containing secrets (R-GIT-020).
+
+## Build & Development Workflow
+- Console game development uses Task/Nuke/PM2 workflow (R-BLD-010, R-BLD-020, R-BLD-030).
+- Always run `task build-all` before committing console changes.
+- Start services via `task dev:start`, never manually.
+- Check status with `task dev:status`, logs with `task dev:logs`.
 
 ## Extended Context Strategy
 - Claude can handle longer reasoning; still avoid duplicating base docs—summarize and cite IDs only.

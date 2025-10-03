@@ -50,6 +50,28 @@ R-PRC-050: Use Python instead of embedded shell scripts for complex logic in wor
   - Place Python scripts in `scripts/hooks/` or `scripts/workflows/`
   - Keep workflow YAML minimal - delegate to Python scripts
 
+## Build & Development Workflow
+R-BLD-010: Console game development MUST use the standard build/check workflow via Task, Nuke, and PM2.
+  - Initial build: `cd build && task build-all` (builds .NET, web, PTY artifacts)
+  - Verify build: Check artifacts in `build/_artifacts/v{VERSION}/` directory
+  - Start services: `task dev:start` (uses PM2 to run PTY, docs-site, console)
+  - Check status: `task dev:status` (verify all services running)
+  - View logs: `task dev:logs` (monitor service output)
+  - Stop services: `task dev:stop`
+  - NEVER run dotnet/node commands directly - use Task orchestration for consistency
+
+R-BLD-020: Before committing console app changes, MUST verify the build pipeline.
+  - Run `task clean && task build-all` to ensure clean build succeeds
+  - Check for warnings in build logs at `build/_artifacts/v{VERSION}/_logs/`
+  - If build fails, fix issues before committing
+  - Task validates YAML syntax - do not use problematic patterns like `echo ""`
+
+R-BLD-030: Development services MUST be managed through PM2 via Task commands.
+  - Never start services manually (e.g., `dotnet run`, `pnpm dev`)
+  - Use `task dev:start` to start all services with proper configuration
+  - PM2 ensures services restart on failure and maintain consistent state
+  - Check PM2 status via `task dev:status` before debugging issues
+
 ## Issue Management
 R-ISS-010: When creating issues programmatically (via API, templates, or documentation), agents MUST include YAML frontmatter with required metadata.
   - Required fields:
