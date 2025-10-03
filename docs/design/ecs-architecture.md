@@ -56,7 +56,7 @@ Location: `console/src/plugins/WingedBean.Plugins.ArchECS/`
 
 ### Layer 3: Game Logic (ConsoleDungeon)
 
-Location: `console/src/host/ConsoleDungeon/`
+Location: `console/src/plugins/WingedBean.Plugins.DungeonGame/`
 
 **Components**: Define data structures for game entities
 **Systems**: Define behavior logic that processes components

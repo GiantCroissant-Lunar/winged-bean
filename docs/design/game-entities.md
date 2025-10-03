@@ -419,7 +419,7 @@ Console.WriteLine($"Items: {world.CreateQuery<Item>().Count()}");
 
 - [ECS Architecture Guide](./ecs-architecture.md)
 - [RFC-0007: Arch ECS Integration](../rfcs/0007-arch-ecs-integration.md)
-- Component definitions: `console/src/host/ConsoleDungeon/Components/`
+- Component definitions: `console/src/plugins/WingedBean.Plugins.DungeonGame/Components/`
 
 ---
 

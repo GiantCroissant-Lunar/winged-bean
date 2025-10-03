@@ -1,3 +1,13 @@
+---
+id: RFC-0007
+title: Arch ECS Integration for Dungeon Crawler Gameplay
+status: Proposed
+category: architecture, gameplay
+created: 2025-10-01
+updated: 2025-10-03
+author: WingedBean Team
+---
+
 # RFC-0007: Arch ECS Integration for Dungeon Crawler Gameplay
 
 ## Status
@@ -443,11 +453,11 @@ public class ArchECSService : IECSService
 
 ### Game Components
 
-Create: `console/src/host/ConsoleDungeon/Components/`
+Create: `console/src/plugins/WingedBean.Plugins.DungeonGame/Components/`
 
 **CoreComponents.cs:**
 ```csharp
-namespace ConsoleDungeon.Components;
+namespace WingedBean.Plugins.DungeonGame.Components;
 
 /// <summary>
 /// Position in the dungeon (tile-based).
@@ -598,12 +608,12 @@ public struct Inventory
 
 ### Game Systems
 
-Create: `console/src/host/ConsoleDungeon/Systems/`
+Create: `console/src/plugins/WingedBean.Plugins.DungeonGame/Systems/`
 
 **MovementSystem.cs:**
 ```csharp
 using WingedBean.Contracts.ECS;
-using ConsoleDungeon.Components;
+using WingedBean.Plugins.DungeonGame.Components;
 
 namespace ConsoleDungeon.Systems;
 
@@ -639,7 +649,7 @@ public class MovementSystem : IECSSystem
 **CombatSystem.cs:**
 ```csharp
 using WingedBean.Contracts.ECS;
-using ConsoleDungeon.Components;
+using WingedBean.Plugins.DungeonGame.Components;
 
 namespace ConsoleDungeon.Systems;
 
@@ -707,7 +717,7 @@ public class CombatSystem : IECSSystem
 ```csharp
 using WingedBean.Contracts.ECS;
 using WingedBean.Contracts.TerminalUI;
-using ConsoleDungeon.Components;
+using WingedBean.Plugins.DungeonGame.Components;
 
 namespace ConsoleDungeon.Systems;
 
@@ -779,7 +789,7 @@ using WingedBean.Contracts.Core;
 using WingedBean.Contracts.ECS;
 using WingedBean.Contracts.TerminalUI;
 using ConsoleDungeon.Systems;
-using ConsoleDungeon.Components;
+using WingedBean.Plugins.DungeonGame.Components;
 
 namespace ConsoleDungeon;
 
@@ -918,13 +928,13 @@ public class DungeonGame
 
 ### Phase 3: Define Components (Day 3)
 
-1. Create `console/src/host/ConsoleDungeon/Components/` directory
+1. Create `console/src/plugins/WingedBean.Plugins.DungeonGame/Components/` directory
 2. Implement all game components
 3. Build and verify
 
 ### Phase 4: Implement Systems (Day 4-5)
 
-1. Create `console/src/host/ConsoleDungeon/Systems/` directory
+1. Create `console/src/plugins/WingedBean.Plugins.DungeonGame/Systems/` directory
 2. Implement `MovementSystem`
 3. Implement `CombatSystem`
 4. Implement `RenderSystem`
