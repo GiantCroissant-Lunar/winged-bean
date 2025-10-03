@@ -397,6 +397,9 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
         // Handle keyboard input - map to game events
         _mainWindow.KeyDown += HandleKeyInput;
 
+        // Ensure the window has focus so it receives KeyDown events reliably
+        try { _mainWindow.SetFocus(); } catch { }
+
         // Send initial output event
         SendOutputEvent("Console Dungeon (ECS) started - Use arrow keys to move, M for menu!\n");
         LogToFile("CreateMainWindow completed");
@@ -466,6 +469,10 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
                 'S' => GameInputType.MoveDown,
                 'A' => GameInputType.MoveLeft,
                 'D' => GameInputType.MoveRight,
+                // Fallback mapping for SS3 arrow runes when KeyCode was not set
+                // Some terminals may surface ESC O B/C as rune 'B'/'C' here
+                'B' => GameInputType.MoveDown,
+                'C' => GameInputType.MoveRight,
                 'E' => GameInputType.Use,
                 'G' => GameInputType.Pickup,
                 'M' => GameInputType.ToggleMenu,

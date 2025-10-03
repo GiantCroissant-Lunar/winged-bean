@@ -45,7 +45,8 @@ wss.on("connection", (ws) => {
     cwd: BIN_DIR,
     env: {
       ...process.env,
-      TERM: "xterm-256color",
+      // Use a conservative TERM to improve key decoding across terminfo variants
+      TERM: "xterm",
       COLORTERM: "truecolor",
       LANG: process.env.LANG || "en_US.UTF-8",
       LC_ALL: process.env.LC_ALL || "en_US.UTF-8",
@@ -138,9 +139,39 @@ wss.on("connection", (ws) => {
     } catch (e) {
       // Not JSON, treat as raw input data
       const input = message.toString();
-      console.log(`Sending input to PTY: ${JSON.stringify(input)}`);
-      if (!ptyProcess.killed) {
-        ptyProcess.write(input);
+      // Temporary debug: classify common escape sequences for arrows
+      const arrowMap = {
+        "\u001b[A": "ArrowUp",
+        "\u001b[B": "ArrowDown",
+        "\u001b[C": "ArrowRight",
+        "\u001b[D": "ArrowLeft",
+      };
+      const arrow = arrowMap[input];
+      if (arrow) {
+        console.log(`Detected Arrow: ${arrow} (${JSON.stringify(input)})`);
+      }
+      // Normalize application-cursor sequences (ESC O A/B/C/D) to CSI (ESC [ A/B/C/D)
+      const appCursorMap = {
+        "\u001bOA": "\u001b[A",
+        "\u001bOB": "\u001b[B",
+        "\u001bOC": "\u001b[C",
+        "\u001bOD": "\u001b[D",
+      };
+      const normalized = appCursorMap[input] || null;
+      if (normalized) {
+        console.log(`Normalized application cursor sequence ${JSON.stringify(input)} -> ${JSON.stringify(normalized)}`);
+        // Write both forms to satisfy either cursor mode (DECCKM) the app may have set
+        if (!ptyProcess.killed) {
+          ptyProcess.write(input);
+          ptyProcess.write(normalized);
+        }
+      } else {
+        if (!arrow) {
+          console.log(`Sending input to PTY: ${JSON.stringify(input)}`);
+        }
+        if (!ptyProcess.killed) {
+          ptyProcess.write(input);
+        }
       }
     }
   });

@@ -23,6 +23,8 @@ const {
   import { Terminal } from 'xterm';
 
   document.addEventListener('DOMContentLoaded', async () => {
+    const url = new URL(window.location.href);
+    const debugKeys = url.searchParams.get('xtermDebug') === '1';
     // Find all terminal containers with data-terminal-id attribute
     const containers = document.querySelectorAll('[data-terminal-id]');
 
@@ -205,8 +207,30 @@ const {
         };
       };
 
+      // Helper: format control sequences for logs
+      const toHexPreview = (str, limit = 8) => {
+        const slice = str.slice(0, limit);
+        const hex = Array.from(slice, c => c.charCodeAt(0).toString(16).padStart(2, '0')).join(' ');
+        return `${JSON.stringify(slice)} [${hex}]${str.length > limit ? '…' : ''}`;
+      };
+
+      // Optional: key debug (DOM + xterm)
+      if (debugKeys) {
+        terminal.onKey(e => {
+          const { key, domEvent } = e;
+          console.log('[XTerm] onKey', { keyPreview: toHexPreview(key), domKey: domEvent.key, code: domEvent.code, keyCode: domEvent.keyCode });
+        });
+      }
+
       // Handle terminal input
       terminal.onData(data => {
+        if (debugKeys) {
+          // Log outgoing data preview and detect common arrow sequences
+          const preview = toHexPreview(data);
+          const arrowMap = { '\u001b[A': 'ArrowUp', '\u001b[B': 'ArrowDown', '\u001b[C': 'ArrowRight', '\u001b[D': 'ArrowLeft' };
+          const arrow = arrowMap[data];
+          if (arrow) console.log('[XTerm] onData Arrow', arrow, preview); else console.log('[XTerm] onData', preview);
+        }
         if (ws && ws.readyState === WebSocket.OPEN) {
           if (mode === 'pty') {
             // PTY mode: Send raw input directly
