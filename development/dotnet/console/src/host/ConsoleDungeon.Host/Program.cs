@@ -109,7 +109,9 @@ public class Program
                 Rows = 24
             };
 
-            // Provide gameplay service to UI if present (RFC-0017)
+            // Provide registry and gameplay service to UI (RFC-0018)
+            appConfig.Parameters["registry"] = registry;
+            
             if (registry.IsRegistered<IDungeonGameService>())
             {
                 var gameService = registry.Get<IDungeonGameService>();

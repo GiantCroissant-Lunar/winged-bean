@@ -24,13 +24,17 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
     private Window? _mainWindow;
     private CancellationTokenSource? _cancellationTokenSource;
     private TerminalAppConfig? _config;
+    private IRegistry? _registry;
     private IDungeonGameService? _gameService;
+    private IRenderService? _renderService;
+    private IGameUIService? _uiService;
     private System.Timers.Timer? _uiTimer;
     private Label? _statusLabel;
-    private Label? _gameStateLabel;
-    private Label? _entityCountLabel;
-    private TextView? _logView;
+    private TextView? _gameWorldView;
     private IDisposable? _statsSubscription;
+    private IDisposable? _entitiesSubscription;
+    private IDisposable? _inputSubscription;
+    private IReadOnlyList<EntitySnapshot>? _currentEntities;
     private readonly List<string> _logMessages = new();
     private bool _isRecording = false;
 
@@ -61,15 +65,9 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
             var timestamped = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] {message}";
             File.AppendAllText(_logFilePath, timestamped + Environment.NewLine);
             
-            // Also add to in-TUI log view
+            // Keep log messages in memory (for debugging)
             _logMessages.Add(timestamped);
             if (_logMessages.Count > 100) _logMessages.RemoveAt(0); // Keep last 100
-            
-            // Update log view if it exists
-            if (_logView != null)
-            {
-                _logView.Text = string.Join(Environment.NewLine, _logMessages);
-            }
         }
         catch
         {
@@ -97,6 +95,12 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
 
             _isRunning = true;
 
+            // Get registry from config if available
+            if (_config?.Parameters != null && _config.Parameters.TryGetValue("registry", out var regObj))
+            {
+                _registry = regObj as IRegistry;
+            }
+
             // Create main window
             CreateMainWindow();
 
@@ -108,6 +112,38 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
                 {
                     LogToFile("=== DungeonGame Service Found ===");
                     _logger.LogInformation("=== DungeonGame Service Found ===");
+                    
+                    // Inject services from registry
+                    if (_registry != null)
+                    {
+                        try
+                        {
+                            _renderService = _registry.Get<IRenderService>();
+                            // Disable color mode - Terminal.Gui TextView doesn't support ANSI codes
+                            _renderService.SetRenderMode(RenderMode.ASCII);
+                            LogToFile("✓ IRenderService injected from registry (ASCII mode)");
+                            _logger.LogInformation("✓ IRenderService injected from registry (ASCII mode)");
+                        }
+                        catch (Exception ex)
+                        {
+                            LogToFile($"⚠️ IRenderService not available: {ex.Message}");
+                            _logger.LogWarning(ex, "IRenderService not available");
+                        }
+
+                        try
+                        {
+                            _uiService = _registry.Get<IGameUIService>();
+                            _uiService.Initialize(_mainWindow!);
+                            LogToFile("✓ IGameUIService injected and initialized");
+                            _logger.LogInformation("✓ IGameUIService injected and initialized");
+                        }
+                        catch (Exception ex)
+                        {
+                            LogToFile($"⚠️ IGameUIService not available: {ex.Message}");
+                            _logger.LogWarning(ex, "IGameUIService not available");
+                        }
+                    }
+                    
                     LogToFile("Initializing DungeonGame via plugin service");
                     _logger.LogInformation("Initializing DungeonGame via plugin service");
                     
@@ -131,15 +167,29 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
                     _statsSubscription = _gameService.PlayerStatsObservable.Subscribe(stats =>
                     {
                         LogToFile($"[Observable] Stats updated: HP={stats.CurrentHP}/{stats.MaxHP}");
-                        _logger.LogInformation($"[Observable] Stats updated: HP={stats.CurrentHP}/{stats.MaxHP}");
                         if (_statusLabel != null)
                         {
-                            var text = $"HP: {stats.CurrentHP}/{stats.MaxHP} | MP: {stats.CurrentMana}/{stats.MaxMana} | Lvl: {stats.Level} | XP: {stats.Experience}";
-                            LogToFile($"[Observable] Setting statusLabel.Text = {text}");
-                            _logger.LogInformation($"[Observable] Setting statusLabel.Text = {text}");
+                            var text = $"HP: {stats.CurrentHP}/{stats.MaxHP} | MP: {stats.CurrentMana}/{stats.MaxMana} | Lvl: {stats.Level} | XP: {stats.Experience} | M=Menu";
                             _statusLabel.Text = text;
                         }
                     });
+                    
+                    // Subscribe to entities observable for rendering
+                    _entitiesSubscription = _gameService.EntitiesObservable.Subscribe(entities =>
+                    {
+                        _currentEntities = entities;
+                        LogToFile($"[Observable] Entities updated: {entities.Count} entities");
+                    });
+
+                    // Subscribe to UI service input events
+                    if (_uiService != null)
+                    {
+                        _inputSubscription = _uiService.InputObservable.Subscribe(inputEvent =>
+                        {
+                            HandleGameInput(inputEvent);
+                        });
+                        LogToFile("✓ Subscribed to UI service input events");
+                    }
 
                     // Start a simple 10 FPS tick to drive the game
                     _uiTimer = new System.Timers.Timer(100);
@@ -149,20 +199,23 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
                         {
                             _gameService.Update(0.1f);
                             
-                            // Update UI labels directly (Terminal.Gui v2 auto-redraws on Text change)
-                            if (_entityCountLabel != null && _gameService.World != null)
+                            // Update game world view with rendered entities via service
+                            if (_gameWorldView != null && _renderService != null && _currentEntities != null)
                             {
-                                _entityCountLabel.Text = $"Entities in world: {_gameService.World.EntityCount}";
-                            }
-                            
-                            if (_gameStateLabel != null)
-                            {
-                                _gameStateLabel.Text = $"Game State: {_gameService.CurrentState} | Mode: {_gameService.CurrentMode} | {DateTime.Now:HH:mm:ss}";
+                                var buffer = _renderService.Render(_currentEntities, 60, 18);
+                                var text = buffer.ToText();
+                                
+                                // ✅ Marshal UI update to main thread (Terminal.Gui v2)
+                                Application.Invoke(() => 
+                                {
+                                    _gameWorldView.Text = text;
+                                    LogToFile($"[Render] Updated view with {_currentEntities.Count} entities");
+                                });
                             }
                         }
                         catch (Exception ex)
                         {
-                            LogToFile($"Error during game update: {ex.Message}");
+                            LogToFile($"Error during game update: {ex.Message}\n{ex.StackTrace}");
                             _logger.LogError(ex, "Error during game update");
                         }
                     };
@@ -243,6 +296,8 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
                 _uiTimer = null;
             }
             _statsSubscription?.Dispose();
+            _entitiesSubscription?.Dispose();
+            _inputSubscription?.Dispose();
             _gameService?.Shutdown();
 
             _isRunning = false;
@@ -305,7 +360,7 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
         // Use Window (Terminal.Gui v2) with property initializers
         _mainWindow = new Window()
         {
-            Title = "Console Dungeon - ECS Dungeon Crawler | F9=Record F10=Stop Q=Quit",
+            Title = "Console Dungeon - ECS Dungeon Crawler | M=Menu",
             BorderStyle = LineStyle.Single,
             X = 0,
             Y = 0,
@@ -313,111 +368,33 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
             Height = Dim.Fill()
         };
 
-        _statusLabel = new Label
-        {
-            X = 1,
-            Y = 1,
-            Text = "Loading game stats..."
-        };
-
-        _gameStateLabel = new Label
-        {
-            X = 1,
-            Y = 3,
-            Text = "Game initializing..."
-        };
-        
-        _entityCountLabel = new Label
-        {
-            X = 1,
-            Y = 5,
-            Text = "Entity count loading..."
-        };
-
-        var instructionLabel = new Label
-        {
-            X = 1,
-            Y = 7,
-            Text = "Dungeon game is running in the background (ECS systems active)"
-        };
-        
-        var recordingLabel = new Label
-        {
-            X = 1,
-            Y = 9,
-            Text = "Press F9 to start recording, F10 to stop (Asciinema replay feature)"
-        };
-        
-        // In-TUI log view at the bottom
-        var logFrame = new FrameView()
-        {
-            Title = "Debug Log",
-            X = 1,
-            Y = 11,
-            Width = Dim.Fill(1),
-            Height = Dim.Fill(3),
-            BorderStyle = LineStyle.Single
-        };
-        
-        _logView = new TextView
+        // Game world view (full width, 90% height)
+        _gameWorldView = new TextView
         {
             X = 0,
             Y = 0,
             Width = Dim.Fill(),
-            Height = Dim.Fill(),
+            Height = Dim.Percent(90),
             ReadOnly = true,
-            Text = $"Log file: {_logFilePath}\n"
+            Text = "Game world initializing..."
         };
-        logFrame.Add(_logView);
-
-        var quitButton = new Button
+        
+        // Status bar at the bottom (10% height)
+        _statusLabel = new Label
         {
-            X = Pos.Center(),
+            X = 0,
             Y = Pos.AnchorEnd(1),
-            Text = "_Quit",
-            IsDefault = true
+            Width = Dim.Fill(),
+            Text = "Loading game stats... | M=Menu"
         };
+        
+        _mainWindow.Add(_gameWorldView, _statusLabel);
 
-        // v2: use Accepting event
-        quitButton.Accepting += (s, e) => {
-            LogToFile("Quit button pressed");
-            _logger.LogInformation("Quit button pressed");
-            Application.RequestStop();
-        };
-
-        _mainWindow.Add(_statusLabel, _gameStateLabel, _entityCountLabel, instructionLabel, recordingLabel, logFrame, quitButton);
-
-        // v2: KeyDown event - handle Q, F9, F10
-        _mainWindow.KeyDown += (sender, e) => {
-            if (e.KeyCode == KeyCode.Q)
-            {
-                LogToFile("Q key pressed - quitting");
-                _logger.LogInformation("Quit key pressed");
-                Application.RequestStop();
-                e.Handled = true;
-            }
-            else if (e.KeyCode == KeyCode.F9)
-            {
-                // Start asciinema recording via OSC sequence
-                LogToFile("F9 pressed - starting asciinema recording");
-                SendOSCSequence("\x1b]1337;StartRecording\x07");
-                _isRecording = true;
-                _mainWindow.Title = "Console Dungeon - 🔴 RECORDING | F10=Stop Q=Quit";
-                e.Handled = true;
-            }
-            else if (e.KeyCode == KeyCode.F10)
-            {
-                // Stop asciinema recording via OSC sequence
-                LogToFile("F10 pressed - stopping asciinema recording");
-                SendOSCSequence("\x1b]1337;StopRecording\x07");
-                _isRecording = false;
-                _mainWindow.Title = "Console Dungeon - ECS Dungeon Crawler | F9=Record F10=Stop Q=Quit";
-                e.Handled = true;
-            }
-        };
+        // Handle keyboard input - map to game events
+        _mainWindow.KeyDown += HandleKeyInput;
 
         // Send initial output event
-        SendOutputEvent("Console Dungeon (ECS) started - Dungeon gameplay is running!\n");
+        SendOutputEvent("Console Dungeon (ECS) started - Use arrow keys to move, M for menu!\n");
         LogToFile("CreateMainWindow completed");
     }
     
@@ -435,6 +412,123 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
             LogToFile($"Error sending OSC sequence: {ex.Message}");
         }
     }
+    
+    private void HandleKeyInput(object? sender, Key e)
+    {
+        // Log the key for debugging
+        LogToFile($"KeyDown: KeyCode={e.KeyCode}");
+        
+        // Map Terminal.Gui keys to GameInputEvents
+        var inputType = MapKeyToGameInput(e);
+        
+        if (inputType.HasValue)
+        {
+            var inputEvent = new GameInputEvent(inputType.Value, DateTimeOffset.UtcNow);
+            
+            // Handle the input directly
+            HandleGameInput(inputEvent);
+            
+            // Mark as handled to prevent Terminal.Gui navigation
+            e.Handled = true;
+            LogToFile($"Handled game input: {inputType.Value}");
+        }
+    }
+    
+    private GameInputType? MapKeyToGameInput(Key key)
+    {
+        // Check KeyCode first for special keys (arrows, space)
+        var fromKeyCode = key.KeyCode switch
+        {
+            KeyCode.CursorUp => GameInputType.MoveUp,
+            KeyCode.CursorDown => GameInputType.MoveDown,
+            KeyCode.CursorLeft => GameInputType.MoveLeft,
+            KeyCode.CursorRight => GameInputType.MoveRight,
+            KeyCode.Space => GameInputType.Attack,
+            _ => (GameInputType?)null
+        };
+        
+        if (fromKeyCode.HasValue)
+            return fromKeyCode;
+        
+        // Check character for letter keys (case-insensitive)
+        // Get the rune value and convert to char
+        var rune = key.AsRune;
+        if (rune.Value >= 32 && rune.Value < 127) // Printable ASCII
+        {
+            var ch = char.ToUpper((char)rune.Value);
+            return ch switch
+            {
+                'W' => GameInputType.MoveUp,
+                'S' => GameInputType.MoveDown,
+                'A' => GameInputType.MoveLeft,
+                'D' => GameInputType.MoveRight,
+                'E' => GameInputType.Use,
+                'G' => GameInputType.Pickup,
+                'M' => GameInputType.ToggleMenu,
+                'I' => GameInputType.ToggleInventory,
+                'Q' => GameInputType.Quit,
+                _ => null
+            };
+        }
+        
+        return null;
+    }
+    
+    private void HandleGameInput(GameInputEvent inputEvent)
+    {
+        LogToFile($"Game input received: {inputEvent.Type}");
+        
+        switch (inputEvent.Type)
+        {
+            case GameInputType.ToggleMenu:
+                if (_uiService != null)
+                {
+                    if (_uiService.IsMenuVisible)
+                    {
+                        _uiService.HideMenu();
+                    }
+                    else
+                    {
+                        _uiService.ShowMenu(MenuType.Main);
+                    }
+                }
+                break;
+                
+            case GameInputType.ToggleInventory:
+                _uiService?.ShowMenu(MenuType.Inventory);
+                break;
+                
+            case GameInputType.Quit:
+                LogToFile("Quit requested via game input");
+                Application.RequestStop();
+                break;
+                
+            default:
+                // Forward movement and action inputs to game service
+                if (_gameService != null)
+                {
+                    var gameInput = MapToGameInput(inputEvent.Type);
+                    _gameService.HandleInput(gameInput);
+                }
+                break;
+        }
+    }
+    
+    private GameInput MapToGameInput(GameInputType inputType)
+    {
+        return inputType switch
+        {
+            GameInputType.MoveUp => new GameInput(InputType.MoveUp),
+            GameInputType.MoveDown => new GameInput(InputType.MoveDown),
+            GameInputType.MoveLeft => new GameInput(InputType.MoveLeft),
+            GameInputType.MoveRight => new GameInput(InputType.MoveRight),
+            GameInputType.Attack => new GameInput(InputType.Attack),
+            GameInputType.Use => new GameInput(InputType.UseItem),
+            GameInputType.Pickup => new GameInput(InputType.UseItem), // Map pickup to use item for now
+            _ => new GameInput(InputType.Quit) // Default fallback
+        };
+    }
+
 
     private void SendOutputEvent(string message)
     {

@@ -165,10 +165,9 @@ tasks:
       - echo "📸 Capturing versioned state for {{.VERSION}}..."
       - pnpm exec playwright test capture-versioned-state.spec.js --reporter=list
       - echo "✅ Artifacts saved to {{.ARTIFACT_DIR}}/web/"
-      - echo ""
-      - echo "📁 Screenshots: {{.ARTIFACT_DIR}}/web/screenshots/"
-      - echo "📁 Terminal captures: {{.ARTIFACT_DIR}}/web/terminal-captures/"
-      - echo "📁 Verification logs: {{.ARTIFACT_DIR}}/web/logs/"
+      - echo "📁 Screenshots {{.ARTIFACT_DIR}}/web/screenshots/"
+      - echo "📁 Terminal captures {{.ARTIFACT_DIR}}/web/terminal-captures/"
+      - echo "📁 Verification logs {{.ARTIFACT_DIR}}/web/logs/"
 
   capture:quick:
     desc: "Quick state check without assertions (for rapid iteration)"

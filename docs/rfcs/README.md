@@ -118,6 +118,32 @@ This directory contains RFCs (Request for Comments) documenting major architectu
 
 ---
 
+### RFC-0018: Render and UI Services for Console Profile
+**Status:** Proposed
+**Date:** 2025-10-03
+**Priority:** P1 (High)
+**Category:** framework, architecture, console
+**Estimated Effort:** 2-3 days
+
+**Summary:** Implement proper `IRenderService` and `IGameUIService` contracts and providers following RFC-0002's 4-tier architecture. Separates rendering/UI concerns from game logic, fixes input handling (arrow keys control player), and improves UI layout (menu toggle, full-screen game view).
+
+**Key Actions:**
+- Create `IRenderService` and `IGameUIService` contracts (Tier 1)
+- Implement Terminal.Gui providers (Tier 4)
+- Refactor ConsoleDungeonApp to use services
+- Fix input handling (capture game keys before Terminal.Gui navigation)
+- New UI layout (full-screen game view, menu toggle with M key)
+
+**Benefits:**
+- ✅ 4-tier architecture compliance
+- ✅ Working input (arrow keys move player)
+- ✅ Better UX (full-screen game, menu system)
+- ✅ Reusable across profiles (Unity/Godot can implement same contracts)
+
+[Read Full RFC →](./0018-render-and-ui-services-for-console-profile.md)
+
+---
+
 ### RFC-0017: Reactive Plugin Architecture for Dungeon Game
 **Status:** Proposed
 **Date:** 2025-10-03

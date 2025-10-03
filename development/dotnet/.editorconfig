@@ -4,8 +4,8 @@
 # .NET specific overrides
 
 # C# files
-[*.cs]
-indent_size = 4
+# [*.cs]
+# indent_size = 4
 
 # F# files
 [*.fs]
@@ -59,3 +59,147 @@ indent_size = 2
 # Solution files
 [*.sln]
 indent_style = tab
+
+# .editorconfig
+# root = true
+
+############################################################
+# Global (applies to all files)
+############################################################
+# [*]
+# charset = utf-8
+# end_of_line = crlf
+# insert_final_newline = true
+# trim_trailing_whitespace = true
+# max_line_length = 120
+
+############################################################
+# C# files
+############################################################
+[*.cs]
+indent_style = space
+indent_size = 4
+tab_width = 4
+
+############################################################
+# Namespaces & using directives
+############################################################
+# Prefer file-scoped namespaces (we'll keep this a WARNING so Unity types
+# that require block namespaces don't create churn).
+csharp_style_namespace_declarations = file_scoped:warning
+dotnet_style_prefer_file_scoped_namespace = true:warning
+
+# Using directives outside namespace; System.* first; single group.
+csharp_using_directive_placement = outside_namespace:error
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = false
+
+############################################################
+# Braces & new lines (Allman)
+############################################################
+csharp_new_line_before_open_brace = all
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+csharp_new_line_between_query_expression_clauses = true
+# Keep object/anonymous initializers compact unless they exceed max_line_length
+csharp_new_line_before_members_in_object_initializers = false
+csharp_new_line_before_members_in_anonymous_types = false
+
+############################################################
+# Wrapping & line breaking
+############################################################
+# Wrap parameters/arguments if they exceed max_line_length, otherwise keep single-line.
+csharp_wrap_parameters = wrap_when_long
+csharp_wrap_arguments = wrap_when_long
+csharp_preserve_single_line_statements = true
+csharp_preserve_single_line_blocks = true
+
+############################################################
+# Spacing
+############################################################
+csharp_space_after_cast = false
+csharp_space_after_keywords_in_control_flow_statements = true
+csharp_space_between_parentheses = false
+csharp_space_between_method_call_name_and_open_parenthesis = false
+csharp_space_between_method_declaration_name_and_open_parenthesis = false
+csharp_space_between_method_call_parameter_list_parentheses = false
+csharp_space_between_method_declaration_parameter_list_parentheses = false
+csharp_space_before_colon_in_inheritance_clause = true
+csharp_space_after_colon_in_inheritance_clause = true
+csharp_space_around_binary_operators = before_and_after
+
+############################################################
+# Expression-bodied members (be conservative; allow oneliners)
+############################################################
+csharp_style_expression_bodied_methods = when_on_single_line:suggestion
+csharp_style_expression_bodied_constructors = false:warning
+csharp_style_expression_bodied_operators = when_on_single_line:suggestion
+csharp_style_expression_bodied_properties = when_on_single_line:suggestion
+csharp_style_expression_bodied_indexers = when_on_single_line:suggestion
+csharp_style_expression_bodied_accessors = when_on_single_line:suggestion
+csharp_style_expression_bodied_local_functions = when_on_single_line:suggestion
+
+############################################################
+# var usage
+############################################################
+csharp_style_var_for_built_in_types = true:warning
+csharp_style_var_when_type_is_apparent = true:warning
+csharp_style_var_elsewhere = true:suggestion
+
+############################################################
+# Conditionals & nulls
+############################################################
+dotnet_style_prefer_conditional_expression_over_assignment = true:suggestion
+dotnet_style_prefer_conditional_expression_over_return = true:suggestion
+dotnet_style_null_propagation = true:suggestion
+dotnet_style_coalesce_expression = true:suggestion
+
+############################################################
+# Naming rules
+############################################################
+# Styles
+dotnet_naming_style.pascal_case.capitalization = pascal_case
+dotnet_naming_style.camel_case.capitalization = camel_case
+dotnet_naming_style.underscore_camel.capitalization = camel_case
+dotnet_naming_style.underscore_camel.required_prefix = _
+
+# Symbols
+dotnet_naming_symbols.types.applicable_kinds = class,struct,interface,enum,delegate
+dotnet_naming_symbols.members.applicable_kinds = property,method,event
+dotnet_naming_symbols.parameters.applicable_kinds = parameter
+dotnet_naming_symbols.locals.applicable_kinds = local
+dotnet_naming_symbols.private_instance_fields.applicable_kinds = field
+dotnet_naming_symbols.private_instance_fields.applicable_accessibilities = private
+dotnet_naming_symbols.private_instance_fields.required_modifiers =
+
+# Rules
+dotnet_naming_rule.types_should_be_pascal_case.symbols = types
+dotnet_naming_rule.types_should_be_pascal_case.style = pascal_case
+dotnet_naming_rule.types_should_be_pascal_case.severity = error
+
+dotnet_naming_rule.members_should_be_pascal_case.symbols = members
+dotnet_naming_rule.members_should_be_pascal_case.style = pascal_case
+dotnet_naming_rule.members_should_be_pascal_case.severity = error
+
+dotnet_naming_rule.parameters_should_be_camel_case.symbols = parameters
+dotnet_naming_rule.parameters_should_be_camel_case.style = camel_case
+dotnet_naming_rule.parameters_should_be_camel_case.severity = warning
+
+dotnet_naming_rule.locals_should_be_camel_case.symbols = locals
+dotnet_naming_rule.locals_should_be_camel_case.style = camel_case
+dotnet_naming_rule.locals_should_be_camel_case.severity = warning
+
+# Private fields must be _camelCase
+dotnet_naming_rule.private_fields_should_be__camel.symbols = private_instance_fields
+dotnet_naming_rule.private_fields_should_be__camel.style = underscore_camel
+dotnet_naming_rule.private_fields_should_be__camel.severity = error
+
+############################################################
+# Analyzer enforcement posture (leave fixers to tools)
+############################################################
+# Do NOT disable IDE0055 (formatting); let dotnet-format/Rider fix it.
+# Avoid turning many code-style items to error immediately—roll out in CI.
+
+# XML docs often noisy in libraries under development.
+dotnet_diagnostic.CS1591.severity = none

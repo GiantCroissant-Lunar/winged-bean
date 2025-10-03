@@ -1,0 +1,40 @@
+{
+  "id": "wingedbean.plugins.audio",
+  "version": "1.0.0",
+  "name": "Audio Service",
+  "description": "Audio playback service using LibVLC for console applications",
+  "author": "WingedBean Team",
+  "license": "MIT",
+
+  "entryPoint": {
+    "dotnet": "./WingedBean.Plugins.Audio.dll",
+    "nodejs": null,
+    "unity": null,
+    "godot": null
+  },
+
+  "dependencies": {
+    "wingedbean.contracts": "^1.0.0"
+  },
+
+  "exports": {
+    "services": [
+      {
+        "interface": "WingedBean.Contracts.Audio.IAudioService",
+        "implementation": "WingedBean.Plugins.Audio.LibVlcAudioService",
+        "lifecycle": "singleton"
+      }
+    ]
+  },
+
+  "capabilities": [
+    "audio-playback",
+    "audio-streaming",
+    "volume-control"
+  ],
+
+  "supportedProfiles": ["console"],
+
+  "loadStrategy": "lazy",
+  "priority": 50
+}
