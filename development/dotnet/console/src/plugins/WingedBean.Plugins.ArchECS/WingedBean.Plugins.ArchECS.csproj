@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <AssemblyTitle>WingedBean Arch ECS Service Plugin</AssemblyTitle>
     <AssemblyDescription>Plugin that provides Entity Component System functionality using Arch ECS</AssemblyDescription>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>

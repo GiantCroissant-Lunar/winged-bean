@@ -2,20 +2,30 @@ using Microsoft.Extensions.Logging;
 using System.Text;
 using Terminal.Gui;
 using WingedBean.Contracts;
+using WingedBean.Contracts.Core;
+using WingedBean.Contracts.Game;
 
 namespace WingedBean.Plugins.ConsoleDungeon;
 
 /// <summary>
 /// Console Dungeon Terminal.Gui application
 /// </summary>
+[Plugin(
+    Name = "ConsoleDungeonApp",
+    Provides = new[] { typeof(ITerminalApp) },
+    Priority = 50
+)]
 public class ConsoleDungeonApp : ITerminalApp, IDisposable
 {
     private readonly ILogger<ConsoleDungeonApp> _logger;
     private bool _isRunning = false;
     private bool _disposed = false;
-    private Toplevel? _mainWindow;
+    private Window? _mainWindow;
     private CancellationTokenSource? _cancellationTokenSource;
     private TerminalAppConfig? _config;
+    private IDungeonGameService? _gameService;
+    private System.Timers.Timer? _uiTimer;
+    private Label? _statusLabel;
 
     public event EventHandler<TerminalOutputEventArgs>? OutputReceived;
     public event EventHandler<TerminalExitEventArgs>? Exited;
@@ -23,6 +33,11 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
     public ConsoleDungeonApp(ILogger<ConsoleDungeonApp> logger)
     {
         _logger = logger;
+    }
+
+    // Parameterless constructor for plugin loader instantiation
+    public ConsoleDungeonApp() : this(new LoggerFactory().CreateLogger<ConsoleDungeonApp>())
+    {
     }
 
     public async Task StartAsync(TerminalAppConfig config, CancellationToken ct = default)
@@ -47,6 +62,37 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
 
             // Create main window
             CreateMainWindow();
+
+            // Wire gameplay service if provided
+            if (_config?.Parameters != null && _config.Parameters.TryGetValue("gameService", out var svcObj))
+            {
+                _gameService = svcObj as IDungeonGameService;
+                if (_gameService != null)
+                {
+                    _logger.LogInformation("Initializing DungeonGame via plugin service");
+                    _gameService.Initialize();
+
+                    // Start a simple 10 FPS tick to drive the game
+                    _uiTimer = new System.Timers.Timer(100);
+                    _uiTimer.Elapsed += (s, e) =>
+                    {
+                        try
+                        {
+                            _gameService.Update(0.1f);
+                            if (_statusLabel != null)
+                            {
+                                _statusLabel.Text = $"Gameplay active - {DateTime.Now:HH:mm:ss}";
+                            }
+                            Application.Wakeup();
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Error during game update");
+                        }
+                    };
+                    _uiTimer.Start();
+                }
+            }
 
             // Run the application in a background task
             await Task.Run(() =>
@@ -100,6 +146,15 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
 
             // Wait a bit for graceful shutdown
             await Task.Delay(1000, ct);
+
+            // Stop gameplay tick and shutdown
+            if (_uiTimer != null)
+            {
+                _uiTimer.Stop();
+                _uiTimer.Dispose();
+                _uiTimer = null;
+            }
+            _gameService?.Shutdown();
 
             _isRunning = false;
             _logger.LogInformation("Console Dungeon application stopped");
@@ -156,64 +211,57 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
 
     private void CreateMainWindow()
     {
-        _mainWindow = new Toplevel
+        // Use Window (Terminal.Gui v2) with property initializers
+        _mainWindow = new Window()
         {
-            ColorScheme = Colors.TopLevel
-        };
-
-        // Create a simple UI
-        var frame = new FrameView("Console Dungeon - Terminal.Gui v2")
-        {
+            Title = "Console Dungeon - Terminal.Gui v2",
+            BorderStyle = LineStyle.Single,
             X = 0,
             Y = 0,
             Width = Dim.Fill(),
             Height = Dim.Fill()
         };
 
-        var statusLabel = new Label("WebSocket server integration - Plugin System Active")
+        _statusLabel = new Label
         {
             X = 1,
             Y = 1,
-            Width = Dim.Fill(1),
-            Height = 1
+            Text = "WebSocket server integration - Plugin System Active"
         };
 
-        var pluginInfo = new Label($"Loaded as plugin at {DateTime.Now:HH:mm:ss}")
+        var pluginInfo = new Label
         {
             X = 1,
             Y = 3,
-            Width = Dim.Fill(1),
-            Height = 1
+            Text = $"Loaded as plugin at {DateTime.Now:HH:mm:ss}"
         };
 
-        var instructionLabel = new Label("This Terminal.Gui app is now running as a hot-reloadable plugin!")
+        var instructionLabel = new Label
         {
             X = 1,
             Y = 5,
-            Width = Dim.Fill(1),
-            Height = 1,
-            ColorScheme = Colors.Dialog
+            Text = "This Terminal.Gui v2 app is running via plugin architecture"
         };
 
-        var quitButton = new Button("Quit")
+        var quitButton = new Button
         {
             X = Pos.Center(),
-            Y = Pos.Bottom(_mainWindow) - 3
+            Y = Pos.AnchorEnd(2),
+            Text = "_Quit",
+            IsDefault = true
         };
 
-        quitButton.Clicked += () =>
-        {
-            _logger.LogInformation("Quit button clicked");
+        // v2: use Accepting event
+        quitButton.Accepting += (s, e) => {
+            _logger.LogInformation("Quit button pressed");
             Application.RequestStop();
         };
 
-        frame.Add(statusLabel, pluginInfo, instructionLabel, quitButton);
-        _mainWindow.Add(frame);
+        _mainWindow.Add(_statusLabel, pluginInfo, instructionLabel, quitButton);
 
-        // Handle key events
-        _mainWindow.KeyPress += (e) =>
-        {
-            if (e.KeyEvent.Key == Key.q || e.KeyEvent.Key == Key.Q)
+        // v2: KeyDown event
+        _mainWindow.KeyDown += (sender, e) => {
+            if (e.KeyCode == KeyCode.Q)
             {
                 _logger.LogInformation("Quit key pressed");
                 Application.RequestStop();
@@ -222,7 +270,7 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
         };
 
         // Send initial output event
-        SendOutputEvent("Console Dungeon started successfully as plugin\n");
+        SendOutputEvent("Console Dungeon (v2) started as plugin\n");
     }
 
     private void SendOutputEvent(string message)

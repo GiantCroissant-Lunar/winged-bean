@@ -17,13 +17,15 @@
   <ItemGroup>
     <ProjectReference Include="../../../../shared/WingedBean.Host/WingedBean.Host.csproj" />
     <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Pty/WingedBean.Contracts.Pty.csproj" />
+    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Core/WingedBean.Contracts.Core.csproj" />
+    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Game/WingedBean.Contracts.Game.csproj" />
     <ProjectReference Include="../../../../framework/src/WingedBean.SourceGenerators.Proxy/WingedBean.SourceGenerators.Proxy.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
-    <PackageReference Include="Terminal.Gui" Version="1.16.0" />
+    <PackageReference Include="Terminal.Gui" Version="2.0.0" />
   </ItemGroup>
 
   <ItemGroup>

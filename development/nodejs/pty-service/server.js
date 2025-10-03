@@ -7,10 +7,16 @@ const RecordingManager = require("./recording-manager");
 const WS_PORT = 4041;
 
 // Terminal.Gui application configuration
-const DOTNET_PROJECT_PATH = path.resolve(
+// Prefer running from build output so that plugins.json and plugins/ resolve correctly
+const PROJECT_DIR = path.resolve(
   __dirname,
-  "../../dotnet/console/src/host/TerminalGui.PtyHost/TerminalGui.PtyHost.csproj",
+  "../../dotnet/console/src/host/ConsoleDungeon.Host",
 );
+const BIN_DIR = path.resolve(
+  PROJECT_DIR,
+  "bin/Debug/net8.0"
+);
+const DOTNET_DLL = "ConsoleDungeon.Host.dll";
 
 console.log("Terminal.Gui PTY Service starting...");
 
@@ -23,19 +29,19 @@ console.log(`Recording manager initialized: ${recordingsDir}`);
 const wss = new WebSocket.Server({ port: WS_PORT });
 
 console.log(`WebSocket server listening on port ${WS_PORT}`);
-console.log(`Ready to spawn Terminal.Gui from: ${DOTNET_PROJECT_PATH}`);
+console.log(`Ready to spawn from: ${BIN_DIR}/${DOTNET_DLL}`);
 
 // Handle WebSocket connections
 wss.on("connection", (ws) => {
   console.log("WebSocket client connected");
 
-  // Spawn .NET application directly in PTY (via bash to ensure proper TTY environment)
-  const cmd = `TERM=xterm-256color COLORTERM=truecolor dotnet run --project "${DOTNET_PROJECT_PATH}"`;
+  // Spawn .NET application from build output so relative plugin paths resolve
+  const cmd = `TERM=xterm-256color COLORTERM=truecolor dotnet ./${DOTNET_DLL}`;
   const ptyProcess = pty.spawn("/bin/bash", ["-lc", cmd], {
     name: "xterm-256color",
     cols: 80,
     rows: 24,
-    cwd: path.dirname(DOTNET_PROJECT_PATH),
+    cwd: BIN_DIR,
     env: {
       ...process.env,
       TERM: "xterm-256color",

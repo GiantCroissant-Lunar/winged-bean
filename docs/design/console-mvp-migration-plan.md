@@ -4,6 +4,8 @@
 
 This document outlines the **Minimum Viable Product (MVP)** for migrating the existing `console-dungeon` application to the new `console/` structure while **preserving exact xterm.js functionality**.
 
+> **Note (2025-10-03):** The legacy `development/dotnet/console-dungeon` project has now been removed. All active work should target the `development/dotnet/console/` hosts and plugins described below.
+
 ## Critical Success Criteria
 
 The MVP MUST maintain the current working demo:
@@ -123,7 +125,7 @@ public class Program
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>ConsoleDungeon.Host</RootNamespace>
     <Nullable>enable</Nullable>
   </PropertyGroup>

@@ -16,11 +16,11 @@ internal class ArchQuery : IQuery
     private readonly QueryDescription _queryDescription;
     private readonly ArchWorld _archWorld;
 
-    public ArchQuery(World world, QueryDescription queryDescription, ArchWorld archWorld)
+    public ArchQuery(World world, QueryDescription queryDescription, IWorld worldInterface)
     {
         _world = world;
         _queryDescription = queryDescription;
-        _archWorld = archWorld;
+        _archWorld = (ArchWorld)worldInterface;
     }
 
     public void ForEach(Action<IEntity> action)
@@ -33,7 +33,7 @@ internal class ArchQuery : IQuery
             for (int i = 0; i < chunk.Count; i++)
             {
                 var handle = new EntityHandle(entities[i].Id, entities[i].WorldId);
-                var entity = new ArchEntity(handle, _archWorld.GetArchWorld());
+                var entity = new ArchEntity(handle, _world);
                 action(entity);
             }
         }
@@ -50,7 +50,7 @@ internal class ArchQuery : IQuery
             for (int i = 0; i < chunk.Count; i++)
             {
                 var handle = new EntityHandle(entities[i].Id, entities[i].WorldId);
-                var entity = new ArchEntity(handle, _archWorld.GetArchWorld());
+                var entity = new ArchEntity(handle, _world);
                 results.Add(entity);
             }
         }

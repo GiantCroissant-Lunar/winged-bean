@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using WingedBean.Contracts;
 using WingedBean.Contracts.Core;
+using WingedBean.Contracts.Game;
 using WingedBean.Registry;
 using WingedBean.PluginLoader;
 using WingedBean.Providers.AssemblyContext;
@@ -90,12 +92,30 @@ public class Program
             System.Console.WriteLine("✓ All required services registered");
             System.Console.WriteLine();
 
-            // Step 5: Launch ConsoleDungeon with Registry
-            System.Console.WriteLine("[5/5] Launching ConsoleDungeon...");
+            // Step 5: Launch Terminal App from plugins (RFC-0017)
+            System.Console.WriteLine("[5/5] Launching Terminal App from plugins...");
             System.Console.WriteLine();
 
-            var app = new ConsoleDungeon.Program(registry);
-            await app.RunAsync();
+            if (!registry.IsRegistered<ITerminalApp>())
+            {
+                throw new System.InvalidOperationException("No ITerminalApp registered. Ensure a UI plugin (e.g., ConsoleDungeonApp) is loaded.");
+            }
+
+            var terminalApp = registry.Get<ITerminalApp>();
+            var appConfig = new TerminalAppConfig
+            {
+                Name = "Console Dungeon",
+                Cols = 80,
+                Rows = 24
+            };
+
+            // Provide gameplay service to UI if present (RFC-0017)
+            if (registry.IsRegistered<IDungeonGameService>())
+            {
+                var gameService = registry.Get<IDungeonGameService>();
+                appConfig.Parameters["gameService"] = gameService;
+            }
+            await terminalApp.StartAsync(appConfig);
         }
         catch (System.Exception ex)
         {

@@ -36,9 +36,9 @@ class Program
             var currentDir = Path.GetDirectoryName(typeof(Program).Assembly.Location)!;
             var pluginPaths = new[]
             {
-                Path.GetFullPath(Path.Combine(currentDir, "..", "..", "..", "..", "WingedBean.Plugins.AsciinemaRecorder", "bin", "Debug", "net9.0")),
-                Path.GetFullPath(Path.Combine(currentDir, "..", "..", "..", "..", "WingedBean.Plugins.PtyService", "bin", "Debug", "net9.0")),
-                Path.GetFullPath(Path.Combine(currentDir, "..", "..", "..", "..", "WingedBean.Plugins.ConsoleDungeon", "bin", "Debug", "net9.0"))
+                Path.GetFullPath(Path.Combine(currentDir, "..", "..", "..", "..", "WingedBean.Plugins.AsciinemaRecorder", "bin", "Debug", "net8.0")),
+                Path.GetFullPath(Path.Combine(currentDir, "..", "..", "..", "..", "WingedBean.Plugins.PtyService", "bin", "Debug", "net8.0")),
+                Path.GetFullPath(Path.Combine(currentDir, "..", "..", "..", "..", "WingedBean.Plugins.ConsoleDungeon", "bin", "Debug", "net8.0"))
             };
 
             logger.LogInformation("🔄 Bootstrapping plugin host...");

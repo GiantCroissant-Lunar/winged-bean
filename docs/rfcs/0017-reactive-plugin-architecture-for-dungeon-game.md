@@ -1,7 +1,5 @@
-# RFC-0014: Reactive Plugin Architecture for Dungeon Game
-
 ---
-id: 0014
+id: RFC-0017
 title: Reactive Plugin Architecture for Dungeon Game
 status: Proposed
 category: architecture, plugins
@@ -9,6 +7,8 @@ created: 2025-10-03
 updated: 2025-10-03
 author: Claude Code
 ---
+
+# RFC-0017: Reactive Plugin Architecture for Dungeon Game
 
 ## Summary
 

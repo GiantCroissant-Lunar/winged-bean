@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../../../src/host/ConsoleDungeon/ConsoleDungeon.csproj" />
+    <ProjectReference Include="../../../src/plugins/WingedBean.Plugins.ArchECS/WingedBean.Plugins.ArchECS.csproj" />
   </ItemGroup>
 
 </Project>

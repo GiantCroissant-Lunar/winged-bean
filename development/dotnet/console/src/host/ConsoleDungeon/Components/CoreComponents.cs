@@ -44,3 +44,12 @@ public struct Renderable
     public ConsoleColor BackgroundColor;
     public int RenderLayer; // 0=floor, 1=items, 2=creatures, 3=effects
 }
+
+/// <summary>
+/// Collision/blocking component.
+/// </summary>
+public struct Blocking
+{
+    public bool BlocksMovement;
+    public bool BlocksLight;
+}

@@ -28,15 +28,15 @@ This document outlines the next steps for enhancing the WingedBean console proje
 - ✅ PTY service available
 
 **Technical Stack:**
-- Framework: `.NET 9.0` (needs downgrade to `.NET 8.0` for Tier 3/4)
-- Contracts: `net9.0` (needs change to `.NET Standard 2.1`)
+- Framework: `.NET 8.0` (LTS)
+- Contracts: `netstandard2.1`
 - Terminal UI: Terminal.Gui v2
 - Communication: SuperSocket WebSocket
 
 ### ❌ What We Need
 
 **Compliance Issues:**
-1. **Target Frameworks:** Contracts using `net9.0` instead of `netstandard2.1`
+1. **Target Frameworks:** ✅ Completed – Contracts run on `netstandard2.1` and console Tier 3/4 projects target `net8.0`
 2. **Plugin Loading:** Currently static references, need dynamic runtime loading
 3. **Gameplay Systems:** No ECS implementation
 4. **Game Rules:** No dungeon crawler mechanics
@@ -92,7 +92,7 @@ Project: `framework/src/WingedBean.Registry`
 
 **C. Keep Tier 3/4 Console Projects → `net8.0`**
 
-Projects to update from `net9.0` → `net8.0`:
+Projects to update from `net9.0` → `net8.0` (✅ Completed 2025-10-03):
 ```
 console/src/shared/WingedBean.PluginLoader
 console/src/providers/WingedBean.Providers.AssemblyContext

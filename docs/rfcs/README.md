@@ -118,6 +118,27 @@ This directory contains RFCs (Request for Comments) documenting major architectu
 
 ---
 
+### RFC-0017: Reactive Plugin Architecture for Dungeon Game
+**Status:** Proposed
+**Date:** 2025-10-03
+**Priority:** P1 (High)
+**Category:** gameplay, plugins
+
+**Summary:** Separate ConsoleDungeon gameplay and UI concerns into dedicated plugins that communicate through reactive streams (System.Reactive, ReactiveUI, MessagePipe). Aligns the dungeon crawler experience with the four-tier architecture while enabling hot-swappable UIs.
+
+**Key Actions:**
+- Move Arch ECS gameplay systems into `WingedBean.Plugins.DungeonGame`
+- Limit host responsibility to registry setup and plugin orchestration
+- Provide `IDungeonGameService` observables for UI plugins
+
+**Open Work:**
+- Finalise reactive message contracts
+- Update Terminal UI plugin to consume observables instead of direct ECS access
+
+[Read Full RFC →](./0017-reactive-plugin-architecture-for-dungeon-game.md)
+
+---
+
 ### RFC-0006: Dynamic Plugin Loading and Runtime Composition
 **Status:** Proposed
 **Date:** 2025-10-01
@@ -251,6 +272,20 @@ development/dotnet/
 - [Source Generator Usage Guide](../guides/source-generator-usage.md)
 
 [Read Full RFC →](./0005-target-framework-compliance.md)
+
+---
+
+## Superseded RFCs
+
+### RFC-0014: Engine Profile Abstraction
+**Status:** Superseded by RFC-0017
+**Date:** 2025-10-03
+
+**Summary:** Explored adding an explicit `IEngineProfile` abstraction (inspired by craft-sim) to consolidate engine-specific conventions, build pipelines, and package management. Review concluded the four-tier structure already provides the necessary separation, so the proposal was not adopted.
+
+**Resolution:** Capture profile-specific details in Tier 3/4 adapters and extend `IECSService` for multi-world + editor mode support instead of introducing a new profile registry.
+
+[Read Full RFC →](./0014-engine-profile-abstraction.md)
 
 ---
 
@@ -486,5 +521,5 @@ Links to related docs
 
 ---
 
-**Last Updated:** 2025-10-01
+**Last Updated:** 2025-10-03
 **Maintainer:** WingedBean Architecture Team
