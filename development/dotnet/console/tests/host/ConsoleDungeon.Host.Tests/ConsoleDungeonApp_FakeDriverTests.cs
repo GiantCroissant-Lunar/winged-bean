@@ -111,11 +111,12 @@ namespace ConsoleDungeon.Host.Tests
             var startTask = Task.Run(() => app.StartAsync(cfg, cts.Token));
             await Task.Delay(400);
 
-            // Act: send ESC '[' 'B' as individual runes to simulate raw CSI sequence
-            _driver.SendKeys('\x1b', '[', 'B');
+            // Act: Use ConsoleKey.DownArrow for Terminal.Gui v2 FakeDriver
+            // The refactored input mapper handles VirtualKey codes properly
+            _driver.SendKeys('\0', ConsoleKey.DownArrow, false, false, false);
             await Task.Delay(250);
 
-            // Quit with real ESC
+            // Quit with ESC key
             _driver.SendKeys('\0', ConsoleKey.Escape, false, false, false);
             await Task.Delay(300);
 
