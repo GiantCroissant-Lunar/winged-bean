@@ -93,7 +93,7 @@ public class TerminalGuiSceneProvider : ISceneService
     {
         var rawEvent = new RawKeyEvent(
             virtualKey: GetConsoleKey(keyEvent),
-            rune: keyEvent.AsRune.Value,
+            rune: keyEvent.AsRune.Value > 0 ? (uint?)keyEvent.AsRune.Value : null,
             isCtrl: keyEvent.IsCtrl,
             isAlt: keyEvent.IsAlt,
             isShift: keyEvent.IsShift,
@@ -101,9 +101,9 @@ public class TerminalGuiSceneProvider : ISceneService
         );
 
         var mapped = _inputMapper.Map(rawEvent);
-        if (mapped.HasValue)
+        if (mapped != null)
         {
-            _inputRouter.Dispatch(mapped.Value);
+            _inputRouter.Dispatch(mapped);
             keyEvent.Handled = true;
         }
     }
@@ -127,7 +127,7 @@ public class TerminalGuiSceneProvider : ISceneService
         if (_gameWorldView == null)
             return new Viewport(80, 24);
 
-        return new Viewport(_gameWorldView.Bounds.Width, _gameWorldView.Bounds.Height);
+        return new Viewport(_gameWorldView.Frame.Width, _gameWorldView.Frame.Height);
     }
 
     public void UpdateWorld(IReadOnlyList<EntitySnapshot> snapshots)
