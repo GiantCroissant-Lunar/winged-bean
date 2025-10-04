@@ -13,9 +13,9 @@ public class ConsoleDungeonActivator : IPluginActivator
     public Task ActivateAsync(IServiceCollection services, IServiceProvider hostServices, CancellationToken ct = default)
     {
         var logger = hostServices.GetService<ILogger<ConsoleDungeonActivator>>();
-        logger?.LogInformation("Registering ITerminalApp -> ConsoleDungeonApp");
+        logger?.LogInformation("Registering ITerminalApp -> ConsoleDungeonAppRefactored (RFC-0020/0021)");
 
-        services.AddSingleton<ITerminalApp, ConsoleDungeonApp>();
+        services.AddSingleton<ITerminalApp, ConsoleDungeonAppRefactored>();
         return Task.CompletedTask;
     }
 
