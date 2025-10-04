@@ -1,3 +1,4 @@
+using System;
 using Terminal.Gui;
 using WingedBean.Contracts.Game;
 using WingedBean.Contracts.Input;
@@ -16,8 +17,7 @@ public class TerminalGuiSceneProvider : ISceneService
     private readonly IInputMapper _inputMapper;
     private readonly IInputRouter _inputRouter;
     private Window? _mainWindow;
-    private View? _inputView;
-    private Label? _gameWorldView;
+    private TextView? _gameWorldView;  // Changed from Label to TextView for multi-line text
     private Label? _statusLabel;
     private bool _initialized = false;
     private Camera _camera = Camera.Static(0, 0);
@@ -62,31 +62,23 @@ public class TerminalGuiSceneProvider : ISceneService
             Text = "Loading..."
         };
 
-        _gameWorldView = new Label
+        _gameWorldView = new TextView
         {
             X = 0,
             Y = 1,
             Width = Dim.Fill(),
             Height = Dim.Fill(),
-            Text = "Initializing game..."
+            Text = "Initializing game...",
+            ReadOnly = true,
+            WordWrap = false
         };
 
-        _inputView = new View
-        {
-            X = 0,
-            Y = 0,
-            Width = Dim.Fill(),
-            Height = Dim.Fill(),
-            CanFocus = true
-        };
-
-        _inputView.KeyDown += OnKeyDown;
+        _gameWorldView.KeyDown += OnKeyDown;
 
         _mainWindow.Add(_statusLabel);
         _mainWindow.Add(_gameWorldView);
-        _mainWindow.Add(_inputView);
 
-        _inputView.SetFocus();
+        _gameWorldView.SetFocus();
 
         _initialized = true;
     }
@@ -129,7 +121,15 @@ public class TerminalGuiSceneProvider : ISceneService
         if (_gameWorldView == null)
             return new Viewport(80, 24);
 
-        return new Viewport(_gameWorldView.Frame.Width, _gameWorldView.Frame.Height);
+        // Use Frame dimensions if available, otherwise fallback to 80x24
+        int width = _gameWorldView.Frame.Width;
+        int height = _gameWorldView.Frame.Height;
+
+        // If Frame hasn't been laid out yet (width/height are 0), use defaults
+        if (width <= 0) width = 80;
+        if (height <= 0) height = 23;  // 24 minus 1 for status bar
+
+        return new Viewport(width, height);
     }
 
     public CameraViewport GetCameraViewport()
@@ -162,7 +162,8 @@ public class TerminalGuiSceneProvider : ISceneService
 
             var viewport = GetViewport();
             var buffer = _renderService.Render(toRender, viewport.Width, viewport.Height);
-            _gameWorldView.Text = buffer.ToText();
+            var text = buffer.ToPlainText(); // Use plain text (TextView will render it directly)
+            _gameWorldView.Text = text;
         });
     }
 
