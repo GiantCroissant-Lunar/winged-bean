@@ -20,4 +20,3 @@ Build & Run rules (normative):
 
 - R-RUN-023: Keep plugin paths relative.
   - Artifact runs rely on relative paths with loader fallback; avoid absolute paths.
-

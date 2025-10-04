@@ -439,6 +439,110 @@ RFC-0008 (Testing & Recording) ← Can run in parallel with all above
 
 ---
 
+### RFC-0022: FigmaSharp Core Architecture
+**Status:** 📝 Draft
+**Date:** 2025-10-04
+**Priority:** P1 (High)
+**Category:** architecture, ui, figma
+**Estimated Effort:** 2-3 weeks
+
+**Summary:** Establish the FigmaSharp framework architecture for transforming Figma designs into UI framework implementations. Provides a framework-agnostic abstraction layer between Figma's design model and specific UI frameworks (Terminal.Gui, Unity UGUI, Unity UI Toolkit, Godot UI).
+
+**Key Components:**
+- Figma domain model (plain C#, no Unity types)
+- Abstract UI model (UIElement, LayoutData, StyleData)
+- IUIRenderer interface for framework-specific renderers
+- FigmaTransformer (port from D.A. Assets)
+- FigmaToUIPipeline (orchestration)
+
+**Benefits:**
+- ✅ One-to-many transformation (Figma → multiple frameworks)
+- ✅ Reusable transformation logic
+- ✅ No Unity dependencies in core
+- ✅ Plugin-based renderer system
+
+[Read Full RFC →](./0022-figmasharp-core-architecture.md)
+
+---
+
+### RFC-0023: FigmaSharp Layout Transformation
+**Status:** 📝 Draft
+**Date:** 2025-10-04
+**Priority:** P1 (High)
+**Category:** architecture, ui, figma, layout
+**Estimated Effort:** 2 weeks
+
+**Summary:** Define the layout transformation algorithm for converting Figma's auto-layout system to framework-agnostic layout data. Ports D.A. Assets' layout calculation logic to plain C# and adapts it for multi-framework support.
+
+**Key Algorithms:**
+- Global rect calculation (position + size)
+- Auto-layout transformation (horizontal/vertical/wrap)
+- SPACE_BETWEEN distribution
+- LayoutGrow and LayoutAlign handling
+- Padding calculation with adjustment
+- Framework-specific adapters (Terminal.Gui, Unity, Godot)
+
+**Benefits:**
+- ✅ Handles all Figma layout modes
+- ✅ Supports nested auto-layouts
+- ✅ Framework-agnostic output
+- ✅ Pixel-to-character conversion for Terminal.Gui
+
+[Read Full RFC →](./0023-figmasharp-layout-transformation.md)
+
+---
+
+### RFC-0024: FigmaSharp Plugin Integration
+**Status:** 📝 Draft
+**Date:** 2025-10-04
+**Priority:** P1 (High)
+**Category:** architecture, plugins, figma
+**Estimated Effort:** 2-3 weeks
+
+**Summary:** Integrate FigmaSharp with the WingedBean plugin architecture (RFC-0003) to enable hot-swappable UI renderers. FigmaSharp core is a framework package, while renderer implementations are plugins.
+
+**Key Features:**
+- FigmaSharp core as Tier 1/2 framework packages
+- Renderer plugins as Tier 4 (hot-swappable)
+- Profile-specific loading (console → Terminal.Gui, Unity → UGUI)
+- Dependency resolution (core loads before renderers)
+- Service composition (multiple renderers coexist)
+
+**Benefits:**
+- ✅ Hot-reload renderers without restart
+- ✅ Profile-agnostic design
+- ✅ Plugin discovery and dependency resolution
+- ✅ Service registration via IPluginActivator
+
+[Read Full RFC →](./0024-figmasharp-plugin-integration.md)
+
+---
+
+### RFC-0025: FigmaSharp Renderer Implementations
+**Status:** 📝 Draft
+**Date:** 2025-10-04
+**Priority:** P1 (High)
+**Category:** implementation, ui, figma, renderers
+**Estimated Effort:** 3-4 weeks
+
+**Summary:** Define implementation specifications for FigmaSharp renderer plugins across different UI frameworks: Terminal.Gui v2, Unity UGUI, Unity UI Toolkit, and Godot UI.
+
+**Renderers:**
+- **Terminal.Gui v2**: Character-based, manual auto-layout positioning
+- **Unity UGUI**: RectTransform, LayoutGroup, full styling
+- **Unity UI Toolkit**: Flexbox, USS styling, UXML generation
+- **Godot UI**: Control nodes, Container layout, anchors
+
+**Benefits:**
+- ✅ Complete renderer implementations
+- ✅ Framework-specific optimizations
+- ✅ Handles all layout and style features
+- ✅ Consistent API across frameworks
+
+[Read Full RFC →](./0025-figmasharp-renderer-implementations.md)
+
+---
+
 ## Future RFCs (Planned)
 
 ### RFC-0009: Dungeon Generation System (Planned)

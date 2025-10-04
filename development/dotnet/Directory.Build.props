@@ -1,16 +1,16 @@
 <Project>
   <!-- Global build properties for all .NET projects -->
-  
+
   <PropertyGroup Label="Source Link Configuration">
     <!-- Publish repository URL in NuGet package metadata -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    
+
     <!-- Embed source files not tracked by source control in PDB -->
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    
+
     <!-- Enable deterministic builds for CI/CD reproducibility -->
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
-    
+
     <!-- Use embedded PDBs for better portability (optional - can be overridden per project) -->
     <!-- <DebugType>embedded</DebugType> -->
   </PropertyGroup>

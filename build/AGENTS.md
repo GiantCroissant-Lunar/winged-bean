@@ -18,4 +18,3 @@ Normative rules for building and running console apps:
 
 - Keep plugin paths relative (R-RUN-023).
   - The loader can resolve flattened artifact layouts; avoid absolute paths.
-
