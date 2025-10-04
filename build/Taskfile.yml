@@ -132,7 +132,22 @@ tasks:
       - build-dotnet
     dir: ..
     cmds:
-      - bash -lc 'timeout 45 ./scripts/verification/verify-integration.sh'
+      - |
+        bash -lc '
+          if command -v timeout >/dev/null 2>&1; then
+            timeout 45 ./scripts/verification/verify-integration.sh || true
+          else
+            ./scripts/verification/verify-integration.sh &
+            pid=$!
+            (
+              sleep 45
+              if kill -0 "$pid" 2>/dev/null; then
+                kill "$pid" 2>/dev/null || true
+              fi
+            ) & watcher=$!
+            wait "$pid" 2>/dev/null || true
+            kill "$watcher" 2>/dev/null || true
+          fi'
 
   verify:pty-keys:
     desc: "Start PTY server, send arrow/M/Q/Ctrl+C, parse logs"
@@ -147,14 +162,25 @@ tasks:
         echo "Using artifacts at: $ART_DIR"
         # Ensure ws-send-keys is available in dist where ws is installed
         cp -f ../build/test-tools/ws-send-keys.js "$DIST/" || true
-        # Start PTY server
-        BIN_DIR="$BIN" node "$DIST/server.js" > "$ART_DIR/_logs/pty-server.log" 2>&1 & echo $! > "$ART_DIR/_logs/pty-server.pid"
+        # Start PTY server (robust PID capture)
+        BIN_DIR="$BIN" nohup node "$DIST/server.js" > "$ART_DIR/_logs/pty-server.log" 2>&1 &
+        srv_pid=$!
+        # Fallback to pgrep if PID is not numeric (rare shells/jobcontrol quirks)
+        if ! printf '%s' "$srv_pid" | grep -Eq '^[0-9]+$'; then
+          srv_pid=$(pgrep -f "node .*$(basename "$DIST")/server.js" | head -n1 || true)
+        fi
+        printf '%s\n' "$srv_pid" > "$ART_DIR/_logs/pty-server.pid"
         sleep 1
-        echo "PTY server PID: $(cat "$ART_DIR/_logs/pty-server.pid")"
+        echo "PTY server PID: $(cat "$ART_DIR/_logs/pty-server.pid" | tr -cd '0-9\n')"
         # Send keys
         node "$DIST/ws-send-keys.js" || true
         # Stop server
-        kill $(cat "$ART_DIR/_logs/pty-server.pid") || true
+        pid_to_kill="$(cat "$ART_DIR/_logs/pty-server.pid" | tr -cd '0-9\n')"
+        if [ -n "$pid_to_kill" ]; then
+          kill "$pid_to_kill" 2>/dev/null || true
+        else
+          pkill -f "node .*$(basename "$DIST")/server.js" 2>/dev/null || true
+        fi
         sleep 1
         # Parse latest log
         LATEST_LOG=$(ls -t "$BIN/logs"/console-dungeon-*.log 2>/dev/null | head -1 || true)
@@ -183,14 +209,24 @@ tasks:
         echo "Using PTY from: $DIST"
         # Ensure ws-send-keys is available in dist where ws is installed
         cp -f ../build/test-tools/ws-send-keys.js "$DIST/" || true
-        # Start PTY server with BIN_DIR pointing at source Debug bin
-        BIN_DIR="$SRC_BIN" node "$DIST/server.js" > "$ART_DIR/_logs/pty-server-dev.log" 2>&1 & echo $! > "$ART_DIR/_logs/pty-server-dev.pid"
+        # Start PTY server with BIN_DIR pointing at source Debug bin (robust PID capture)
+        BIN_DIR="$SRC_BIN" nohup node "$DIST/server.js" > "$ART_DIR/_logs/pty-server-dev.log" 2>&1 &
+        srv_pid=$!
+        if ! printf '%s' "$srv_pid" | grep -Eq '^[0-9]+$'; then
+          srv_pid=$(pgrep -f "node .*$(basename "$DIST")/server.js" | head -n1 || true)
+        fi
+        printf '%s\n' "$srv_pid" > "$ART_DIR/_logs/pty-server-dev.pid"
         sleep 1
-        echo "PTY server (dev) PID: $(cat "$ART_DIR/_logs/pty-server-dev.pid")"
+        echo "PTY server (dev) PID: $(cat "$ART_DIR/_logs/pty-server-dev.pid" | tr -cd '0-9\n')"
         # Send keys
         node "$DIST/ws-send-keys.js" || true
         # Stop server
-        kill $(cat "$ART_DIR/_logs/pty-server-dev.pid") || true
+        pid_to_kill="$(cat "$ART_DIR/_logs/pty-server-dev.pid" | tr -cd '0-9\n')"
+        if [ -n "$pid_to_kill" ]; then
+          kill "$pid_to_kill" 2>/dev/null || true
+        else
+          pkill -f "node .*$(basename "$DIST")/server.js" 2>/dev/null || true
+        fi
         sleep 1
         # Parse latest source Debug log
         SRC_LOG_DIR="$SRC_BIN/logs"

@@ -32,6 +32,8 @@ module.exports = {
       cwd: "./sites/docs",
       script: "npm",
       args: "run dev",
+      // Ensure PM2 does not try to execute the script with Node
+      interpreter: "none",
       watch: false, // Astro has its own file watcher via Vite
       node_args: "--no-experimental-strip-types", // Disable Node.js type stripping for Starlight compatibility
       env: {
