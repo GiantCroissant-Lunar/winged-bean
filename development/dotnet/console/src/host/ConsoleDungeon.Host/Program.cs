@@ -38,7 +38,9 @@ public class Program
 
             // Step 2: Load plugin configuration
             System.Console.WriteLine("[2/5] Loading plugin configuration...");
-            var config = await LoadPluginConfigurationAsync("plugins.json");
+            var exeDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? System.Environment.CurrentDirectory;
+            var configPath = System.IO.Path.Combine(exeDirectory, "plugins.json");
+            var config = await LoadPluginConfigurationAsync(configPath);
             var enabledPlugins = config.Plugins
                 .Where(p => p.Enabled)
                 .OrderByDescending(p => p.Priority)
@@ -62,7 +64,11 @@ public class Program
 
                 try
                 {
-                    var plugin = await pluginLoader.LoadAsync(descriptor.Path);
+                    // Resolve plugin path relative to executable directory
+                    var pluginPath = System.IO.Path.IsPathRooted(descriptor.Path) 
+                        ? descriptor.Path 
+                        : System.IO.Path.Combine(exeDirectory, descriptor.Path);
+                    var plugin = await pluginLoader.LoadAsync(pluginPath);
                     loadedPlugins[descriptor.Id] = plugin;
 
                     System.Console.WriteLine($"    ✓ Loaded: {plugin.Manifest.Id} v{plugin.Manifest.Version}");
