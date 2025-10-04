@@ -1,0 +1,34 @@
+{
+  "id": "wingedbean.plugins.figmasharp.terminalgui",
+  "version": "1.0.0",
+  "name": "FigmaSharp Terminal.Gui Renderer",
+  "description": "Renders Figma designs to Terminal.Gui v2 console UI",
+  "author": "WingedBean Team",
+  "license": "MIT",
+
+  "entryPoint": {
+    "dotnet": "./WingedBean.Plugins.FigmaSharp.TerminalGui.dll",
+    "nodejs": null,
+    "unity": null,
+    "godot": null
+  },
+
+  "dependencies": {
+    "wingedbean.contracts.figmasharp": "^1.0.0"
+  },
+
+  "exports": {
+    "services": [
+      {
+        "interface": "IUIRenderer",
+        "implementation": "TerminalGuiRenderer",
+        "lifecycle": "singleton"
+      }
+    ]
+  },
+
+  "capabilities": ["ui-rendering", "terminal-gui", "figma-transformation"],
+  "supportedProfiles": ["console"],
+  "loadStrategy": "lazy",
+  "quiesceSeconds": 5
+}
