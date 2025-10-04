@@ -1,0 +1,31 @@
+{
+  "id": "winged-bean.providers.input",
+  "name": "Default Input Provider",
+  "version": "1.0.0",
+  "description": "Default input mapper and router implementation",
+  "author": "WingedBean Team",
+  "entryPoint": { "dotnet": "WingedBean.Providers.Input.dll" },
+  "dependencies": {},
+  "exports": {
+    "services": [
+      {
+        "interface": "WingedBean.Contracts.Input.IInputMapper",
+        "implementation": "WingedBean.Providers.Input.DefaultInputMapper",
+        "lifecycle": "singleton"
+      },
+      {
+        "interface": "WingedBean.Contracts.Input.IInputRouter",
+        "implementation": "WingedBean.Providers.Input.DefaultInputRouter",
+        "lifecycle": "singleton"
+      }
+    ]
+  },
+  "capabilities": [
+    "input-mapping",
+    "input-routing"
+  ],
+  "tags": ["input", "terminal", "keyboard"],
+  "metadata": {
+    "architecture": "RFC-0021"
+  }
+}

@@ -74,10 +74,13 @@ tasks:
     deps: [init-dirs]
     dir: ../development/nodejs/pty-service
     cmds:
-      # PTY service is plain JS - copy source files to artifacts
+      # PTY service is plain JS - copy source files to artifacts and install prod deps in dist
       - |
         echo "Copying PTY service files..." | tee ../../../build/{{.ARTIFACT_DIR}}/_logs/pty-build.log
         cp -v *.js package*.json ../../../build/{{.ARTIFACT_DIR}}/pty/dist/ 2>&1 | tee -a ../../../build/{{.ARTIFACT_DIR}}/_logs/pty-build.log
+        # Copy version helper next to server.js for artifact-only runtime
+        cp -v ../get-version.js ../../../build/{{.ARTIFACT_DIR}}/pty/dist/ 2>&1 | tee -a ../../../build/{{.ARTIFACT_DIR}}/_logs/pty-build.log || true
+        cd ../../../build/{{.ARTIFACT_DIR}}/pty/dist && npm ci --omit=dev 2>&1 | tee -a ../../_logs/pty-build.log
 
   build-all:
     desc: "Build all components"
@@ -87,6 +90,20 @@ tasks:
       - build-pty
     cmds:
       - echo "All builds completed for version {{.VERSION}}"
+
+  console:debug:
+    desc: "Run ConsoleDungeon.Host from latest artifact in DEBUG_MINIMAL_UI"
+    deps:
+      - build-all
+    cmds:
+      - ./test-tools/run-debug-mode.sh
+
+  console:normal:
+    desc: "Run ConsoleDungeon.Host from latest artifact (full UI)"
+    deps:
+      - build-all
+    cmds:
+      - ./test-tools/run-normal-mode.sh
 
   clean:
     desc: Clean build artifacts and Task cache
@@ -116,6 +133,74 @@ tasks:
     dir: ..
     cmds:
       - bash -lc 'timeout 45 ./scripts/verification/verify-integration.sh'
+
+  verify:pty-keys:
+    desc: "Start PTY server, send arrow/M/Q/Ctrl+C, parse logs"
+    deps:
+      - build-all
+    cmds:
+      - |
+        set -euo pipefail
+        ART_DIR="_artifacts/v{{.VERSION}}"
+        DIST="$ART_DIR/pty/dist"
+        BIN="$ART_DIR/dotnet/bin"
+        echo "Using artifacts at: $ART_DIR"
+        # Ensure ws-send-keys is available in dist where ws is installed
+        cp -f ../build/test-tools/ws-send-keys.js "$DIST/" || true
+        # Start PTY server
+        BIN_DIR="$BIN" node "$DIST/server.js" > "$ART_DIR/_logs/pty-server.log" 2>&1 & echo $! > "$ART_DIR/_logs/pty-server.pid"
+        sleep 1
+        echo "PTY server PID: $(cat "$ART_DIR/_logs/pty-server.pid")"
+        # Send keys
+        node "$DIST/ws-send-keys.js" || true
+        # Stop server
+        kill $(cat "$ART_DIR/_logs/pty-server.pid") || true
+        sleep 1
+        # Parse latest log
+        LATEST_LOG=$(ls -t "$BIN/logs"/console-dungeon-*.log 2>/dev/null | head -1 || true)
+        if [[ -n "${LATEST_LOG:-}" ]]; then
+          echo "Latest log: $LATEST_LOG"
+          node ../build/test-tools/parse-keylog.js "$LATEST_LOG"
+        else
+          echo "No log found in $BIN/logs"
+        fi
+
+  verify:pty-keys:dev:
+    desc: "Dev mode: run PTY server against source Host Debug bin, send keys, parse source logs"
+    deps:
+      - build-all
+    cmds:
+      - |
+        set -euo pipefail
+        # Build ConsoleDungeon.Host in Debug to produce bin/Debug outputs
+        pushd ../development/dotnet/console/src/host/ConsoleDungeon.Host >/dev/null
+        dotnet build -c Debug
+        SRC_BIN="$(pwd)/bin/Debug/net8.0"
+        popd >/dev/null
+        # Use latest artifact PTY server for consistency
+        ART_DIR="_artifacts/v{{.VERSION}}"
+        DIST="$ART_DIR/pty/dist"
+        echo "Using PTY from: $DIST"
+        # Ensure ws-send-keys is available in dist where ws is installed
+        cp -f ../build/test-tools/ws-send-keys.js "$DIST/" || true
+        # Start PTY server with BIN_DIR pointing at source Debug bin
+        BIN_DIR="$SRC_BIN" node "$DIST/server.js" > "$ART_DIR/_logs/pty-server-dev.log" 2>&1 & echo $! > "$ART_DIR/_logs/pty-server-dev.pid"
+        sleep 1
+        echo "PTY server (dev) PID: $(cat "$ART_DIR/_logs/pty-server-dev.pid")"
+        # Send keys
+        node "$DIST/ws-send-keys.js" || true
+        # Stop server
+        kill $(cat "$ART_DIR/_logs/pty-server-dev.pid") || true
+        sleep 1
+        # Parse latest source Debug log
+        SRC_LOG_DIR="$SRC_BIN/logs"
+        LATEST_LOG=$(ls -t "$SRC_LOG_DIR"/console-dungeon-*.log 2>/dev/null | head -1 || true)
+        if [[ -n "${LATEST_LOG:-}" ]]; then
+          echo "Latest source log: $LATEST_LOG"
+          node ../build/test-tools/parse-keylog.js "$LATEST_LOG"
+        else
+          echo "No log found in $SRC_LOG_DIR"
+        fi
 
   dev:start:
     desc: "Start all development services (PTY, docs-site, console) with PM2"

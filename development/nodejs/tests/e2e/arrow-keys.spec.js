@@ -19,7 +19,12 @@ async function getPlayerPos(page) {
 test.describe('Arrow keys move player in Xterm/PTy', () => {
   test('down and right should move @', async ({ page }) => {
     await page.goto('http://localhost:4321/demo/?xtermDebug=1');
-    await page.waitForLoadState('networkidle');
+    // Do not wait for 'networkidle' because the page maintains long-lived WebSocket/heartbeats
+    // Instead, wait for the terminal container and xterm instance to be ready
+    await page.waitForSelector('#pty-terminal', { timeout: 30000 });
+    await page.waitForFunction(() => {
+      return !!(window.__xterms && window.__xterms['pty-terminal']);
+    }, { timeout: 30000 });
 
     const term = page.locator('#pty-terminal');
     await expect(term).toBeVisible({ timeout: 10000 });

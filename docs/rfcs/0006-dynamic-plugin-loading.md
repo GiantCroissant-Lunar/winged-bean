@@ -509,10 +509,11 @@ ls -la console/src/host/ConsoleDungeon.Host/bin/Debug/net8.0/plugins/
 
 ### Phase 5: End-to-End Testing (Day 3)
 
-1. **Run ConsoleDungeon.Host:**
+1. **Run ConsoleDungeon.Host (artifact-first):**
 ```bash
-cd console/src/host/ConsoleDungeon.Host
-dotnet run
+cd build
+task build-all
+task console:normal
 ```
 
 Expected output:
@@ -550,9 +551,9 @@ ConsoleDungeon.Host - Dynamic Plugin Mode
 
 2. **Test xterm.js integration:**
 ```bash
-# Terminal 1: Run app
-cd console/src/host/ConsoleDungeon.Host
-dotnet run
+# Terminal 1: Run app from latest artifact (policy)
+cd build && task build-all
+task console:normal
 
 # Terminal 2: Run frontend
 cd development/nodejs/sites/docs

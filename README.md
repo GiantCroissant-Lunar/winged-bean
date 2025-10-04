@@ -109,12 +109,14 @@ pre-commit install
 # Install Act for local workflow testing (macOS)
 brew install act
 
-# Build .NET projects
-cd projects/dotnet
-dotnet build WingedBean.sln
+# Build via Task (artifact-first policy)
+cd build
+task build-all
 
-# Run demo application
-dotnet run --project WingedBean.Demo
+# Run ConsoleDungeon.Host from versioned artifacts
+task console:normal   # full UI
+# or
+task console:debug    # blank UI for isolating input handling
 ```
 
 ### Local Workflow Testing with Act

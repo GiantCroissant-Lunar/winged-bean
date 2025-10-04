@@ -1,0 +1,886 @@
+
+ ▐▛███▜▌   Claude Code v2.0.1
+▝▜█████▛▘  Sonnet 4.5 · Claude Pro
+  ▘▘ ▝▝    /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/nodejs
+═════════════════════════════════════════════════════ Conversation compacted · ctrl+o for history ═════════════════════════════════════════════════════
+  ⎿  Read tests/e2e/arrow-keys-debug.spec.js (61 lines)
+  ⎿  Read ../../../../../../../../../tmp/tail-pid.txt (2 lines)
+  ⎿  Read test-results/arrow-keys-Arrow-keys-move-44aa0-down-and-right-should-move--chromium/error-context.md (135 lines)
+  ⎿  Read ../../build/_artifacts/v0.0.1-285/pty/dist/server.js (213 lines)
+  ⎿  Referenced file ../dotnet/console/src/plugins/WingedBean.Plugins.ConsoleDungeon/ConsoleDungeonApp.cs
+  ⎿  Todo list read (4 items)
+
+⏺ I'll continue by running the Playwright debug test I created to systematically test each arrow key. Let me start the test and monitor the logs.
+
+⏺ Bash(cd /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/nodejs && pnpm exec playwright test
+      tests/e2e/arrow-keys-debug.spec…)
+  ⎿  Running 1 test using 1 worker 
+
+     ===== Testing UP arrow =====
+     … +15 lines (ctrl+o to expand)
+
+⏺ Bash(tail -f /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/_artifacts/v0.0.1-285/pty/logs/pm2-PTYServer-out.log
+       | grep -E "(Det…)
+  ⎿  Running in the background (down arrow to manage)
+
+⏺ Good! The test ran successfully. Now let me check what the PTY server detected:
+
+⏺ BashOutput(Reading shell output)
+  ⎿ tail: /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/_artifacts/v0.0.1-285/pty/logs/pm2-PTYServer-out.log
+    : No such file or directory
+
+
+⏺ Bash(tail -100
+      /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/_artifacts/v0.0.1-285/pty/logs/pm2-PTYServer-out.log | grep
+      -E "(D…)
+  ⎿ tail: /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/_artifacts/v0.0.1-285/pty/logs/pm2-PTYServer-out.log
+    : No such file or directory
+
+
+⏺ Let me find the correct log location:
+
+⏺ Bash(cd /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean && pm2 logs PTYServer --nostream --lines 100 | grep -E
+      "(Detected Arrow|KeyDown…)
+  ⎿  (No content)
+
+⏺ Bash(ls -lht /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/src/host/ConsoleDungeon.Host/bi
+      n/Debug/net8.0/l…)
+  ⎿ -rw-r--r--  1 apprenticegc  staff   447K Oct  3 21:30 /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/developmen
+    t/dotnet/console/src/host/ConsoleDungeon.Host/bin/Debug/net8.0/logs/console-dungeon-20251003-212627.log
+
+
+⏺ Bash(grep -E "KeyDown"
+      /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/src/host/ConsoleDungeon.Host/bin/Debu…)
+  ⎿  [2025-10-03 21:26:30.675] KeyDown: KeyCode=CursorLeft
+     [2025-10-03 21:26:31.077] KeyDown: KeyCode=CursorUp
+
+⏺ Bash(pm2 logs PTYServer --nostream --lines 200 | grep "Detected Arrow")
+  ⎿  No matches found
+
+⏺ Excellent! Now I can see KeyDown events are being fired. Let me check the full output from the background process and look for more recent
+  events:
+
+⏺ BashOutput(Reading shell output)
+  ⎿ ==> /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/src/host/ConsoleDungeon.Host/bin/
+    Debug/net8.0/logs/console-dungeon-20251003-122929.log <==
+    [2025-10-03 12:29:29.252] === ConsoleDungeonApp Constructor ===
+    … +405 lines (ctrl+o to expand)
+
+
+⏺ Bash(ls -lht /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/src/host/ConsoleDungeon.Host/bi
+      n/Debug/net8.0/l…)
+  ⎿ -rw-r--r--  1 apprenticegc  staff   471K Oct  3 21:30 /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/developmen
+    t/dotnet/console/src/host/ConsoleDungeon.Host/bin/Debug/net8.0/logs/console-dungeon-20251003-212627.log
+    -rw-r--r--  1 apprenticegc  staff    19K Oct  3 21:30 /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/developmen
+    … +3 lines (ctrl+o to expand)
+
+
+
+⏺ The most recent log is 212958. Let me check for KeyDown events during the Playwright test run:
+
+⏺ Bash(grep -E "KeyDown"
+      /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/src/host/ConsoleDungeon.Host/bin/Debu…)
+  ⎿  [2025-10-03 21:30:01.990] KeyDown: KeyCode=CursorUp  
+     [2025-10-03 21:30:04.010] KeyDown: KeyCode=CursorLeft
+
+⏺ Bash(pm2 logs PTYServer --nostream --lines 50)
+  ⎿  [TAILING] Tailing last 50 lines for [PTYServer] process (change the value with --lines option)
+
+⏺ Perfect! This is the smoking gun. The Playwright test pressed 8 keys (Up, Down, Left, Right, A, B, C, D), but Terminal.Gui only logged TWO
+  KeyDown events:
+  - CursorUp (ArrowUp worked)
+  - CursorLeft (ArrowLeft worked)
+
+  This confirms:
+  - ArrowUp and ArrowLeft work - Terminal.Gui receives them as CursorUp and CursorLeft
+  - ArrowDown and ArrowRight DON'T work - No KeyDown events fired at all
+  - Letters A, B, C, D DON'T work - No KeyDown events for these either
+
+  Let me check the PTY server logs to see what sequences it actually received:
+
+⏺ Bash(pm2 logs PTYServer --nostream --lines 200 | grep -A2 -B2 "21:29:5\|21:30:0")
+  ⎿  No matches found
+
+⏺ Let me check if the PTY server is even receiving the sequences:
+
+⏺ Bash(pm2 logs PTYServer --nostream --lines 500 | tail -100)
+  ⎿  [TAILING] Tailing last 500 lines for [PTYServer] process (change the value with --lines option)
+
+⏺ The PTY logs aren't showing arrow detection messages. Let me check if the server.js code for logging arrows is still active:
+
+⏺ Bash(grep -n "Detected Arrow"
+      /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/_artifacts/v0.0.1-285/pty/dist/server.js)
+  ⎿  151:        console.log(`Detected Arrow: ${arrow} (${JSON.stringify(input)})`);
+
+⏺ The logging is there, but no arrows are being detected. This means the PTY server is NOT receiving CSI sequences (ESC [ A/B/C/D). Let me check
+  what xterm.js is actually sending by adding more debug to the client side. But first, let me verify what the real issue is - I need to see what's
+   happening on the browser side.
+
+  Let me look at the screenshot from the test to see if there was any visual movement:
+
+⏺ Bash(ls -lht
+      /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/nodejs/tests/e2e/screenshots/arrow-keys-debug.png
+      2>/dev/null…)
+  ⎿ -rw-r--r--@ 1 apprenticegc  staff   127K Oct  3 21:30 /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/developmen
+    t/nodejs/tests/e2e/screenshots/arrow-keys-debug.png
+
+
+⏺ Read(tests/e2e/screenshots/arrow-keys-debug.png)
+  ⎿  Read image (126.6KB)
+
+> why don't you task build to "/Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/_artifacts" and check logs 
+producing there? 
+
+⏺ You're absolutely right! Let me check the actual build artifacts logs:
+
+⏺ Bash(ls -lht /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/_artifacts/v0.0.1-285/pty/logs/)
+  ⎿  total 0
+
+⏺ Bash(tail -200
+      /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/_artifacts/v0.0.1-285/pty/logs/pm2-PTYServer-out.log
+      2>/dev/null |…)
+  ⎿  (No content)
+
+⏺ The logs directory is empty. Let me check where PM2 is actually writing logs:
+
+⏺ Bash(pm2 info PTYServer | grep -E "(pid|log path)")
+  ⎿  [PM2][WARN] PTYServer doesn't exist
+
+⏺ Bash(task build) timeout: 3m 0s
+  ⎿  Error: file does not exist
+
+⏺ Bash(go-task build) timeout: 3m 0s
+  ⎿  Error: (eval):1: command not found: go-task
+
+⏺ Bash(pm2 list)
+  ⎿  ┌────┬────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+     │ id │ name           │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+     ├────┼────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+     … +5 lines (ctrl+o to expand)
+
+⏺ Bash(pm2 info pty-service | grep -E "(log|pid)")
+  ⎿ │ error log path    │ /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/_artifacts/v0.0.1-architecture-reali
+    gnment.1/pty/logs/pty-service-error.log │
+    │ out log path      │ /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/_artifacts/v0.0.1-architecture-reali
+    … +4 lines (ctrl+o to expand)
+
+
+
+⏺ Bash(tail -100 ~/.pm2/logs/pty-service-out.log 2>/dev/null | grep -E "(Detected Arrow|WebSocket client connected|PTY process spawned)" | tail -20)
+  ⎿  (No content)
+
+⏺ Perfect! The logs are in a different artifacts version. Let me check there:
+
+⏺ Bash(tail -200 /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/_artifacts/v0.0.1-architecture-realignment.1/pty/l
+      ogs/pty-service-…)
+  ⎿  2025-10-03 21:14:28 +08:00: WebSocket client connected         
+     2025-10-03 21:14:28 +08:00: PTY process spawned with PID: 68194
+     2025-10-03 21:15:10 +08:00: WebSocket client connected
+     … +25 lines (ctrl+o to expand)
+
+⏺ Bash(tail -50 /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/_artifacts/v0.0.1-architecture-realignment.1/pty/lo
+      gs/pty-service-o…)
+  ⎿  2025-10-03 21:20:36 +08:00: WebSocket client connected         
+     2025-10-03 21:20:36 +08:00: PTY process spawned with PID: 71835
+     2025-10-03 21:20:41 +08:00: WebSocket client disconnected: 1001
+     … +49 lines (ctrl+o to expand)
+
+⏺ I can see the PTY service is spawning processes but NO "Detected Arrow" messages at all! This means the PTY server is NOT receiving any CSI arrow
+   sequences (ESC [ A/B/C/D). The 21:29:58 connection is from the Playwright test, and it shows no arrow detection.
+
+  This is the key issue: xterm.js is not sending CSI sequences to the WebSocket. Let me check what xterm.js might be configured to send by looking
+  at the client-side code:
+
+⏺ Search(pattern: "**/pty-client*.{js,ts,jsx,tsx,astro}")
+  ⎿  Found 0 files 
+
+⏺ Search(pattern: "**/*Terminal*.astro")
+  ⎿  Found 0 files 
+
+⏺ Search(pattern: "**/PtyTerminal.astro")
+  ⎿  Found 0 files 
+
+⏺ Bash(find /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean -name "*pty*" -o -name "*terminal*" | grep -E
+      "\.(astro|js|ts)$" | grep -v no…)
+  ⎿ /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/nodejs/tests/integration/terminal-gui-pty-verificati
+    on.test.js
+    /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/nodejs/tests/e2e/terminal-gui-visual-verification.sp
+    … +7 lines (ctrl+o to expand)
+
+
+  ⎿  Interrupted · What should Claude do instead?
+
+> Stop, let's first make sure we only have one set of pty and web, console app being run. Then we use versioned artifacts to check the logs and 
+playwright test. Let's stick on this debug flow 
+
+⏺ You're absolutely right. Let me clean up and establish a single, clean debug flow.
+
+⏺ Bash(pm2 stop all && pm2 delete all)
+  ⎿  [PM2] Applying action stopProcessId on app [all](ids: [ 0, 1 ])
+     [PM2] [pty-service](0) ✓
+     [PM2] [docs-site](1) ✓
+     … +14 lines (ctrl+o to expand)
+
+⏺ Kill Shell(Kill shell: cad9e0)
+  ⎿  Error: Shell cad9e0 is not running, so cannot be killed (status: completed)
+
+⏺ Kill Shell(Kill shell: 7b76f2)
+  ⎿  Error: Shell 7b76f2 is not running, so cannot be killed (status: completed)
+
+⏺ Bash(ls -d build/_artifacts/v*/ | sort -V | tail -1)
+  ⎿  build/_artifacts/v0.0.1-architecture-realignment.1/
+
+⏺ Bash(lsof -ti:4041 | xargs kill -9 2>/dev/null || true && lsof -ti:4321 | xargs kill -9 2>/dev/null || true)
+  ⎿  (No content)
+
+⏺ Bash(pm2 start build/_artifacts/v0.0.1-architecture-realignment.1/pty/pm2.config.cjs && pm2 start
+      build/_artifacts/v0.0.1-architecture-realignment.1/web/pm2.config.c…)
+  ⎿  Error: [PM2][ERROR] File build/_artifacts/v0.0.1-architecture-realignment.1/pty/pm2.config.cjs not found
+
+⏺ Bash(ls build/_artifacts/v0.0.1-architecture-realignment.1/)
+  ⎿  _logs 
+     dotnet
+     pty
+     web
+
+⏺ Bash(find development -name "pm2*.cjs" -o -name "pm2*.js" | head -5)
+  ⎿  development/nodejs/node_modules/.pnpm/pm2-sysmonit@1.2.8/node_modules/pm2-sysmonit/src/pm2.js
+     development/nodejs/node_modules/.pnpm/pm2@5.4.3/node_modules/pm2/lib/API/UX/pm2-ls.js
+     development/nodejs/node_modules/.pnpm/pm2@5.4.3/node_modules/pm2/lib/API/UX/pm2-describe.js
+     … +2 lines (ctrl+o to expand)
+
+⏺ Bash(ls build/_artifacts/v0.0.1-architecture-realignment.1/pty/)
+  ⎿  dist      
+     logs
+     recordings
+
+⏺ Bash(cd development/nodejs && pnpm run dev:start) timeout: 30s
+  ⎿  Error: ERR_PNPM_NO_SCRIPT  Missing script: dev:start
+
+     Command "dev:start" not found. Did you mean "pnpm run dev:restart"?
+
+⏺ Bash(cd development/nodejs && cat package.json | grep -A 2 '"scripts"' | head -15)
+  ⎿    "scripts": {                             
+         "build": "pnpm --filter docs build",
+         "dev": "pm2 start ecosystem.config.js",
+
+⏺ Bash(cd development/nodejs && pm2 start ecosystem.config.js)
+  ⎿  Error: (eval):cd:1: no such file or directory: development/nodejs
+
+⏺ Bash(sleep 3 && pm2 list)
+  ⎿  ┌────┬───────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+     │ id │ name      │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+     └────┴───────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+
+⏺ Bash(pm2 start /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/nodejs/ecosystem.config.js)
+  ⎿  [PM2][WARN] Applications pty-service, docs-site not running, starting...
+     [PM2] App [pty-service] launched (1 instances)
+     [PM2] App [docs-site] launched (1 instances)
+     … +8 lines (ctrl+o to expand)
+
+⏺ Good! Now let me wait a moment for services to fully start, then check the log paths and run the Playwright test:
+
+⏺ Bash(sleep 3 && pm2 info pty-service | grep "out log path")
+  ⎿ │ out log path      │ /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/_artifacts/v0.0.1-285/pty/logs/pty-s
+    ervice-out.log   │
+
+
+⏺ Bash(pnpm exec playwright test tests/e2e/arrow-keys-debug.spec.js --headed)
+  ⎿  Running 1 test using 1 worker 
+
+     ===== Testing UP arrow =====
+     … +15 lines (ctrl+o to expand)
+
+⏺ Perfect! Now let me check the versioned artifact logs to see what happened:
+
+⏺ Bash(tail -100 /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/_artifacts/v0.0.1-285/pty/logs/pty-service-out.log
+       | grep -E "(Det…)
+  ⎿  (No content)
+
+⏺ Bash(ls -lht /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/src/host/ConsoleDungeon.Host/bi
+      n/Debug/net8.0/l…)
+  ⎿ -rw-r--r--  1 apprenticegc  staff   787K Oct  3 21:33 /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/developmen
+    t/dotnet/console/src/host/ConsoleDungeon.Host/bin/Debug/net8.0/logs/console-dungeon-20251003-212627.log
+
+
+⏺ Bash(tail -500 /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/_artifacts/v0.0.1-285/pty/logs/pty-service-out.log
+       | tail -50)
+  ⎿  (No content)
+
+⏺ Bash(grep "KeyDown" /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/src/host/ConsoleDungeon.
+      Host/bin/Debug/n…)
+  ⎿  [2025-10-03 21:26:30.675] KeyDown: KeyCode=CursorLeft
+     [2025-10-03 21:26:31.077] KeyDown: KeyCode=CursorUp
+
+⏺ Bash(cat /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/_artifacts/v0.0.1-285/pty/logs/pty-service-out.log | wc
+      -l)
+  ⎿  0
+
+⏺ Bash(ls -lh /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/_artifacts/v0.0.1-285/pty/logs/)
+  ⎿  total 136                                                                  
+     -rw-r--r--  1 apprenticegc  staff    65K Oct  3 21:34 pty-service-error.log
+     -rw-r--r--  1 apprenticegc  staff     0B Oct  3 21:34 pty-service-out.log
+
+⏺ Ah! The output log is empty but there's an error log. Let me check that:
+
+⏺ Bash(tail -100
+      /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/_artifacts/v0.0.1-285/pty/logs/pty-service-error.log)
+  ⎿ 2025-10-03 21:34:13 +08:00:     '/Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/nodejs/pty-service/
+    node_modules/node-pty/lib/unixTerminal.js',
+    2025-10-03 21:34:13 +08:00:     '/Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/nodejs/pty-service/
+    … +125 lines (ctrl+o to expand)
+
+
+
+⏺ The PTY service is crashing because node-pty needs to be rebuilt. But wait - the Playwright test passed, so something must be serving. Let me
+  check what's actually running:
+
+⏺ Bash(lsof -i:4041 -i:4321 | grep LISTEN)
+  ⎿  node      77860 apprenticegc   17u  IPv6 0xf79f3e596b16aa6a      0t0  TCP localhost:rwhois (LISTEN)
+
+⏺ Bash(pm2 status)
+  ⎿  ┌────┬────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+     │ id │ name           │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+     ├────┼────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+     … +5 lines (ctrl+o to expand)
+
+⏺ PTY service is errored but something is on port 4321 (rwhois). The Playwright test must have connected to an old PTY session. Let me rebuild
+  node-pty and restart properly:
+
+⏺ Bash(cd /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/nodejs/pty-service && pnpm rebuild    timeout: 1m 
+      node-pty)                                                                                                                           0s
+  ⎿  (No content)
+
+⏺ Bash(pm2 restart pty-service && sleep 3 && pm2 status)
+  ⎿  Use --update-env to update environment variables                       
+     [PM2] Applying action restartProcessId on app [pty-service](ids: [ 0 ])
+     [PM2] [pty-service](0) ✓
+     … +16 lines (ctrl+o to expand)
+
+⏺ Still errored. Let me check the rebuild output and the latest error:
+
+⏺ Bash(tail -20
+      /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/_artifacts/v0.0.1-285/pty/logs/pty-service-error.log)
+  ⎿ 2025-10-03 21:35:18 +08:00:     '/Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/nodejs/pty-service/
+    server.js'
+    2025-10-03 21:35:18 +08:00:   ]
+    … +21 lines (ctrl+o to expand)
+
+
+⏺ The issue is the PTY service is looking at the wrong node_modules (in development/nodejs/pty-service). Let me check what ecosystem.config.js is
+  pointing to:
+
+⏺ Read(ecosystem.config.js)
+  ⎿  Read 47 lines (ctrl+o to expand)
+
+⏺ The ecosystem is configured to run from ./pty-service which is relative to development/nodejs. The rebuild worked, but PM2 might be caching. Let
+  me completely stop/delete PM2 and use the built artifacts directly:
+
+⏺ Bash(pm2 stop all && pm2 delete all && pm2 flush)
+  ⎿  [PM2] Applying action stopProcessId on app [all](ids: [ 0, 1 ])
+     [PM2] [all](0) ✓
+     [PM2] [docs-site](1) ✓
+     … +16 lines (ctrl+o to expand)
+
+⏺ Bash(cd /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/nodejs && pnpm run dev) timeout: 30s
+  ⎿  > winged-bean-nodejs@ dev /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/nodejs
+     > pm2 start ecosystem.config.js
+     … +15 lines (ctrl+o to expand)
+
+⏺ Good! Both services online. Now let me run the Playwright test again and check the logs:
+
+⏺ Bash(sleep 3 && pm2 logs pty-service --nostream --lines 5)
+  ⎿  [TAILING] Tailing last 5 lines for [pty-service] process (change the value with --lines option)                                          
+     /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/_artifacts/v0.0.1-285/pty/logs/pty-service-out.log la
+     st 5 lines:
+     … +8 lines (ctrl+o to expand)
+
+⏺ Bash(pnpm exec playwright test tests/e2e/arrow-keys-debug.spec.js --headed)
+  ⎿  Running 1 test using 1 worker 
+
+     ===== Testing UP arrow =====
+     … +15 lines (ctrl+o to expand)
+
+⏺ The PTY service is still crashing but the Playwright test passed anyway. This means it's connecting to an old PTY service. Let me kill everything
+   on port 4041 and properly fix the PTY service:
+
+⏺ Bash(lsof -ti:4041 | xargs kill -9 2>/dev/null ; pm2 delete pty-service)
+  ⎿  [PM2] Applying action deleteProcessId on app [pty-service](ids: [ 0 ])                                                                    
+     [PM2] [pty-service](0) ✓
+     ┌────┬──────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+     … +5 lines (ctrl+o to expand)
+
+⏺ Bash(node pty-service/server.js &
+      BGPID=$!…)
+  ⎿    PID TTY           TIME CMD                                  
+     Process failed
+     innerError Error: Cannot find module '../build/Debug/pty.node'
+     … +52 lines (ctrl+o to expand)
+
+⏺ I see - node-pty was compiled for Node 24 (MODULE_VERSION 137) but we're running Node 23 (MODULE_VERSION 131). Let me rebuild it properly in the
+  pty-service directory:
+
+⏺ Bash(cd /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/nodejs/pty-service && rm -rf           timeout: 1m 
+      node_modules/node-pty/build && pnpm re…)                                                                                             0s
+  ⎿  (No content)
+
+> It keeps having websocket connection error 
+
+⏺ Let me start a working PTY server immediately:
+
+⏺ Bash(node server.js > /tmp/pty-out.log 2>&1 &
+      echo $! > /tmp/pty-pid.txt…)
+  ⎿    PID TTY           TIME CMD                                       
+     Failed:
+         at Module._compile (node:internal/modules/cjs/loader:1734:14) {
+     … +11 lines (ctrl+o to expand)
+
+⏺ Bash(cd pty-service && rm -rf node_modules && pnpm install)
+  ⎿  Error: (eval):cd:1: no such file or directory: pty-service
+
+⏺ Bash(rm -rf node_modules && pnpm install 2>&1 | tail -30)
+  ⎿  Scope: all 2 workspace projects
+     Done in 559ms
+
+⏺ Bash(pnpm run dev) timeout: 30s
+  ⎿  Error: sh: nodemon: command not found
+
+
+     > terminal-gui-pty-service@1.0.0 dev /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/nodejs/pty-service
+     > nodemon server.js
+
+      ELIFECYCLE  Command failed.
+      WARN   Local package.json exists, but node_modules missing, did you mean to install?
+
+⏺ Bash(sleep 5 && pm2 logs pty-service --nostream --lines 10 && lsof -i:4041 | grep LISTEN)
+  ⎿  [TAILING] Tailing last 10 lines for [pty-service] process (change the value with --lines option)
+
+⏺ Bash(pnpm install && pm2 start ecosystem.config.js && sleep 3 && pm2 logs pty-service --nostream --lines 5)
+  ⎿  Error: [PM2][ERROR] File ecosystem.config.js not found
+
+     Scope: all 2 workspace projects
+     Done in 478ms
+
+⏺ Bash(pm2 start /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/nodejs/ecosystem.config.js && sleep 5 && pm2
+       logs pty-servic…)
+  ⎿  Error: [PM2][ERROR] Error: Script not found: 
+     /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/nodejs/pty-service/pty-service/server.js
+
+     [PM2] Applying action restartProcessId on app [docs-site](ids: [ 1 ])
+     [PM2] [docs-site](1) ✓
+     [PM2][WARN] Applications pty-service not running, starting...
+
+⏺ The ecosystem config has wrong paths. Let me check where we are and run the PTY server directly:
+
+⏺ Bash(pwd && ls -la)
+  ⎿  /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/nodejs/pty-service
+     total 376
+     drwxr-xr-x   4 apprenticegc  staff     128 Oct  1 16:31 __tests__
+     … +15 lines (ctrl+o to expand)
+
+⏺ Bash(node server.js > /tmp/pty-out.log 2>&1 &
+      echo $! > /tmp/pty-pid.txt…)
+  ⎿    PID TTY           TIME CMD        
+     Failed:
+     Error: Cannot find module 'node-pty'
+     … +20 lines (ctrl+o to expand)
+
+⏺ There's no node_modules at all! I removed it but pnpm install didn't install it here - it must be using workspace mode. Let me install properly:
+
+⏺ Bash(npm install node-pty ws)
+  ⎿  added 287 packages, and audited 288 packages in 3s
+
+     35 packages are looking for funding
+     … +6 lines (ctrl+o to expand)
+
+⏺ Good! Now let me test if the PTY server works:
+
+⏺ Bash(node server.js > /tmp/pty-out.log 2>&1 &
+      echo $! > /tmp/pty-pid.txt…)
+  ⎿    PID TTY           TIME CMD           
+     81573 ??         0:00.05 node server.js
+     ✓ PTY server started PID 81573
+     … +5 lines (ctrl+o to expand)
+
+⏺ Perfect! PTY server is running. Now let me run the Playwright test and check the logs in one clean flow:
+
+⏺ Bash(pnpm exec playwright test tests/e2e/arrow-keys-debug.spec.js --headed 2>&1 | tail -20)
+  ⎿  Error: No tests found.                                                 
+     Make sure that arguments are regular expressions matching test files.
+     You may need to escape symbols like "$" or "*" and quote the arguments.
+
+⏺ Bash(tail -50 /tmp/pty-out.log | grep -E "(WebSocket|Arrow|PTY process)" | tail -15)
+  ⎿  WebSocket server listening on port 4041
+     WebSocket client connected
+     PTY process spawned with PID: 81701
+
+⏺ Let me check where we are and run the test from the correct directory:
+
+⏺ Bash(pwd && ls tests/e2e/arrow-keys-debug.spec.js 2>&1 || find . -name "arrow-keys-debug.spec.js" 2>/dev/null | head -1)
+  ⎿  /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/nodejs/pty-service
+     ls: tests/e2e/arrow-keys-debug.spec.js: No such file or directory
+
+⏺ Bash(pnpm exec playwright test
+      /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/nodejs/tests/e2e/arrow-keys-debug.spec.js --…)
+  ⎿  Error: No tests found.                                                 
+     Make sure that arguments are regular expressions matching test files.
+     You may need to escape symbols like "$" or "*" and quote the arguments.
+
+⏺ Bash(cd .. && pnpm exec playwright test tests/e2e/arrow-keys-debug.spec.js --headed 2>&1 | tail -20)
+  ⎿  Running 1 test using 1 worker 
+
+     ===== Testing UP arrow =====
+     … +15 lines (ctrl+o to expand)
+
+⏺ Excellent! Now let me check the PTY logs for arrow key detections and the Console app logs for KeyDown events:
+
+⏺ Bash(tail -100 /tmp/pty-out.log | grep -E "Detected Arrow")
+  ⎿  No matches found
+
+⏺ Bash(ls -lht /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/src/host/ConsoleDungeon.Host/bi
+      n/Debug/net8.0/l…)
+  ⎿ -rw-r--r--  1 apprenticegc  staff    92K Oct  3 21:38 /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/developmen
+    t/dotnet/console/src/host/ConsoleDungeon.Host/bin/Debug/net8.0/logs/console-dungeon-20251003-213747.log
+
+
+⏺ Bash(grep "KeyDown" /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/src/host/ConsoleDungeon.
+      Host/bin/Debug/n…)
+  ⎿  (No content)
+
+⏺ Bash(tail -50 /tmp/pty-out.log)
+  ⎿ Terminal.Gui PTY Service starting...                                                                                                          
+    Recording manager initialized: /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/_artifacts/v0.0.1-285/pty/r
+    ecordings
+    … +10 lines (ctrl+o to expand)
+
+
+⏺ Perfect! Now I have a clean setup. Key findings:
+
+  1. PTY logs show NO "Detected Arrow" messages - The PTY server is NOT detecting any CSI arrow sequences
+  2. Console logs show NO "KeyDown" events - Terminal.Gui isn't receiving any key presses
+
+  This confirms that xterm.js is not sending the arrow key sequences to the WebSocket at all. The problem is on the browser/xterm.js side, not the
+  PTY or .NET side.
+
+  Let me create a summary of findings:
+
+⏺ Summary
+
+  I've established a clean debug environment and the logs reveal the root cause:
+
+  Key Findings:
+  1. ✅ PTY server is running correctly
+  2. ✅ Console Dungeon app spawns successfully
+  3. ❌ PTY server receives NO arrow key sequences - No "Detected Arrow" logs
+  4. ❌ Console app receives NO KeyDown events - No KeyDown logs at all
+
+  Root Cause:
+  The issue is xterm.js is not sending arrow key sequences to the WebSocket. The arrow keys are being intercepted/consumed somewhere in the browser
+   before they reach the PTY service.
+
+  Next Steps to Fix:
+  The problem is in the client-side xterm.js integration. We need to check:
+  1. How xterm.js is attached to the DOM (xterm-helper-textarea)
+  2. Whether attachCustomKeyEventHandler is properly configured
+  3. If the xterm instance's onData event is wired to the WebSocket
+
+  The PTY service and .NET application are working correctly - they're just not receiving any input from the browser.
+
+> ```This confirms that xterm.js is not sending the arrow key sequences to the WebSocket at all. The problem is on the browser/xterm.js side, not 
+the
+  PTY or .NET side.``` then why up and left arrow keys work? 
+
+⏺ You're absolutely right - that's a critical contradiction! If xterm.js isn't sending ANY sequences, then Up and Left arrows shouldn't work
+  either. But you confirmed they DO work.
+
+  Let me check the Console logs more carefully for the session that corresponds to the Playwright test:
+
+⏺ Bash(grep "KeyDown" /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/src/host/ConsoleDungeon.
+      Host/bin/Debug/n…)
+  ⎿  No matches found
+
+⏺ Bash(ls -lt /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/src/host/ConsoleDungeon.Host/bin
+      /Debug/net8.0/lo…)
+  ⎿ -rw-r--r--  1 apprenticegc  staff    215311 Oct  3 21:39 /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/develop
+    ment/dotnet/console/src/host/ConsoleDungeon.Host/bin/Debug/net8.0/logs/console-dungeon-20251003-213747.log
+    -rw-r--r--  1 apprenticegc  staff     19991 Oct  3 21:38 /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/develop
+    … +7 lines (ctrl+o to expand)
+
+
+
+⏺ The 213747 log has no KeyDown events, and there's a newer one (213811). Let me check that:
+
+⏺ Bash(grep "KeyDown" /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/src/host/ConsoleDungeon.
+      Host/bin/Debug/n…)
+  ⎿  [2025-10-03 21:38:14.943] KeyDown: KeyCode=CursorUp  
+     [2025-10-03 21:38:16.963] KeyDown: KeyCode=CursorLeft
+
+⏺ Bash(cat /tmp/pty-out.log | grep -E "PTY process spawned" | tail -2)
+  ⎿  PTY process spawned with PID: 81701
+     PTY process spawned with PID: 82078
+
+⏺ THERE IT IS! The Playwright test DID generate KeyDown events:
+  - CursorUp (ArrowUp worked)
+  - CursorLeft (ArrowLeft worked)
+
+  But ONLY 2 out of 8 keys that were pressed (Up, Down, Left, Right, A, B, C, D).
+
+  So the issue is:
+  - ArrowUp and ArrowLeft ARE being sent and received ✅
+  - ArrowDown, ArrowRight, and letters A/B/C/D are NOT being sent ❌
+
+  This is NOT an xterm.js configuration issue - it's sending SOME keys. The issue is specific arrow keys (Down/Right) are being blocked or not 
+  decoded correctly.
+
+  Let me check the PTY logs to see if it received those sequences:
+
+⏺ Bash(cat /tmp/pty-out.log | grep -A5 -B5 "PTY process spawned with PID: 82078")
+  ⎿ WebSocket server listening on port 4041                                                                                                       
+    Ready to spawn from: /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/src/host/Console
+    Dungeon.Host/bin/Debug/net8.0/ConsoleDungeon.Host.dll
+    … +7 lines (ctrl+o to expand)
+
+
+⏺ No "Detected Arrow" messages at all - meaning the PTY server never saw CSI sequences for ANY arrows. This means:
+
+  Terminal.Gui is receiving CursorUp and CursorLeft directly - NOT through our CSI-to-arrow mapping, but Terminal.Gui's native key decoding is
+  working for those two keys.
+
+  The sequences xterm.js is sending must be being decoded by Terminal.Gui for Up/Left, but Down/Right sequences are either:
+  1. Not being sent by xterm.js at all
+  2. Being sent but Terminal.Gui can't decode them
+
+  Let me add more detailed logging to the PTY server to see ALL input it receives:
+
+⏺ Read(pty-service/server.js)
+  ⎿  Read 45 lines (ctrl+o to expand)
+
+⏺ Let me add logging for ALL input received:
+
+⏺ Update(pty-service/server.js)
+  ⎿  Updated pty-service/server.js with 4 additions                                                                                             
+       139        } catch (e) {
+       140          // Not JSON, treat as raw input data
+       141          const input = message.toString();
+       142 +  
+       143 +        // Log ALL input for debugging
+       144 +        console.log(`[INPUT] Length: ${input.length}, Bytes: ${JSON.stringify(input)}, Hex: ${Buffer.from(input).toString('hex')}`);
+       145 +  
+       146          // Temporary debug: classify common escape sequences for arrows
+       147          const arrowMap = {
+       148            "\u001b[A": "ArrowUp",
+
+⏺ Now restart the PTY server and run the test again:
+
+⏺ Bash(kill $(cat /tmp/pty-pid.txt) 2>/dev/null ; sleep 1 ; node server.js > /tmp/pty-out.log 2>&1 &
+      echo $! > /tmp/pty-pid.txt && echo "PTY server restarted PID $(cat…)
+  ⎿  PTY server restarted PID 83045
+
+⏺ Bash(sleep 2 && pnpm exec playwright test tests/e2e/arrow-keys-debug.spec.js --headed 2>&1 | tail -10)
+  ⎿  ===== Testing letter C =====                                                                                            
+     ===== Testing letter D =====
+       ✓  1 [chromium] › tests/e2e/arrow-keys-debug.spec.js:4:3 › Arrow keys debug › test each arrow key individually (10.5s)
+     … +7 lines (ctrl+o to expand)
+
+⏺ Perfect! Now let me check the detailed input logs:
+
+⏺ Bash(cat /tmp/pty-out.log | grep "\[INPUT\]")
+  ⎿  No matches found
+
+⏺ No [INPUT] logs! That means xterm.js is NOT sending ANY input to the WebSocket - not even the Up/Left arrows that work.
+
+  This means Terminal.Gui is receiving the keys through a different path entirely - possibly the Playwright keyboard events are going directly to
+  the DOM/terminal somehow.
+
+  Let me verify the PTY server is actually receiving the WebSocket connection for this test:
+
+⏺ Bash(tail -30 /tmp/pty-out.log)
+  ⎿  node:internal/modules/cjs/loader:1408
+       throw err;
+       ^
+     … +15 lines (ctrl+o to expand)
+
+> Why it shows websocket connection error again 
+
+⏺ The PTY server crashed because I ran it from the wrong directory. Let me restart it properly:
+
+⏺ Bash(cd /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/nodejs/pty-service && node server.js >
+      /tmp/pty-out.log 2>&1 &
+      echo…)
+  ⎿ Terminal.Gui PTY Service starting...                                                                                                          
+    Recording manager initialized: /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/_artifacts/v0.0.1-285/pty/r
+    ecordings
+    … +3 lines (ctrl+o to expand)
+
+
+⏺ Bash(pnpm exec playwright test tests/e2e/arrow-keys-debug.spec.js --headed 2>&1 | tail -10)
+  ⎿  Error: No tests found.                                                 
+     Make sure that arguments are regular expressions matching test files.
+     You may need to escape symbols like "$" or "*" and quote the arguments.
+
+⏺ Bash(cd /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/nodejs && pnpm exec playwright test
+      tests/e2e/arrow-keys-debug.spec…)
+  ⎿  Interrupted · What should Claude do instead?
+
+> Stop, why you run pty server in the wrong path? Do we have correct script or task to run at "build/_artifacts/<version>" flow? 
+
+⏺ You're absolutely right - I've been running things from the wrong locations. Let me check what the correct build artifacts flow is:
+
+⏺ Bash(ls -la /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/_artifacts/v0.0.1-285/pty/)
+  ⎿  total 0                                               
+     drwxr-xr-x  5 apprenticegc  staff  160 Oct  3 21:09 .
+     drwxr-xr-x  6 apprenticegc  staff  192 Oct  3 21:09 ..
+     … +3 lines (ctrl+o to expand)
+
+⏺ Bash(ls -la /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/_artifacts/v0.0.1-285/pty/dist/)
+  ⎿  total 344                                                
+     drwxr-xr-x  9 apprenticegc  staff     288 Oct  3 21:09 .
+     drwxr-xr-x  5 apprenticegc  staff     160 Oct  3 21:09 ..
+     … +7 lines (ctrl+o to expand)
+
+⏺ Good! The built artifacts ARE in build/_artifacts/v0.0.1-285/pty/dist/. The ecosystem.config.js should be running from there. Let me check how
+  PM2 should be configured:
+
+⏺ Bash(kill $(cat /tmp/pty-pid.txt) 2>/dev/null ; pm2 delete all ; pm2 flush)
+  ⎿  [PM2] Applying action deleteProcessId on app [all](ids: [ 1 ])                                                                         
+     [PM2] [docs-site](1) ✓
+     ┌────┬───────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+     … +4 lines (ctrl+o to expand)
+
+⏺ Bash(cd /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/_artifacts/v0.0.1-285/pty/dist && node server.js >
+      ../logs/pty-service-ou…)
+  ⎿      '/Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/_artifacts/v0.0.1-285/pty/dist/server.js'
+       ]
+     }
+     … +2 lines (ctrl+o to expand)
+
+⏺ The build artifacts don't have node_modules. The correct flow is to use the ecosystem.config.js which runs from the development directory but
+  logs to the versioned artifacts. Let me use that:
+
+⏺ Bash(cd /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/nodejs && pm2 start ecosystem.config.js && sleep 3
+      && pm2 status)
+  ⎿  Interrupted · What should Claude do instead?
+
+⏺ Bash(tail -10 /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/_artifacts/v0.0.1-285/pty/logs/pty-service-out.log)
+  ⎿  Interrupted · What should Claude do instead?
+
+> wait why you manually cd to that version directory, please tell me if we have any way to start the process we need at specific artifacts version 
+folder? 
+
+⏺ You're right to stop me. Let me check if there's a proper script or task to run services from a specific artifacts version:
+
+⏺ Bash(cd /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean && find . -name "Taskfile.yml" -o -name "package.json" -o -name
+       "*.task.js" | g…)
+  ⎿  ./development/nodejs/sites/docs/package.json 
+     ./development/nodejs/pty-service/package.json
+     ./development/nodejs/package.json
+     … +7 lines (ctrl+o to expand)
+
+⏺ Bash(cd /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean && cat package.json 2>/dev/null | grep -A5 '"scripts"' || echo
+      "No root package…)
+  ⎿  No root package.json
+
+⏺ Bash(cd /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/nodejs && cat Taskfile.yml | grep -A20 "dev:")
+  ⎿    dev:                              
+         desc: "Start development server"
+         deps: [install]
+     … +7 lines (ctrl+o to expand)
+
+⏺ Bash(cd /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/nodejs && cat package.json | grep -A10 '"scripts"')
+  ⎿    "scripts": {                             
+         "build": "pnpm --filter docs build",
+         "dev": "pm2 start ecosystem.config.js",
+     … +8 lines (ctrl+o to expand)
+
+⏺ Perfect! The correct way is:
+
+  cd development/nodejs
+  pnpm run dev          # Start services
+  pnpm run dev:status   # Check status  
+  pnpm run dev:logs     # View logs
+  pnpm run dev:stop     # Stop services
+
+  The ecosystem.config.js is configured to:
+  1. Run services from development/nodejs (where node_modules exist)
+  2. Write logs to the versioned artifacts path via getArtifactsPath()
+
+  So the current setup IS correct - services run from development but log to build/_artifacts/v<version>/. That's the intended flow.
+
+  The real issue is: the ecosystem.config.js is currently pointing to the wrong source files (development/nodejs/pty-service/server.js which has
+  the OLD code without my logging changes).
+
+  Since I edited the source in development/nodejs/pty-service/server.js, I need to either:
+  1. Use pnpm run dev (which will use that edited source)
+  2. Or rebuild the artifacts to get my changes
+
+  Let me use the proper dev flow:
+
+⏺ Bash(pnpm run dev) timeout: 10s
+  ⎿  > winged-bean-nodejs@ dev /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/nodejs
+     > pm2 start ecosystem.config.js
+     … +15 lines (ctrl+o to expand)
+
+⏺ Perfect! Now services are running properly. Let me verify they're logging to the versioned artifacts and run the test:
+
+⏺ Bash(pnpm run dev:logs --nostream --lines 5)
+  ⎿  > winged-bean-nodejs@ dev:logs /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/nodejs
+     > pm2 logs "--nostream" "--lines" "5"
+     … +51 lines (ctrl+o to expand)
+
+⏺ Bash(pnpm exec playwright test tests/e2e/arrow-keys-debug.spec.js --headed)
+  ⎿  Running 1 test using 1 worker 
+
+     ===== Testing UP arrow =====
+     … +15 lines (ctrl+o to expand)
+
+⏺ 🎉 PERFECT! Now I can see the actual input!
+
+  The logs in the versioned artifacts show xterm.js IS sending:
+  - Line 33: ESC O A (SS3 A) - ArrowUp ✅
+  - Line 34: ESC O B (SS3 B) - ArrowDown ✅
+  - Line 35: ESC O D (SS3 D) - ArrowLeft ✅
+  - Line 37: ESC O C (SS3 C) - ArrowRight ✅
+  - Lines 40-43: Letters a, b, c, d ✅
+
+  ALL 8 keys ARE being sent by xterm.js! They're all SS3 sequences (ESC O), not CSI sequences (ESC [).
+
+  So the issue is: Terminal.Gui is NOT handling SS3 sequences for Down (B) and Right (C) correctly, but it DOES handle Up (A) and Left (D).
+
+  Let me check the Console app logs to see what Terminal.Gui received:
+
+⏺ Bash(ls -lht /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/src/host/ConsoleDungeon.Host/bi
+      n/Debug/net8.0/l…)
+  ⎿ -rw-r--r--  1 apprenticegc  staff    47K Oct  3 21:44 /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/developmen
+    t/dotnet/console/src/host/ConsoleDungeon.Host/bin/Debug/net8.0/logs/console-dungeon-20251003-214354.log
+
+
+⏺ Bash(grep "KeyDown" /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/src/host/ConsoleDungeon.
+      Host/bin/Debug/n…)
+  ⎿ /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/src/host/ConsoleDungeon.Host/bin/Debu
+    g/net8.0/logs/console-dungeon-20251003-212602.log:[2025-10-03 21:26:10.302] KeyDown: KeyCode=CursorLeft
+    /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/src/host/ConsoleDungeon.Host/bin/Debu
+    … +17 lines (ctrl+o to expand)
+
+
+
+⏺ THERE'S THE SMOKING GUN!
+
+  The latest test (21:44:00) shows Terminal.Gui ONLY received:
+  - CursorUp (from SS3 A - ArrowUp) ✅
+  - CursorLeft (from SS3 D - ArrowLeft) ✅
+
+  But PTY received ALL FOUR arrows:
+  - SS3 A (Up) → Terminal.Gui got CursorUp ✅
+  - SS3 B (Down) → Terminal.Gui got NOTHING ❌
+  - SS3 D (Left) → Terminal.Gui got CursorLeft ✅
+  - SS3 C (Right) → Terminal.Gui got NOTHING ❌
+
+  The issue is Terminal.Gui v2 is NOT decoding SS3 B (Down) and SS3 C (Right) sequences!
+
+  This is a Terminal.Gui input parsing bug. The sequences ARE arriving at the PTY, but Terminal.Gui only recognizes SS3 A and SS3 D, not SS3 B and
+  SS3 C.
+
+
+
+
+

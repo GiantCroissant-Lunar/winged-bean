@@ -1,0 +1,35 @@
+#!/usr/bin/expect -f
+# E2E console interaction for ConsoleDungeon.Host using a PTY
+# Sends Right/Down arrows and WASD fallbacks, then quits. Designed for CI.
+
+set timeout 40
+set artifacts "[pwd]/build/_artifacts/v0.0.1-285/dotnet/bin"
+cd $artifacts
+
+# Ensure terminal mode prefers CSI arrows
+set env(TERM) "xterm"
+
+# Spawn the app
+spawn dotnet ./ConsoleDungeon.Host.dll
+
+# Give it time to initialize Terminal.Gui adequately
+after 3000
+
+# Send a small sequence of movements (arrows and WASD)
+for {set i 0} {$i < 2} {incr i} {
+  send "\033\[C"   ;# Right
+  after 200
+  send "\033\[B"   ;# Down
+  after 200
+}
+send "d"; after 150
+send "s"; after 150
+
+# Quit the app (mapped to 'Q' or 'q')
+send "q"
+
+# Wait for exit or force close
+expect {
+  eof {}
+  timeout { send "\003"; after 500; exp_close; }
+}

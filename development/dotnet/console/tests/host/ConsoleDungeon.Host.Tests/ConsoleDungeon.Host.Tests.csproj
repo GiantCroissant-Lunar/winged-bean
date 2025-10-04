@@ -21,10 +21,16 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Terminal.Gui" />
+    <PackageReference Include="System.Reactive" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="../../../src/host/ConsoleDungeon.Host/ConsoleDungeon.Host.csproj" />
+    <ProjectReference Include="../../../src/plugins/WingedBean.Plugins.ConsoleDungeon/WingedBean.Plugins.ConsoleDungeon.csproj" />
+    <ProjectReference Include="../../../framework/src/WingedBean.Contracts.Core/WingedBean.Contracts.Core.csproj" />
+    <ProjectReference Include="../../../framework/src/WingedBean.Contracts.Game/WingedBean.Contracts.Game.csproj" />
+    <ProjectReference Include="../../../framework/src/WingedBean.Contracts.ECS/WingedBean.Contracts.ECS.csproj" />
   </ItemGroup>
 
 </Project>

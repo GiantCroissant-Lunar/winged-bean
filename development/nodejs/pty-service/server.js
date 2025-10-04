@@ -2,22 +2,15 @@ const pty = require("node-pty");
 const WebSocket = require("ws");
 const path = require("path");
 const RecordingManager = require("./recording-manager");
-const { getArtifactsPath } = require("../get-version");
+const { getArtifactsPath } = require("./get-version");
 
 // WebSocket server configuration
 const WS_PORT = 4041;
 
 // Terminal.Gui application configuration
-// Prefer running from build output so that plugins.json and plugins/ resolve correctly
-const PROJECT_DIR = path.resolve(
-  __dirname,
-  "../../dotnet/console/src/host/ConsoleDungeon.Host",
-);
-const BIN_DIR = path.resolve(
-  PROJECT_DIR,
-  "bin/Debug/net8.0"
-);
+// ALWAYS run from versioned artifacts so plugins resolve correctly (R-CODE-050)
 const DOTNET_DLL = "ConsoleDungeon.Host.dll";
+const BIN_DIR = getArtifactsPath("dotnet", "bin");
 
 console.log("Terminal.Gui PTY Service starting...");
 
@@ -139,6 +132,10 @@ wss.on("connection", (ws) => {
     } catch (e) {
       // Not JSON, treat as raw input data
       const input = message.toString();
+
+      // Log ALL input for debugging
+      console.log(`[INPUT] Length: ${input.length}, Bytes: ${JSON.stringify(input)}, Hex: ${Buffer.from(input).toString('hex')}`);
+
       // Temporary debug: classify common escape sequences for arrows
       const arrowMap = {
         "\u001b[A": "ArrowUp",
@@ -150,28 +147,18 @@ wss.on("connection", (ws) => {
       if (arrow) {
         console.log(`Detected Arrow: ${arrow} (${JSON.stringify(input)})`);
       }
-      // Normalize application-cursor sequences (ESC O A/B/C/D) to CSI (ESC [ A/B/C/D)
-      const appCursorMap = {
-        "\u001bOA": "\u001b[A",
-        "\u001bOB": "\u001b[B",
-        "\u001bOC": "\u001b[C",
-        "\u001bOD": "\u001b[D",
-      };
-      const normalized = appCursorMap[input] || null;
-      if (normalized) {
-        console.log(`Normalized application cursor sequence ${JSON.stringify(input)} -> ${JSON.stringify(normalized)}`);
-        // Write both forms to satisfy either cursor mode (DECCKM) the app may have set
-        if (!ptyProcess.killed) {
-          ptyProcess.write(input);
-          ptyProcess.write(normalized);
-        }
-      } else {
-        if (!arrow) {
-          console.log(`Sending input to PTY: ${JSON.stringify(input)}`);
-        }
-        if (!ptyProcess.killed) {
-          ptyProcess.write(input);
-        }
+      // Normalize SS3 (ESC O A/B/C/D) to CSI (ESC [ A/B/C/D) for broader compatibility
+      // Some browsers/terminals send SS3 for arrows, which Terminal.Gui may not decode
+      const normalized = input
+        .replace(/\u001bOA/g, '\u001b[A')
+        .replace(/\u001bOB/g, '\u001b[B')
+        .replace(/\u001bOC/g, '\u001b[C')
+        .replace(/\u001bOD/g, '\u001b[D');
+      if (normalized !== input) {
+        console.log(`[NORMALIZE] SS3->CSI: ${JSON.stringify(input)} -> ${JSON.stringify(normalized)}`);
+      }
+      if (!ptyProcess.killed) {
+        ptyProcess.write(normalized);
       }
     }
   });

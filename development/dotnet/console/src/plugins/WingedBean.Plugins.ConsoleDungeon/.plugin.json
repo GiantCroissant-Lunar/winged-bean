@@ -10,8 +10,9 @@
     "services": [
       {
         "interface": "WingedBean.Contracts.ITerminalApp",
-        "implementation": "WingedBean.Plugins.ConsoleDungeon.ConsoleDungeonApp",
-        "lifecycle": "singleton"
+        "implementation": "WingedBean.Plugins.ConsoleDungeon.ConsoleDungeonAppRefactored",
+        "lifecycle": "singleton",
+        "priority": 51
       }
     ]
   },
@@ -23,6 +24,8 @@
   "tags": ["terminal-gui", "console", "game", "dungeon"],
   "metadata": {
     "requiresTerminal": true,
-    "supportsPty": true
+    "supportsPty": true,
+    "architecture": "RFC-0020-0021",
+    "refactored": true
   }
 }

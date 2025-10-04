@@ -1,0 +1,27 @@
+{
+  "id": "winged-bean.providers.terminal-gui-scene",
+  "name": "Terminal.Gui Scene Provider",
+  "version": "1.0.0",
+  "description": "Terminal.Gui implementation of ISceneService",
+  "author": "WingedBean Team",
+  "entryPoint": { "dotnet": "WingedBean.Providers.TerminalGuiScene.dll" },
+  "dependencies": {},
+  "exports": {
+    "services": [
+      {
+        "interface": "WingedBean.Contracts.Scene.ISceneService",
+        "implementation": "WingedBean.Providers.TerminalGuiScene.TerminalGuiSceneProvider",
+        "lifecycle": "singleton"
+      }
+    ]
+  },
+  "capabilities": [
+    "scene-management",
+    "terminal-gui-rendering"
+  ],
+  "tags": ["scene", "terminal-gui", "rendering"],
+  "metadata": {
+    "requiresTerminal": true,
+    "architecture": "RFC-0020"
+  }
+}

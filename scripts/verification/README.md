@@ -11,7 +11,11 @@ This directory contains scripts for verifying RFC implementations and integratio
 **Purpose:** Start ConsoleDungeon.Host and Astro frontend for manual verification
 
 **Prerequisites:**
-- ConsoleDungeon.Host built (`dotnet build -c Release`)
+- Build artifacts via Task (artifact-first policy):
+  ```bash
+  cd build
+  task build-all
+  ```
 - Astro dependencies installed (`cd development/nodejs/sites/docs && npm install`)
 
 **Usage:**
@@ -21,7 +25,7 @@ cd scripts/verification
 ```
 
 **What it does:**
-1. Starts ConsoleDungeon.Host on port 4040 (WebSocket)
+1. Starts ConsoleDungeon.Host on port 4040 (WebSocket) from versioned artifacts
 2. Starts Astro dev server on port 4321
 3. Displays manual verification instructions
 4. Keeps services running until Ctrl+C
@@ -116,9 +120,11 @@ Terminal.Gui Elements:  ✅ PASS
 ### Quick Test (Automated)
 
 ```bash
-# Terminal 1: Start ConsoleDungeon.Host
-cd development/dotnet/console/src/host/ConsoleDungeon.Host
-dotnet run --no-build -c Release
+# Terminal 1: Build and start ConsoleDungeon.Host from artifact
+cd build
+task build-all
+BIN_DIR=$(ls -td _artifacts/* | head -1)/dotnet/bin
+(cd "$BIN_DIR" && ./ConsoleDungeon.Host)
 
 # Terminal 2: Run automated test
 cd development/nodejs
@@ -131,7 +137,7 @@ NODE_PATH=./node_modules:$NODE_PATH node ../../scripts/verification/test-websock
 ```bash
 # Run verification script
 cd scripts/verification
-./verify-integration.sh
+./verify-integration.sh  # uses latest versioned artifact automatically
 
 # In browser: Open http://localhost:4321
 # Verify:

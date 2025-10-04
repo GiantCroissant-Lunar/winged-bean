@@ -1,0 +1,39 @@
+#!/usr/bin/expect -f
+# Record an asciinema cast while driving ConsoleDungeon.Host with arrow keys
+# Output: build/_artifacts/<version>/dotnet/bin/tests/arrow-keys.cast
+
+set timeout 60
+set artifacts "[pwd]/build/_artifacts/v0.0.1-285/dotnet/bin"
+cd $artifacts
+
+# Ensure tests directory exists
+exec mkdir -p tests
+
+# Prefer CSI arrows
+set env(TERM) "xterm"
+
+# Start asciinema recording the console app
+spawn asciinema rec --quiet --overwrite tests/arrow-keys.cast -c "dotnet ./ConsoleDungeon.Host.dll"
+
+# Wait for app init
+after 3500
+
+# Send several movements
+for {set i 0} {$i < 2} {incr i} {
+  send "\033\[C"   ;# Right
+  after 200
+  send "\033\[B"   ;# Down
+  after 200
+}
+# WASD fallbacks
+send "d"; after 150
+send "s"; after 150
+
+# Quit
+send "q"
+
+# Wait for asciinema to finish writing cast
+expect {
+  eof {}
+  timeout { send "\003"; after 500; exp_close; }
+}

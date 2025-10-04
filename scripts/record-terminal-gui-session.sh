@@ -26,10 +26,12 @@ echo ""
 echo "Starting in 3 seconds..."
 sleep 3
 
-# Record the session
+# Record the session (artifact-first policy)
+ART_DIR="$(ls -td build/_artifacts/v* | head -1)"
+BIN_DIR="$ART_DIR/dotnet/bin"
 asciinema rec "$OUTPUT_FILE" \
   --title "Terminal.Gui v2 - $SESSION_NAME - $TIMESTAMP" \
-  --command "cd development/dotnet/console && dotnet run --project src/host/TerminalGui.PtyHost/TerminalGui.PtyHost.csproj"
+  --command "cd $BIN_DIR && ./ConsoleDungeon.Host"
 
 echo ""
 echo "========================================="

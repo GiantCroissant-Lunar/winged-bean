@@ -12,7 +12,9 @@ set -e
 # Determine repository root (script is in scripts/verification/)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-DOTNET_DIR="$REPO_ROOT/development/dotnet/console/src/host/ConsoleDungeon.Host"
+ARTIFACTS_DIR="$REPO_ROOT/build/_artifacts"
+LATEST=$(ls -t "$ARTIFACTS_DIR" | head -1)
+BIN_DIR="$ARTIFACTS_DIR/$LATEST/dotnet/bin"
 ASTRO_DIR="$REPO_ROOT/development/nodejs/sites/docs"
 LOG_DIR="/tmp/xterm-verification"
 
@@ -54,11 +56,11 @@ cleanup() {
 
 trap cleanup EXIT INT TERM
 
-echo "[1/5] Starting ConsoleDungeon.Host (WebSocket on port 4040)..."
-cd "$DOTNET_DIR"
-dotnet run --no-build -c Release > "$LOG_DIR/consoledungeon.log" 2>&1 &
+echo "[1/5] Starting ConsoleDungeon.Host from artifacts (WebSocket on port 4040)..."
+cd "$BIN_DIR"
+./ConsoleDungeon.Host > "$LOG_DIR/consoledungeon.log" 2>&1 &
 DOTNET_PID=$!
-echo "  ✓ Started ConsoleDungeon.Host (PID: $DOTNET_PID)"
+echo "  ✓ Started ConsoleDungeon.Host (PID: $DOTNET_PID) from $BIN_DIR"
 echo "  ✓ Logs: $LOG_DIR/consoledungeon.log"
 
 # Wait for WebSocket server to be ready

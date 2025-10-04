@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Terminal.Gui" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Scene/WingedBean.Contracts.Scene.csproj" />
+    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Input/WingedBean.Contracts.Input.csproj" />
+    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Game/WingedBean.Contracts.Game.csproj" />
+  </ItemGroup>
+
+</Project>

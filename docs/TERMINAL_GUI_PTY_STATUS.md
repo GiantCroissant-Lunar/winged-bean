@@ -135,7 +135,7 @@ Open browser dev tools and check for:
 
 2. **Baseline Recording** - Blocked by WebSocket issue
    - Can't record Terminal.Gui session via browser
-   - Direct recording works (via `dotnet run`)
+   - Direct recording works; prefer running from artifacts (`task console:normal`)
    - Need browser integration working
 
 ---
@@ -156,7 +156,7 @@ pm2 logs pty-service --lines 50
 ### Test .NET App Directly
 ```bash
 cd development/dotnet/console
-TERM=xterm-256color dotnet run --project src/host/TerminalGui.PtyHost/TerminalGui.PtyHost.csproj
+cd build && task build-all && task console:normal
 ```
 
 ### Run Playwright Tests

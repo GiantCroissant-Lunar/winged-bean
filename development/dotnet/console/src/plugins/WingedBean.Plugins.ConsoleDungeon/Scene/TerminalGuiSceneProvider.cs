@@ -8,6 +8,7 @@ namespace WingedBean.Plugins.ConsoleDungeon.Scene;
 /// <summary>
 /// Terminal.Gui implementation of ISceneService.
 /// Owns ALL Terminal.Gui lifecycle, window management, and UI thread marshaling.
+/// Supports camera system and layered rendering.
 /// </summary>
 public class TerminalGuiSceneProvider : ISceneService
 {
@@ -19,6 +20,7 @@ public class TerminalGuiSceneProvider : ISceneService
     private Label? _gameWorldView;
     private Label? _statusLabel;
     private bool _initialized = false;
+    private Camera _camera = Camera.Static(0, 0);
 
     // Debouncing
     private IReadOnlyList<EntitySnapshot>? _pendingSnapshots;
@@ -130,6 +132,16 @@ public class TerminalGuiSceneProvider : ISceneService
         return new Viewport(_gameWorldView.Frame.Width, _gameWorldView.Frame.Height);
     }
 
+    public CameraViewport GetCameraViewport()
+    {
+        return new CameraViewport(GetViewport(), _camera);
+    }
+
+    public void SetCamera(Camera camera)
+    {
+        _camera = camera;
+    }
+
     public void UpdateWorld(IReadOnlyList<EntitySnapshot> snapshots)
     {
         lock (_lock)
@@ -152,6 +164,18 @@ public class TerminalGuiSceneProvider : ISceneService
             var buffer = _renderService.Render(toRender, viewport.Width, viewport.Height);
             _gameWorldView.Text = buffer.ToText();
         });
+    }
+
+    public void UpdateWorldLayered(IReadOnlyList<LayeredSnapshot> layers)
+    {
+        // For now, flatten all layers into single render pass
+        // Future: render each layer separately and composite
+        var allEntities = new List<EntitySnapshot>();
+        foreach (var layer in layers.OrderBy(l => l.Layer))
+        {
+            allEntities.AddRange(layer.Entities);
+        }
+        UpdateWorld(allEntities);
     }
 
     public void UpdateStatus(string status)

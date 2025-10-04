@@ -124,13 +124,13 @@ console/src/host/ConsoleDungeon/
 tasks:
   run:
     cmds:
-      - dotnet run --project src/host/ConsoleDungeon/ConsoleDungeon.csproj
+      - cd build && task build-all && task console:normal
 
 # After
 tasks:
   run:
     cmds:
-      - dotnet run --project src/host/ConsoleDungeon.Host/ConsoleDungeon.Host.csproj
+      - cd build && task build-all && task console:normal
 ```
 
 **Nuke changes:**
@@ -152,12 +152,12 @@ tasks:
 
 **Before (deprecated):**
 ```bash
-dotnet run --project console/src/host/ConsoleDungeon
+cd build && task build-all && task console:normal
 ```
 
 **After:**
 ```bash
-dotnet run --project console/src/host/ConsoleDungeon.Host
+cd build && task build-all && task console:normal
 ```
 ```
 
@@ -198,13 +198,13 @@ dotnet run --project console/src/host/ConsoleDungeon.Host
 **Old command:**
 ```bash
 cd development/dotnet
-dotnet run --project console/src/host/ConsoleDungeon
+cd build && task build-all && task console:normal
 ```
 
 **New command:**
 ```bash
 cd development/dotnet
-dotnet run --project console/src/host/ConsoleDungeon.Host
+cd build && task build-all && task console:normal
 ```
 
 **Or using Task:**

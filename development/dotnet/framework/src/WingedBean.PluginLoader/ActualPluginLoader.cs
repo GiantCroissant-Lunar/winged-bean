@@ -51,7 +51,26 @@ public class ActualPluginLoader : IPluginLoader
 
         if (!File.Exists(pluginPath))
         {
-            throw new FileNotFoundException($"Plugin assembly not found: {pluginPath}", pluginPath);
+            // Fallbacks for artifact layouts: try filename in common plugin locations
+            var fileName = Path.GetFileName(pluginPath);
+            var candidates = new List<string?>
+            {
+                Path.Combine("plugins", fileName),
+                fileName,
+                Path.Combine(Path.GetDirectoryName(pluginPath) ?? string.Empty, fileName)
+            };
+
+            string? resolved = candidates.FirstOrDefault(p => !string.IsNullOrWhiteSpace(p) && File.Exists(p));
+            if (resolved != null)
+            {
+                _logger?.LogInformation("Resolved plugin path fallback: {Resolved}", resolved);
+                pluginPath = resolved;
+            }
+            else
+            {
+                var hint = string.Join(", ", candidates.Where(c => !string.IsNullOrWhiteSpace(c)));
+                throw new FileNotFoundException($"Plugin assembly not found: {pluginPath}. Tried: {hint}", pluginPath);
+            }
         }
 
         // Create a simple manifest from the path

@@ -437,3 +437,6 @@ node test-client.js               # Test WebSocket client
 **Handover Date**: September 30, 2025
 **Status**: PTY integration working - Terminal.Gui displays in browser, keyboard works, mouse events pending
 **Last Updated**: September 30, 2025 - Repository cleaned and committed
+# Terminal.Gui PTY Integration
+
+> Run Policy: Build with Task and run from versioned artifacts. Use `task console:debug` or `task console:normal`. Avoid `dotnet run` for ConsoleDungeon.Host to ensure consistent plugin resolution and logs.

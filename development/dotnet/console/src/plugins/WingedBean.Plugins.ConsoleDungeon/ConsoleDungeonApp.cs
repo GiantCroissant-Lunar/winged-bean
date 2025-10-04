@@ -30,13 +30,20 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
     private IGameUIService? _uiService;
     private System.Timers.Timer? _uiTimer;
     private Label? _statusLabel;
-    private TextView? _gameWorldView;
+    private Label? _gameWorldView;
     private IDisposable? _statsSubscription;
     private IDisposable? _entitiesSubscription;
     private IDisposable? _inputSubscription;
     private IReadOnlyList<EntitySnapshot>? _currentEntities;
     private readonly List<string> _logMessages = new();
     private bool _isRecording = false;
+    private int? _lastPosX = null;
+    private int? _lastPosY = null;
+    private bool _debugMinimalUI = false; // Debug mode: no UI widgets to isolate input handling
+    // ESC-based CSI/SS3 sequence detection for arrow keys when driver doesn't parse them (issue #214)
+    private bool _escSequenceActive = false;
+    private bool _escBracketReceived = false;
+    private System.Timers.Timer? _escTimer;
 
     public event EventHandler<TerminalOutputEventArgs>? OutputReceived;
     public event EventHandler<TerminalExitEventArgs>? Exited;
@@ -44,13 +51,18 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
     public ConsoleDungeonApp(ILogger<ConsoleDungeonApp> logger)
     {
         _logger = logger;
-        
+
         // Set up file-based logging (Terminal.Gui hides console output)
-        var logsDir = Path.Combine(AppContext.BaseDirectory, "logs");
+        // Write to versioned artifacts path: base=.../dotnet/bin -> ../logs
+        var logsDir = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "logs"));
         Directory.CreateDirectory(logsDir);
         _logFilePath = Path.Combine(logsDir, $"console-dungeon-{DateTime.Now:yyyyMMdd-HHmmss}.log");
-        
-        LogToFile("=== ConsoleDungeonApp Constructor ===");
+
+        // Check for DEBUG_MINIMAL_UI environment variable (issue #214 debugging)
+        var debugEnv = Environment.GetEnvironmentVariable("DEBUG_MINIMAL_UI");
+        _debugMinimalUI = debugEnv == "1" || debugEnv?.ToLower() == "true";
+
+        LogToFile($"=== ConsoleDungeonApp Constructor (DEBUG_MINIMAL_UI={_debugMinimalUI}) ===");
     }
 
     // Parameterless constructor for plugin loader instantiation
@@ -90,8 +102,13 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
 
         try
         {
-            // Initialize Terminal.Gui
-            Application.Init();
+            // Initialize Terminal.Gui (allow tests to pre-initialize with FakeDriver)
+            if (Application.Driver == null)
+            {
+                Application.Init();
+            }
+            // Normalize cursor keys to CSI [A-D to avoid SS3 inconsistencies
+            ForceCursorKeysNormal();
 
             _isRunning = true;
 
@@ -183,6 +200,7 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
                     {
                         _currentEntities = entities;
                         LogToFile($"[Observable] Entities updated: {entities.Count} entities");
+                        TryEmitPlayerPosition();
                     });
 
                     // Subscribe to UI service input events
@@ -304,6 +322,10 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
             _inputSubscription?.Dispose();
             _gameService?.Shutdown();
 
+            // Detach global key handler
+            try { Application.KeyDown -= HandleKeyInput; } catch { }
+            try { Application.Top.KeyDown -= HandleKeyInput; } catch { }
+
             _isRunning = false;
             _logger.LogInformation("Console Dungeon application stopped");
         }
@@ -359,12 +381,16 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
 
     private void CreateMainWindow()
     {
-        LogToFile("CreateMainWindow called");
-        
+        LogToFile($"CreateMainWindow called (debugMinimalUI={_debugMinimalUI})");
+
         // Use Window (Terminal.Gui v2) with property initializers
+        var title = _debugMinimalUI
+            ? "DEBUG MODE - Input Test | Esc=Quit, Arrows=Move, M=Menu"
+            : "Console Dungeon - ECS Dungeon Crawler | M=Menu";
+
         _mainWindow = new Window()
         {
-            Title = "Console Dungeon - ECS Dungeon Crawler | M=Menu",
+            Title = title,
             BorderStyle = LineStyle.Single,
             X = 0,
             Y = 0,
@@ -372,30 +398,71 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
             Height = Dim.Fill()
         };
 
-        // Game world view (full width, 90% height)
-        _gameWorldView = new TextView
+        if (!_debugMinimalUI)
         {
-            X = 0,
-            Y = 0,
-            Width = Dim.Fill(),
-            Height = Dim.Percent(90),
-            ReadOnly = true,
-            Text = "Game world initializing..."
-        };
-        
-        // Status bar at the bottom (10% height)
-        _statusLabel = new Label
+            // Normal mode: full UI with game world and status bar
+            LogToFile("Normal mode: Adding game world and status UI widgets");
+
+            // Game world view (full width, 90% height)
+            _gameWorldView = new Label
+            {
+                X = 0,
+                Y = 0,
+                Width = Dim.Fill(),
+                Height = Dim.Percent(90),
+                CanFocus = false,
+                Text = "Game world initializing..."
+            };
+
+            // Status bar at the bottom (10% height)
+            _statusLabel = new Label
+            {
+                X = 0,
+                Y = Pos.AnchorEnd(1),
+                Width = Dim.Fill(),
+                Text = "Loading game stats... | M=Menu"
+            };
+
+            _mainWindow.Add(_gameWorldView, _statusLabel);
+        }
+        else
         {
-            X = 0,
-            Y = Pos.AnchorEnd(1),
-            Width = Dim.Fill(),
-            Text = "Loading game stats... | M=Menu"
-        };
-        
-        _mainWindow.Add(_gameWorldView, _statusLabel);
+            // Debug mode: minimal UI to isolate input handling (issue #214)
+            LogToFile("DEBUG MODE: Minimal UI - no game widgets, only instruction label");
+
+            var debugLabel = new Label
+            {
+                X = 1,
+                Y = 1,
+                Width = Dim.Fill(1),
+                Height = Dim.Fill(1),
+                CanFocus = false,
+                Text = @"=== DEBUG MODE - Input Test (Issue #214) ===
+
+Instructions:
+  - Press arrow keys (Up, Down, Left, Right)
+  - Press M to toggle menu
+  - Press Esc or Ctrl+C to quit
+
+All key events will be logged to the log file.
+Check logs for KeyDown events and input mapping.
+
+Waiting for input..."
+            };
+
+            _mainWindow.Add(debugLabel);
+        }
 
         // Handle keyboard input - map to game events
         _mainWindow.KeyDown += HandleKeyInput;
+        // Also handle KeyUp in case some drivers only emit KeyUp for certain arrows (issue #214)
+        _mainWindow.KeyUp += HandleKeyInput;
+        // Additionally listen at the Application level to catch keys even if focus shifts
+        Application.KeyDown += HandleKeyInput;
+        Application.KeyUp += HandleKeyInput;
+        // And at the Top-level view to capture bubbling events
+        try { Application.Top.KeyDown += HandleKeyInput; } catch { }
+        try { Application.Top.KeyUp += HandleKeyInput; } catch { }
 
         // Ensure the window has focus so it receives KeyDown events reliably
         try { _mainWindow.SetFocus(); } catch { }
@@ -404,7 +471,24 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
         SendOutputEvent("Console Dungeon (ECS) started - Use arrow keys to move, M for menu!\n");
         LogToFile("CreateMainWindow completed");
     }
-    
+
+    private void ForceCursorKeysNormal()
+    {
+        try
+        {
+            // DECCKM reset: normal cursor keys => ESC [ A/B/C/D
+            Console.Write("\x1b[?1l");
+            // Ensure keypad numeric mode
+            Console.Write("\x1b>");
+            Console.Out.Flush();
+            LogToFile("Sent terminal mode reset: DECCKM normal (CSI [A-D)");
+        }
+        catch (Exception ex)
+        {
+            LogToFile($"Error setting cursor key mode: {ex.Message}");
+        }
+    }
+
     private void SendOSCSequence(string sequence)
     {
         try
@@ -419,31 +503,204 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
             LogToFile($"Error sending OSC sequence: {ex.Message}");
         }
     }
-    
+
+    private void TryEmitPlayerPosition()
+    {
+        try
+        {
+            if (_currentEntities == null) return;
+            var pos = FindPlayerPosition(_currentEntities);
+            if (pos == null) return;
+            if (_lastPosX != pos.Value.X || _lastPosY != pos.Value.Y)
+            {
+                _lastPosX = pos.Value.X;
+                _lastPosY = pos.Value.Y;
+                var line = $"POS x={_lastPosX} y={_lastPosY}\n";
+                Console.Write(line);
+                Console.Out.Flush();
+                LogToFile($"Emitted {line.Trim()}");
+            }
+        }
+        catch (Exception ex)
+        {
+            LogToFile($"Error emitting position: {ex.Message}");
+        }
+    }
+
+    private (int X, int Y)? FindPlayerPosition(IReadOnlyList<EntitySnapshot> entities)
+    {
+        try
+        {
+            foreach (var e in entities)
+            {
+                if (e.Symbol == '@')
+                {
+                    return (e.Position.X, e.Position.Y);
+                }
+            }
+        }
+        catch { }
+        return null;
+    }
+
     private void HandleKeyInput(object? sender, Key e)
     {
-        // Log the key for debugging
-        LogToFile($"KeyDown: KeyCode={e.KeyCode}");
-        
-        // Map Terminal.Gui keys to GameInputEvents
-        var inputType = MapKeyToGameInput(e);
-        
+        // Determine event source for detailed logging
+        var source = sender == _mainWindow ? "Window" :
+                     (sender != null && sender == Application.Top) ? "Top" : "Application";
+
+        // Enhanced logging for issue #214 debugging
+        LogToFile($"╔═══ [{source}] Key Event ═══");
+        LogToFile($"║ Handled (on entry): {e.Handled}");
+        LogToFile($"║ KeyCode: {e.KeyCode}");
+
+        var runeChar = e.AsRune.Value >= 32 && e.AsRune.Value < 127
+            ? $"'{(char)e.AsRune.Value}'"
+            : $"0x{e.AsRune.Value:X}";
+        LogToFile($"║ Rune: {runeChar} (value={e.AsRune.Value})");
+        LogToFile($"║ Modifiers: Alt={e.IsAlt}, Ctrl={e.IsCtrl}, Shift={e.IsShift}");
+
+        // If a modal menu is visible, prioritize menu handling and avoid consuming
+        if (_uiService?.IsMenuVisible == true)
+        {
+            var rv = e.AsRune.Value;
+            if (e.KeyCode == KeyCode.Esc || rv == 'q' || rv == 'Q' || rv == 'm' || rv == 'M')
+            {
+                LogToFile("║ Menu visible → closing menu via key");
+                try { _uiService.HideMenu(); } catch { }
+                // Cancel any pending ESC sequence state
+                _escSequenceActive = false; _escBracketReceived = false;
+                try { _escTimer?.Stop(); _escTimer?.Dispose(); _escTimer = null; } catch { }
+                e.Handled = true;
+            }
+            else
+            {
+                LogToFile("║ Menu visible → letting dialog handle key");
+                // Do not mark handled; allow Dialog to process navigation/selection
+            }
+            LogToFile($"╚═══ [{source}] Key Exit (Handled={e.Handled}) ═══");
+            return;
+        }
+
+        // CSI/SS3 arrow sequence state machine
+        // Some terminals/drivers may deliver arrow Down/Right as ESC '[' 'B'/'C' without KeyCode
+        // We capture ESC and wait a short time for '[' and a final A-D letter.
+        GameInputType? inputType = null;
+
+        // If an ESC sequence is active, inspect next bytes
+        var rune = e.AsRune;
+        if (_escSequenceActive)
+        {
+            if (!_escBracketReceived && rune.Value == (uint)'[')
+            {
+                _escBracketReceived = true;
+                e.Handled = true;
+                LogToFile("║ ESC sequence: '[' received, awaiting A-D");
+                LogToFile($"╚═══ [{source}] Key Exit (Handled={e.Handled}) ═══");
+                return;
+            }
+            else if (_escBracketReceived && rune.Value >= (uint)'A' && rune.Value <= (uint)'D')
+            {
+                // Map final letter to direction
+                inputType = ((char)rune.Value) switch
+                {
+                    'A' => GameInputType.MoveUp,
+                    'B' => GameInputType.MoveDown,
+                    'C' => GameInputType.MoveRight,
+                    'D' => GameInputType.MoveLeft,
+                    _ => (GameInputType?)null
+                };
+
+                // Consume and clear ESC sequence state
+                _escSequenceActive = false;
+                _escBracketReceived = false;
+                try { _escTimer?.Stop(); _escTimer?.Dispose(); _escTimer = null; } catch { }
+
+                if (inputType.HasValue)
+                {
+                    LogToFile($"║ ESC sequence mapped to: {inputType.Value}");
+                }
+            }
+            else
+            {
+                // Unexpected rune; cancel pending ESC sequence and fall through to normal mapping
+                LogToFile("║ ESC sequence canceled (unexpected rune)");
+                _escSequenceActive = false;
+                _escBracketReceived = false;
+                try { _escTimer?.Stop(); _escTimer?.Dispose(); _escTimer = null; } catch { }
+            }
+        }
+
+        // If still not mapped via ESC sequence handling, try normal mapping
+        if (!inputType.HasValue)
+        {
+            inputType = MapKeyToGameInput(e);
+        }
+
+        LogToFile($"║ Mapped to: {(inputType.HasValue ? inputType.Value.ToString() : "null (not mapped)")}");
+
         if (inputType.HasValue)
         {
             var inputEvent = new GameInputEvent(inputType.Value, DateTimeOffset.UtcNow);
-            
+
             // Handle the input directly
             HandleGameInput(inputEvent);
-            
+
             // Mark as handled to prevent Terminal.Gui navigation
             e.Handled = true;
-            LogToFile($"Handled game input: {inputType.Value}");
+            LogToFile($"║ Action: Handled=true, processing {inputType.Value}");
         }
+        else
+        {
+            // If this is a standalone ESC, start a short timer to disambiguate from arrow sequences
+            if (e.KeyCode == KeyCode.Esc && !_escSequenceActive)
+            {
+                // Begin ESC sequence and wait briefly for potential '[' and A-D
+                _escSequenceActive = true;
+                _escBracketReceived = false;
+                _escTimer = new System.Timers.Timer(180) { AutoReset = false };
+                _escTimer.Elapsed += (s2, e2) =>
+                {
+                    // Timer expired without completing a sequence: treat as Quit
+                    if (_escSequenceActive)
+                    {
+                        _escSequenceActive = false;
+                        _escBracketReceived = false;
+                        Application.Invoke(() =>
+                        {
+                            LogToFile("║ ESC timeout → mapping to Quit");
+                            // Stop UI timer to avoid lingering after quit
+                            try { _uiTimer?.Stop(); _uiTimer?.Dispose(); _uiTimer = null; } catch { }
+                            HandleGameInput(new GameInputEvent(GameInputType.Quit, DateTimeOffset.UtcNow));
+                        });
+                    }
+                };
+                try { _escTimer.Start(); } catch { }
+                e.Handled = true; // prevent default navigation
+                LogToFile("║ ESC pressed; awaiting potential CSI sequence");
+            }
+            LogToFile($"║ Action: Not mapped, event not consumed");
+        }
+
+        LogToFile($"╚═══ [{source}] Key Exit (Handled={e.Handled}) ═══");
     }
     
     private GameInputType? MapKeyToGameInput(Key key)
     {
-        // Check KeyCode first for special keys (arrows, space)
+        // Priority 1: Quit keys (issue #214 - Esc and Ctrl+C should exit)
+        if (key.KeyCode == KeyCode.Esc)
+        {
+            LogToFile("  → ESC detected, mapping to Quit");
+            return GameInputType.Quit;
+        }
+
+        if (key.IsCtrl && (key.AsRune.Value == 'C' || key.AsRune.Value == 'c' || key.AsRune.Value == 3))
+        {
+            LogToFile("  → Ctrl+C detected, mapping to Quit");
+            return GameInputType.Quit;
+        }
+
+        // Priority 2: Check KeyCode first for special keys (arrows, space)
         var fromKeyCode = key.KeyCode switch
         {
             KeyCode.CursorUp => GameInputType.MoveUp,
@@ -453,35 +710,49 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
             KeyCode.Space => GameInputType.Attack,
             _ => (GameInputType?)null
         };
-        
+
         if (fromKeyCode.HasValue)
+        {
+            LogToFile($"  → KeyCode {key.KeyCode} mapped to {fromKeyCode.Value}");
             return fromKeyCode;
+        }
         
-        // Check character for letter keys (case-insensitive)
+        // Priority 3: Check character for letter keys (case-insensitive)
+        // Support common WASD controls as a fallback when arrow decoding varies by terminal
         // Get the rune value and convert to char
         var rune = key.AsRune;
         if (rune.Value >= 32 && rune.Value < 127) // Printable ASCII
         {
             var ch = char.ToUpper((char)rune.Value);
-            return ch switch
+            LogToFile($"  → Checking character key: '{ch}' (rune={rune.Value})");
+
+            var result = ch switch
             {
+                // WASD movement
                 'W' => GameInputType.MoveUp,
-                'S' => GameInputType.MoveDown,
                 'A' => GameInputType.MoveLeft,
+                'S' => GameInputType.MoveDown,
                 'D' => GameInputType.MoveRight,
-                // Fallback mapping for SS3 arrow runes when KeyCode was not set
-                // Some terminals may surface ESC O B/C as rune 'B'/'C' here
-                'B' => GameInputType.MoveDown,
-                'C' => GameInputType.MoveRight,
+                // SS3 fallback commonly surfaces as letters for some arrows (issue #214)
+                // Terminal.Gui may deliver ESC O A/B/C/D as runes A/B/C/D
+                'B' => GameInputType.MoveDown,  // ESC O B
+                'C' => GameInputType.MoveRight, // ESC O C
+                // Game commands
                 'E' => GameInputType.Use,
                 'G' => GameInputType.Pickup,
                 'M' => GameInputType.ToggleMenu,
                 'I' => GameInputType.ToggleInventory,
                 'Q' => GameInputType.Quit,
-                _ => null
+                _ => (GameInputType?)null
             };
+
+            if (result.HasValue)
+                LogToFile($"  → Character '{ch}' mapped to {result.Value}");
+
+            return result;
         }
-        
+
+        LogToFile($"  → No mapping found for KeyCode={key.KeyCode}, Rune={rune.Value}");
         return null;
     }
     
@@ -511,6 +782,7 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
                 
             case GameInputType.Quit:
                 LogToFile("Quit requested via game input");
+                try { _uiTimer?.Stop(); _uiTimer?.Dispose(); _uiTimer = null; } catch { }
                 Application.RequestStop();
                 break;
                 

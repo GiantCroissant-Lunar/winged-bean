@@ -53,6 +53,9 @@ public class GameUIServiceProvider : IGameUIService
             _ => throw new ArgumentException($"Unknown menu type: {type}", nameof(type))
         };
         
+        // Attach common key handlers: Esc/Q/M to close (toggle-like behavior)
+        WireDialogCommonHandlers(_currentMenu);
+        
         Application.Run(_currentMenu);
     }
     
@@ -206,5 +209,29 @@ Press ESC to close this help."
         dialog.Add(helpText);
         
         return dialog;
+    }
+
+    private void WireDialogCommonHandlers(Dialog dialog)
+    {
+        dialog.KeyDown += (s, e) =>
+        {
+            // Close menu on Esc, Q/q, or M/m to behave like a toggle
+            if (e.KeyCode == KeyCode.Esc)
+            {
+                Application.RequestStop(dialog);
+                _currentMenu = null;
+                e.Handled = true;
+                return;
+            }
+
+            var rv = e.AsRune.Value;
+            if (rv == 'q' || rv == 'Q' || rv == 'm' || rv == 'M')
+            {
+                Application.RequestStop(dialog);
+                _currentMenu = null;
+                e.Handled = true;
+                return;
+            }
+        };
     }
 }

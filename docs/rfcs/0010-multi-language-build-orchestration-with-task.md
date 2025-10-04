@@ -259,6 +259,38 @@ _artifacts/*/
 3. Implement `init-dirs` task to create artifact structure
 4. Update `build/.gitignore` to exclude `_artifacts/` and `.task/`
 
+---
+
+## Run & Validation Policy (Normative)
+
+To ensure reproducible, versioned runs across all agents and environments:
+
+- Always build via Task (no ad-hoc `dotnet build`):
+  ```bash
+  cd build
+  task build-all
+  ```
+
+- Always run from versioned artifacts (avoid `dotnet run` for ConsoleDungeon.Host):
+  ```bash
+  # Debug (blank UI to isolate input handling)
+  task console:debug
+
+  # Normal (full UI)
+  task console:normal
+  ```
+
+- PTY E2E validation (WebSocket/xterm.js path):
+  ```bash
+  cd build
+  task verify:pty-keys
+  ```
+  This starts the PTY server from the latest artifact, sends an arrow/M/Q/Ctrl+C sequence, and auto-parses the latest console log.
+
+Notes:
+- Plugin paths remain relative; the loader resolves flattened artifact layouts.
+- All documentation and scripts should reference Task targets or artifact scripts — not `dotnet run`.
+
 ### Phase 2: Build Integration (2-3 hours)
 
 1. Create `build-dotnet` task wrapping Nuke

@@ -155,7 +155,7 @@ dotnet build Console.sln --configuration Release
 - [ ] Run ConsoleDungeon.Host:
 ```bash
 cd console/src/host/ConsoleDungeon.Host
-dotnet run
+cd build && task build-all && task console:normal
 ```
 
 **Expected:** App launches successfully, no errors.
@@ -372,7 +372,7 @@ dotnet build Console.sln
 - [ ] Run:
 ```bash
 cd src/host/ConsoleDungeon.Host
-dotnet run
+cd build && task build-all && task console:normal
 ```
 
 **Expected Output:**
