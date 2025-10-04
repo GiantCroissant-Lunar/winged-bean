@@ -55,18 +55,18 @@ internal class StyleBuilder
         }
         
         // Text style
-        if (figma.Type == NodeType.TEXT && figma.Style != null)
+        if (figma.Type == NodeType.TEXT)
         {
             style.Text = new TextStyle
             {
                 Content = figma.Characters ?? string.Empty,
-                FontFamily = figma.Style.FontFamily,
-                FontSize = figma.Style.FontSize,
-                Bold = figma.Style.FontWeight >= 600,
-                Italic = figma.Style.Italic,
+                FontFamily = figma.Style?.FontFamily ?? "Arial",
+                FontSize = figma.Style?.FontSize ?? 14,
+                Bold = (figma.Style?.FontWeight ?? 400) >= 600,
+                Italic = figma.Style?.Italic ?? false,
                 Color = figma.Fills?.FirstOrDefault(f => f.Visible)?.Color ?? Color.Black,
-                HorizontalAlign = MapHorizontalAlign(figma.Style.TextAlignHorizontal),
-                VerticalAlign = MapVerticalAlign(figma.Style.TextAlignVertical)
+                HorizontalAlign = MapHorizontalAlign(figma.Style?.TextAlignHorizontal),
+                VerticalAlign = MapVerticalAlign(figma.Style?.TextAlignVertical)
             };
         }
         
