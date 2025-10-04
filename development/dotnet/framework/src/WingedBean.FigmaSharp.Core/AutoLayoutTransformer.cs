@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using WingedBean.Contracts.FigmaSharp;
 
 namespace WingedBean.FigmaSharp.Core;
@@ -46,6 +48,7 @@ internal class AutoLayoutTransformer
     
     /// <summary>
     /// Calculate spacing, handling SPACE_BETWEEN special case
+    /// Enhanced with better edge case handling
     /// </summary>
     private float CalculateSpacing(FObject figma)
     {
@@ -55,7 +58,12 @@ internal class AutoLayoutTransformer
             if (figma.Children == null || figma.Children.Count <= 1)
                 return 0;
             
-            int childCount = figma.Children.Count;
+            // Filter only visible children
+            var visibleChildren = figma.Children.Where(c => c.Visible).ToList();
+            if (visibleChildren.Count <= 1)
+                return 0;
+            
+            int childCount = visibleChildren.Count;
             int spacingCount = childCount - 1;
             
             // Calculate total space available
@@ -73,9 +81,9 @@ internal class AutoLayoutTransformer
             
             parentSize -= (paddingStart + paddingEnd);
             
-            // Calculate total children size
+            // Calculate total children size (only visible children)
             float allChildrenSize = 0;
-            foreach (var child in figma.Children)
+            foreach (var child in visibleChildren)
             {
                 float childSize = figma.LayoutMode == LayoutMode.HORIZONTAL 
                     ? child.Size.X 
@@ -85,7 +93,9 @@ internal class AutoLayoutTransformer
             
             // Calculate spacing
             float availableSpace = parentSize - allChildrenSize;
-            return spacingCount > 0 ? availableSpace / spacingCount : 0;
+            
+            // Ensure non-negative spacing
+            return spacingCount > 0 ? MathF.Max(0, availableSpace / spacingCount) : 0;
         }
         
         return figma.ItemSpacing ?? 0;

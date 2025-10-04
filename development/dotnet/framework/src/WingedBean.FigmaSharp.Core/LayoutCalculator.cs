@@ -1,3 +1,4 @@
+using System;
 using WingedBean.Contracts.FigmaSharp;
 
 namespace WingedBean.FigmaSharp.Core;
@@ -60,10 +61,27 @@ internal class LayoutCalculator
         // Alignment
         layout.Alignment = _alignmentMapper.GetAlignment(figma);
         
+        // Anchors (for constraint-based positioning)
+        layout.Anchors = BuildAnchorData(figma);
+        
         // Padding
         layout.Padding = _paddingCalculator.CalculatePadding(figma, rect.Size);
         
         return layout;
+    }
+    
+    /// <summary>
+    /// Build anchor data from Figma constraints
+    /// </summary>
+    private AnchorData? BuildAnchorData(FObject figma)
+    {
+        // Only apply anchors for absolute positioned elements with constraints
+        if (figma.LayoutPositioning != LayoutPositioning.ABSOLUTE)
+            return null;
+        
+        // In a full implementation, we would check figma.Constraints
+        // For now, return null (constraints will be added in future enhancement)
+        return null;
     }
     
     /// <summary>
@@ -74,25 +92,74 @@ internal class LayoutCalculator
     {
         var rect = new FRect();
         
-        // Get bounding box
-        if (figma.AbsoluteBoundingBox.HasValue)
+        // Get bounding box and size
+        bool hasBoundingBox = figma.AbsoluteBoundingBox.HasValue;
+        Vector2 bSize = hasBoundingBox 
+            ? new Vector2(figma.AbsoluteBoundingBox.Value.Width, figma.AbsoluteBoundingBox.Value.Height)
+            : figma.Size;
+        Vector2 bPos = hasBoundingBox
+            ? new Vector2(figma.AbsoluteBoundingBox.Value.X, figma.AbsoluteBoundingBox.Value.Y)
+            : Vector2.Zero;
+        
+        // Calculate rotation angles
+        rect.Angle = figma.Rotation;
+        rect.AbsoluteAngle = GetAbsoluteRotationAngle(figma);
+        
+        // Determine position and size based on rotation
+        Vector2 position;
+        Vector2 size;
+        
+        if (rect.AbsoluteAngle != 0)
         {
-            var bbox = figma.AbsoluteBoundingBox.Value;
-            rect.Position = new Vector2(bbox.X, bbox.Y);
-            rect.Size = new Vector2(bbox.Width, bbox.Height);
+            // Rotated element - calculate offset
+            size = figma.Size;
+            var offset = CalculateRotationOffset(size.X, size.Y, rect.AbsoluteAngle);
+            position = new Vector2(bPos.X + offset.X, bPos.Y + offset.Y);
         }
         else
         {
-            // Fallback to Size property
-            rect.Position = Vector2.Zero;
-            rect.Size = figma.Size;
+            // Normal element
+            size = bSize;
+            position = bPos;
         }
         
-        // Handle rotation (simplified for now)
-        // TODO: Port full rotation logic from D.A. Assets in Phase 2
-        rect.Angle = figma.Rotation;
+        rect.Size = size;
+        rect.Position = position;
         
         return rect;
+    }
+    
+    /// <summary>
+    /// Calculate absolute rotation angle (including parent rotations)
+    /// </summary>
+    private float GetAbsoluteRotationAngle(FObject figma)
+    {
+        float angle = figma.Rotation;
+        var current = figma.Parent;
+        
+        while (current != null)
+        {
+            angle += current.Rotation;
+            current = current.Parent;
+        }
+        
+        return angle;
+    }
+    
+    /// <summary>
+    /// Calculate position offset for rotated elements
+    /// Ported from D.A. Assets rotation logic
+    /// </summary>
+    private Vector2 CalculateRotationOffset(float width, float height, float angleDegrees)
+    {
+        float radians = angleDegrees * (MathF.PI / 180f);
+        float cos = MathF.Cos(radians);
+        float sin = MathF.Sin(radians);
+        
+        float offsetX = (width * (1 - cos) + height * sin) / 2;
+        float offsetY = (height * (1 - cos) - width * sin) / 2;
+        
+        return new Vector2(offsetX, offsetY);
     }
 }
 
@@ -104,4 +171,5 @@ internal struct FRect
     public Vector2 Position { get; set; }
     public Vector2 Size { get; set; }
     public float Angle { get; set; }
+    public float AbsoluteAngle { get; set; }
 }
