@@ -23,10 +23,10 @@ public record RenderBuffer(
         int height = Cells.GetLength(0);
         int width = Cells.GetLength(1);
         var sb = new StringBuilder();
-        
+
         // If we have colors, use ANSI codes
         bool hasColors = ForegroundColors != null && ForegroundColors.Count > 0;
-        
+
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
@@ -48,7 +48,31 @@ public record RenderBuffer(
                 sb.AppendLine();
             }
         }
-        
+
+        return sb.ToString();
+    }
+
+    /// <summary>
+    /// Convert buffer to plain string without color codes (for Terminal.Gui Label).
+    /// </summary>
+    public string ToPlainText()
+    {
+        int height = Cells.GetLength(0);
+        int width = Cells.GetLength(1);
+        var sb = new StringBuilder();
+
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                sb.Append(Cells[y, x]);
+            }
+            if (y < height - 1)
+            {
+                sb.AppendLine();
+            }
+        }
+
         return sb.ToString();
     }
     
