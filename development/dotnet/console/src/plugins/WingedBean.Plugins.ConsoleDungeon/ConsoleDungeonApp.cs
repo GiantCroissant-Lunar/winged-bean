@@ -89,9 +89,11 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
 
     public async Task StartAsync(TerminalAppConfig config, CancellationToken ct = default)
     {
+        LogToFile("=== StartAsync called ===");
         if (_isRunning)
         {
             _logger.LogWarning("Console Dungeon is already running");
+            LogToFile("Already running, returning");
             return;
         }
 
@@ -99,23 +101,27 @@ public class ConsoleDungeonApp : ITerminalApp, IDisposable
         _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(ct);
 
         _logger.LogInformation("Starting Console Dungeon application...");
+        LogToFile("Starting Console Dungeon application...");
 
         try
         {
             // Initialize Terminal.Gui (allow tests to pre-initialize with FakeDriver)
             if (Application.Driver == null)
             {
+                LogToFile("Initializing Terminal.Gui Application");
                 Application.Init();
             }
             // Normalize cursor keys to CSI [A-D to avoid SS3 inconsistencies
             ForceCursorKeysNormal();
 
             _isRunning = true;
+            LogToFile("Set _isRunning = true");
 
             // Get registry from config if available
             if (_config?.Parameters != null && _config.Parameters.TryGetValue("registry", out var regObj))
             {
                 _registry = regObj as IRegistry;
+                LogToFile($"Got registry from config: {_registry != null}");
             }
 
             // Create main window

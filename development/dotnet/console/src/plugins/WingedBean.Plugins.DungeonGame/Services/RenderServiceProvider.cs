@@ -52,11 +52,11 @@ public class RenderServiceProvider : IRenderService
             // World is ~80x24, buffer varies based on view size
             int bufX = entity.Position.X * width / 80;
             int bufY = entity.Position.Y * height / 24;
-            
+
             if (bufX >= 0 && bufX < width && bufY >= 0 && bufY < height)
             {
                 cells[bufY, bufX] = entity.Symbol;
-                
+
                 // Add colors if in color mode
                 if (_currentMode == RenderMode.Color || _currentMode == RenderMode.TrueColor)
                 {
