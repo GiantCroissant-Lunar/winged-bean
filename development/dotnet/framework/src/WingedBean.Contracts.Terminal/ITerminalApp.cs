@@ -1,22 +1,16 @@
+using Microsoft.Extensions.Hosting;
+
 namespace WingedBean.Contracts.Terminal;
 
 /// <summary>
-/// Interface for Terminal applications
+/// Terminal application that integrates with .NET Generic Host.
+/// Extends IHostedService for lifecycle management while adding terminal-specific operations.
 /// </summary>
-public interface ITerminalApp
+public interface ITerminalApp : IHostedService
 {
-    /// <summary>
-    /// Start the terminal application
-    /// </summary>
-    /// <param name="config">Application configuration</param>
-    /// <param name="ct">Cancellation token</param>
-    Task StartAsync(TerminalAppConfig config, CancellationToken ct = default);
-
-    /// <summary>
-    /// Stop the terminal application
-    /// </summary>
-    /// <param name="ct">Cancellation token</param>
-    Task StopAsync(CancellationToken ct = default);
+    // IHostedService provides:
+    // - Task StartAsync(CancellationToken cancellationToken)
+    // - Task StopAsync(CancellationToken cancellationToken)
 
     /// <summary>
     /// Send input to the terminal application
@@ -45,7 +39,8 @@ public interface ITerminalApp
 }
 
 /// <summary>
-/// Terminal application configuration
+/// Configuration for terminal applications.
+/// Injected via DI or IOptions pattern.
 /// </summary>
 public class TerminalAppConfig
 {
