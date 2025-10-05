@@ -55,9 +55,17 @@ var host = WingedBeanHost.CreateConsoleBuilder(args)
             // Register plugin loader hosted service (runs before terminal app)
             services.AddHostedService<PluginLoaderHostedService>();
 
-            // Register terminal app and adapter - deferred resolution after plugins load
-            services.AddSingleton<ITerminalApp>(sp => new LazyTerminalAppResolver(sp.GetRequiredService<IRegistry>()));
+            // Register ITerminalApp factory that resolves from registry
+            // Factory executes lazily when ITerminalApp is first requested
+            services.AddSingleton<ITerminalApp>(sp =>
+            {
+                var registry = sp.GetRequiredService<IRegistry>();
+                return registry.Get<ITerminalApp>();
+            });
 
+            // Register terminal app adapter
+            // LegacyTerminalAppAdapter resolves ITerminalApp from DI in StartAsync()
+            // This ensures plugins are loaded by PluginLoaderHostedService first
             services.AddHostedService<LegacyTerminalAppAdapter>();
 
             // Bridge IHostApplicationLifetime to IRegistry for plugin access
@@ -97,68 +105,6 @@ catch (Exception ex)
     Console.WriteLine($"Fatal error: {ex.Message}");
     Console.WriteLine(ex.StackTrace);
     throw;
-}
-
-class LazyTerminalAppResolver : ITerminalApp
-{
-    private readonly IRegistry _registry;
-    private ITerminalApp? _resolvedApp;
-
-    public LazyTerminalAppResolver(IRegistry registry)
-    {
-        _registry = registry;
-    }
-
-    private ITerminalApp GetApp()
-    {
-        if (_resolvedApp == null)
-        {
-            try
-            {
-                _resolvedApp = _registry.Get<ITerminalApp>();
-                try
-                {
-                    var t = _resolvedApp.GetType();
-                    var asm = t.Assembly;
-                    Console.WriteLine($"ITerminalApp resolved from registry successfully");
-                    Console.WriteLine($"  → Type: {t.FullName}");
-                    Console.WriteLine($"  → Assembly: {System.IO.Path.GetFileName(asm.Location)}");
-                    Console.WriteLine($"  → Path: {asm.Location}");
-                }
-                catch { }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"ITerminalApp not found in registry: {ex.Message}");
-                throw new InvalidOperationException("Terminal app not available - plugins may not have loaded correctly", ex);
-            }
-        }
-        return _resolvedApp;
-    }
-
-    public Task SendInputAsync(byte[] data, CancellationToken ct = default)
-        => GetApp().SendInputAsync(data, ct);
-
-    public Task ResizeAsync(int cols, int rows, CancellationToken ct = default)
-        => GetApp().ResizeAsync(cols, rows, ct);
-
-    public Task StartAsync(CancellationToken cancellationToken)
-        => GetApp().StartAsync(cancellationToken);
-
-    public Task StopAsync(CancellationToken cancellationToken)
-        => GetApp().StopAsync(cancellationToken);
-
-    public event EventHandler<TerminalOutputEventArgs>? OutputReceived
-    {
-        add => GetApp().OutputReceived += value;
-        remove => GetApp().OutputReceived -= value;
-    }
-
-    public event EventHandler<TerminalExitEventArgs>? Exited
-    {
-        add => GetApp().Exited += value;
-        remove => GetApp().Exited -= value;
-    }
 }
 
 // No-op hosted service that runs early to bridge IHostApplicationLifetime to IRegistry
