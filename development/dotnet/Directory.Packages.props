@@ -19,6 +19,7 @@
     <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="8.0.1" />
     <!-- Upgraded to 9.0.2 for Terminal.Gui v2 compatibility -->
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.2" />
@@ -52,8 +53,17 @@
     <PackageVersion Include="System.Text.Json" Version="8.0.5" />
   </ItemGroup>
 
+  <ItemGroup Label="Versioning">
+    <PackageVersion Include="NuGet.Versioning" Version="6.11.1" />
+  </ItemGroup>
+
   <ItemGroup Label="DI Helpers">
     <PackageVersion Include="Scrutor" Version="4.2.2" />
+  </ItemGroup>
+
+  <ItemGroup Label="Resilience">
+    <PackageVersion Include="Polly" Version="8.5.0" />
+    <PackageVersion Include="Polly.Extensions" Version="8.5.0" />
   </ItemGroup>
 
   <ItemGroup Label="Testing">
@@ -67,5 +77,27 @@
   <ItemGroup Label="Source Link and Debugging">
     <!-- SourceLink for GitHub - enables source debugging for NuGet consumers -->
     <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup Label="Analytics Providers">
+    <!-- Firebase Analytics -->
+    <PackageVersion Include="FirebaseAdmin" Version="3.0.0" />
+    <PackageVersion Include="Google.Cloud.Firestore" Version="3.7.0" />
+  </ItemGroup>
+
+  <ItemGroup Label="Diagnostics Providers">
+    <!-- Sentry -->
+    <PackageVersion Include="Sentry" Version="4.12.0" />
+    <PackageVersion Include="Sentry.Profiling" Version="4.12.0" />
+
+    <!-- OpenTelemetry -->
+    <PackageVersion Include="OpenTelemetry" Version="1.9.0" />
+    <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.9.0" />
+    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.9.0" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.9.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.9.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.9.0" />
+
+    <!-- Firebase Diagnostics (same as FirebaseAdmin above) -->
   </ItemGroup>
 </Project>
