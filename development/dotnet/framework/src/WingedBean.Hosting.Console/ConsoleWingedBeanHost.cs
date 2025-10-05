@@ -41,7 +41,9 @@ public class ConsoleWingedBeanHostBuilder : IWingedBeanHostBuilder
     public ConsoleWingedBeanHostBuilder(string[] args)
     {
         _hostBuilder = Host.CreateDefaultBuilder(args)
-            .UseConsoleLifetime(); // Graceful shutdown on Ctrl+C
+            // Graceful shutdown on Ctrl+C; suppress status messages to avoid
+            // interfering with Terminal.Gui alternate screen rendering.
+            .UseConsoleLifetime(opts => opts.SuppressStatusMessages = true);
     }
 
     public IWingedBeanHostBuilder ConfigureServices(Action<IServiceCollection> configure)
