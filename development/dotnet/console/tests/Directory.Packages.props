@@ -1,0 +1,23 @@
+<Project>
+  <!-- Import parent CPM for shared package versions -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Packages.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <PropertyGroup>
+    <!-- Ensure CPM is enabled for test projects -->
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <!-- Test-specific package versions (overrides or additions to parent CPM) -->
+  <ItemGroup Label="Test-Specific Packages">
+    <!-- Add any test-only packages here that aren't in the parent CPM -->
+    <!-- Example: <PackageVersion Include="Moq" Version="4.20.0" /> -->
+  </ItemGroup>
+
+  <!-- Test framework versions are already managed by parent CPM:
+       - Microsoft.NET.Test.Sdk
+       - xunit
+       - xunit.runner.visualstudio
+       - coverlet.collector
+       - FluentAssertions
+  -->
+</Project>
