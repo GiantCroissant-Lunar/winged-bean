@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using NuGet.Versioning;
 
 namespace WingedBean.PluginSystem;
 
@@ -15,7 +16,7 @@ public class HostBootstrap
     private readonly ServiceCollection _services;
     private readonly List<ILoadedPlugin> _loadedPlugins;
     private readonly ILogger<HostBootstrap>? _logger;
-    private readonly SemanticVersion _hostVersion;
+    private readonly NuGetVersion _hostVersion;
     private IPluginRegistry? _pluginRegistry;
     private IPluginSignatureVerifier? _signatureVerifier;
     private IPluginUpdateManager? _updateManager;
@@ -30,7 +31,7 @@ public class HostBootstrap
     public HostBootstrap(IPluginLoader pluginLoader, string hostVersion = "1.0.0", params string[] pluginDirectories)
     {
         _pluginLoader = pluginLoader;
-        _hostVersion = SemanticVersion.Parse(hostVersion);
+        _hostVersion = VersionExtensions.ParseVersion(hostVersion);
         _discovery = new PluginDiscovery(pluginDirectories);
         _resolver = new PluginDependencyResolver();
         _services = new ServiceCollection();
@@ -48,7 +49,7 @@ public class HostBootstrap
     {
         _pluginLoader = pluginLoader;
         _logger = logger;
-        _hostVersion = SemanticVersion.Parse(hostVersion);
+        _hostVersion = VersionExtensions.ParseVersion(hostVersion);
         // Note: We'll create separate loggers later when we have access to ILoggerFactory
         _discovery = new PluginDiscovery(pluginDirectories);
         _resolver = new PluginDependencyResolver();

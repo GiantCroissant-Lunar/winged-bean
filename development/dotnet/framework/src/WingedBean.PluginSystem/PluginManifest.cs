@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using NuGet.Versioning;
 
 namespace WingedBean.PluginSystem;
 
@@ -73,12 +74,16 @@ public class PluginManifest
 
     /// <summary>Parse semantic version from version string</summary>
     [JsonIgnore]
-    public SemanticVersion SemanticVersion => SemanticVersion.Parse(Version);
+    public NuGetVersion SemanticVersion => VersionExtensions.ParseVersion(Version);
 
     /// <summary>Check if this plugin is compatible with a host version</summary>
-    public bool IsCompatibleWith(SemanticVersion hostVersion)
+    public bool IsCompatibleWith(NuGetVersion hostVersion)
     {
-        return Compatibility.MinHostVersion == null || hostVersion >= SemanticVersion.Parse(Compatibility.MinHostVersion);
+        if (Compatibility.MinHostVersion == null)
+            return true;
+
+        var minVersion = VersionExtensions.ParseVersion(Compatibility.MinHostVersion);
+        return hostVersion >= minVersion;
     }
 }
 

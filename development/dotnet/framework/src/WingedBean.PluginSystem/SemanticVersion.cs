@@ -5,6 +5,7 @@ namespace WingedBean.PluginSystem;
 /// <summary>
 /// Semantic version implementation supporting comparison and range matching
 /// </summary>
+[Obsolete("Use NuGet.Versioning.NuGetVersion instead. This class will be removed in version 2.0.0. See RFC-0032 for migration guide.")]
 public class SemanticVersion : IComparable<SemanticVersion>, IEquatable<SemanticVersion>
 {
     private static readonly Regex VersionRegex = new(@"^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$");
@@ -119,6 +120,7 @@ public class SemanticVersion : IComparable<SemanticVersion>, IEquatable<Semantic
 /// <summary>
 /// Version range specification supporting npm-style version requirements
 /// </summary>
+[Obsolete("Use NuGet.Versioning.VersionRange instead. This class will be removed in version 2.0.0. See RFC-0032 for migration guide.")]
 public class VersionRange
 {
     private static readonly Regex RangeRegex = new(@"^([\^~])?(\d+(?:\.\d+)?(?:\.\d+)?(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?)$");

@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using NuGet.Versioning;
 
 namespace WingedBean.PluginSystem;
 
@@ -32,7 +33,7 @@ public class PluginDependencyResolver
     /// <param name="hostVersion">Host version for compatibility checking</param>
     /// <returns>Plugins ordered by dependency requirements</returns>
     /// <exception cref="InvalidOperationException">Thrown when circular dependencies are detected</exception>
-    public IEnumerable<PluginManifest> ResolveLoadOrder(IEnumerable<PluginManifest> manifests, SemanticVersion? hostVersion = null)
+    public IEnumerable<PluginManifest> ResolveLoadOrder(IEnumerable<PluginManifest> manifests, NuGetVersion? hostVersion = null)
     {
         var manifestList = manifests.ToList();
 
@@ -40,8 +41,11 @@ public class PluginDependencyResolver
         if (hostVersion != null)
         {
             manifestList = manifestList.Where(m => m.IsCompatibleWith(hostVersion)).ToList();
-            _logger?.LogInformation("Filtered {Original} plugins to {Filtered} compatible with host version {Version}",
-                manifests.Count(), manifestList.Count, hostVersion);
+            _logger?.LogInformation(
+                "Filtered {Original} plugins to {Filtered} compatible with host version {Version}",
+                manifests.Count(),
+                manifestList.Count,
+                hostVersion);
         }
 
         // Group by plugin ID and select best version for each
@@ -155,7 +159,7 @@ public class PluginDependencyResolver
 
         foreach (var manifest in manifests)
         {
-            foreach (var (dependencyId, versionRange) in manifest.Dependencies)
+            foreach (var (dependencyId, versionRangeString) in manifest.Dependencies)
             {
                 if (!availableVersions.TryGetValue(dependencyId, out var availableVersion))
                 {
@@ -164,21 +168,21 @@ public class PluginDependencyResolver
                     continue;
                 }
 
-                if (!VersionRange.TryParse(versionRange, out var range))
+                if (!VersionExtensions.TryParseVersionRange(versionRangeString, out var range))
                 {
                     _logger?.LogWarning("Plugin {Plugin} has invalid version range {Range} for dependency {Dependency}",
-                        manifest.Id, versionRange, dependencyId);
+                        manifest.Id, versionRangeString, dependencyId);
                     continue;
                 }
 
-                if (!range.Satisfies(availableVersion))
+                if (!range!.Satisfies(availableVersion))
                 {
                     throw new InvalidOperationException(
-                        $"Plugin {manifest.Id} requires {dependencyId} {versionRange}, but version {availableVersion} is available");
+                        $"Plugin {manifest.Id} requires {dependencyId} {versionRangeString}, but version {availableVersion} is available");
                 }
 
                 _logger?.LogDebug("Dependency satisfied: {Plugin} requires {Dependency} {Range}, found {Version}",
-                    manifest.Id, dependencyId, versionRange, availableVersion);
+                    manifest.Id, dependencyId, versionRangeString, availableVersion);
             }
         }
     }
@@ -196,7 +200,7 @@ public class PluginDependencyResolver
 
         foreach (var manifest in manifestList)
         {
-            foreach (var (dependencyId, versionRange) in manifest.Dependencies)
+            foreach (var (dependencyId, versionRangeString) in manifest.Dependencies)
             {
                 if (!availableVersions.TryGetValue(dependencyId, out var availableVersion))
                 {
@@ -206,18 +210,18 @@ public class PluginDependencyResolver
                     continue;
                 }
 
-                if (!VersionRange.TryParse(versionRange, out var range))
+                if (!VersionExtensions.TryParseVersionRange(versionRangeString, out var range))
                 {
                     _logger?.LogError("Plugin {Plugin} has invalid version range {Range} for dependency {Dependency}",
-                        manifest.Id, versionRange, dependencyId);
+                        manifest.Id, versionRangeString, dependencyId);
                     isValid = false;
                     continue;
                 }
 
-                if (!range.Satisfies(availableVersion))
+                if (!range!.Satisfies(availableVersion))
                 {
                     _logger?.LogError("Plugin {Plugin} requires {Dependency} {Range}, but version {Version} is available",
-                        manifest.Id, dependencyId, versionRange, availableVersion);
+                        manifest.Id, dependencyId, versionRangeString, availableVersion);
                     isValid = false;
                 }
             }
@@ -243,7 +247,7 @@ public class PluginDependencyResolver
     /// <param name="manifests">All available plugin manifests</param>
     /// <param name="pluginId">Plugin ID to search for</param>
     /// <returns>List of available versions sorted descending</returns>
-    public List<SemanticVersion> FindAvailableVersions(IEnumerable<PluginManifest> manifests, string pluginId)
+    public List<NuGetVersion> FindAvailableVersions(IEnumerable<PluginManifest> manifests, string pluginId)
     {
         return manifests
             .Where(m => m.Id == pluginId)
@@ -261,11 +265,11 @@ public class PluginDependencyResolver
     /// <returns>Best matching plugin manifest or null if none found</returns>
     public PluginManifest? FindBestVersion(IEnumerable<PluginManifest> manifests, string pluginId, string versionRange)
     {
-        if (!VersionRange.TryParse(versionRange, out var range))
+        if (!VersionExtensions.TryParseVersionRange(versionRange, out var range))
             return null;
 
         return manifests
-            .Where(m => m.Id == pluginId && range.Satisfies(m.SemanticVersion))
+            .Where(m => m.Id == pluginId && range!.Satisfies(m.SemanticVersion))
             .OrderByDescending(m => m.SemanticVersion)
             .FirstOrDefault();
     }
