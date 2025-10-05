@@ -36,8 +36,8 @@ namespace ConsoleDungeon.Host.Tests
             registry.Register<IRenderService>(render);
             registry.Register<IGameUIService>(ui);
 
-            var logger = new Microsoft.Extensions.Logging.Abstractions.NullLogger<WingedBean.Plugins.ConsoleDungeon.ConsoleDungeonApp>();
-            var app = new WingedBean.Plugins.ConsoleDungeon.ConsoleDungeonApp(logger);
+            var logger = new Microsoft.Extensions.Logging.Abstractions.NullLogger<WingedBean.Plugins.ConsoleDungeon.ConsoleDungeonAppRefactored>();
+            var app = new WingedBean.Plugins.ConsoleDungeon.ConsoleDungeonAppRefactored(logger);
 
             var cfg = new TerminalAppConfig
             {
@@ -94,8 +94,8 @@ namespace ConsoleDungeon.Host.Tests
             registry.Register<IRenderService>(render);
             registry.Register<IGameUIService>(ui);
 
-            var logger = new Microsoft.Extensions.Logging.Abstractions.NullLogger<WingedBean.Plugins.ConsoleDungeon.ConsoleDungeonApp>();
-            var app = new WingedBean.Plugins.ConsoleDungeon.ConsoleDungeonApp(logger);
+            var logger = new Microsoft.Extensions.Logging.Abstractions.NullLogger<WingedBean.Plugins.ConsoleDungeon.ConsoleDungeonAppRefactored>();
+            var app = new WingedBean.Plugins.ConsoleDungeon.ConsoleDungeonAppRefactored(logger);
 
             var cfg = new TerminalAppConfig
             {

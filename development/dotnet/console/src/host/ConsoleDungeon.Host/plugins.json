@@ -87,6 +87,18 @@
       }
     },
     {
+      "id": "wingedbean.plugins.audio",
+      "path": "plugins/WingedBean.Plugins.Audio/bin/Debug/net8.0/WingedBean.Plugins.Audio.dll",
+      "priority": 150,
+      "loadStrategy": "Eager",
+      "enabled": false,
+      "metadata": {
+        "description": "Audio service using LibVLC for sound effects and music",
+        "author": "WingedBean",
+        "version": "1.0.0"
+      }
+    },
+    {
       "id": "wingedbean.plugins.consoledungeon",
       "path": "plugins/WingedBean.Plugins.ConsoleDungeon/bin/Debug/net8.0/WingedBean.Plugins.ConsoleDungeon.dll",
       "priority": 50,

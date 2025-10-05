@@ -4,12 +4,16 @@
   "version": "1.0.0",
   "description": "Dungeon crawler game logic plugin with ECS and reactive patterns",
   "author": "WingedBean",
-  "provides": [
-    "WingedBean.Contracts.Game.IDungeonGameService"
-  ],
-  "requires": [
-    "WingedBean.Contracts.ECS.IECSService"
-  ],
-  "priority": 100,
+  "entryPoint": { "dotnet": "WingedBean.Plugins.DungeonGame.dll" },
+  "exports": {
+    "services": [
+      {
+        "interface": "WingedBean.Contracts.Game.IDungeonGameService",
+        "implementation": "WingedBean.Plugins.DungeonGame.DungeonGameService",
+        "lifecycle": "singleton"
+      }
+    ]
+  },
+  "capabilities": [ "game-logic" ],
   "loadStrategy": "Eager"
 }

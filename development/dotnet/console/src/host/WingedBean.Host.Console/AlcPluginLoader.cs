@@ -58,10 +58,37 @@ public class AlcPluginLoader : IPluginLoader
             var contextName = $"{manifest.Id}_v{manifest.Version}_{Guid.NewGuid():N}";
             var alc = new AssemblyLoadContext(contextName, isCollectible: true);
 
+            // Configure dependency resolution to prefer plugin directory
+            var entryFullPath = Path.GetFullPath(entryPoint);
+            var pluginDir = Path.GetDirectoryName(entryFullPath)!;
+            var resolver = new AssemblyDependencyResolver(entryFullPath);
+
+            alc.Resolving += (ctx, name) =>
+            {
+                // Try resolver first (uses .deps.json if present)
+                var resolvedPath = resolver.ResolveAssemblyToPath(name);
+                if (!string.IsNullOrEmpty(resolvedPath) && File.Exists(resolvedPath))
+                {
+                    _logger?.LogDebug("Resolved {AssemblyName} via resolver: {Path}", name, resolvedPath);
+                    return ctx.LoadFromAssemblyPath(resolvedPath);
+                }
+
+                // Fallback to same directory as plugin entry assembly
+                var candidate = Path.Combine(pluginDir, name.Name + ".dll");
+                if (File.Exists(candidate))
+                {
+                    _logger?.LogDebug("Resolved {AssemblyName} via plugin dir: {Path}", name, candidate);
+                    return ctx.LoadFromAssemblyPath(candidate);
+                }
+
+                _logger?.LogDebug("Failed to resolve dependency {AssemblyName} for {PluginId}", name, manifest.Id);
+                return null;
+            };
+
             _logger?.LogDebug("Created load context: {ContextName}", contextName);
 
             // Load the plugin assembly
-            var assembly = alc.LoadFromAssemblyPath(Path.GetFullPath(entryPoint));
+            var assembly = alc.LoadFromAssemblyPath(entryFullPath);
 
             _logger?.LogDebug("Loaded assembly: {AssemblyName} from {EntryPoint}", assembly.FullName, entryPoint);
 
@@ -84,7 +111,7 @@ public class AlcPluginLoader : IPluginLoader
             _loadContexts[manifest.Id] = alc;
 
             // Create loaded plugin wrapper
-            var loadedPlugin = new LoadedPlugin(manifest, activator, alc);
+            var loadedPlugin = new LoadedPlugin(manifest, activator, alc, assembly);
             _loadedPlugins[manifest.Id] = loadedPlugin;
 
             _logger?.LogInformation("Successfully loaded plugin: {PluginId}", manifest.Id);

@@ -1,17 +1,24 @@
+using Microsoft.Extensions.Logging;
 using WingedBean.Contracts.Core;
 using WingedBean.Contracts.ECS;
+using WingedBean.Contracts.Resource;
 using WingedBean.Plugins.DungeonGame.Components;
+using WingedBean.Plugins.DungeonGame.Data;
 using WingedBean.Plugins.DungeonGame.Systems;
 
 namespace WingedBean.Plugins.DungeonGame;
 
 /// <summary>
 /// Main game class that initializes and runs the ECS-based dungeon crawler.
+/// Now uses IResourceService for data-driven content loading.
 /// </summary>
 public class DungeonGame
 {
     private readonly IRegistry _registry;
     private readonly IECSService _ecs;
+    private readonly IResourceService? _resourceService;
+    private readonly ILogger<DungeonGame>? _logger;
+    private readonly ResourceLoader? _resourceLoader;
     private IWorld _world = null!;
     private readonly List<IECSSystem> _systems = new();
     private DateTime _lastUpdateTime;
@@ -22,12 +29,49 @@ public class DungeonGame
     {
         _registry = registry ?? throw new ArgumentNullException(nameof(registry));
         _ecs = registry.Get<IECSService>();
+        
+        // Try to get resource service (optional for backward compatibility)
+        try
+        {
+            _resourceService = registry.Get<IResourceService>();
+            _logger?.LogInformation("DungeonGame initialized with resource loading support");
+        }
+        catch
+        {
+            _resourceService = null;
+        }
+        
+        // Try to get logger
+        try
+        {
+            _logger = registry.Get<ILogger<DungeonGame>>();
+        }
+        catch
+        {
+            _logger = null;
+        }
+        
+        if (_resourceService != null)
+        {
+            ILogger<ResourceLoader>? resourceLogger = null;
+            try
+            {
+                resourceLogger = registry.Get<ILogger<ResourceLoader>>();
+            }
+            catch { }
+            
+            _resourceLoader = new ResourceLoader(_resourceService, resourceLogger);
+        }
+        else
+        {
+            _logger?.LogWarning("IResourceService not available - using hardcoded game data");
+        }
     }
 
     /// <summary>
     /// Initialize the game world, systems, and entities.
     /// </summary>
-    public void Initialize()
+    public async void Initialize()
     {
         if (_isInitialized)
             return;
@@ -42,8 +86,16 @@ public class DungeonGame
         RegisterSystems();
         Console.WriteLine($"✓ Registered {_systems.Count} systems");
 
-        // Initialize the game world with entities
-        InitializeWorld();
+        // Initialize the game world with entities (now data-driven if resources available)
+        if (_resourceLoader != null)
+        {
+            await InitializeWorldFromResourcesAsync();
+        }
+        else
+        {
+            InitializeWorldLegacy();
+        }
+        
         Console.WriteLine($"✓ World initialized with {_world.EntityCount} entities");
 
         _lastUpdateTime = DateTime.UtcNow;
@@ -61,24 +113,83 @@ public class DungeonGame
         _systems.Add(new RenderSystem());       // Finally rendering (priority: 10)
     }
 
-    private void InitializeWorld()
+    /// <summary>
+    /// Initialize world from resource files (data-driven).
+    /// </summary>
+    private async Task InitializeWorldFromResourcesAsync()
     {
         if (_world.EntityCount > 0)
         {
             return;
         }
 
-        // Create the player entity
-        CreatePlayer();
+        Console.WriteLine("Loading game data from resources...");
 
-        // Create some enemy entities
-        CreateEnemies(5);
+        try
+        {
+            // Preload all game resources
+            await _resourceLoader!.PreloadAllAsync();
 
-        // Create some items (for future implementation)
-        // CreateItems(10);
+            // Load dungeon level data
+            var levelData = await _resourceLoader.LoadDungeonLevelAsync("dungeon-level-01");
+            if (levelData == null)
+            {
+                _logger?.LogWarning("Could not load dungeon level, falling back to hardcoded data");
+                InitializeWorldLegacy();
+                return;
+            }
+
+            Console.WriteLine($"  Loaded level: {levelData.Name}");
+
+            // Create player from resource data
+            var playerData = await _resourceLoader.LoadPlayerAsync("default-player");
+            if (playerData != null)
+            {
+                EntityFactory.CreatePlayer(_world, playerData);
+                Console.WriteLine($"  • Created player from resources");
+            }
+            else
+            {
+                CreatePlayerLegacy();
+            }
+
+            // Spawn enemies from level data
+            var random = Random.Shared;
+            await EntityFactory.SpawnEnemiesFromLevelAsync(_world, levelData, _resourceLoader, random);
+
+            // Spawn items from level data  
+            await EntityFactory.SpawnItemsFromLevelAsync(_world, levelData, _resourceLoader, random);
+
+            _logger?.LogInformation("World initialized from resources successfully");
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Failed to load resources, falling back to hardcoded data");
+            Console.WriteLine($"Warning: Resource loading failed - {ex.Message}");
+            InitializeWorldLegacy();
+        }
     }
 
-    private void CreatePlayer()
+    /// <summary>
+    /// Initialize world with hardcoded data (legacy/fallback).
+    /// </summary>
+    private void InitializeWorldLegacy()
+    {
+        if (_world.EntityCount > 0)
+        {
+            return;
+        }
+
+        Console.WriteLine("Using hardcoded game data (legacy mode)");
+
+        // Create the player entity
+        CreatePlayerLegacy();
+
+        // Create some enemy entities
+        CreateEnemiesLegacy(5);
+    }
+
+    private void CreatePlayerLegacy()
     {
         var player = _world.CreateEntity();
 
@@ -113,7 +224,7 @@ public class DungeonGame
         Console.WriteLine("  • Created player entity at (40, 12)");
     }
 
-    private void CreateEnemies(int count)
+    private void CreateEnemiesLegacy(int count)
     {
         var random = Random.Shared;
 
@@ -272,7 +383,8 @@ public class DungeonGame
 
         if (populateIfEmpty && _world.EntityCount == 0)
         {
-            InitializeWorld();
+            // Use legacy initialization when called from EnsureRuntimeWorld
+            InitializeWorldLegacy();
         }
     }
 }

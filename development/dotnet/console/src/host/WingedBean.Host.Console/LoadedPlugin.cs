@@ -1,8 +1,8 @@
-using System.Reflection;
 using System.Runtime.Loader;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using WingedBean.PluginSystem;
+using System.Reflection;
 
 namespace WingedBean.Host.Console;
 
@@ -13,6 +13,7 @@ public class LoadedPlugin : ILoadedPlugin
 {
     private readonly IPluginActivator _activator;
     private readonly AssemblyLoadContext? _loadContext;
+    private readonly Assembly _assembly;
     private readonly IServiceCollection _services;
     private PluginState _state;
 
@@ -22,11 +23,12 @@ public class LoadedPlugin : ILoadedPlugin
     public PluginState State => _state;
     public IServiceCollection Services => _services;
 
-    public LoadedPlugin(PluginManifest manifest, IPluginActivator activator, AssemblyLoadContext? loadContext)
+    public LoadedPlugin(PluginManifest manifest, IPluginActivator activator, AssemblyLoadContext? loadContext, Assembly assembly)
     {
         Manifest = manifest;
         _activator = activator;
         _loadContext = loadContext;
+        _assembly = assembly;
         _services = new ServiceCollection();
         _state = PluginState.Loaded;
     }
@@ -77,4 +79,9 @@ public class LoadedPlugin : ILoadedPlugin
     /// Get the load context for this plugin (for unloading)
     /// </summary>
     internal AssemblyLoadContext? LoadContext => _loadContext;
+
+    /// <summary>
+    /// The plugin's main assembly (for scanning/DI helpers).
+    /// </summary>
+    public Assembly Assembly => _assembly;
 }
