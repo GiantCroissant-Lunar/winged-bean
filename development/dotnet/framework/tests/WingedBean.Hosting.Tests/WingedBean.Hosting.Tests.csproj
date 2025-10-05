@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\WingedBean.Contracts.Hosting\WingedBean.Contracts.Hosting.csproj" />
+    <ProjectReference Include="..\..\src\WingedBean.Contracts.UI\WingedBean.Contracts.UI.csproj" />
+    <ProjectReference Include="..\..\src\WingedBean.Contracts.TerminalUI\WingedBean.Contracts.TerminalUI.csproj" />
+    <ProjectReference Include="..\..\src\WingedBean.Hosting\WingedBean.Hosting.csproj" />
+    <ProjectReference Include="..\..\src\WingedBean.Hosting.Console\WingedBean.Hosting.Console.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -38,6 +38,7 @@ public partial class GodotWingedBeanHost : Godot.Node, IWingedBeanHost
 
     public override void _Process(double delta)
     {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
         // Call RenderAsync if app is IUIApp
         if (_app is IUIApp uiApp)
         {
@@ -45,6 +46,7 @@ public partial class GodotWingedBeanHost : Godot.Node, IWingedBeanHost
             // In production, consider queuing or using Godot's async patterns
             _ = uiApp.RenderAsync(_cts?.Token ?? default);
         }
+#pragma warning restore CS4014
     }
 
     public override void _ExitTree()
@@ -119,7 +121,7 @@ public partial class GodotWingedBeanHost : IWingedBeanHost
 public class GodotWingedBeanHostBuilder : IWingedBeanHostBuilder
 {
     private Action<IServiceCollection>? _configureServices;
-    private Action<IConfigurationBuilder>? _configureConfig;
+    // Note: _configureConfig is reserved for future Godot-specific configuration
 
     public IWingedBeanHostBuilder ConfigureServices(Action<IServiceCollection> configure)
     {
@@ -129,7 +131,7 @@ public class GodotWingedBeanHostBuilder : IWingedBeanHostBuilder
 
     public IWingedBeanHostBuilder ConfigureAppConfiguration(Action<IConfigurationBuilder> configure)
     {
-        // Godot config integration
+        // Godot config integration - reserved for future use
         return this;
     }
 

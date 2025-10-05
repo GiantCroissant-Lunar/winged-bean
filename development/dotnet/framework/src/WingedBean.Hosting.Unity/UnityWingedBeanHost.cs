@@ -41,6 +41,7 @@ public class UnityWingedBeanHost : UnityEngine.MonoBehaviour, IWingedBeanHost
 
     private void Update()
     {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
         // Call RenderAsync if app is IUIApp
         if (_app is IUIApp uiApp)
         {
@@ -48,6 +49,7 @@ public class UnityWingedBeanHost : UnityEngine.MonoBehaviour, IWingedBeanHost
             // In production, consider queuing or using Unity's async patterns
             _ = uiApp.RenderAsync(_cts?.Token ?? default);
         }
+#pragma warning restore CS4014
     }
 
     private async void OnDestroy()
