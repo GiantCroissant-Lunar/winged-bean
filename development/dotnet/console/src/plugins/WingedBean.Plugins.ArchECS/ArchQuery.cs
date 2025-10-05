@@ -10,30 +10,22 @@ namespace WingedBean.Plugins.ArchECS;
 /// Arch-based implementation of <see cref="IQuery"/>.
 /// Wraps Arch.Core.QueryDescription to provide platform-agnostic query operations.
 /// </summary>
-internal class ArchQuery : IQuery
+internal class ArchQuery(World world, QueryDescription queryDescription, IWorld worldInterface)
+    : IQuery
 {
-    private readonly World _world;
-    private readonly QueryDescription _queryDescription;
-    private readonly ArchWorld _archWorld;
-
-    public ArchQuery(World world, QueryDescription queryDescription, IWorld worldInterface)
-    {
-        _world = world;
-        _queryDescription = queryDescription;
-        _archWorld = (ArchWorld)worldInterface;
-    }
+    private readonly ArchWorld _archWorld = (ArchWorld)worldInterface;
 
     public void ForEach(Action<IEntity> action)
     {
-        var query = _world.Query(in _queryDescription);
-        
+        var query = world.Query(in queryDescription);
+
         foreach (var chunk in query)
         {
             var entities = chunk.Entities;
-            for (int i = 0; i < chunk.Count; i++)
+            for (var i = 0; i < chunk.Count; i++)
             {
                 var handle = new EntityHandle(entities[i].Id, entities[i].WorldId);
-                var entity = new ArchEntity(handle, _world);
+                var entity = new ArchEntity(handle, world);
                 action(entity);
             }
         }
@@ -41,16 +33,16 @@ internal class ArchQuery : IQuery
 
     public IEnumerable<IEntity> GetEntities()
     {
-        var query = _world.Query(in _queryDescription);
+        var query = world.Query(in queryDescription);
         var results = new List<IEntity>();
 
         foreach (var chunk in query)
         {
             var entities = chunk.Entities;
-            for (int i = 0; i < chunk.Count; i++)
+            for (var i = 0; i < chunk.Count; i++)
             {
                 var handle = new EntityHandle(entities[i].Id, entities[i].WorldId);
-                var entity = new ArchEntity(handle, _world);
+                var entity = new ArchEntity(handle, world);
                 results.Add(entity);
             }
         }
@@ -62,8 +54,8 @@ internal class ArchQuery : IQuery
     {
         get
         {
-            var query = _world.Query(in _queryDescription);
-            int count = 0;
+            var query = world.Query(in queryDescription);
+            var count = 0;
 
             foreach (var chunk in query)
             {

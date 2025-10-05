@@ -13,7 +13,7 @@ namespace WingedBean.Plugins.ArchECS;
 /// </summary>
 internal class ArchWorld : IWorld
 {
-    private readonly World _world;
+    private readonly World _world = World.Create();
 
     // Helper struct to construct Entity instances via Unsafe
     [StructLayout(LayoutKind.Sequential)]
@@ -22,11 +22,6 @@ internal class ArchWorld : IWorld
         public int Id;
         public int WorldId;
         public int Version;
-    }
-
-    public ArchWorld()
-    {
-        _world = World.Create();
     }
 
     public EntityHandle CreateEntity()
