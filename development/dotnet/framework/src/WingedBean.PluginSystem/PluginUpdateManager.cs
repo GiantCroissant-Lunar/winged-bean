@@ -1,116 +1,8 @@
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
+using NuGet.Versioning;
 
 namespace WingedBean.PluginSystem;
-
-/// <summary>
-/// Plugin update manager for handling hot updates and rollbacks
-/// </summary>
-public interface IPluginUpdateManager
-{
-    /// <summary>Check for available updates for a plugin</summary>
-    Task<PluginUpdateInfo?> CheckForUpdatesAsync(string pluginId, CancellationToken ct = default);
-
-    /// <summary>Update a plugin to a new version</summary>
-    Task<bool> UpdatePluginAsync(string pluginId, string targetVersion, CancellationToken ct = default);
-
-    /// <summary>Rollback a plugin to previous version</summary>
-    Task<bool> RollbackPluginAsync(string pluginId, CancellationToken ct = default);
-
-    /// <summary>Get update history for a plugin</summary>
-    Task<IEnumerable<PluginUpdateRecord>> GetUpdateHistoryAsync(string pluginId, CancellationToken ct = default);
-
-    /// <summary>Enable/disable automatic updates for a plugin</summary>
-    Task SetAutoUpdateAsync(string pluginId, bool enabled, CancellationToken ct = default);
-
-    /// <summary>Event triggered when plugin update is available</summary>
-    event EventHandler<PluginUpdateAvailableEventArgs> UpdateAvailable;
-
-    /// <summary>Event triggered when plugin update starts</summary>
-    event EventHandler<PluginUpdateEventArgs> UpdateStarted;
-
-    /// <summary>Event triggered when plugin update completes</summary>
-    event EventHandler<PluginUpdateEventArgs> UpdateCompleted;
-
-    /// <summary>Event triggered when plugin update fails</summary>
-    event EventHandler<PluginUpdateErrorEventArgs> UpdateFailed;
-}
-
-/// <summary>
-/// Plugin update record for tracking update history
-/// </summary>
-public class PluginUpdateRecord
-{
-    /// <summary>Plugin ID</summary>
-    public string PluginId { get; set; } = string.Empty;
-
-    /// <summary>Previous version</summary>
-    public string FromVersion { get; set; } = string.Empty;
-
-    /// <summary>New version</summary>
-    public string ToVersion { get; set; } = string.Empty;
-
-    /// <summary>Update timestamp</summary>
-    public DateTimeOffset UpdatedAt { get; set; }
-
-    /// <summary>Update success status</summary>
-    public bool Success { get; set; }
-
-    /// <summary>Error message if update failed</summary>
-    public string? ErrorMessage { get; set; }
-
-    /// <summary>Update duration</summary>
-    public TimeSpan Duration { get; set; }
-
-    /// <summary>Update type</summary>
-    public PluginUpdateType UpdateType { get; set; }
-
-    /// <summary>Rollback information</summary>
-    public string? RollbackPath { get; set; }
-}
-
-/// <summary>
-/// Type of plugin update
-/// </summary>
-public enum PluginUpdateType
-{
-    Manual,
-    Automatic,
-    Rollback,
-    HotFix
-}
-
-/// <summary>
-/// Event arguments for plugin update availability
-/// </summary>
-public class PluginUpdateAvailableEventArgs : EventArgs
-{
-    public string PluginId { get; set; } = string.Empty;
-    public string CurrentVersion { get; set; } = string.Empty;
-    public string AvailableVersion { get; set; } = string.Empty;
-    public bool IsAutoUpdateEnabled { get; set; }
-    public PluginUpdateInfo UpdateInfo { get; set; } = new();
-}
-
-/// <summary>
-/// Event arguments for plugin update operations
-/// </summary>
-public class PluginUpdateEventArgs : EventArgs
-{
-    public string PluginId { get; set; } = string.Empty;
-    public string FromVersion { get; set; } = string.Empty;
-    public string ToVersion { get; set; } = string.Empty;
-    public PluginUpdateType UpdateType { get; set; }
-}
-
-/// <summary>
-/// Event arguments for plugin update errors
-/// </summary>
-public class PluginUpdateErrorEventArgs : PluginUpdateEventArgs
-{
-    public Exception Exception { get; set; } = new();
-    public string ErrorMessage { get; set; } = string.Empty;
-}
 
 /// <summary>
 /// Plugin update manager implementation
@@ -412,8 +304,15 @@ public class PluginUpdateManager : IPluginUpdateManager
             await _registry.UpdatePluginAsync(rollbackPlugin, ct);
 
             // Record rollback
-            RecordUpdate(pluginId, "unknown", rollbackPlugin.Version, true, null,
-                TimeSpan.FromSeconds(1), PluginUpdateType.Rollback, null);
+            RecordUpdate(
+                pluginId,
+                "unknown",
+                rollbackPlugin.Version,
+                true,
+                null,
+                TimeSpan.FromSeconds(1),
+                PluginUpdateType.Rollback,
+                null);
 
             return true;
         }
@@ -424,8 +323,15 @@ public class PluginUpdateManager : IPluginUpdateManager
         }
     }
 
-    private void RecordUpdate(string pluginId, string fromVersion, string toVersion, bool success,
-        string? errorMessage, TimeSpan duration, PluginUpdateType updateType, string? rollbackPath)
+    private void RecordUpdate(
+        string pluginId,
+        string fromVersion,
+        string toVersion,
+        bool success,
+        string? errorMessage,
+        TimeSpan duration,
+        PluginUpdateType updateType,
+        string? rollbackPath)
     {
         if (!_updateHistory.ContainsKey(pluginId))
             _updateHistory[pluginId] = new List<PluginUpdateRecord>();
@@ -473,8 +379,9 @@ public class PluginUpdateManager : IPluginUpdateManager
             var destFile = Path.Combine(destDir, relativePath);
 
             Directory.CreateDirectory(Path.GetDirectoryName(destFile)!);
-            using var sourceStream = File.OpenRead(file);
-            using var destStream = File.Create(destFile);
+
+            await using var sourceStream = File.OpenRead(file);
+            await using var destStream = File.Create(destFile);
             await sourceStream.CopyToAsync(destStream, ct);
         }
     }
