@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using WingedBean.Contracts;
+using WingedBean.Contracts.Recorder;
 using WingedBean.PluginSystem;
 
 namespace WingedBean.Plugins.AsciinemaRecorder;

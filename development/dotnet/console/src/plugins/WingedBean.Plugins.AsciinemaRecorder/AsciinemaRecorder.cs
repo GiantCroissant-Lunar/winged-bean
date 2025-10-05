@@ -1,6 +1,6 @@
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using WingedBean.Contracts;
+using WingedBean.Contracts.Recorder;
 
 namespace WingedBean.Plugins.AsciinemaRecorder;
 

@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
-using WingedBean.Contracts;
+using Microsoft.Extensions.Options;
+using WingedBean.Contracts.Terminal;
 using WingedBean.Contracts.Core;
 using WingedBean.Contracts.Game;
 using WingedBean.Contracts.Input;
@@ -22,8 +23,10 @@ namespace WingedBean.Plugins.ConsoleDungeon;
 public class ConsoleDungeonAppRefactored : ITerminalApp, IDisposable
 {
     private readonly ILogger<ConsoleDungeonAppRefactored> _logger;
+    private readonly TerminalAppConfig _config;
+    private readonly IDungeonGameService _gameService;
+    private readonly IRegistry _registry;
     private ISceneService? _sceneService;
-    private IDungeonGameService? _gameService;
     private IRenderService? _renderService;
     private IInputRouter? _inputRouter;
     private IInputMapper? _inputMapper;
@@ -37,17 +40,29 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IDisposable
     public event EventHandler<TerminalOutputEventArgs>? OutputReceived;
     public event EventHandler<TerminalExitEventArgs>? Exited;
 
-    public ConsoleDungeonAppRefactored(ILogger<ConsoleDungeonAppRefactored> logger)
+    public ConsoleDungeonAppRefactored(
+        ILogger<ConsoleDungeonAppRefactored> logger,
+        IOptions<TerminalAppConfig> config,
+        IDungeonGameService gameService,
+        IRegistry registry)
     {
         _logger = logger;
+        _config = config.Value;
+        _gameService = gameService;
+        _registry = registry;
     }
 
-    // Parameterless constructor for plugin loader
-    public ConsoleDungeonAppRefactored() : this(new LoggerFactory().CreateLogger<ConsoleDungeonAppRefactored>())
+    // Parameterless constructor for plugin loader (legacy compatibility)
+    public ConsoleDungeonAppRefactored() : this(
+        new LoggerFactory().CreateLogger<ConsoleDungeonAppRefactored>(),
+        Options.Create(new TerminalAppConfig()),
+        null!, // This will cause issues - plugin loader should use DI
+        null!) // This will cause issues - plugin loader should use DI
     {
     }
 
-    public async Task StartAsync(TerminalAppConfig config, CancellationToken ct = default)
+    // IHostedService.StartAsync - no config parameter needed
+    public async Task StartAsync(CancellationToken cancellationToken = default)
     {
         if (_isRunning)
         {
@@ -55,33 +70,16 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IDisposable
             return;
         }
 
-        _logger.LogInformation("Starting Console Dungeon (Refactored Architecture)...");
+        _logger.LogInformation("Starting Console Dungeon: {Name} ({Cols}x{Rows})",
+            _config.Name, _config.Cols, _config.Rows);
 
         try
         {
-            // Get services from config
-            IRegistry? registry = null;
-            if (config?.Parameters != null)
-            {
-                config.Parameters.TryGetValue("registry", out var regObj);
-                registry = regObj as IRegistry;
-
-                config.Parameters.TryGetValue("gameService", out var svcObj);
-                _gameService = svcObj as IDungeonGameService;
-            }
-
-            if (_gameService == null)
-            {
-                _logger.LogError("Game service not provided");
-                return;
-            }
-
             // Get render service from registry
-            if (registry != null)
             {
                 try
                 {
-                    _renderService = registry.Get<IRenderService>();
+                    _renderService = _registry.Get<IRenderService>();
                     _renderService.SetRenderMode(RenderMode.ASCII);
                     _logger.LogInformation("✓ IRenderService injected (ASCII mode)");
                 }
@@ -173,7 +171,7 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IDisposable
                         Timestamp = DateTimeOffset.UtcNow
                     });
                 }
-            }, ct);
+            }, cancellationToken);
         }
         catch (Exception ex)
         {

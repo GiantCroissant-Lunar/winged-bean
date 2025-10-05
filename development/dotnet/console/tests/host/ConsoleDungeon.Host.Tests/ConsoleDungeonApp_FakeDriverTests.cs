@@ -5,11 +5,13 @@ using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.Extensions.Options;
 using Terminal.Gui;
-using WingedBean.Contracts;
+using WingedBean.Contracts.Terminal;
 using WingedBean.Contracts.Core;
 using WingedBean.Contracts.Game;
 using WingedBean.Contracts.ECS;
+using WingedBean.Registry;
 using Xunit;
 
 namespace ConsoleDungeon.Host.Tests
@@ -37,21 +39,19 @@ namespace ConsoleDungeon.Host.Tests
             registry.Register<IGameUIService>(ui);
 
             var logger = new Microsoft.Extensions.Logging.Abstractions.NullLogger<WingedBean.Plugins.ConsoleDungeon.ConsoleDungeonAppRefactored>();
-            var app = new WingedBean.Plugins.ConsoleDungeon.ConsoleDungeonAppRefactored(logger);
-
-            var cfg = new TerminalAppConfig
+            var config = Options.Create(new TerminalAppConfig
             {
                 Name = "Test",
-                Parameters =
-                {
-                    ["registry"] = registry,
-                    ["gameService"] = game
-                }
-            };
+                Cols = 80,
+                Rows = 24
+            });
+
+            var app = new WingedBean.Plugins.ConsoleDungeon.ConsoleDungeonAppRefactored(
+                logger, config, game, registry);
 
             // Start app in background
             var cts = new CancellationTokenSource();
-            var startTask = Task.Run(() => app.StartAsync(cfg, cts.Token));
+            var startTask = Task.Run(() => app.StartAsync(cts.Token));
 
             // Give time to initialize and create window
             await Task.Delay(500);
@@ -95,20 +95,18 @@ namespace ConsoleDungeon.Host.Tests
             registry.Register<IGameUIService>(ui);
 
             var logger = new Microsoft.Extensions.Logging.Abstractions.NullLogger<WingedBean.Plugins.ConsoleDungeon.ConsoleDungeonAppRefactored>();
-            var app = new WingedBean.Plugins.ConsoleDungeon.ConsoleDungeonAppRefactored(logger);
-
-            var cfg = new TerminalAppConfig
+            var config = Options.Create(new TerminalAppConfig
             {
                 Name = "Test-ESC-Seq",
-                Parameters =
-                {
-                    ["registry"] = registry,
-                    ["gameService"] = game
-                }
-            };
+                Cols = 80,
+                Rows = 24
+            });
+
+            var app = new WingedBean.Plugins.ConsoleDungeon.ConsoleDungeonAppRefactored(
+                logger, config, game, registry);
 
             var cts = new CancellationTokenSource();
-            var startTask = Task.Run(() => app.StartAsync(cfg, cts.Token));
+            var startTask = Task.Run(() => app.StartAsync(cts.Token));
             await Task.Delay(400);
 
             // Act: Use ConsoleKey.DownArrow for Terminal.Gui v2 FakeDriver
