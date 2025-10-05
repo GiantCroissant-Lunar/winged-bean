@@ -18,6 +18,7 @@
     <!-- New plugin system + ALC loader for hybrid discovery -->
     <ProjectReference Include="../../../../framework/src/WingedBean.PluginSystem/WingedBean.PluginSystem.csproj" />
     <ProjectReference Include="../WingedBean.Host.Console/WingedBean.Host.Console.csproj" />
+    <ProjectReference Include="../../../../framework/src/WingedBean.Hosting/WingedBean.Hosting.csproj" />
   </ItemGroup>
 
   <ItemGroup>
