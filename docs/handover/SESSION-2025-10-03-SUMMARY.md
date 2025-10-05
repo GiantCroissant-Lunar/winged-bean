@@ -57,7 +57,7 @@ Application.Invoke(() =>
 4. Inject service in ConsoleDungeonApp
 5. Add sound effects to game actions
 
-**Documentation Created**: `docs/AUDIO-INTEGRATION-ANALYSIS.md` (12KB comprehensive guide)
+**Documentation Created**: `docs/design/AUDIO-INTEGRATION-ANALYSIS.md` (12KB comprehensive guide)
 
 ---
 
@@ -152,7 +152,7 @@ Application.Invoke(() =>
 ### Optional Enhancements
 
 4. **Audio Integration** (30-60 minutes)
-   - Follow `AUDIO-INTEGRATION-ANALYSIS.md`
+   - Follow `docs/design/AUDIO-INTEGRATION-ANALYSIS.md`
    - Fix `.plugin.json` implementation name
    - Create audio assets folder
    - Add test sound file
@@ -355,7 +355,7 @@ EOF
 
 ### Commit 3: Document audio integration
 ```bash
-git add docs/AUDIO-INTEGRATION-ANALYSIS.md docs/SESSION-2025-10-03-SUMMARY.md
+git add docs/design/AUDIO-INTEGRATION-ANALYSIS.md docs/handover/SESSION-2025-10-03-SUMMARY.md
 git commit -F - <<EOF
 docs: Add audio integration analysis and session summary
 
@@ -372,7 +372,7 @@ Audio System Status: ✅ Ready to integrate
 - Cross-platform support (Windows/Mac)
 - Needs: Fix .plugin.json + enable in config
 
-Next Steps: Follow AUDIO-INTEGRATION-ANALYSIS.md for 5-minute setup
+Next Steps: Follow docs/design/AUDIO-INTEGRATION-ANALYSIS.md for 5-minute setup
 
 Co-Authored-By: GitHub Copilot <noreply@github.com>
 EOF
@@ -385,7 +385,7 @@ EOF
 **Key Files**:
 - ConsoleDungeonApp: `src/plugins/WingedBean.Plugins.ConsoleDungeon/ConsoleDungeonApp.cs`
 - CPM Config: `development/dotnet/console/Directory.Packages.props`
-- Audio Docs: `docs/AUDIO-INTEGRATION-ANALYSIS.md`
+- Audio Docs: `docs/design/AUDIO-INTEGRATION-ANALYSIS.md`
 - Logs: `src/host/ConsoleDungeon.Host/bin/Debug/net8.0/logs/`
 
 **Useful Commands**:

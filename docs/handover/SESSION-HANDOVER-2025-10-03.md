@@ -8,7 +8,7 @@
 
 **Location**: `development/dotnet/console/src/plugins/WingedBean.Plugins.ConsoleDungeon/ConsoleDungeonApp.cs`
 
-**See**: `docs/NEXT-SESSION.md` for detailed instructions.
+**See**: `docs/handover/NEXT-SESSION.md` for detailed instructions.
 
 ---
 
@@ -380,8 +380,8 @@ Main Thread (Terminal.Gui)
 ### Important Paths
 ```
 RFC Document:    docs/rfcs/0018-render-and-ui-services-for-console-profile.md
-Handover Doc:    docs/SESSION-HANDOVER-2025-10-03.md  
-Next Session:    docs/NEXT-SESSION.md
+Handover Doc:    docs/handover/SESSION-HANDOVER-2025-10-03.md  
+Next Session:    docs/handover/NEXT-SESSION.md
 Main App:        console/src/plugins/WingedBean.Plugins.ConsoleDungeon/ConsoleDungeonApp.cs
 Host:            console/src/host/ConsoleDungeon.Host/Program.cs
 Logs:            console/src/host/ConsoleDungeon.Host/bin/Debug/net8.0/logs/

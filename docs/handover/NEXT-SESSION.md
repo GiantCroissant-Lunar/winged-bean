@@ -408,7 +408,7 @@ Co-Authored-By: GitHub Copilot <noreply@github.com>
 ## 📞 Quick Reference
 
 **RFC Document**: `docs/rfcs/0018-render-and-ui-services-for-console-profile.md`
-**This File**: `docs/NEXT-SESSION.md`
+**This File**: `docs/handover/NEXT-SESSION.md`
 **Session Summary**: `/tmp/session-summary.md` (temporary)
 **Main App**: `src/plugins/WingedBean.Plugins.ConsoleDungeon/ConsoleDungeonApp.cs`
 **Logs**: `src/host/ConsoleDungeon.Host/bin/Debug/net8.0/logs/`

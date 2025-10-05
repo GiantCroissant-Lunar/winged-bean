@@ -65,7 +65,7 @@ All services running on PM2:
 
 ## 🎯 Ready for Next Session
 
-See `docs/NEXT-SESSION.md` for:
+See `docs/handover/NEXT-SESSION.md` for:
 - Detailed preparation notes
 - Priority tasks
 - Known issues

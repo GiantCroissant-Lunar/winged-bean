@@ -4,7 +4,8 @@ title: OpenTelemetry Integration for Distributed Tracing
 status: Draft
 category: infra
 created: 2025-01-10
-updated: 2025-01-10
+updated: 2025-10-05
+related-rfcs: RFC-0031, RFC-0033, RFC-0034
 ---
 
 # RFC-0035: OpenTelemetry Integration for Distributed Tracing
@@ -15,11 +16,17 @@ Draft
 
 ## Date
 
-2025-01-10
+2025-01-10 (Updated 2025-10-05)
 
 ## Summary
 
 Integrate OpenTelemetry (OTEL) across all Winged Bean components (C#/.NET, Unity, Python, Node.js) for distributed tracing, metrics collection, and structured logging with vendor-neutral instrumentation and flexible backend options.
+
+**Implementation Note**: This RFC provides the **distributed tracing backend** for:
+- **RFC-0031**: `IDiagnosticsService.StartTrace()` wraps OpenTelemetry Activity API
+- **RFC-0033**: Follows the observability strategy architecture
+
+OpenTelemetry handles **traces and metrics** (system performance), complementing Sentry (errors) and Analytics (product data).
 
 ## Motivation
 
@@ -116,8 +123,15 @@ See full RFC file for complete implementation details covering:
 
 ## Related RFCs
 
-- RFC-0033: Observability Strategy Foundation
-- RFC-0034: Sentry Integration for Error Tracking
+### Contract RFCs
+- **RFC-0031**: Diagnostics Service - `StartTrace()` wraps OpenTelemetry Activity API
+
+### Strategy RFCs
+- **RFC-0033**: Observability Strategy Foundation - Overall architecture
+- **RFC-0034**: Sentry Integration - Complementary error tracking (not tracing)
+
+### Architecture RFCs
+- **RFC-0030**: Analytics Service - Product metrics (separate concern)
 
 ---
 

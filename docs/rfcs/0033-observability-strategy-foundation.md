@@ -4,7 +4,8 @@ title: Observability Strategy Foundation
 status: Draft
 category: infra
 created: 2025-01-10
-updated: 2025-01-10
+updated: 2025-10-05
+related-rfcs: RFC-0030, RFC-0031, RFC-0034, RFC-0035
 ---
 
 # RFC-0033: Observability Strategy Foundation
@@ -15,11 +16,19 @@ Draft
 
 ## Date
 
-2025-01-10
+2025-01-10 (Updated 2025-10-05)
 
 ## Summary
 
 Establish a comprehensive observability strategy for Winged Bean's multi-language architecture (C#/.NET/Unity, Python, Node.js) using Sentry for error tracking and OpenTelemetry for distributed tracing, metrics, and structured logging. This RFC defines the architectural foundation, principles, and phased rollout approach.
+
+**Relationship to Other RFCs**: This RFC defines the **implementation strategy** for:
+- **RFC-0030**: Analytics Service contract (product/business metrics)
+- **RFC-0031**: Diagnostics Service contract (system observability)
+
+The strategy is implemented via:
+- **RFC-0034**: Sentry Integration (error tracking backend)
+- **RFC-0035**: OpenTelemetry Integration (tracing/metrics backend)
 
 ## Motivation
 
@@ -292,10 +301,18 @@ Adjust based on volume and cost after initial deployment.
 
 ## Related RFCs
 
-- RFC-0034: Sentry Integration for Error Tracking
-- RFC-0035: OpenTelemetry Integration for Distributed Tracing
+### Contract RFCs (Application-Facing)
+- **RFC-0030**: Analytics Service - Product/business metrics contract
+- **RFC-0031**: Diagnostics Service - System observability contract
+
+### Implementation RFCs (This Strategy)
+- **RFC-0034**: Sentry Integration for Error Tracking (implements RFC-0031 errors)
+- **RFC-0035**: OpenTelemetry Integration for Distributed Tracing (implements RFC-0031 tracing)
+
+### Architecture RFCs
 - RFC-0002: Service Platform Core (4-Tier Architecture)
 - RFC-0004: Project Organization and Folder Structure
+- RFC-0032: NuGet.Versioning Migration
 
 ## References
 

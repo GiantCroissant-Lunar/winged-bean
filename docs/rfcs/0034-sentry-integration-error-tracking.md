@@ -4,7 +4,8 @@ title: Sentry Integration for Error Tracking
 status: Draft
 category: infra
 created: 2025-01-10
-updated: 2025-01-10
+updated: 2025-10-05
+related-rfcs: RFC-0031, RFC-0033, RFC-0035
 ---
 
 # RFC-0034: Sentry Integration for Error Tracking
@@ -15,11 +16,17 @@ Draft
 
 ## Date
 
-2025-01-10
+2025-01-10 (Updated 2025-10-05)
 
 ## Summary
 
 Integrate Sentry error tracking and crash reporting across all Winged Bean components (C#/.NET, Unity, Python, Node.js) with unified release tracking, environment segregation, and PII-compliant data handling.
+
+**Implementation Note**: This RFC provides the **error tracking backend** for:
+- **RFC-0031**: `IDiagnosticsService.TrackErrorAsync()` delegates to Sentry SDK
+- **RFC-0033**: Follows the observability strategy architecture
+
+Sentry handles **exceptions and crashes** (system errors), not product analytics (see RFC-0030).
 
 ## Motivation
 
