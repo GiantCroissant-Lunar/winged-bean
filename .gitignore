@@ -47,3 +47,7 @@ obj/
 TestResults/
 .actrc
 .github/workflows/test-events/*.json
+
+# Debug logs and build output
+build/debug_script_*.log
+**/build_output.txt
