@@ -1,0 +1,165 @@
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using WingedBean.Contracts.Hosting;
+using WingedBean.Contracts.UI;
+
+namespace WingedBean.Hosting.Godot;
+
+/// <summary>
+/// Godot host that bridges Godot Node lifecycle to IWingedBeanApp.
+/// Godot's lifecycle is authoritative (_Ready, _Process, _ExitTree, etc.).
+/// </summary>
+#if GODOT
+public partial class GodotWingedBeanHost : Godot.Node, IWingedBeanHost
+{
+    private IServiceProvider? _services;
+    private IWingedBeanApp? _app;
+    private CancellationTokenSource? _cts;
+    private Action<IServiceCollection>? _configureServices;
+
+    public IServiceProvider Services => _services
+        ?? throw new InvalidOperationException("Host not started");
+
+    public override void _Ready()
+    {
+        // Build service provider
+        var services = new ServiceCollection();
+
+        // Configure services (set by builder before Node creation)
+        _configureServices?.Invoke(services);
+
+        _services = services.BuildServiceProvider();
+        _app = _services.GetRequiredService<IWingedBeanApp>();
+
+        _cts = new CancellationTokenSource();
+        _ = StartAsync(_cts.Token);
+    }
+
+    public override void _Process(double delta)
+    {
+        // Call RenderAsync if app is IUIApp
+        if (_app is IUIApp uiApp)
+        {
+            // Godot _Process is synchronous, so we fire-and-forget
+            // In production, consider queuing or using Godot's async patterns
+            _ = uiApp.RenderAsync(_cts?.Token ?? default);
+        }
+    }
+
+    public override void _ExitTree()
+    {
+        _ = StopAsync(default);
+        _cts?.Dispose();
+    }
+
+    public async Task StartAsync(CancellationToken cancellationToken = default)
+    {
+        if (_app != null)
+            await _app.StartAsync(cancellationToken);
+    }
+
+    public async Task StopAsync(CancellationToken cancellationToken = default)
+    {
+        if (_app != null)
+            await _app.StopAsync(cancellationToken);
+    }
+
+    public Task RunAsync(CancellationToken cancellationToken = default)
+    {
+        // Godot controls the run loop
+        return Task.CompletedTask;
+    }
+
+    // Builder state (set before Node is created)
+    public static GodotWingedBeanHostBuilder CreateBuilder()
+        => new GodotWingedBeanHostBuilder();
+}
+#else
+// Stub implementation for non-Godot environments
+public partial class GodotWingedBeanHost : IWingedBeanHost
+{
+    private IServiceProvider? _services;
+    private IWingedBeanApp? _app;
+    private CancellationTokenSource? _cts;
+
+    public IServiceProvider Services => _services
+        ?? throw new InvalidOperationException("Host not started");
+
+    public GodotWingedBeanHost(IServiceProvider services, IWingedBeanApp app)
+    {
+        _services = services;
+        _app = app;
+        _cts = new CancellationTokenSource();
+    }
+
+    public async Task StartAsync(CancellationToken cancellationToken = default)
+    {
+        if (_app != null)
+            await _app.StartAsync(cancellationToken);
+    }
+
+    public async Task StopAsync(CancellationToken cancellationToken = default)
+    {
+        if (_app != null)
+            await _app.StopAsync(cancellationToken);
+    }
+
+    public Task RunAsync(CancellationToken cancellationToken = default)
+    {
+        // Godot controls the run loop
+        return Task.CompletedTask;
+    }
+
+    public static GodotWingedBeanHostBuilder CreateBuilder()
+        => new GodotWingedBeanHostBuilder();
+}
+#endif
+
+public class GodotWingedBeanHostBuilder : IWingedBeanHostBuilder
+{
+    private Action<IServiceCollection>? _configureServices;
+    private Action<IConfigurationBuilder>? _configureConfig;
+
+    public IWingedBeanHostBuilder ConfigureServices(Action<IServiceCollection> configure)
+    {
+        _configureServices += configure;
+        return this;
+    }
+
+    public IWingedBeanHostBuilder ConfigureAppConfiguration(Action<IConfigurationBuilder> configure)
+    {
+        // Godot config integration
+        return this;
+    }
+
+    public IWingedBeanHostBuilder ConfigureLogging(Action<ILoggingBuilder> configure)
+    {
+        // Godot logging integration
+        return this;
+    }
+
+    public IWingedBeanHost Build()
+    {
+#if GODOT
+        // Create Godot node with host
+        var host = new GodotWingedBeanHost();
+
+        // Pass configuration to host before _Ready runs
+        // This requires the configuration to be stored in a way accessible to the node
+        // For now, we'll use a field approach (not ideal but functional)
+        host._configureServices = _configureServices;
+
+        return host;
+#else
+        // Build service provider
+        var services = new ServiceCollection();
+        _configureServices?.Invoke(services);
+
+        var serviceProvider = services.BuildServiceProvider();
+        var app = serviceProvider.GetRequiredService<IWingedBeanApp>();
+
+        return new GodotWingedBeanHost(serviceProvider, app);
+#endif
+    }
+}
