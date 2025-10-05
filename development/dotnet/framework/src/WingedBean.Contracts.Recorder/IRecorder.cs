@@ -1,7 +1,12 @@
-namespace WingedBean.Contracts;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace WingedBean.Contracts.Recorder;
 
 /// <summary>
-/// Interface for recording terminal sessions
+/// Interface for recording terminal sessions (e.g., Asciinema format)
 /// </summary>
 public interface IRecorder
 {

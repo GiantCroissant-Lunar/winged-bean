@@ -1,4 +1,4 @@
-namespace WingedBean.Contracts;
+namespace WingedBean.Contracts.Terminal;
 
 /// <summary>
 /// Interface for Terminal applications
