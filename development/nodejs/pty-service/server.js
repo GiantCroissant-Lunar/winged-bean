@@ -38,8 +38,8 @@ wss.on("connection", (ws) => {
     cwd: BIN_DIR,
     env: {
       ...process.env,
-      // Use a conservative TERM to improve key decoding across terminfo variants
-      TERM: "xterm",
+      // Try different TERM settings for Terminal.Gui compatibility
+      TERM: "xterm-256color",
       COLORTERM: "truecolor",
       LANG: process.env.LANG || "en_US.UTF-8",
       LC_ALL: process.env.LC_ALL || "en_US.UTF-8",
@@ -47,6 +47,24 @@ wss.on("connection", (ws) => {
   });
 
   console.log(`PTY process spawned with PID: ${ptyProcess.pid}`);
+
+  // Send a test message immediately to verify WebSocket connection
+  const testMessage = '\r\n\x1b[32m✓ WebSocket connection successful!\x1b[0m\r\n\x1b[33mPTY process spawned, console app starting...\x1b[0m\r\n';
+  console.log('Sending test message immediately');
+  try {
+    ws.send(Buffer.from(testMessage, 'utf8'));
+    console.log('Test message sent successfully');
+  } catch (e) {
+    console.log('Error sending test message:', e.message);
+  }
+
+  // Send some test input to the console app after a delay
+  setTimeout(() => {
+    console.log('Sending test input to console app');
+    if (!ptyProcess.killed) {
+      ptyProcess.write('test input\r');
+    }
+  }, 2000);
 
   // Stream PTY output to WebSocket client (binary frames)
   ptyProcess.onData((data) => {
@@ -93,8 +111,12 @@ wss.on("connection", (ws) => {
   // Handle PTY process exit
   ptyProcess.onExit(({ exitCode, signal }) => {
     console.log(`PTY process exited with code ${exitCode}, signal ${signal}`);
+
+    // Send exit information to client
+    const exitMessage = `\r\n\r\n🔴 Console app exited (code: ${exitCode}, signal: ${signal})\r\n`;
     if (ws.readyState === WebSocket.OPEN) {
-      ws.close(1000, `Process exited`);
+      ws.send(Buffer.from(exitMessage, 'utf8'));
+      ws.close(1000, `Process exited with code ${exitCode}`);
     }
   });
 

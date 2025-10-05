@@ -18,11 +18,12 @@ ws.on("open", () => {
   setTimeout(() => {
     console.log("Closing test client...");
     ws.close(1000, "done");
-  }, 3000);
+  }, 10000);
 });
 
 ws.on("message", (data) => {
   try {
+    console.log("Received message!");
     if (data instanceof Buffer) {
       received += data.length;
       const preview = data
