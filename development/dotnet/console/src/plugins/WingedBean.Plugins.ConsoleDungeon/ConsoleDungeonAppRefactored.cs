@@ -54,25 +54,27 @@ namespace WingedBean.Plugins.ConsoleDungeon;
         _registry = registry;
     }
 
-    // Parameterless constructor for plugin loader (legacy compatibility)
+    // Parameterless constructor for plugin loader
     public ConsoleDungeonAppRefactored()
     {
         _logger = new LoggerFactory().CreateLogger<ConsoleDungeonAppRefactored>();
-        _config = Options.Create(new TerminalAppConfig()).Value;
+        // Config will be set by SetRegistry
+        _config = new TerminalAppConfig { Name = "Console Dungeon", Cols = 80, Rows = 24 };
     }
 
-    // Called by plugin loader via reflection if available
+    // Called by plugin loader via reflection - injects dependencies from registry
     public void SetRegistry(IRegistry registry)
     {
         _registry = registry;
-    }
-
-    // Legacy signature compatibility: adapter may call this first
-    public Task StartWithConfigAsync(TerminalAppConfig config, CancellationToken cancellationToken)
-    {
-        _config = config ?? _config;
-        Diag($"Legacy StartWithConfigAsync(config, ct) invoked: Name={_config?.Name}, Size={_config?.Cols}x{_config?.Rows}");
-        return StartAsync(cancellationToken);
+        
+        // Resolve configuration from registry (registered by host)
+        _config = registry.TryGet<TerminalAppConfig>()
+            ?? new TerminalAppConfig { Name = "Console Dungeon", Cols = 80, Rows = 24 };
+        
+        // Try to resolve game service from registry
+        _gameService = registry.TryGet<IDungeonGameService>();
+        
+        Diag($"SetRegistry called: config={_config?.Name}, gameService={_gameService != null}");
     }
 
     // IHostedService.StartAsync - no config parameter needed
