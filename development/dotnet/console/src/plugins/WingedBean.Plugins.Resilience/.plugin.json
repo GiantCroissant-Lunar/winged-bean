@@ -1,0 +1,14 @@
+{
+  "id": "wingedbean.plugins.resilience",
+  "name": "Resilience Plugin",
+  "version": "1.0.0",
+  "description": "Polly-based resilience service with retry, circuit breaker, timeout, and rate limiting",
+  "author": "WingedBean Team",
+  "entryAssembly": "WingedBean.Plugins.Resilience.dll",
+  "activator": "WingedBean.Plugins.Resilience.ResiliencePluginActivator",
+  "dependencies": [],
+  "provides": [
+    "WingedBean.Contracts.Resilience.IResilienceService"
+  ],
+  "tags": ["resilience", "polly", "retry", "circuit-breaker", "fault-tolerance"]
+}
