@@ -7,6 +7,7 @@ using WingedBean.Contracts.Input;
 using WingedBean.Contracts.Scene;
 using WingedBean.Plugins.ConsoleDungeon.Input;
 using WingedBean.Plugins.ConsoleDungeon.Scene;
+using System.IO;
 
 namespace WingedBean.Plugins.ConsoleDungeon;
 
@@ -20,13 +21,14 @@ namespace WingedBean.Plugins.ConsoleDungeon;
     Provides = new[] { typeof(ITerminalApp) },
     Priority = 51  // Higher priority than original
 )]
-public class ConsoleDungeonAppRefactored : ITerminalApp, IDisposable
-{
-    private readonly ILogger<ConsoleDungeonAppRefactored> _logger;
-    private readonly TerminalAppConfig _config;
-    private readonly IDungeonGameService _gameService;
-    private readonly IRegistry _registry;
+    public class ConsoleDungeonAppRefactored : ITerminalApp, IDisposable
+    {
+        private readonly ILogger<ConsoleDungeonAppRefactored> _logger;
+        private TerminalAppConfig _config;
+    private IDungeonGameService? _gameService;
+    private IRegistry? _registry;
     private ISceneService? _sceneService;
+    private Microsoft.Extensions.Hosting.IHostApplicationLifetime? _hostLifetime;
     private IRenderService? _renderService;
     private IInputRouter? _inputRouter;
     private IInputMapper? _inputMapper;
@@ -53,17 +55,30 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IDisposable
     }
 
     // Parameterless constructor for plugin loader (legacy compatibility)
-    public ConsoleDungeonAppRefactored() : this(
-        new LoggerFactory().CreateLogger<ConsoleDungeonAppRefactored>(),
-        Options.Create(new TerminalAppConfig()),
-        null!, // This will cause issues - plugin loader should use DI
-        null!) // This will cause issues - plugin loader should use DI
+    public ConsoleDungeonAppRefactored()
     {
+        _logger = new LoggerFactory().CreateLogger<ConsoleDungeonAppRefactored>();
+        _config = Options.Create(new TerminalAppConfig()).Value;
+    }
+
+    // Called by plugin loader via reflection if available
+    public void SetRegistry(IRegistry registry)
+    {
+        _registry = registry;
+    }
+
+    // Legacy signature compatibility: adapter may call this first
+    public Task StartWithConfigAsync(TerminalAppConfig config, CancellationToken cancellationToken)
+    {
+        _config = config ?? _config;
+        Diag($"Legacy StartWithConfigAsync(config, ct) invoked: Name={_config?.Name}, Size={_config?.Cols}x{_config?.Rows}");
+        return StartAsync(cancellationToken);
     }
 
     // IHostedService.StartAsync - no config parameter needed
-    public async Task StartAsync(CancellationToken cancellationToken = default)
+    public async Task StartAsync(CancellationToken cancellationToken)
     {
+        Diag("StartAsync invoked");
         if (_isRunning)
         {
             _logger.LogWarning("Console Dungeon is already running");
@@ -79,13 +94,17 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IDisposable
             {
                 try
                 {
+                    if (_registry == null)
+                        throw new InvalidOperationException("Registry is not available");
                     _renderService = _registry.Get<IRenderService>();
                     _renderService.SetRenderMode(RenderMode.ASCII);
                     _logger.LogInformation("✓ IRenderService injected (ASCII mode)");
+                    Diag("IRenderService ready (ASCII mode)");
                 }
                 catch (Exception ex)
                 {
                     _logger.LogWarning(ex, "IRenderService not available");
+                    Diag($"IRenderService not available: {ex.Message}");
                 }
             }
 
@@ -97,16 +116,39 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IDisposable
             if (_renderService == null)
             {
                 _logger.LogError("Cannot create scene without render service");
+                try { System.Console.WriteLine("[ConsoleDungeonApp] Abort: render service is null"); } catch { }
                 return;
             }
 
             _sceneService = new TerminalGuiSceneProvider(_renderService, _inputMapper, _inputRouter);
             _sceneService.Initialize();
+            Diag("Scene initialized");
+
+            if (_gameService == null)
+            {
+                // Try to resolve from registry when not injected by DI
+                try
+                {
+                    if (_registry != null)
+                    {
+                        _gameService = _registry.Get<IDungeonGameService>();
+                        _logger.LogInformation("✓ IDungeonGameService resolved from registry");
+                        Diag("IDungeonGameService resolved from registry");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "IDungeonGameService not available");
+                    Diag("Abort: IDungeonGameService is null");
+                    return;
+                }
+            }
 
             // Register gameplay input scope
             var gameplayScope = new GameplayInputScope(_gameService, _logger);
             _gameplayScope = _inputRouter.PushScope(gameplayScope);
             _logger.LogInformation("✓ Gameplay input scope registered");
+            Diag("Gameplay input scope registered");
 
             // Subscribe to entity updates for rendering
             _entitiesSubscription = _gameService.EntitiesObservable.Subscribe(entities =>
@@ -121,25 +163,58 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IDisposable
                 (_sceneService as TerminalGuiSceneProvider)?.UpdateStatus(statusText);
             });
 
+            // Resolve IHostApplicationLifetime early for clean shutdown
+            if (_hostLifetime == null && _registry != null)
+            {
+                try
+                {
+                    _hostLifetime = _registry.Get<Microsoft.Extensions.Hosting.IHostApplicationLifetime>();
+                    Diag("IHostApplicationLifetime resolved from registry");
+                }
+                catch (Exception ex)
+                {
+                    Diag($"Could not resolve IHostApplicationLifetime: {ex.Message}");
+                }
+            }
+
             // Handle scene shutdown
             _sceneService.Shutdown += (s, e) =>
             {
                 _logger.LogInformation("Scene shutdown requested");
                 _gameService.Shutdown();
-                _isRunning = false;
+                // Note: Don't set _isRunning = false here, let StopAsync handle it
             };
 
             // Initialize game
             _gameService.Initialize();
             _logger.LogInformation($"✓ Game initialized. State: {_gameService.CurrentState}");
+            Diag($"Game initialized. State: {_gameService.CurrentState}");
+
+            // Trigger initial render
+            try
+            {
+                _gameService.Update(0.0f);
+                Diag("Initial game update/render triggered");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during initial game update");
+                Diag($"Initial update error: {ex.Message}");
+            }
 
             // Start game update timer (10 FPS)
+            var updateCount = 0;
             _gameTimer = new System.Timers.Timer(100);
             _gameTimer.Elapsed += (s, e) =>
             {
                 try
                 {
                     _gameService?.Update(0.1f);
+                    updateCount++;
+                    if (updateCount == 1 || updateCount % 50 == 0)
+                    {
+                        Diag($"Game update #{updateCount}");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -148,47 +223,98 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IDisposable
             };
             _gameTimer.Start();
             _logger.LogInformation("✓ Game update timer started");
+            Diag("Game timer started; entering UI loop");
 
             _isRunning = true;
 
-            // Run scene (blocks until UI closes)
-            await Task.Run(() =>
+            // Run scene in background (don't await - it will signal shutdown when done)
+            _ = Task.Run(() =>
             {
                 try
                 {
+                    Diag("Entering scene.Run()");
                     _sceneService.Run();
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Error running scene");
+                    Diag($"Error in scene.Run: {ex.Message}");
                 }
                 finally
                 {
-                    _isRunning = false;
+                    Diag("UI loop finished");
+                    
+                    // Stop game timer immediately to prevent further updates
+                    try
+                    {
+                        _gameTimer?.Stop();
+                        _gameTimer?.Dispose();
+                        _gameTimer = null;
+                        Diag("Game timer stopped");
+                    }
+                    catch (Exception ex)
+                    {
+                        Diag($"Error stopping timer: {ex.Message}");
+                    }
+                    
                     Exited?.Invoke(this, new TerminalExitEventArgs
                     {
                         ExitCode = 0,
                         Timestamp = DateTimeOffset.UtcNow
                     });
+                    
+                    // Request host shutdown (which will call StopAsync to complete cleanup)
+                    if (_hostLifetime != null)
+                    {
+                        Diag("Requesting host shutdown via IHostApplicationLifetime.StopApplication()");
+                        _hostLifetime.StopApplication();
+                    }
+                    else
+                    {
+                        Diag("WARNING: IHostApplicationLifetime not available, host will not shutdown automatically");
+                        _isRunning = false;  // Only set here if we can't trigger proper shutdown
+                    }
                 }
             }, cancellationToken);
+            
+            Diag("StartAsync returning immediately (UI running in background)");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to start Console Dungeon");
             _isRunning = false;
+            Diag($"Failed to start: {ex.Message}");
             throw;
         }
+        
+        Diag("StartAsync completed, returning to host");
+    }
+
+    private void Diag(string msg)
+    {
+        try
+        {
+            var dir = Path.Combine(AppContext.BaseDirectory, "logs");
+            Directory.CreateDirectory(dir);
+            var line = $"[{DateTimeOffset.Now:HH:mm:ss}] [ConsoleDungeonApp] {msg}\n";
+            File.AppendAllText(Path.Combine(dir, "ui-diag.log"), line);
+            Console.Write(line);
+            Console.Out.Flush();
+        }
+        catch { }
     }
 
     public async Task StopAsync(CancellationToken ct = default)
     {
+        Diag("StopAsync called");
         if (!_isRunning)
         {
+            Diag("Already stopped, returning");
             return;
         }
 
         _logger.LogInformation("Stopping Console Dungeon...");
+        Diag("Stopping game services...");
 
         try
         {
@@ -203,6 +329,7 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IDisposable
 
             _isRunning = false;
             _logger.LogInformation("Console Dungeon stopped");
+            Diag("Console Dungeon stopped successfully");
         }
         catch (Exception ex)
         {
