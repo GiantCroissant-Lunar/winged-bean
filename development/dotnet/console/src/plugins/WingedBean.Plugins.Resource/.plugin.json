@@ -1,0 +1,41 @@
+{
+  "id": "wingedbean.plugins.resource",
+  "version": "1.0.0",
+  "name": "Resource Service",
+  "description": "File system-based resource loading service for Console profile",
+  "author": "WingedBean Team",
+  "license": "MIT",
+
+  "entryPoint": {
+    "dotnet": "./WingedBean.Plugins.Resource.dll",
+    "nodejs": null,
+    "unity": null,
+    "godot": "./WingedBean.Plugins.Resource.dll"
+  },
+
+  "dependencies": {
+    "wingedbean.contracts": "^1.0.0"
+  },
+
+  "exports": {
+    "services": [
+      {
+        "interface": "WingedBean.Contracts.Resource.IResourceService",
+        "implementation": "WingedBean.Plugins.Resource.FileSystemResourceService",
+        "lifecycle": "singleton"
+      }
+    ]
+  },
+
+  "capabilities": [
+    "resource-loading",
+    "file-system",
+    "json-support",
+    "caching"
+  ],
+
+  "supportedProfiles": ["console", "godot"],
+
+  "loadStrategy": "eager",
+  "priority": 100
+}
