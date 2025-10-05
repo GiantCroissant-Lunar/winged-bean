@@ -12,7 +12,7 @@
     <ProjectReference Include="../../../../framework/src/WingedBean.PluginSystem/WingedBean.PluginSystem.csproj" />
     <ProjectReference Include="../../host/WingedBean.Host.Console/WingedBean.Host.Console.csproj" />
     <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Core/WingedBean.Contracts.Core.csproj" />
-    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Pty/WingedBean.Contracts.Pty.csproj" />
+    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Terminal/WingedBean.Contracts.Terminal.csproj" />
   </ItemGroup>
 
   <ItemGroup>

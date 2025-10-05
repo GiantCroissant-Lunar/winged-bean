@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using WingedBean.Contracts;
+using WingedBean.Contracts.Terminal;
+using WingedBean.Contracts.Recorder;
 using WingedBean.PluginSystem;
 using WingedBean.Host.Console;
 
@@ -22,7 +23,6 @@ class Program
         Console.WriteLine("WingedBean Plugin System Demo - Phase 2");
         Console.WriteLine("=======================================");
         Console.WriteLine("This demo showcases real services extracted as plugins:");
-        Console.WriteLine("- PTY Service Plugin (wraps Node.js PTY functionality)");
         Console.WriteLine("- Console Dungeon Plugin (Terminal.Gui application)");
         Console.WriteLine("- AsciinemaRecorder Plugin (session recording)");
         Console.WriteLine();
@@ -37,7 +37,6 @@ class Program
             var pluginPaths = new[]
             {
                 Path.GetFullPath(Path.Combine(currentDir, "..", "..", "..", "..", "WingedBean.Plugins.AsciinemaRecorder", "bin", "Debug", "net8.0")),
-                Path.GetFullPath(Path.Combine(currentDir, "..", "..", "..", "..", "WingedBean.Plugins.PtyService", "bin", "Debug", "net8.0")),
                 Path.GetFullPath(Path.Combine(currentDir, "..", "..", "..", "..", "WingedBean.Plugins.ConsoleDungeon", "bin", "Debug", "net8.0"))
             };
 

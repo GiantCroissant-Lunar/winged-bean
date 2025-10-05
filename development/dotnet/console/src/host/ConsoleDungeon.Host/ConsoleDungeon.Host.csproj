@@ -13,7 +13,7 @@
     <ProjectReference Include="../../../../framework/src/WingedBean.PluginLoader/WingedBean.PluginLoader.csproj" />
     <ProjectReference Include="../../providers/WingedBean.Providers.AssemblyContext/WingedBean.Providers.AssemblyContext.csproj" />
     <!-- Contracts for Terminal apps -->
-    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Pty/WingedBean.Contracts.Pty.csproj" />
+    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Terminal/WingedBean.Contracts.Terminal.csproj" />
     <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Game/WingedBean.Contracts.Game.csproj" />
     <!-- New plugin system + ALC loader for hybrid discovery -->
     <ProjectReference Include="../../../../framework/src/WingedBean.PluginSystem/WingedBean.PluginSystem.csproj" />
