@@ -23,6 +23,7 @@ fi
 
 CONSOLE_APP="$ARTIFACT_PATH/ConsoleDungeon.Host"
 LOG_DIR="$ARTIFACT_PATH/logs"
+BG_DIR="$ARTIFACT_PATH/_bg_logs"
 
 if [[ ! -x "$CONSOLE_APP" ]]; then
   echo "Error: Console app not found at $CONSOLE_APP"
@@ -44,11 +45,29 @@ echo "All key events will be logged."
 echo "After exiting, run parse-keylog.js on the log file."
 echo ""
 
-# Run with debug mode enabled
 export DEBUG_MINIMAL_UI=1
-(
-  cd "$ARTIFACT_PATH" && ./ConsoleDungeon.Host
-)
+
+if [[ "${RUN_BG:-0}" = "1" ]]; then
+  mkdir -p "$BG_DIR"
+  echo "Running in background (RUN_BG=1). PID/logs in: $BG_DIR"
+  (
+    cd "$ARTIFACT_PATH" && nohup ./ConsoleDungeon.Host > "$BG_DIR/console.out" 2>&1 < /dev/null & echo $! > "$BG_DIR/console.pid"
+  )
+  sleep 3
+  if [[ -f "$BG_DIR/console.pid" ]] && kill -0 "$(cat "$BG_DIR/console.pid")" 2>/dev/null; then
+    echo "Started. PID: $(cat "$BG_DIR/console.pid")"
+  else
+    echo "Process not running; check logs at $BG_DIR/console.out"
+  fi
+  echo "--- Background log tail ---"
+  tail -n 120 "$BG_DIR/console.out" 2>/dev/null || true
+  exit 0
+else
+  # Foreground run
+  (
+    cd "$ARTIFACT_PATH" && ./ConsoleDungeon.Host
+  )
+fi
 
 # Find and parse the latest log
 echo ""

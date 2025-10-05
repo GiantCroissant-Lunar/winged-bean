@@ -54,12 +54,19 @@ tasks:
       - mkdir -p {{.ARTIFACT_DIR}}/_logs
 
   build-dotnet:
-    desc: "Build .NET projects via Nuke"
+    desc: "Build .NET projects (host + plugins)"
     deps: [init-dirs]
-    dir: nuke
     cmds:
-      - ./build.sh Compile 2>&1 | tee ../_artifacts/v{{.VERSION}}/_logs/dotnet-build.log
-      - cp -r bin/Debug/* ../_artifacts/v{{.VERSION}}/dotnet/bin/ || true
+      - |
+        set -euo pipefail
+        # Build ConsoleDungeon.Host to get plugins copied via MSBuild targets
+        pushd ../development/dotnet/console/src/host/ConsoleDungeon.Host >/dev/null
+        dotnet build -c Debug
+        SRC_BIN="$(pwd)/bin/Debug/net8.0"
+        popd >/dev/null
+        # Copy to artifacts bin
+        rm -rf _artifacts/v{{.VERSION}}/dotnet/bin/*
+        cp -r "$SRC_BIN"/* _artifacts/v{{.VERSION}}/dotnet/bin/
 
   build-web:
     desc: "Build web projects"
