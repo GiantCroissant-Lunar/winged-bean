@@ -14,7 +14,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Core/WingedBean.Contracts.Core.csproj" />
+    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Core/WingedBean.Contracts.Core.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
     <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Resilience/WingedBean.Contracts.Resilience.csproj" />
     <ProjectReference Include="../../../../framework/src/WingedBean.PluginSystem/WingedBean.PluginSystem.csproj" />
   </ItemGroup>
