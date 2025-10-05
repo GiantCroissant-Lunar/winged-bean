@@ -9,6 +9,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{ACAFF227-C30
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WingedBean.Contracts.Audio", "framework\src\WingedBean.Contracts.Audio\WingedBean.Contracts.Audio.csproj", "{E2BEEF8F-DA7F-4A15-8ED2-00AA47AD55DB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WingedBean.Contracts.Analytics", "frameworksrcWingedBean.Contracts.AnalyticsWingedBean.Contracts.Analytics.csproj", "{d3248880-937e-4005-bba8-447f8b388fbf}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WingedBean.Contracts.Diagnostics", "frameworksrcWingedBean.Contracts.DiagnosticsWingedBean.Contracts.Diagnostics.csproj", "{0b7770fa-7c6f-4072-88e8-6ab197b0c054}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WingedBean.Contracts.Config", "framework\src\WingedBean.Contracts.Config\WingedBean.Contracts.Config.csproj", "{5C9CE2BD-49E9-4A3D-BF66-42B1D97BD96C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WingedBean.Contracts.Core", "framework\src\WingedBean.Contracts.Core\WingedBean.Contracts.Core.csproj", "{E00C88E1-09A7-4DF6-A9DC-76B67896794D}"
