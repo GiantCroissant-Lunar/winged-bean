@@ -303,16 +303,8 @@ public class PluginLoaderHostedService : IHostedService
             var instance = entry.instance;
             var priority = entry.priority;
 
-            // Use reflection to call IRegistry.Register<T>(T implementation, int priority)
-            var registerMethod = typeof(IRegistry).GetMethods()
-                .Where(m => m.Name == "Register" && m.IsGenericMethod)
-                .Where(m => m.GetParameters().Length == 2)
-                .Where(m => m.GetParameters()[0].ParameterType.IsGenericParameter)
-                .Where(m => m.GetParameters()[1].ParameterType == typeof(int))
-                .FirstOrDefault()
-                ?.MakeGenericMethod(contractType);
-
-            registerMethod?.Invoke(_registry, new object[] { instance, priority });
+            // Use RegistryHelper for type-safe registration (RFC-0038 Phase 2)
+            _registry.RegisterDynamic(contractType, instance, priority);
             _logger.LogDebug("      → Registered: {ContractType} (priority: {Priority})", contractType.Name, priority);
         }
     }
