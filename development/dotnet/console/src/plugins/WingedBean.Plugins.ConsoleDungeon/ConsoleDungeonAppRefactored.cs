@@ -21,8 +21,8 @@ namespace WingedBean.Plugins.ConsoleDungeon;
     Provides = new[] { typeof(ITerminalApp) },
     Priority = 51  // Higher priority than original
 )]
-    public class ConsoleDungeonAppRefactored : ITerminalApp, IDisposable
-    {
+public class ConsoleDungeonAppRefactored : ITerminalApp, IRegistryAware, IDisposable
+{
         private readonly ILogger<ConsoleDungeonAppRefactored> _logger;
         private TerminalAppConfig _config;
     private IDungeonGameService? _gameService;
@@ -62,7 +62,7 @@ namespace WingedBean.Plugins.ConsoleDungeon;
         _config = new TerminalAppConfig { Name = "Console Dungeon", Cols = 80, Rows = 24 };
     }
 
-    // Called by plugin loader via reflection - injects dependencies from registry
+    // IRegistryAware.SetRegistry - called by plugin loader (RFC-0038)
     public void SetRegistry(IRegistry registry)
     {
         _registry = registry;

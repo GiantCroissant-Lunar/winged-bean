@@ -217,13 +217,21 @@ public class PluginLoaderHostedService : IHostedService
         int pluginPriority,
         CancellationToken cancellationToken)
     {
-        // Set registry on plugin BEFORE activation (required for OnActivateAsync)
-        var setRegistryMethod = plugin.GetType().GetMethod(
-            "SetRegistry",
-            BindingFlags.Instance | BindingFlags.Public);
-        if (setRegistryMethod != null)
+        // Set registry on plugin BEFORE activation - RFC-0038: Use IRegistryAware
+        if (plugin is IRegistryAware registryAware)
         {
-            setRegistryMethod.Invoke(plugin, new object[] { _registry });
+            registryAware.SetRegistry(_registry);
+        }
+        else
+        {
+            // Fallback to reflection for plugins not yet updated
+            var setRegistryMethod = plugin.GetType().GetMethod(
+                "SetRegistry",
+                BindingFlags.Instance | BindingFlags.Public);
+            if (setRegistryMethod != null)
+            {
+                setRegistryMethod.Invoke(plugin, new object[] { _registry });
+            }
         }
 
         // Activate plugin (if it implements IPlugin)
@@ -235,16 +243,24 @@ public class PluginLoaderHostedService : IHostedService
         {
             var implType = service.GetType();
 
-            // If service has SetRegistry(IRegistry), inject the runtime registry
-            try
+            // If service has SetRegistry(IRegistry), inject the runtime registry - RFC-0038
+            if (service is IRegistryAware serviceRegistryAware)
             {
-                var setReg = implType.GetMethod("SetRegistry", BindingFlags.Instance | BindingFlags.Public);
-                if (setReg != null && setReg.GetParameters().Length == 1 && setReg.GetParameters()[0].ParameterType == typeof(IRegistry))
-                {
-                    setReg.Invoke(service, new object[] { _registry });
-                }
+                serviceRegistryAware.SetRegistry(_registry);
             }
-            catch { }
+            else
+            {
+                // Fallback to reflection for services not yet updated
+                try
+                {
+                    var setReg = implType.GetMethod("SetRegistry", BindingFlags.Instance | BindingFlags.Public);
+                    if (setReg != null && setReg.GetParameters().Length == 1 && setReg.GetParameters()[0].ParameterType == typeof(IRegistry))
+                    {
+                        setReg.Invoke(service, new object[] { _registry });
+                    }
+                }
+                catch { }
+            }
 
             // Read optional [Plugin] attribute from the implementation class
             var pluginAttr = implType
