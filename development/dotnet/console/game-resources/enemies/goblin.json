@@ -1,0 +1,35 @@
+{
+  "id": "goblin",
+  "name": "Goblin",
+  "description": "A small, green-skinned creature with sharp teeth",
+  "stats": {
+    "maxHP": 20,
+    "maxMana": 0,
+    "strength": 5,
+    "dexterity": 8,
+    "intelligence": 3,
+    "defense": 2,
+    "level": 1,
+    "experience": 10
+  },
+  "visual": {
+    "symbol": "g",
+    "foregroundColor": "Green",
+    "backgroundColor": "Black",
+    "renderLayer": 2
+  },
+  "ai": {
+    "type": "Goblin",
+    "aggroRange": 8.0,
+    "moveSpeed": 1.0,
+    "attackRange": 1.0
+  },
+  "loot": [
+    {
+      "itemId": "gold-coin",
+      "chance": 0.8,
+      "minAmount": 1,
+      "maxAmount": 5
+    }
+  ]
+}

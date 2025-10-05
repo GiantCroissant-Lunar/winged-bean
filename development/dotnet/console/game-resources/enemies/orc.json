@@ -1,0 +1,41 @@
+{
+  "id": "orc",
+  "name": "Orc Warrior",
+  "description": "A brutal orc warrior wielding a crude axe",
+  "stats": {
+    "maxHP": 40,
+    "maxMana": 0,
+    "strength": 12,
+    "dexterity": 5,
+    "intelligence": 4,
+    "defense": 5,
+    "level": 3,
+    "experience": 30
+  },
+  "visual": {
+    "symbol": "O",
+    "foregroundColor": "Red",
+    "backgroundColor": "Black",
+    "renderLayer": 2
+  },
+  "ai": {
+    "type": "Orc",
+    "aggroRange": 10.0,
+    "moveSpeed": 0.8,
+    "attackRange": 1.0
+  },
+  "loot": [
+    {
+      "itemId": "iron-axe",
+      "chance": 0.3,
+      "minAmount": 1,
+      "maxAmount": 1
+    },
+    {
+      "itemId": "gold-coin",
+      "chance": 0.9,
+      "minAmount": 5,
+      "maxAmount": 15
+    }
+  ]
+}

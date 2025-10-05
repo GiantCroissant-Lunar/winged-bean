@@ -1,0 +1,38 @@
+{
+  "id": "default-player",
+  "name": "Adventurer",
+  "description": "A brave adventurer seeking fortune in the dungeon",
+  "startingStats": {
+    "maxHP": 100,
+    "maxMana": 50,
+    "strength": 10,
+    "dexterity": 10,
+    "intelligence": 10,
+    "defense": 5,
+    "level": 1,
+    "experience": 0
+  },
+  "startingPosition": {
+    "x": 40,
+    "y": 12,
+    "floor": 1
+  },
+  "visual": {
+    "symbol": "@",
+    "foregroundColor": "Yellow",
+    "backgroundColor": "Black",
+    "renderLayer": 2
+  },
+  "startingInventory": [
+    {
+      "itemId": "iron-sword",
+      "quantity": 1,
+      "equipped": true
+    },
+    {
+      "itemId": "health-potion",
+      "quantity": 3,
+      "equipped": false
+    }
+  ]
+}

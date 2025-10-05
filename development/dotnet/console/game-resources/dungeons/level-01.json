@@ -1,0 +1,61 @@
+{
+  "id": "dungeon-level-01",
+  "name": "The Abandoned Mine - Level 1",
+  "description": "The first level of an old abandoned mine",
+  "floor": 1,
+  "dimensions": {
+    "width": 80,
+    "height": 24
+  },
+  "enemySpawns": [
+    {
+      "enemyId": "goblin",
+      "minCount": 3,
+      "maxCount": 5,
+      "spawnAreas": [
+        {"x": 10, "y": 5, "radius": 15},
+        {"x": 60, "y": 15, "radius": 10}
+      ]
+    },
+    {
+      "enemyId": "orc",
+      "minCount": 1,
+      "maxCount": 2,
+      "spawnAreas": [
+        {"x": 70, "y": 20, "radius": 8}
+      ]
+    }
+  ],
+  "itemSpawns": [
+    {
+      "itemId": "health-potion",
+      "minCount": 2,
+      "maxCount": 4,
+      "spawnAreas": [
+        {"x": 20, "y": 10, "radius": 20},
+        {"x": 50, "y": 15, "radius": 20}
+      ]
+    },
+    {
+      "itemId": "iron-sword",
+      "minCount": 0,
+      "maxCount": 1,
+      "spawnAreas": [
+        {"x": 65, "y": 18, "radius": 5}
+      ]
+    }
+  ],
+  "safeZones": [
+    {
+      "name": "Player Spawn",
+      "x": 40,
+      "y": 12,
+      "radius": 5
+    }
+  ],
+  "exitPosition": {
+    "x": 75,
+    "y": 22,
+    "targetLevel": 2
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "id": "iron-sword",
+  "name": "Iron Sword",
+  "description": "A sturdy iron sword. Good for beginners.",
+  "type": "weapon",
+  "stats": {
+    "damage": 10,
+    "weight": 3.5,
+    "durability": 100,
+    "attackSpeed": 1.0
+  },
+  "visual": {
+    "symbol": "/",
+    "foregroundColor": "Gray",
+    "backgroundColor": "Black",
+    "renderLayer": 1
+  },
+  "requirements": {
+    "strength": 5,
+    "level": 1
+  },
+  "stackable": false,
+  "value": 50
+}

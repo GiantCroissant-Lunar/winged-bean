@@ -1,0 +1,19 @@
+{
+  "id": "health-potion",
+  "name": "Health Potion",
+  "description": "A red potion that restores 50 HP",
+  "type": "consumable",
+  "stats": {
+    "hpRestore": 50,
+    "weight": 0.5
+  },
+  "visual": {
+    "symbol": "!",
+    "foregroundColor": "Red",
+    "backgroundColor": "Black",
+    "renderLayer": 1
+  },
+  "stackable": true,
+  "maxStack": 20,
+  "value": 25
+}
