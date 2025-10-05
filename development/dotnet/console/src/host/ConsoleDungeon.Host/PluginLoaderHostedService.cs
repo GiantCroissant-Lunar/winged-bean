@@ -13,6 +13,7 @@ using WingedBean.PluginSystem;
 using WingedBean.Registry;
 using WingedBean.PluginLoader;
 using ConsoleDungeon.Host;
+using WingedBean.Contracts.Terminal;
 
 namespace WingedBean.Host.Console;
 
@@ -102,22 +103,33 @@ public class PluginLoaderHostedService : IHostedService
                 }
             }
 
-            // Legacy path deprecated: only load if explicitly enabled
-            var useLegacy = (Environment.GetEnvironmentVariable("ENABLE_LEGACY_PLUGINS_JSON") ?? "").ToLowerInvariant();
+            // Legacy path: prefer manifests, but fall back to plugins.json when none are present or explicitly enabled
+            var useLegacyEnv = (Environment.GetEnvironmentVariable("ENABLE_LEGACY_PLUGINS_JSON") ?? "").ToLowerInvariant();
+            var enableLegacy = useLegacyEnv == "1" || useLegacyEnv == "true" || loadedById.Count == 0;
             List<PluginDescriptor> enabledPlugins = new();
-            if (useLegacy == "1" || useLegacy == "true")
+            if (enableLegacy)
             {
                 var configPath = Path.Combine(exeDirectory, "plugins.json");
-                var config = await LoadPluginConfigurationAsync(configPath);
-                enabledPlugins = config.Plugins
-                    .Where(p => p.Enabled && !loadedById.Contains(p.Id))
-                    .OrderByDescending(p => p.Priority)
-                    .ToList();
-                _logger.LogInformation("  → Legacy config entries: {Count}", enabledPlugins.Count);
+                if (File.Exists(configPath))
+                {
+                    var config = await LoadPluginConfigurationAsync(configPath);
+                    enabledPlugins = config.Plugins
+                        .Where(p => p.Enabled && !loadedById.Contains(p.Id))
+                        .OrderByDescending(p => p.Priority)
+                        .ToList();
+                    var reason = loadedById.Count == 0 && string.IsNullOrEmpty(useLegacyEnv)
+                        ? "(fallback: no manifests found)"
+                        : (string.IsNullOrEmpty(useLegacyEnv) ? "(env enabled)" : "(env enabled)");
+                    _logger.LogInformation("  → Legacy plugins.json entries: {Count} {Reason}", enabledPlugins.Count, reason);
+                }
+                else
+                {
+                    _logger.LogInformation("  → No plugins.json found at {Path}", configPath);
+                }
             }
             else
             {
-                _logger.LogInformation("  → Legacy plugins.json disabled (set ENABLE_LEGACY_PLUGINS_JSON=1 to enable)");
+                _logger.LogInformation("  → Legacy plugins.json disabled (set ENABLE_LEGACY_PLUGINS_JSON=1 to force)");
             }
 
             // Load legacy plugins
@@ -223,6 +235,17 @@ public class PluginLoaderHostedService : IHostedService
         {
             var implType = service.GetType();
 
+            // If service has SetRegistry(IRegistry), inject the runtime registry
+            try
+            {
+                var setReg = implType.GetMethod("SetRegistry", BindingFlags.Instance | BindingFlags.Public);
+                if (setReg != null && setReg.GetParameters().Length == 1 && setReg.GetParameters()[0].ParameterType == typeof(IRegistry))
+                {
+                    setReg.Invoke(service, new object[] { _registry });
+                }
+            }
+            catch { }
+
             // Read optional [Plugin] attribute from the implementation class
             var pluginAttr = implType
                 .GetCustomAttributes(typeof(WingedBean.Contracts.Core.PluginAttribute), inherit: true)
@@ -292,5 +315,38 @@ public class PluginLoaderHostedService : IHostedService
 
         _logger.LogInformation("  ✓ IRegistry registered");
         _logger.LogInformation("  ✓ IPluginLoader registered");
+
+        // Check for terminal app
+        try
+        {
+            var terminalApp = _registry.Get<ITerminalApp>();
+            _logger.LogInformation("  ✓ ITerminalApp registered: {Type}", terminalApp.GetType().Name);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("  ⚠ ITerminalApp not registered: {Message}", ex.Message);
+        }
+
+        // Check for render service
+        try
+        {
+            var renderService = _registry.Get<WingedBean.Contracts.Game.IRenderService>();
+            _logger.LogInformation("  ✓ IRenderService registered: {Type}", renderService.GetType().Name);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("  ⚠ IRenderService not registered: {Message}", ex.Message);
+        }
+
+        // Check for game service
+        try
+        {
+            var gameService = _registry.Get<WingedBean.Contracts.Game.IDungeonGameService>();
+            _logger.LogInformation("  ✓ IDungeonGameService registered: {Type}", gameService.GetType().Name);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("  ⚠ IDungeonGameService not registered: {Message}", ex.Message);
+        }
     }
 }

@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
+using NuGet.Versioning;
 
 namespace WingedBean.PluginSystem;
 
@@ -187,10 +188,10 @@ public class FilePluginRegistry : IPluginRegistry
             if (criteria.SupportedProfiles.Any())
                 filtered = filtered.Where(p => criteria.SupportedProfiles.Any(profile => p.SupportedProfiles.Contains(profile)));
 
-            if (!string.IsNullOrEmpty(criteria.MinVersion) && SemanticVersion.TryParse(criteria.MinVersion, out var minVer))
+            if (!string.IsNullOrEmpty(criteria.MinVersion) && NuGetVersion.TryParse(criteria.MinVersion, out var minVer))
                 filtered = filtered.Where(p => p.SemanticVersion >= minVer);
 
-            if (!string.IsNullOrEmpty(criteria.MaxVersion) && SemanticVersion.TryParse(criteria.MaxVersion, out var maxVer))
+            if (!string.IsNullOrEmpty(criteria.MaxVersion) && NuGetVersion.TryParse(criteria.MaxVersion, out var maxVer))
                 filtered = filtered.Where(p => p.SemanticVersion <= maxVer);
 
             if (criteria.SecurityLevel.HasValue)
