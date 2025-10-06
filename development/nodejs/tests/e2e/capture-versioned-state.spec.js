@@ -1,12 +1,12 @@
 /**
  * Versioned State Capture Test
- * 
+ *
  * This test captures the complete state of the application at a specific version:
  * - Screenshots of actual web display
  * - Terminal buffer content
  * - Asciinema recordings
  * - Application logs
- * 
+ *
  * All artifacts are saved to build/_artifacts/v{VERSION}/ per RFC-0010
  */
 
@@ -27,7 +27,7 @@ const getVersion = () => {
 };
 
 const VERSION = getVersion();
-const ARTIFACT_DIR = path.join(__dirname, '../../..', '../../build/_artifacts', `v${VERSION}`);
+const ARTIFACT_DIR = path.join(__dirname, '../../..', 'build/_artifacts', `v${VERSION}`);
 
 // Ensure artifact directories exist
 const setupArtifactDirs = () => {
@@ -37,7 +37,7 @@ const setupArtifactDirs = () => {
     path.join(ARTIFACT_DIR, 'web/logs'),
     path.join(ARTIFACT_DIR, 'web/terminal-captures')
   ];
-  
+
   dirs.forEach(dir => {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
@@ -54,13 +54,13 @@ test.describe(`Versioned State Capture - v${VERSION}`, () => {
 
   test('capture complete dungeon game state with versioning', async ({ page }) => {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    
+
     // Navigate to demo page
     await page.goto('http://localhost:4321/demo/');
     console.log('✓ Navigated to /demo/');
 
     await page.waitForLoadState('networkidle');
-    
+
     // === 1. INITIAL STATE CAPTURE ===
     console.log('\n=== Phase 1: Initial State ===');
     await page.screenshot({
@@ -72,13 +72,13 @@ test.describe(`Versioned State Capture - v${VERSION}`, () => {
     // === 2. WAIT FOR GAME TO START ===
     const ptyTerminal = page.locator('#pty-terminal');
     await expect(ptyTerminal).toBeVisible({ timeout: 10000 });
-    
+
     console.log('\n=== Phase 2: Waiting for Game Initialize (10s) ===');
     await page.waitForTimeout(10000);
 
     // === 3. CAPTURE RUNNING STATE ===
     console.log('\n=== Phase 3: Capture Running State ===');
-    
+
     // 3a. Terminal buffer content
     const terminalText = await page.evaluate(() => {
       const term = window.__xterms && window.__xterms['pty-terminal'];
@@ -95,19 +95,19 @@ test.describe(`Versioned State Capture - v${VERSION}`, () => {
       }
       return text;
     });
-    
+
     // Save terminal buffer as text
     const bufferPath = path.join(ARTIFACT_DIR, 'web/terminal-captures', `terminal-buffer-${timestamp}.txt`);
     fs.writeFileSync(bufferPath, terminalText, 'utf-8');
     console.log(`✓ Saved: web/terminal-captures/terminal-buffer-${timestamp}.txt`);
-    
+
     // 3b. Screenshot of running state
     await page.screenshot({
       path: path.join(ARTIFACT_DIR, 'web/screenshots', `dungeon-running-${timestamp}.png`),
       fullPage: true
     });
     console.log(`✓ Saved: web/screenshots/dungeon-running-${timestamp}.png`);
-    
+
     // 3c. Terminal-only screenshot
     await ptyTerminal.screenshot({
       path: path.join(ARTIFACT_DIR, 'web/screenshots', `terminal-only-${timestamp}.png`)
@@ -123,7 +123,7 @@ test.describe(`Versioned State Capture - v${VERSION}`, () => {
       hasEntities: terminalText.includes('Entities') || terminalText.includes('Entity'),
       hasGameState: terminalText.includes('Game State') || terminalText.includes('initializing')
     };
-    
+
     // Save verification results
     const verificationPath = path.join(ARTIFACT_DIR, 'web/logs', `verification-${timestamp}.json`);
     const verificationData = {
@@ -136,7 +136,7 @@ test.describe(`Versioned State Capture - v${VERSION}`, () => {
     };
     fs.writeFileSync(verificationPath, JSON.stringify(verificationData, null, 2), 'utf-8');
     console.log(`✓ Saved: web/logs/verification-${timestamp}.json`);
-    
+
     // === 5. SUMMARY ===
     console.log('\n=== Capture Summary ===');
     console.log(`Version: ${VERSION}`);
@@ -149,7 +149,7 @@ test.describe(`Versioned State Capture - v${VERSION}`, () => {
     console.log('\n=== Terminal Content Preview ===');
     console.log(terminalText.substring(0, 500));
     console.log('===\n');
-    
+
     // Assertions
     expect(checks.hasTitle).toBe(true);
     expect(checks.hasGameplay).toBe(true);
@@ -157,26 +157,26 @@ test.describe(`Versioned State Capture - v${VERSION}`, () => {
 
   test('capture longer session with state changes', async ({ page }) => {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    
+
     await page.goto('http://localhost:4321/demo/');
     await page.waitForLoadState('networkidle');
-    
+
     const ptyTerminal = page.locator('#pty-terminal');
     await expect(ptyTerminal).toBeVisible({ timeout: 10000 });
-    
+
     console.log('\n=== Capturing 30-second session ===');
-    
+
     // Capture screenshots at intervals
     const intervals = [5, 10, 15, 20, 30];
     for (const seconds of intervals) {
       await page.waitForTimeout(seconds * 1000 - (intervals[intervals.indexOf(seconds) - 1] || 0) * 1000);
-      
+
       await page.screenshot({
         path: path.join(ARTIFACT_DIR, 'web/screenshots', `session-${seconds}s-${timestamp}.png`),
         fullPage: true
       });
       console.log(`✓ Captured state at ${seconds}s`);
-      
+
       // Capture terminal buffer
       const terminalText = await page.evaluate(() => {
         const term = window.__xterms && window.__xterms['pty-terminal'];
@@ -191,14 +191,14 @@ test.describe(`Versioned State Capture - v${VERSION}`, () => {
         }
         return text;
       });
-      
+
       fs.writeFileSync(
         path.join(ARTIFACT_DIR, 'web/terminal-captures', `buffer-${seconds}s-${timestamp}.txt`),
         terminalText,
         'utf-8'
       );
     }
-    
+
     console.log(`\n✓ Session capture complete for version ${VERSION}`);
     expect(true).toBe(true);
   });
