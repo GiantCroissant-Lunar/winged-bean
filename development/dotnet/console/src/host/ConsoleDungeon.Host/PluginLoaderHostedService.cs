@@ -87,8 +87,14 @@ public class PluginLoaderHostedService : IHostedService
                             continue;
                         }
 
-                        _logger.LogInformation("  → Loading manifest plugin: {PluginId}", pluginId);
-                        var plugin = await _pluginLoader.LoadAsync(pluginDir);
+                        // Resolve entry point path relative to manifest directory
+                        var entryPoint = manifest.EntryPoint?.Dotnet ?? $"./{manifest.Id}.dll";
+                        var assemblyPath = Path.GetFullPath(Path.Combine(pluginDir, entryPoint));
+                        
+                        _logger.LogInformation("  → Loading manifest plugin: {PluginId} from {AssemblyPath}", pluginId, assemblyPath);
+                        
+                        // Load plugin using resolved assembly path
+                        var plugin = await _pluginLoader.LoadAsync(assemblyPath);
                         loadedPlugins[pluginId] = plugin;
                         loadedById.Add(pluginId);
 

@@ -76,6 +76,10 @@ public class PluginManifest
     [JsonIgnore]
     public NuGetVersion SemanticVersion => VersionExtensions.ParseVersion(Version);
 
+    /// <summary>Runtime-resolved entry points (used by loaders, not serialized)</summary>
+    [JsonIgnore]
+    public Dictionary<string, string>? EntryPoints { get; set; }
+
     /// <summary>Check if this plugin is compatible with a host version</summary>
     public bool IsCompatibleWith(NuGetVersion hostVersion)
     {

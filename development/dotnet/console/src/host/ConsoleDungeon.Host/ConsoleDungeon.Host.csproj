@@ -15,6 +15,9 @@
     <!-- Contracts for Terminal apps -->
     <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Terminal/WingedBean.Contracts.Terminal.csproj" />
     <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Game/WingedBean.Contracts.Game.csproj" />
+    <!-- Additional shared contracts for plugins (RFC-0037) -->
+    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Scene/WingedBean.Contracts.Scene.csproj" />
+    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Input/WingedBean.Contracts.Input.csproj" />
     <!-- New plugin system + ALC loader for hybrid discovery -->
     <ProjectReference Include="../../../../framework/src/WingedBean.PluginSystem/WingedBean.PluginSystem.csproj" />
     <ProjectReference Include="../WingedBean.Host.Console/WingedBean.Host.Console.csproj" />

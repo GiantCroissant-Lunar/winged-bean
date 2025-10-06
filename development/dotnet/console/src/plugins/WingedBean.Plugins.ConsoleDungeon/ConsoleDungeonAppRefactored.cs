@@ -68,11 +68,14 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IRegistryAware, IDispos
         _registry = registry;
         
         // Resolve configuration from registry (registered by host)
-        _config = registry.TryGet<TerminalAppConfig>()
-            ?? new TerminalAppConfig { Name = "Console Dungeon", Cols = 80, Rows = 24 };
+        _config = registry.IsRegistered<TerminalAppConfig>()
+            ? registry.Get<TerminalAppConfig>()
+            : new TerminalAppConfig { Name = "Console Dungeon", Cols = 80, Rows = 24 };
         
         // Try to resolve game service from registry
-        _gameService = registry.TryGet<IDungeonGameService>();
+        _gameService = registry.IsRegistered<IDungeonGameService>()
+            ? registry.Get<IDungeonGameService>()
+            : null;
         
         Diag($"SetRegistry called: config={_config?.Name}, gameService={_gameService != null}");
     }
