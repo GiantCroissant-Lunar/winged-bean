@@ -16,12 +16,31 @@
 
   <ItemGroup>
     <ProjectReference Include="../../../../framework/src/WingedBean.PluginSystem/WingedBean.PluginSystem.csproj" />
-    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Terminal/WingedBean.Contracts.Terminal.csproj" />
-    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Core/WingedBean.Contracts.Core.csproj" />
-    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Game/WingedBean.Contracts.Game.csproj" />
+    <ProjectReference Include="../../../../framework/src/WingedBean.Registry/WingedBean.Registry.csproj" />
+
+    <!-- Shared contracts: Compile-time reference, runtime from Default ALC (RFC-0037) -->
+    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Terminal/WingedBean.Contracts.Terminal.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
+    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Core/WingedBean.Contracts.Core.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
+    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Game/WingedBean.Contracts.Game.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\framework\src\WingedBean.Contracts.Scene\WingedBean.Contracts.Scene.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\framework\src\WingedBean.Contracts.Input\WingedBean.Contracts.Input.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
+
     <ProjectReference Include="../../../../framework/src/WingedBean.SourceGenerators.Proxy/WingedBean.SourceGenerators.Proxy.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    <ProjectReference Include="..\..\..\..\framework\src\WingedBean.Contracts.Scene\WingedBean.Contracts.Scene.csproj" />
-    <ProjectReference Include="..\..\..\..\framework\src\WingedBean.Contracts.Input\WingedBean.Contracts.Input.csproj" />
   </ItemGroup>
 
   <ItemGroup>

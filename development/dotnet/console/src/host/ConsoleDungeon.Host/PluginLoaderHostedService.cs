@@ -87,8 +87,14 @@ public class PluginLoaderHostedService : IHostedService
                             continue;
                         }
 
-                        _logger.LogInformation("  → Loading manifest plugin: {PluginId}", pluginId);
-                        var plugin = await _pluginLoader.LoadAsync(pluginDir);
+                        // Resolve entry point path relative to manifest directory
+                        var entryPoint = manifest.EntryPoint?.Dotnet ?? $"./{manifest.Id}.dll";
+                        var assemblyPath = Path.GetFullPath(Path.Combine(pluginDir, entryPoint));
+                        
+                        _logger.LogInformation("  → Loading manifest plugin: {PluginId} from {AssemblyPath}", pluginId, assemblyPath);
+                        
+                        // Load plugin using resolved assembly path
+                        var plugin = await _pluginLoader.LoadAsync(assemblyPath);
                         loadedPlugins[pluginId] = plugin;
                         loadedById.Add(pluginId);
 
@@ -217,13 +223,21 @@ public class PluginLoaderHostedService : IHostedService
         int pluginPriority,
         CancellationToken cancellationToken)
     {
-        // Set registry on plugin BEFORE activation (required for OnActivateAsync)
-        var setRegistryMethod = plugin.GetType().GetMethod(
-            "SetRegistry",
-            BindingFlags.Instance | BindingFlags.Public);
-        if (setRegistryMethod != null)
+        // Set registry on plugin BEFORE activation - RFC-0038: Use IRegistryAware
+        if (plugin is IRegistryAware registryAware)
         {
-            setRegistryMethod.Invoke(plugin, new object[] { _registry });
+            registryAware.SetRegistry(_registry);
+        }
+        else
+        {
+            // Fallback to reflection for plugins not yet updated
+            var setRegistryMethod = plugin.GetType().GetMethod(
+                "SetRegistry",
+                BindingFlags.Instance | BindingFlags.Public);
+            if (setRegistryMethod != null)
+            {
+                setRegistryMethod.Invoke(plugin, new object[] { _registry });
+            }
         }
 
         // Activate plugin (if it implements IPlugin)
@@ -235,16 +249,24 @@ public class PluginLoaderHostedService : IHostedService
         {
             var implType = service.GetType();
 
-            // If service has SetRegistry(IRegistry), inject the runtime registry
-            try
+            // If service has SetRegistry(IRegistry), inject the runtime registry - RFC-0038
+            if (service is IRegistryAware serviceRegistryAware)
             {
-                var setReg = implType.GetMethod("SetRegistry", BindingFlags.Instance | BindingFlags.Public);
-                if (setReg != null && setReg.GetParameters().Length == 1 && setReg.GetParameters()[0].ParameterType == typeof(IRegistry))
-                {
-                    setReg.Invoke(service, new object[] { _registry });
-                }
+                serviceRegistryAware.SetRegistry(_registry);
             }
-            catch { }
+            else
+            {
+                // Fallback to reflection for services not yet updated
+                try
+                {
+                    var setReg = implType.GetMethod("SetRegistry", BindingFlags.Instance | BindingFlags.Public);
+                    if (setReg != null && setReg.GetParameters().Length == 1 && setReg.GetParameters()[0].ParameterType == typeof(IRegistry))
+                    {
+                        setReg.Invoke(service, new object[] { _registry });
+                    }
+                }
+                catch { }
+            }
 
             // Read optional [Plugin] attribute from the implementation class
             var pluginAttr = implType
@@ -287,16 +309,8 @@ public class PluginLoaderHostedService : IHostedService
             var instance = entry.instance;
             var priority = entry.priority;
 
-            // Use reflection to call IRegistry.Register<T>(T implementation, int priority)
-            var registerMethod = typeof(IRegistry).GetMethods()
-                .Where(m => m.Name == "Register" && m.IsGenericMethod)
-                .Where(m => m.GetParameters().Length == 2)
-                .Where(m => m.GetParameters()[0].ParameterType.IsGenericParameter)
-                .Where(m => m.GetParameters()[1].ParameterType == typeof(int))
-                .FirstOrDefault()
-                ?.MakeGenericMethod(contractType);
-
-            registerMethod?.Invoke(_registry, new object[] { instance, priority });
+            // Use RegistryHelper for type-safe registration (RFC-0038 Phase 2)
+            _registry.RegisterDynamic(contractType, instance, priority);
             _logger.LogDebug("      → Registered: {ContractType} (priority: {Priority})", contractType.Name, priority);
         }
     }

@@ -7,13 +7,30 @@ namespace WingedBean.Host.Console;
 
 /// <summary>
 /// AssemblyLoadContext-based plugin loader for Console profile (.NET)
-/// Supports hot-reload through collectible load contexts
+/// Supports hot-reload through collectible load contexts.
+/// Implements RFC-0037: Shared Contract Loading Strategy.
 /// </summary>
 public class AlcPluginLoader : IPluginLoader
 {
     private readonly Dictionary<string, AssemblyLoadContext> _loadContexts = new();
     private readonly Dictionary<string, LoadedPlugin> _loadedPlugins = new();
     private readonly ILogger<AlcPluginLoader>? _logger;
+
+    /// <summary>
+    /// Shared contracts that should be loaded from Default ALC (RFC-0037).
+    /// These contracts are loaded once and shared across all plugins.
+    /// </summary>
+    private static readonly HashSet<string> SharedContracts = new()
+    {
+        "WingedBean.Contracts.Core",      // Foundation: IRegistry, IPluginLoader, IPlugin
+        "WingedBean.Contracts.Hosting",   // Host lifecycle: IWingedBeanApp, IWingedBeanHost
+        "WingedBean.Contracts.Terminal",  // Terminal apps: ITerminalApp
+        "WingedBean.Contracts.UI",        // UI abstraction: IUIApp
+        "WingedBean.Contracts.Game",      // Game core: IDungeonGameService, IRenderService
+        "WingedBean.Contracts.ECS",       // ECS core: IECSService, IWorld, IEntity
+        "WingedBean.Contracts.Input",     // Input system: IInputMapper, IInputRouter
+        "WingedBean.Contracts.Scene"      // Scene system: ISceneService
+    };
 
     /// <summary>
     /// Initialize ALC plugin loader
@@ -65,23 +82,43 @@ public class AlcPluginLoader : IPluginLoader
 
             alc.Resolving += (ctx, name) =>
             {
-                // Try resolver first (uses .deps.json if present)
+                // 1. Try shared contracts from Default ALC first (RFC-0037)
+                if (SharedContracts.Contains(name.Name ?? ""))
+                {
+                    var sharedAssembly = AssemblyLoadContext.Default.Assemblies
+                        .FirstOrDefault(a => a.GetName().Name == name.Name);
+                    
+                    if (sharedAssembly != null)
+                    {
+                        _logger?.LogDebug(
+                            "Resolved {AssemblyName} from Default ALC (shared contract)", 
+                            name.Name);
+                        return sharedAssembly;
+                    }
+                    
+                    _logger?.LogWarning(
+                        "Shared contract {AssemblyName} not found in Default ALC, " +
+                        "falling back to plugin-local resolution", 
+                        name.Name);
+                }
+
+                // 2. Try resolver for non-shared assemblies (uses .deps.json if present)
                 var resolvedPath = resolver.ResolveAssemblyToPath(name);
                 if (!string.IsNullOrEmpty(resolvedPath) && File.Exists(resolvedPath))
                 {
-                    _logger?.LogDebug("Resolved {AssemblyName} via resolver: {Path}", name, resolvedPath);
+                    _logger?.LogDebug("Resolved {AssemblyName} via resolver: {Path}", name.Name, resolvedPath);
                     return ctx.LoadFromAssemblyPath(resolvedPath);
                 }
 
-                // Fallback to same directory as plugin entry assembly
+                // 3. Fallback to same directory as plugin entry assembly
                 var candidate = Path.Combine(pluginDir, name.Name + ".dll");
                 if (File.Exists(candidate))
                 {
-                    _logger?.LogDebug("Resolved {AssemblyName} via plugin dir: {Path}", name, candidate);
+                    _logger?.LogDebug("Resolved {AssemblyName} via plugin dir: {Path}", name.Name, candidate);
                     return ctx.LoadFromAssemblyPath(candidate);
                 }
 
-                _logger?.LogDebug("Failed to resolve dependency {AssemblyName} for {PluginId}", name, manifest.Id);
+                _logger?.LogDebug("Failed to resolve dependency {AssemblyName} for {PluginId}", name.Name, manifest.Id);
                 return null;
             };
 
