@@ -1,11 +1,11 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "opencode/grok-code",
+  "model": "opencode/claude-sonnet-4",
   "agent": {
     "rfc-implementer": {
       "description": "Implements RFCs following Winged Bean conventions",
       "mode": "subagent",
-      "model": "opencode/grok-code",
+      "model": "opencode/claude-sonnet-4",
       "tools": {
         "write": true,
         "edit": true,
@@ -16,7 +16,7 @@
     "test-writer": {
       "description": "Writes xUnit tests for .NET projects",
       "mode": "subagent",
-      "model": "opencode/grok-code",
+      "model": "opencode/claude-sonnet-4",
       "tools": {
         "write": true,
         "edit": true,
@@ -26,7 +26,7 @@
     "security-auditor": {
       "description": "Audits code for security issues",
       "mode": "subagent",
-      "model": "opencode/grok-code",
+      "model": "opencode/claude-sonnet-4",
       "tools": {
         "read": true
       }
@@ -34,7 +34,7 @@
     "doc-writer": {
       "description": "Creates and updates documentation",
       "mode": "subagent",
-      "model": "opencode/grok-code",
+      "model": "opencode/claude-sonnet-4",
       "tools": {
         "write": true,
         "edit": true,
@@ -44,7 +44,7 @@
     "build-helper": {
       "description": "Assists with build pipeline and Task commands",
       "mode": "subagent",
-      "model": "opencode/grok-code",
+      "model": "opencode/claude-sonnet-4",
       "tools": {
         "bash": true,
         "read": true
@@ -53,7 +53,7 @@
     "issue-manager": {
       "description": "Creates and manages GitHub issues",
       "mode": "subagent",
-      "model": "opencode/grok-code",
+      "model": "opencode/claude-sonnet-4",
       "tools": {
         "write": true,
         "read": true
