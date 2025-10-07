@@ -1,0 +1,96 @@
+---
+# OpenCode Agent Command Routing
+# Triggers specific sub-agents based on command patterns
+name: OpenCode Agent Commands
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+
+concurrency:
+  group: opencode-agent-${{ github.event.issue.number || github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  route-agent:
+    name: Route to Sub-Agent
+    if: |
+      (github.event_name == 'issue_comment' || github.event_name == 'pull_request_review_comment') &&
+      contains(github.event.comment.body, '/opencode @')
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect agent and run OpenCode
+        uses: sst/opencode/github@latest
+        env:
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+        with:
+          model: opencode/grok-code
+          share: true
+
+      - name: Label based on agent
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.comment.body;
+            const labels = [];
+
+            // Map agents to labels
+            if (body.includes('@rfc-implementer')) labels.push('rfc', 'implementation');
+            if (body.includes('@test-writer')) labels.push('tests');
+            if (body.includes('@security-auditor')) labels.push('security', 'audit');
+            if (body.includes('@doc-writer')) labels.push('documentation');
+            if (body.includes('@build-helper')) labels.push('build', 'infrastructure');
+            if (body.includes('@issue-manager')) labels.push('project-management');
+
+            if (labels.length > 0 && context.eventName === 'issue_comment') {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: labels
+              });
+            }
+
+      - name: Comment on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.comment.body;
+            const agentMatch = body.match(/@(\w+-?\w+)/);
+            const agent = agentMatch ? agentMatch[1] : 'unknown';
+
+            const comment = `❌ OpenCode agent \`@${agent}\` execution failed.
+
+            Available agents:
+            - \`@rfc-implementer\` - Implement RFCs
+            - \`@test-writer\` - Write tests
+            - \`@security-auditor\` - Security audit
+            - \`@doc-writer\` - Create documentation
+            - \`@build-helper\` - Build assistance
+            - \`@issue-manager\` - Manage issues
+
+            Check [workflow logs](${context.payload.repository.html_url}/actions/runs/${context.runId}) for details.`;
+
+            if (context.eventName === 'issue_comment') {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment
+              });
+            }
