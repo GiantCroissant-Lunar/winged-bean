@@ -37,7 +37,7 @@ jobs:
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
         with:
-          model: opencode/grok-code
+          model: opencode/claude-sonnet-4
           share: true
 
       - name: Label based on agent

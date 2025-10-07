@@ -38,7 +38,7 @@ jobs:
           # Alternative: ANTHROPIC_API_KEY for Claude models
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
         with:
-          model: opencode/grok-code
+          model: opencode/claude-sonnet-4
           share: true
 
       - name: Comment on failure
