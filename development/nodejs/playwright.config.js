@@ -1,4 +1,54 @@
 const { defineConfig, devices } = require('@playwright/test');
+const path = require('path');
+const { execSync } = require('child_process');
+
+/**
+ * Get version from build system
+ */
+const getVersion = () => {
+  try {
+    const version = execSync('cd ../../build && ./get-version.sh', { encoding: 'utf-8' }).trim();
+    return version;
+  } catch (error) {
+    console.warn('Could not get version, using default:', error.message);
+    return '0.0.1-dev';
+  }
+};
+
+/**
+ * Get output directories based on environment
+ * - In CI or with ARTIFACT_OUTPUT=1: Use versioned artifacts
+ * - In development: Use local directories (for quick iteration)
+ */
+const getOutputDirs = () => {
+  const useArtifacts = process.env.CI || process.env.ARTIFACT_OUTPUT === '1';
+
+  if (useArtifacts) {
+    const version = getVersion();
+    const artifactBase = path.join(__dirname, '../../build/_artifacts', `v${version}`, 'web');
+    return {
+      reportDir: path.join(artifactBase, 'test-reports'),
+      resultsDir: path.join(artifactBase, 'test-results'),
+      artifactBase
+    };
+  }
+
+  // Development mode - use local directories
+  return {
+    reportDir: 'playwright-report',
+    resultsDir: 'test-results',
+    artifactBase: null
+  };
+};
+
+const outputDirs = getOutputDirs();
+
+console.log('Playwright output configuration:');
+console.log(`  Report: ${outputDirs.reportDir}`);
+console.log(`  Results: ${outputDirs.resultsDir}`);
+if (outputDirs.artifactBase) {
+  console.log(`  Using versioned artifacts at: ${outputDirs.artifactBase}`);
+}
 
 /**
  * Playwright configuration for Terminal.Gui PTY visual testing
@@ -16,9 +66,12 @@ module.exports = defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: 1, // Single worker to avoid PTY conflicts
 
+  // Output directories
+  outputDir: outputDirs.resultsDir,
+
   // Reporter configuration
   reporter: [
-    ['html', { outputFolder: 'playwright-report' }],
+    ['html', { outputFolder: outputDirs.reportDir }],
     ['list']
   ],
 
