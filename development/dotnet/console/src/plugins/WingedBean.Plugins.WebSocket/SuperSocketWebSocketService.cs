@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Plate.PluginManoi.Contracts;
 using Plate.CrossMilo.Contracts.WebSocket.Services;
 using Plate.CrossMilo.Contracts.WebSocket;
+using IService = Plate.CrossMilo.Contracts.WebSocket.Services.IService;
 
 namespace WingedBean.Plugins.WebSocket;
 

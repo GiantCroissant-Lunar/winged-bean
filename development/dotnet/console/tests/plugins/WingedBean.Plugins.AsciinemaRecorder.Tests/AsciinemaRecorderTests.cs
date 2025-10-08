@@ -2,6 +2,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Plate.CrossMilo.Contracts.Recorder;
 using Xunit;
+using IRecorder = Plate.CrossMilo.Contracts.Recorder.Services.IService;
 
 namespace WingedBean.Plugins.AsciinemaRecorder.Tests;
 

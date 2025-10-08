@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Plate.CrossMilo.Contracts.TerminalUI.Services;
 using Plate.CrossMilo.Contracts.TerminalUI;
 using Plate.PluginManoi.Core;
+using ITerminalUIService = Plate.CrossMilo.Contracts.TerminalUI.Services.IService;
 
 namespace WingedBean.Plugins.TerminalUI;
 
