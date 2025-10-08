@@ -5,10 +5,9 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
-using WingedBean.Contracts.Core;
-using WingedBean.PluginLoader;
-using WingedBean.Providers.AssemblyContext;
-using WingedBean.Registry;
+using Plate.PluginManoi.Registry;
+using Plate.PluginManoi.Loader;
+using Plate.PluginManoi.Loader.AssemblyContext;
 using Xunit;
 
 namespace ConsoleDungeon.Host.Tests;

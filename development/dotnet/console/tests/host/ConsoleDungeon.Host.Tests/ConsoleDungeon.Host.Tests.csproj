@@ -28,9 +28,13 @@
   <ItemGroup>
     <ProjectReference Include="../../../src/host/ConsoleDungeon.Host/ConsoleDungeon.Host.csproj" />
     <ProjectReference Include="../../../src/plugins/WingedBean.Plugins.ConsoleDungeon/WingedBean.Plugins.ConsoleDungeon.csproj" />
-    <ProjectReference Include="../../../framework/src/WingedBean.Contracts.Core/WingedBean.Contracts.Core.csproj" />
-    <ProjectReference Include="../../../framework/src/WingedBean.Contracts.Game/WingedBean.Contracts.Game.csproj" />
-    <ProjectReference Include="../../../framework/src/WingedBean.Contracts.ECS/WingedBean.Contracts.ECS.csproj" />
+    <ProjectReference Include="../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Contracts/PluginManoi.Contracts.csproj" />
+    <ProjectReference Include="../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Registry/PluginManoi.Registry.csproj" />
+    <ProjectReference Include="../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Loader/PluginManoi.Loader.csproj" />
+    <ProjectReference Include="../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Game/CrossMilo.Contracts.Game.csproj" />
+    <ProjectReference Include="../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.ECS/CrossMilo.Contracts.ECS.csproj" />
+    <ProjectReference Include="../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.UI/CrossMilo.Contracts.UI.csproj" />
+    <ProjectReference Include="../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Terminal/CrossMilo.Contracts.Terminal.csproj" />
   </ItemGroup>
 
 </Project>

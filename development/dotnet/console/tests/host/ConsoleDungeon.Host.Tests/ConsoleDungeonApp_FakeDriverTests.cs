@@ -6,13 +6,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
+using Plate.CrossMilo.Contracts.ECS;
+using Plate.CrossMilo.Contracts.Game;
+using Plate.CrossMilo.Contracts.Game.Dungeon;
+using Plate.CrossMilo.Contracts.Game.GameUI;
+using Plate.CrossMilo.Contracts.Game.Render;
+using Plate.PluginManoi.Contracts;
+using Plate.PluginManoi.Registry;
 using Terminal.Gui;
-using WingedBean.Contracts.Terminal;
-using WingedBean.Contracts.Core;
-using WingedBean.Contracts.Game;
-using WingedBean.Contracts.ECS;
-using WingedBean.Registry;
 using Xunit;
+using IDungeonGameService = Plate.CrossMilo.Contracts.Game.Dungeon.IService;
+using IRenderService = Plate.CrossMilo.Contracts.Game.Render.IService;
+using IGameUIService = Plate.CrossMilo.Contracts.Game.GameUI.IService;
 
 namespace ConsoleDungeon.Host.Tests
 {
