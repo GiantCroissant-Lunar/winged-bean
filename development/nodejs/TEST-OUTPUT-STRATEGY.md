@@ -2,11 +2,22 @@
 
 ## Overview
 
-Test results and reports should be generated in **versioned artifact directories**, not in the source tree. This ensures:
-- Clean source directories
-- Versioned test results for comparison
-- Proper CI/CD artifact collection
-- No git pollution from test runs
+**All tests run against versioned artifacts** - there is no separate "dev mode" or "CI mode". This ensures:
+- Consistency: Same test path for everyone
+- Reality check: Test what actually gets deployed
+- Simplicity: No mode switching logic
+- Reliability: Catch artifact-specific issues early
+
+## Philosophy
+
+> "Test the artifacts, not the source tree"
+
+Whether you're developing locally or running in CI, tests always run against the built artifacts in `build/_artifacts/v{VERSION}/`. This means:
+
+1. Build first, then test
+2. Test results are versioned alongside artifacts
+3. No confusion about what was tested
+4. True end-to-end validation
 
 ## Directory Structure
 
@@ -16,7 +27,7 @@ build/_artifacts/
     web/
       test-reports/         # Playwright HTML reports
       test-results/         # Test artifacts (traces, videos, screenshots)
-      dist/                 # Built web assets
+      dist/                 # Built web assets (what we test)
       recordings/           # Asciinema recordings
       logs/                 # Build logs
     dotnet/
@@ -29,100 +40,135 @@ build/_artifacts/
 
 ## Usage
 
-### Development Mode (Default)
+### Standard Workflow
 
-For quick iteration during development, tests output to local directories:
+```bash
+cd build
+
+# Build artifacts first
+task build-all
+
+# Test the artifacts
+task test-e2e
+```
+
+That's it! No flags, no modes, no confusion.
+
+### Quick Iteration
+
+During active development, you can rebuild and test in one command:
+
+```bash
+cd build
+task build-all && task test-e2e
+```
+
+Or use the CI task that does both:
+
+```bash
+cd build
+task ci    # Builds, then tests
+```
+
+### Direct Test Invocation
+
+If artifacts are already built:
 
 ```bash
 cd development/nodejs
 pnpm test:e2e
 ```
 
-Results go to:
-- `development/nodejs/playwright-report/`
-- `development/nodejs/test-results/`
+The playwright config automatically detects the version and points to the correct artifact directory.
 
-These are `.gitignore`d and meant for local use only.
+## How It Works
 
-### CI/Production Mode
-
-For CI or formal test runs, use artifact output:
-
-```bash
-cd build
-task test-e2e              # Runs with ARTIFACT_OUTPUT=1
-```
-
-Results go to:
-- `build/_artifacts/v{VERSION}/web/test-reports/`
-- `build/_artifacts/v{VERSION}/web/test-results/`
-
-### Manual Artifact Output
-
-You can also manually enable artifact output:
-
-```bash
-cd development/nodejs
-ARTIFACT_OUTPUT=1 pnpm test:e2e
-```
-
-## Configuration
-
-The `playwright.config.js` detects the mode automatically:
+The `playwright.config.js` always points to versioned artifacts:
 
 ```javascript
-const useArtifacts = process.env.CI || process.env.ARTIFACT_OUTPUT === '1';
+const version = getVersion();  // e.g., "0.0.1-376"
+const artifactBase = path.join(__dirname, '../../build/_artifacts', `v${version}`, 'web');
+
+// Test reports and results go here
+const outputDirs = {
+  reportDir: path.join(artifactBase, 'test-reports'),
+  resultsDir: path.join(artifactBase, 'test-results'),
+};
 ```
 
-### Environment Variables
-
-- `CI=true` - Automatically uses artifact output (set by CI systems)
-- `ARTIFACT_OUTPUT=1` - Manually enable artifact output
-- No flags - Development mode (local directories)
+No environment variables needed. No mode switching. Just version detection.
 
 ## Benefits
 
-1. **Clean Source Tree**: No test artifacts in version control
-2. **Versioned Results**: Each build version has its own test results
-3. **Easy Comparison**: Compare test results across versions
-4. **CI-Friendly**: Artifact directories can be uploaded/archived
-5. **Deterministic**: Test results are tied to specific code versions
+1. **Consistency**: Everyone tests the same way
+2. **Reliability**: Tests validate actual deployable artifacts
+3. **Simplicity**: One path, no conditionals
+4. **Traceability**: Test results are versioned with artifacts
+5. **Debugging**: Easy to reproduce issues with specific versions
+6. **CI-Ready**: No special CI configuration needed
 
 ## Task Commands
 
 From `build/` directory:
 
 ```bash
-task test-e2e        # Run E2E tests with artifact output (CI mode)
-task test-e2e-dev    # Run E2E tests with local output (dev mode)
-task ci              # Full CI pipeline (includes test-e2e)
+task build-all     # Build all artifacts
+task test-e2e      # Test the artifacts (requires build-all first)
+task ci            # Full pipeline: build + test
 ```
+
+## What About Source Changes?
+
+If you change source code, you must rebuild before testing:
+
+```bash
+# Change some code
+cd build
+task build-all     # Rebuild artifacts
+task test-e2e      # Test new artifacts
+```
+
+This might seem slower, but it's the **correct** way because:
+- You catch build issues immediately
+- You test what actually runs in production
+- You avoid "works on my machine" problems
+- You ensure the build process is fast enough
 
 ## Git Ignore
 
-Local test directories are ignored:
+Test results are ignored since they're in the build artifacts directory:
 
 ```gitignore
-# Test results and reports (should be in versioned artifacts)
-playwright-report/
-test-results/
-*.log
-```
-
-Artifact directories are also ignored as they're build outputs:
-
-```gitignore
-# Build artifacts
+# Build artifacts (includes test results)
 build/_artifacts/
 ```
 
+The source tree stays clean - no test reports or results checked in.
+
 ## Migration Notes
 
-If you have existing test results in the source tree:
+If you have local test directories from before:
 
-1. They will be ignored by git after this change
-2. Clean them manually: `rm -rf playwright-report test-results`
-3. Use `task test-e2e` for future test runs
+```bash
+cd development/nodejs
+rm -rf playwright-report test-results
+```
+
+Then always use `task test-e2e` from the build directory.
+
+## FAQ
+
+**Q: Can I test without building?**  
+A: No. Tests run against artifacts. No artifacts = no tests. Use `task build-all` first.
+
+**Q: This seems slower than testing source directly?**  
+A: Yes, but it's correct. Make your build fast instead. That benefits everyone.
+
+**Q: What if I'm iterating quickly on a test?**  
+A: Still rebuild. A fast build system (< 10s) makes this painless. Fix the build, not the workflow.
+
+**Q: Why not support both modes?**  
+A: Complexity kills. One path = less bugs, better reliability, clearer intent.
 
 ## Related
 

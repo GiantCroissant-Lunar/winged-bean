@@ -87,8 +87,3 @@ public
 # Temporary folders
 tmp/
 temp/
-
-# Test results and reports (should be in versioned artifacts)
-playwright-report/
-test-results/
-*.log

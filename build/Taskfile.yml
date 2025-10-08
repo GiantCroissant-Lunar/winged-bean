@@ -138,19 +138,11 @@ tasks:
       - task: nodejs:test
 
   test-e2e:
-    desc: "Run E2E tests with output to versioned artifacts"
-    deps: [init-dirs]
+    desc: "Run E2E tests against versioned artifacts"
+    deps: [init-dirs, build-all]
     dir: ../development/nodejs
     cmds:
-      - echo "Running E2E tests with ARTIFACT_OUTPUT=1"
-      - echo "Results will be saved to {{.ARTIFACT_DIR}}/web/test-reports"
-      - ARTIFACT_OUTPUT=1 pnpm test:e2e
-
-  test-e2e-dev:
-    desc: "Run E2E tests in development mode (local output)"
-    dir: ../development/nodejs
-    cmds:
-      - echo "Running E2E tests in development mode"
+      - echo "Testing versioned artifacts at {{.ARTIFACT_DIR}}/web"
       - pnpm test:e2e
 
   verify:pty:

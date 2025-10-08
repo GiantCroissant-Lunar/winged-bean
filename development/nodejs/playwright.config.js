@@ -16,39 +16,22 @@ const getVersion = () => {
 };
 
 /**
- * Get output directories based on environment
- * - In CI or with ARTIFACT_OUTPUT=1: Use versioned artifacts
- * - In development: Use local directories (for quick iteration)
+ * ALWAYS test versioned artifacts - same path for dev and CI
+ * This ensures we test what actually gets deployed
  */
-const getOutputDirs = () => {
-  const useArtifacts = process.env.CI || process.env.ARTIFACT_OUTPUT === '1';
-
-  if (useArtifacts) {
-    const version = getVersion();
-    const artifactBase = path.join(__dirname, '../../build/_artifacts', `v${version}`, 'web');
-    return {
-      reportDir: path.join(artifactBase, 'test-reports'),
-      resultsDir: path.join(artifactBase, 'test-results'),
-      artifactBase
-    };
-  }
-
-  // Development mode - use local directories
-  return {
-    reportDir: 'playwright-report',
-    resultsDir: 'test-results',
-    artifactBase: null
-  };
+const version = getVersion();
+const artifactBase = path.join(__dirname, '../../build/_artifacts', `v${version}`, 'web');
+const outputDirs = {
+  reportDir: path.join(artifactBase, 'test-reports'),
+  resultsDir: path.join(artifactBase, 'test-results'),
+  artifactBase
 };
 
-const outputDirs = getOutputDirs();
-
-console.log('Playwright output configuration:');
-console.log(`  Report: ${outputDirs.reportDir}`);
-console.log(`  Results: ${outputDirs.resultsDir}`);
-if (outputDirs.artifactBase) {
-  console.log(`  Using versioned artifacts at: ${outputDirs.artifactBase}`);
-}
+console.log('Playwright Test Configuration:');
+console.log(`  Version: ${version}`);
+console.log(`  Testing artifacts at: ${artifactBase}`);
+console.log(`  Test reports: ${outputDirs.reportDir}`);
+console.log(`  Test results: ${outputDirs.resultsDir}`);
 
 /**
  * Playwright configuration for Terminal.Gui PTY visual testing
