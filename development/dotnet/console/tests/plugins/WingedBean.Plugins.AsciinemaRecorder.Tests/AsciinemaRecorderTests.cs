@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Plate.CrossMilo.Contracts.Recorder;
+using Plate.CrossMilo.Contracts.Recorder.Services;
 using Xunit;
 using IRecorder = Plate.CrossMilo.Contracts.Recorder.Services.IService;
 

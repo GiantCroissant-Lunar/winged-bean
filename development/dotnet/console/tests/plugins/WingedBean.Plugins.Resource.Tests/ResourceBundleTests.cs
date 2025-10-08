@@ -4,6 +4,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Plate.CrossMilo.Contracts.Resource;
+using IResourceService = Plate.CrossMilo.Contracts.Resource.Services.IService;
 using Xunit;
 
 namespace WingedBean.Plugins.Resource.Tests;

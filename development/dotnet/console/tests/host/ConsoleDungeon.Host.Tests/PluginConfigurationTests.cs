@@ -1,5 +1,6 @@
 using System.Text.Json;
 using FluentAssertions;
+using Plate.PluginManoi.Core;
 using Xunit;
 
 namespace ConsoleDungeon.Host.Tests;
@@ -76,7 +77,7 @@ public class PluginConfigurationTests
         plugin1.Metadata["author"].Should().Be("WingedBean");
         plugin1.Metadata["version"].Should().Be("1.0.0");
         plugin1.Dependencies.Should().NotBeNull();
-        plugin1.Dependencies.Should().Contain("wingedbean.contracts.core");
+        plugin1.Dependencies!.Plugins.Should().Contain("wingedbean.contracts.core");
 
         var plugin2 = config.Plugins[1];
         plugin2.Id.Should().Be("wingedbean.plugins.websocket");
@@ -109,7 +110,7 @@ public class PluginConfigurationTests
                     {
                         { "description", "Test plugin" }
                     },
-                    Dependencies = new List<string> { "dep1" }
+                    Dependencies = new PluginDependencies { Plugins = new List<string> { "dep1" } }
                 }
             }
         };
@@ -153,7 +154,7 @@ public class PluginConfigurationTests
                         { "key1", "value1" },
                         { "key2", "value2" }
                     },
-                    Dependencies = new List<string> { "dep1", "dep2" }
+                    Dependencies = new PluginDependencies { Plugins = new List<string> { "dep1", "dep2" } }
                 },
                 new PluginDescriptor
                 {

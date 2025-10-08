@@ -12,6 +12,7 @@ using WingedBean.Plugins.ArchECS;
 using WingedBean.Plugins.DungeonGame;
 using DungeonComponents = WingedBean.Plugins.DungeonGame.Components;
 using Xunit;
+using IECSService = Plate.CrossMilo.Contracts.ECS.Services.IService;
 
 namespace WingedBean.Plugins.DungeonGame.Tests;
 

@@ -1,5 +1,6 @@
 using FluentAssertions;
-using WingedBean.Contracts.TerminalUI;
+using Plate.CrossMilo.Contracts.TerminalUI;
+using ITerminalUIService = Plate.CrossMilo.Contracts.TerminalUI.Services.IService;
 using WingedBean.Plugins.TerminalUI;
 using Xunit;
 

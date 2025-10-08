@@ -27,7 +27,8 @@ public class TerminalUIPlugin : IPlugin
 
     public Task OnDeactivateAsync(CancellationToken ct = default)
     {
-        _serviceInstance?.Shutdown();
+        // Shutdown is handled by Application.RequestStop() in UI menu
+        // _serviceInstance?.Shutdown(); // Method removed from IService interface
         return Task.CompletedTask;
     }
 
