@@ -1,6 +1,8 @@
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
-using WingedBean.Contracts.Diagnostics;
+using Plate.CrossMilo.Contracts.Diagnostics;
+using Plate.CrossMilo.Contracts.Diagnostics.Services;
+using BreadcrumbLevel = Plate.CrossMilo.Contracts.Diagnostics.BreadcrumbLevel;
 using Xunit;
 
 namespace WingedBean.Plugins.Diagnostics.Tests;

@@ -1,0 +1,41 @@
+{
+  "id": "wingedbean.plugins.analytics",
+  "version": "1.0.0",
+  "name": "Analytics Service",
+  "description": "Analytics and metrics tracking service for Console profile",
+  "author": "WingedBean Team",
+  "license": "MIT",
+
+  "entryPoint": {
+    "dotnet": "./WingedBean.Plugins.Analytics.dll",
+    "nodejs": null,
+    "unity": null,
+    "godot": "./WingedBean.Plugins.Analytics.dll"
+  },
+
+  "dependencies": {
+    "plugins": [],
+    "nuget": []
+  },
+
+  "exports": {
+    "services": [
+      {
+        "interface": "Plate.CrossMilo.Contracts.Analytics.Services.IService",
+        "implementation": "WingedBean.Plugins.Analytics.AnalyticsService",
+        "lifecycle": "singleton"
+      }
+    ]
+  },
+
+  "capabilities": [
+    "analytics",
+    "metrics-tracking",
+    "event-tracking"
+  ],
+
+  "supportedProfiles": ["console", "godot"],
+
+  "loadStrategy": "eager",
+  "priority": 100
+}

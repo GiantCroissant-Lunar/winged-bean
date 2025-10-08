@@ -1,0 +1,43 @@
+{
+  "id": "wingedbean.plugins.diagnostics",
+  "version": "1.0.0",
+  "name": "Diagnostics Service",
+  "description": "Diagnostics, tracing, and monitoring service for Console profile",
+  "author": "WingedBean Team",
+  "license": "MIT",
+
+  "entryPoint": {
+    "dotnet": "./WingedBean.Plugins.Diagnostics.dll",
+    "nodejs": null,
+    "unity": null,
+    "godot": "./WingedBean.Plugins.Diagnostics.dll"
+  },
+
+  "dependencies": {
+    "plugins": [],
+    "nuget": []
+  },
+
+  "exports": {
+    "services": [
+      {
+        "interface": "Plate.CrossMilo.Contracts.Diagnostics.Services.IService",
+        "implementation": "WingedBean.Plugins.Diagnostics.DiagnosticsService",
+        "lifecycle": "singleton"
+      }
+    ]
+  },
+
+  "capabilities": [
+    "diagnostics",
+    "tracing",
+    "monitoring",
+    "profiling",
+    "health-checks"
+  ],
+
+  "supportedProfiles": ["console", "godot"],
+
+  "loadStrategy": "eager",
+  "priority": 100
+}

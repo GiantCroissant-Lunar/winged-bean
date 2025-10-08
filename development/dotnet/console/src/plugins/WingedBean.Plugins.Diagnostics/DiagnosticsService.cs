@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Plate.CrossMilo.Contracts.Diagnostics.Services;
 using Plate.CrossMilo.Contracts.Diagnostics;
+using BreadcrumbLevel = Plate.CrossMilo.Contracts.Diagnostics.BreadcrumbLevel;
+using ThreadState = System.Threading.ThreadState;
 
 namespace WingedBean.Plugins.Diagnostics;
 
@@ -810,7 +812,9 @@ public class DiagnosticsService : IService
 
     private class NoOpProfiler : IOperationProfiler
     {
-        public void AddStep(string name, TimeSpan duration, Dictionary<string, object>? data = null) { }
+        public void AddStep(string stepName, Dictionary<string, object>? tags = null) { }
+        public void RecordMetric(string name, double value, string unit = "ms") { }
+        public ProfilingResult GetResult() => new ProfilingResult();
         public void Dispose() { }
     }
 
@@ -818,6 +822,9 @@ public class DiagnosticsService : IService
     {
         private readonly string _operationName;
         private readonly DiagnosticsService _service;
+        private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
+        private readonly List<ProfilingStep> _steps = new();
+        private readonly List<ProfilingMetric> _metrics = new();
 
         public OperationProfiler(string operationName, DiagnosticsService service)
         {
@@ -825,9 +832,40 @@ public class DiagnosticsService : IService
             _service = service;
         }
 
-        public void AddStep(string name, TimeSpan duration, Dictionary<string, object>? data = null)
+        public void AddStep(string stepName, Dictionary<string, object>? tags = null)
         {
-            _service.RecordTiming($"{_operationName}.{name}", duration, data);
+            _steps.Add(new ProfilingStep
+            {
+                Name = stepName,
+                StartOffset = _stopwatch.Elapsed,
+                Duration = TimeSpan.Zero,
+                Data = tags ?? new Dictionary<string, object>()
+            });
+        }
+
+        public void RecordMetric(string name, double value, string unit = "ms")
+        {
+            _metrics.Add(new ProfilingMetric
+            {
+                Name = name,
+                Value = value,
+                Unit = unit,
+                Timestamp = DateTimeOffset.UtcNow
+            });
+        }
+
+        public ProfilingResult GetResult()
+        {
+            _stopwatch.Stop();
+            return new ProfilingResult
+            {
+                OperationName = _operationName,
+                TotalDuration = _stopwatch.Elapsed,
+                Steps = _steps,
+                Metrics = _metrics,
+                StartTime = DateTimeOffset.UtcNow - _stopwatch.Elapsed,
+                EndTime = DateTimeOffset.UtcNow
+            };
         }
 
         public void Dispose()

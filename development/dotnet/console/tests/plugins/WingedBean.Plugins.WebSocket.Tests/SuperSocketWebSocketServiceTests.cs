@@ -1,6 +1,7 @@
 using FluentAssertions;
 using WingedBean.Plugins.WebSocket;
-using WingedBean.Contracts.WebSocket;
+using Plate.CrossMilo.Contracts.WebSocket.Services;
+using IService = Plate.CrossMilo.Contracts.WebSocket.Services.IService;
 using Xunit;
 
 namespace WingedBean.Plugins.WebSocket.Tests;
@@ -17,7 +18,7 @@ public class SuperSocketWebSocketServiceTests
         var service = new SuperSocketWebSocketService();
 
         // Assert
-        service.Should().BeAssignableTo<IWebSocketService>();
+        service.Should().BeAssignableTo<IService>();
     }
 
     [Fact]

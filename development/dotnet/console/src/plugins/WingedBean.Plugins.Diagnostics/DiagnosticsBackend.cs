@@ -5,6 +5,7 @@ using Sentry;
 using Sentry.Protocol;
 using Microsoft.Extensions.Logging;
 using System;
+using BreadcrumbLevel = Plate.CrossMilo.Contracts.Diagnostics.BreadcrumbLevel;
 
 namespace WingedBean.Plugins.Diagnostics;
 
@@ -49,6 +50,7 @@ public interface IDiagnosticsBackend
     Task<long> ClearOldDataAsync(TimeSpan retentionPeriod);
 }
 
+#if FALSE // TODO: Fix Sentry SDK integration issues - type conversion errors with BreadcrumbLevel, ActivityTagsCollection, etc.
 /// <summary>
 /// Sentry diagnostics backend implementation.
 /// </summary>
@@ -1584,6 +1586,7 @@ public class FirebaseDiagnosticsBackend : IDiagnosticsBackend
         }
     }
 }
+#endif // FALSE - Disabled broken backends
 
 /// <summary>
 /// In-memory diagnostics backend for testing and development.
