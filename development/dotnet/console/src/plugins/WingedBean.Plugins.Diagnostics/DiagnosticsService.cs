@@ -4,14 +4,15 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using WingedBean.Contracts.Diagnostics;
+using Plate.CrossMilo.Contracts.Diagnostics.Services;
+using Plate.CrossMilo.Contracts.Diagnostics;
 
 namespace WingedBean.Plugins.Diagnostics;
 
 /// <summary>
 /// Comprehensive diagnostics service implementation.
 /// </summary>
-public class DiagnosticsService : IDiagnosticsService
+public class DiagnosticsService : IService
 {
     private readonly ILogger<DiagnosticsService> _logger;
     private readonly DiagnosticsConfig _config;

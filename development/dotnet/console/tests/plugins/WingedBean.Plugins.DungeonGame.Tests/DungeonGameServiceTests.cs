@@ -5,7 +5,7 @@ using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using FluentAssertions;
-using WingedBean.Contracts.Core;
+using Plate.PluginManoi.Contracts;
 using Plate.CrossMilo.Contracts.ECS;
 using Plate.CrossMilo.Contracts.Game;
 using WingedBean.Plugins.ArchECS;

@@ -7,8 +7,9 @@ using Polly;
 using Polly.CircuitBreaker;
 using Polly.Retry;
 using Polly.Timeout;
-using WingedBean.Contracts.Core;
-using WingedBean.Contracts.Resilience;
+using Plate.PluginManoi.Contracts;
+using Plate.CrossMilo.Contracts.Resilience.Services;
+using Plate.CrossMilo.Contracts.Resilience;
 
 namespace WingedBean.Plugins.Resilience;
 
@@ -18,10 +19,10 @@ namespace WingedBean.Plugins.Resilience;
 /// </summary>
 [Plugin(
     Name = "PollyResilienceService",
-    Provides = new[] { typeof(IResilienceService) },
+    Provides = new[] { typeof(IService) },
     Priority = 100
 )]
-public class PollyResilienceService : IResilienceService
+public class PollyResilienceService : IService
 {
     private readonly ILogger<PollyResilienceService> _logger;
     private readonly ConcurrentDictionary<string, ResiliencePipeline> _pipelines = new();

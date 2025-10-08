@@ -118,6 +118,43 @@ This directory contains RFCs (Request for Comments) documenting major architectu
 
 ---
 
+### RFC-0040: Nuke Build Component Integration and Artifact Path Standardization
+**Status:** 📝 Proposed
+**Date:** 2025-01-08
+**Priority:** P1 (High)
+**Category:** infra, build, tooling, testing
+**Estimated Effort:** 6-8 hours
+
+**Summary:** Adopt `giantcroissant-lunar-build` Nuke build components for automatic test reporting, structured metrics collection, and multi-format report generation. Standardizes artifact path from `build/_artifacts/v{GitVersion}` to `build/_artifacts/{GitVersion}` for consistency with component configurations.
+
+**Key Actions:**
+- Standardize artifact paths (remove `v` prefix)
+- Create `build/nuke/build-config.json` for configuration-driven builds
+- Upgrade `Build.cs` to implement component interfaces (INfunReportComponent, IBuildConfigurationComponent)
+- Add component package references
+- Integrate CodeQualityReportProvider for automatic test metric collection
+- Update Taskfile.yml to delegate to Nuke targets
+
+**Benefits:**
+- ✅ Automatic test metric collection from TRX files
+- ✅ Structured JSON/XML/YAML/Markdown reports
+- ✅ Configuration-driven builds via build-config.json
+- ✅ Quality gates with configurable thresholds
+- ✅ Multi-format output via NFunReport
+- ✅ Consistent artifact paths across lunar-build projects
+- ✅ No manual test result parsing needed
+
+**Auto-Generated Outputs:**
+- `_artifacts/{GitVersion}/dotnet/test-results/` - TRX, HTML, coverage
+- `_artifacts/{GitVersion}/reports/components/codequality/testing-report.json` - Test metrics
+- `_artifacts/{GitVersion}/reports/aggregated-report.json` - Combined metrics
+
+**Reference Implementation:** `plate-projects/asset-inout/build/nuke`
+
+[Read Full RFC →](./0040-nuke-build-component-integration.md)
+
+---
+
 ### RFC-0018: Render and UI Services for Console Profile
 **Status:** Proposed
 **Date:** 2025-10-03

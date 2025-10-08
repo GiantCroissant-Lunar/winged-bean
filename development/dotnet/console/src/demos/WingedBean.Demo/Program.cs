@@ -1,8 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using WingedBean.Contracts.Terminal;
-using WingedBean.Contracts.Recorder;
-using WingedBean.PluginSystem;
+using Plate.CrossMilo.Contracts.Terminal;
+using Plate.CrossMilo.Contracts.Recorder.Services;
+using Plate.PluginManoi.Core;
 using WingedBean.Host.Console;
 
 namespace WingedBean.Demo;

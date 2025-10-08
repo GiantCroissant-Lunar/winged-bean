@@ -2,7 +2,7 @@
   "id": "wingedbean.plugins.resource",
   "version": "1.0.0",
   "name": "Resource Service",
-  "description": "File system-based resource loading service for Console profile",
+  "description": "File system-based resource loading service for Console profile with NuGet support",
   "author": "WingedBean Team",
   "license": "MIT",
 
@@ -14,13 +14,14 @@
   },
 
   "dependencies": {
-    "wingedbean.contracts": "^1.0.0"
+    "plugins": [],
+    "nuget": []
   },
 
   "exports": {
     "services": [
       {
-        "interface": "WingedBean.Contracts.Resource.IResourceService",
+        "interface": "Plate.CrossMilo.Contracts.Resource.Services.IService",
         "implementation": "WingedBean.Plugins.Resource.FileSystemResourceService",
         "lifecycle": "singleton"
       }
@@ -31,6 +32,7 @@
     "resource-loading",
     "file-system",
     "json-support",
+    "nuget-packages",
     "caching"
   ],
 

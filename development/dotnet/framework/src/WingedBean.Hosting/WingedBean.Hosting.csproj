@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\WingedBean.Contracts.Hosting\WingedBean.Contracts.Hosting.csproj" />
+    <ProjectReference Include="../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Hosting/CrossMilo.Contracts.Hosting.csproj" />
     <ProjectReference Include="..\WingedBean.Hosting.Console\WingedBean.Hosting.Console.csproj" />
     <ProjectReference Include="..\WingedBean.Hosting.Unity\WingedBean.Hosting.Unity.csproj" />
     <ProjectReference Include="..\WingedBean.Hosting.Godot\WingedBean.Hosting.Godot.csproj" />

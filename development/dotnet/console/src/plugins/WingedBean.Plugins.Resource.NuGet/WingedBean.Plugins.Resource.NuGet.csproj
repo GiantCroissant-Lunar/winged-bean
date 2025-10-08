@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>WingedBean.Plugins.Resource.NuGet</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- NuGet Protocol and Packaging (versions from Directory.Packages.props) -->
+    <PackageReference Include="NuGet.Protocol" />
+    <PackageReference Include="NuGet.Packaging" />
+    <PackageReference Include="NuGet.Configuration" />
+    <PackageReference Include="NuGet.Frameworks" />
+    <PackageReference Include="NuGet.Versioning" />
+
+    <!-- Microsoft Extensions (versions from Directory.Packages.props) -->
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Resource Service Contracts -->
+    <ProjectReference Include="../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Resource/CrossMilo.Contracts.Resource.csproj" />
+
+    <!-- Base Resource Plugin -->
+    <ProjectReference Include="../WingedBean.Plugins.Resource/WingedBean.Plugins.Resource.csproj" />
+  </ItemGroup>
+
+</Project>

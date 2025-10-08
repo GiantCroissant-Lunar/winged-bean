@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-using WingedBean.Contracts;
 using WingedBean.Plugins.AsciinemaRecorder;
 
 namespace WingedBean.ArtifactVerifier;

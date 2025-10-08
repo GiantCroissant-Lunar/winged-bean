@@ -9,17 +9,19 @@
 
   <ItemGroup>
     <!-- Reference foundation services for dynamic plugin loading -->
-    <ProjectReference Include="../../../../framework/src/WingedBean.Registry/WingedBean.Registry.csproj" />
-    <ProjectReference Include="../../../../framework/src/WingedBean.PluginLoader/WingedBean.PluginLoader.csproj" />
-    <ProjectReference Include="../../providers/WingedBean.Providers.AssemblyContext/WingedBean.Providers.AssemblyContext.csproj" />
+    <ProjectReference Include="../../../../../../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Registry/PluginManoi.Registry.csproj" />
+    <ProjectReference Include="../../../../../../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Loader/PluginManoi.Loader.csproj" />
+    <ProjectReference Include="../../../../../../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Loader.AssemblyContext/PluginManoi.Loader.AssemblyContext.csproj" />
     <!-- Contracts for Terminal apps -->
-    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Terminal/WingedBean.Contracts.Terminal.csproj" />
-    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Game/WingedBean.Contracts.Game.csproj" />
+    <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Terminal/CrossMilo.Contracts.Terminal.csproj" />
+    <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Game/CrossMilo.Contracts.Game.csproj" />
     <!-- Additional shared contracts for plugins (RFC-0037) -->
-    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Scene/WingedBean.Contracts.Scene.csproj" />
-    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Input/WingedBean.Contracts.Input.csproj" />
+    <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Scene/CrossMilo.Contracts.Scene.csproj" />
+    <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Input/CrossMilo.Contracts.Input.csproj" />
+    <!-- Resource contracts for NuGet loading -->
+    <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Resource/CrossMilo.Contracts.Resource.csproj" />
     <!-- New plugin system + ALC loader for hybrid discovery -->
-    <ProjectReference Include="../../../../framework/src/WingedBean.PluginSystem/WingedBean.PluginSystem.csproj" />
+    <ProjectReference Include="../../../../../../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Core/PluginManoi.Core.csproj" />
     <ProjectReference Include="../WingedBean.Host.Console/WingedBean.Host.Console.csproj" />
     <ProjectReference Include="../../../../framework/src/WingedBean.Hosting/WingedBean.Hosting.csproj" />
   </ItemGroup>

@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Input/WingedBean.Contracts.Input.csproj" />
-    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Game/WingedBean.Contracts.Game.csproj" />
+    <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Input/CrossMilo.Contracts.Input.csproj" />
+    <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Game/CrossMilo.Contracts.Game.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,7 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using WingedBean.Contracts.Resilience;
-using WingedBean.PluginSystem;
+using Plate.CrossMilo.Contracts.Resilience.Services;
+using Plate.CrossMilo.Contracts.Resilience;
+using Plate.PluginManoi.Core;
 
 namespace WingedBean.Plugins.Resilience;
 

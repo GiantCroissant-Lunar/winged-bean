@@ -20,7 +20,7 @@
   "exports": {
     "services": [
       {
-        "interface": "IRecorder",
+        "interface": "Plate.CrossMilo.Contracts.Recorder.Services.IService",
         "implementation": "AsciinemaRecorder",
         "lifecycle": "transient"
       }

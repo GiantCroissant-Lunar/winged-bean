@@ -1,4 +1,4 @@
-using WingedBean.Contracts.ECS;
+using Plate.CrossMilo.Contracts.ECS;
 
 namespace WingedBean.Plugins.DungeonGame.Components;
 

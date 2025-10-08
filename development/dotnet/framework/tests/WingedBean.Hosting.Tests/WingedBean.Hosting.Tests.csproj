@@ -24,9 +24,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\WingedBean.Contracts.Hosting\WingedBean.Contracts.Hosting.csproj" />
-    <ProjectReference Include="..\..\src\WingedBean.Contracts.UI\WingedBean.Contracts.UI.csproj" />
-    <ProjectReference Include="..\..\src\WingedBean.Contracts.TerminalUI\WingedBean.Contracts.TerminalUI.csproj" />
+    <ProjectReference Include="../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Hosting/CrossMilo.Contracts.Hosting.csproj" />
+    <ProjectReference Include="../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.UI/CrossMilo.Contracts.UI.csproj" />
+    <ProjectReference Include="../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.TerminalUI/CrossMilo.Contracts.TerminalUI.csproj" />
     <ProjectReference Include="..\..\src\WingedBean.Hosting\WingedBean.Hosting.csproj" />
     <ProjectReference Include="..\..\src\WingedBean.Hosting.Console\WingedBean.Hosting.Console.csproj" />
   </ItemGroup>

@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\framework\src\WingedBean.Contracts.FigmaSharp\WingedBean.Contracts.FigmaSharp.csproj" />
-    <ProjectReference Include="..\..\..\..\framework\src\WingedBean.PluginSystem\WingedBean.PluginSystem.csproj" />
+    <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.FigmaSharp/CrossMilo.Contracts.FigmaSharp.csproj" />
+    <ProjectReference Include="../../../../../../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Core/PluginManoi.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

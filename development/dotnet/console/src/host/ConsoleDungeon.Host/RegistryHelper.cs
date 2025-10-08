@@ -1,12 +1,21 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using WingedBean.Contracts.Core;
-using WingedBean.Contracts.Terminal;
-using WingedBean.Contracts.Game;
-using WingedBean.Contracts.ECS;
-using WingedBean.Contracts.UI;
-using WingedBean.Contracts.Hosting;
+using Plate.PluginManoi.Contracts;
+using Plate.CrossMilo.Contracts.Game.Dungeon;
+using Plate.CrossMilo.Contracts.Game.Render;
+using Plate.CrossMilo.Contracts.ECS.Services;
+using Plate.CrossMilo.Contracts.Hosting.App;
+using Plate.CrossMilo.Contracts.Hosting.Host;
+
+// Type aliases for the new IService pattern
+using ITerminalApp = Plate.CrossMilo.Contracts.TerminalUI.ITerminalApp;
+using IDungeonGameService = Plate.CrossMilo.Contracts.Game.Dungeon.IService;
+using IRenderService = Plate.CrossMilo.Contracts.Game.Render.IService;
+using IECSService = Plate.CrossMilo.Contracts.ECS.Services.IService;
+using IUIApp = Plate.CrossMilo.Contracts.UI.App.IService;
+using IWingedBeanApp = Plate.CrossMilo.Contracts.Hosting.App.IService;
+using IWingedBeanHost = Plate.CrossMilo.Contracts.Hosting.Host.IService;
 
 namespace ConsoleDungeon.Host;
 
@@ -32,33 +41,43 @@ public static class RegistryHelper
         int priority)
     {
         // Fast path: Known contract types (no reflection)
+        // All contracts have been migrated to Plate.CrossMilo.Contracts.*
         switch (contractType.FullName)
         {
-            case "WingedBean.Contracts.Terminal.ITerminalApp":
+            case "Plate.CrossMilo.Contracts.TerminalUI.ITerminalApp":
+            case "WingedBean.Contracts.Terminal.IService":  // Legacy
+            case "WingedBean.Contracts.Terminal.ITerminalApp":  // Legacy
                 registry.Register((ITerminalApp)instance, priority);
                 return;
                 
-            case "WingedBean.Contracts.Game.IDungeonGameService":
+            case "Plate.CrossMilo.Contracts.Game.Dungeon.IService":
+            case "WingedBean.Contracts.Game.IDungeonGameService":  // Legacy
                 registry.Register((IDungeonGameService)instance, priority);
                 return;
                 
-            case "WingedBean.Contracts.Game.IRenderService":
+            case "Plate.CrossMilo.Contracts.Game.Render.IService":
+            case "WingedBean.Contracts.Game.IRenderService":  // Legacy
                 registry.Register((IRenderService)instance, priority);
                 return;
                 
-            case "WingedBean.Contracts.ECS.IECSService":
+            case "Plate.CrossMilo.Contracts.ECS.Services.IService":
+            case "WingedBean.Contracts.ECS.IECSService":  // Legacy
                 registry.Register((IECSService)instance, priority);
                 return;
                 
-            case "WingedBean.Contracts.UI.IUIApp":
+            case "Plate.CrossMilo.Contracts.UI.App.IService":
+            case "WingedBean.Contracts.UI.IService":  // Legacy
+            case "WingedBean.Contracts.UI.IUIApp":  // Legacy
                 registry.Register((IUIApp)instance, priority);
                 return;
                 
-            case "WingedBean.Contracts.Hosting.IWingedBeanApp":
+            case "Plate.CrossMilo.Contracts.Hosting.App.IService":
+            case "WingedBean.Contracts.Hosting.IWingedBeanApp":  // Legacy
                 registry.Register((IWingedBeanApp)instance, priority);
                 return;
                 
-            case "WingedBean.Contracts.Hosting.IWingedBeanHost":
+            case "Plate.CrossMilo.Contracts.Hosting.Host.IService":
+            case "WingedBean.Contracts.Hosting.IWingedBeanHost":  // Legacy
                 registry.Register((IWingedBeanHost)instance, priority);
                 return;
                 

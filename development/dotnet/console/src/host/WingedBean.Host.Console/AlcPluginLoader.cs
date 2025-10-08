@@ -1,7 +1,7 @@
 using System.Reflection;
 using System.Runtime.Loader;
 using Microsoft.Extensions.Logging;
-using WingedBean.PluginSystem;
+using Plate.PluginManoi.Core;
 
 namespace WingedBean.Host.Console;
 

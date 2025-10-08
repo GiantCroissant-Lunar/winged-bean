@@ -1,5 +1,5 @@
-using WingedBean.Contracts.Game;
-using WingedBean.Contracts.Input;
+using Plate.CrossMilo.Contracts.Game;
+using Plate.CrossMilo.Contracts.Input;
 
 namespace WingedBean.Providers.Input;
 
@@ -7,7 +7,7 @@ namespace WingedBean.Providers.Input;
 /// Default input mapper for console/terminal environments.
 /// Supports VirtualKey codes, CSI/SS3 sequences, ESC disambiguation, and WASD fallback.
 /// </summary>
-public class DefaultInputMapper : IInputMapper, IDisposable
+public class DefaultInputMapper : IService, IDisposable
 {
     private readonly System.Timers.Timer _escTimer;
     private bool _escPending = false;

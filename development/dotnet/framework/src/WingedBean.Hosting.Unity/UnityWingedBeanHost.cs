@@ -1,13 +1,22 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using WingedBean.Contracts.Hosting;
-using WingedBean.Contracts.UI;
+using Plate.CrossMilo.Contracts.Hosting.Host;
+using Plate.CrossMilo.Contracts.Hosting.App;
+
+// Type aliases to avoid IService ambiguity
+using IWingedBeanHost = Plate.CrossMilo.Contracts.Hosting.Host.IService;
+using IWingedBeanApp = Plate.CrossMilo.Contracts.Hosting.App.IService;
+using IWingedBeanHostBuilder = Plate.CrossMilo.Contracts.Hosting.Host.IServiceBuilder;
+using IUIApp = Plate.CrossMilo.Contracts.UI.App.IService;
 
 namespace WingedBean.Hosting.Unity;
 
 /// <summary>
-/// Unity host that bridges Unity MonoBehaviour lifecycle to IWingedBeanApp.
+/// Unity host that bridges Unity MonoBehaviour lifecycle to IWingedBeanHost.
 /// Unity's lifecycle is authoritative (Awake, Start, Update, OnDestroy, etc.).
 /// </summary>
 #if UNITY

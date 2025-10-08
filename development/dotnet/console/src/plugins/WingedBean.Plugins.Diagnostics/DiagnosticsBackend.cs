@@ -1,3 +1,4 @@
+using Plate.CrossMilo.Contracts.Diagnostics;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Sentry;

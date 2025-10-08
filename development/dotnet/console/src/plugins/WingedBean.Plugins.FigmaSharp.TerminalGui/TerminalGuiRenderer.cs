@@ -1,12 +1,13 @@
 using Terminal.Gui;
-using WingedBean.Contracts.FigmaSharp;
+using Plate.CrossMilo.Contracts.FigmaSharp;
+using Plate.CrossMilo.Contracts.FigmaSharp.Renderer;
 
 namespace WingedBean.Plugins.FigmaSharp.TerminalGui;
 
 /// <summary>
 /// Renders framework-agnostic UI elements to Terminal.Gui v2
 /// </summary>
-public class TerminalGuiRenderer : IUIRenderer
+public class TerminalGuiRenderer : IService
 {
     private const int CharWidth = 8;   // Pixels per character width
     private const int CharHeight = 16; // Pixels per character height
@@ -169,7 +170,7 @@ public class TerminalGuiRenderer : IUIRenderer
         }
     }
     
-    private Terminal.Gui.Color MapToTerminalColor(WingedBean.Contracts.FigmaSharp.Color figmaColor)
+    private Terminal.Gui.Color MapToTerminalColor(Plate.CrossMilo.Contracts.FigmaSharp.Color figmaColor)
     {
         // Map RGB to nearest Terminal.Gui color
         // Terminal.Gui supports: Black, Blue, Green, Cyan, Red, Magenta, Brown, Gray, etc.

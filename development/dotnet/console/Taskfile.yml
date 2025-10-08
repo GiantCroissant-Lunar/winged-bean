@@ -1,8 +1,15 @@
 version: '3'
 
 tasks:
+  validate-manifests:
+    desc: "Validate all plugin manifests against JSON schema"
+    cmds:
+      - ./schemas/validate-manifests.sh
+
   build:
     desc: "Build ConsoleDungeon game"
+    deps:
+      - validate-manifests
     cmds:
       - dotnet build Console.sln
 

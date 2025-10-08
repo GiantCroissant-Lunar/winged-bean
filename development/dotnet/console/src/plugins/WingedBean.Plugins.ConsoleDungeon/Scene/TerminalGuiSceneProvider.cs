@@ -1,9 +1,16 @@
 using System;
 using System.Text;
 using Terminal.Gui;
-using WingedBean.Contracts.Game;
-using WingedBean.Contracts.Input;
-using WingedBean.Contracts.Scene;
+using Plate.CrossMilo.Contracts.Game;
+using Plate.CrossMilo.Contracts.Input;
+using Plate.CrossMilo.Contracts.Scene;
+using Plate.CrossMilo.Contracts.Scene.Services;
+
+// Type aliases for IService pattern
+using IRenderService = Plate.CrossMilo.Contracts.Game.Render.IService;
+using IInputRouter = Plate.CrossMilo.Contracts.Input.Router.IService;
+using IInputMapper = Plate.CrossMilo.Contracts.Input.Mapper.IService;
+using ISceneService = Plate.CrossMilo.Contracts.Scene.Services.IService;
 
 namespace WingedBean.Plugins.ConsoleDungeon.Scene;
 

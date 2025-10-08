@@ -4,11 +4,16 @@
   "version": "1.0.0",
   "description": "Polly-based resilience service with retry, circuit breaker, timeout, and rate limiting",
   "author": "WingedBean Team",
-  "entryAssembly": "WingedBean.Plugins.Resilience.dll",
-  "activator": "WingedBean.Plugins.Resilience.ResiliencePluginActivator",
-  "dependencies": [],
-  "provides": [
-    "WingedBean.Contracts.Resilience.IResilienceService"
-  ],
+  "entryPoint": { "dotnet": "WingedBean.Plugins.Resilience.dll" },
+  "dependencies": {},
+  "exports": {
+    "services": [
+      {
+        "interface": "Plate.CrossMilo.Contracts.Resilience.Services.IService",
+        "implementation": "WingedBean.Plugins.Resilience.ResilienceService",
+        "lifecycle": "singleton"
+      }
+    ]
+  },
   "tags": ["resilience", "polly", "retry", "circuit-breaker", "fault-tolerance"]
 }

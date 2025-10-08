@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../../framework/src/WingedBean.Contracts.Core/WingedBean.Contracts.Core.csproj" />
+    <ProjectReference Include="../../../../../../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Contracts/PluginManoi.Contracts.csproj" />
     <ProjectReference Include="../../plugins/WingedBean.Plugins.AsciinemaRecorder/WingedBean.Plugins.AsciinemaRecorder.csproj" />
   </ItemGroup>
 

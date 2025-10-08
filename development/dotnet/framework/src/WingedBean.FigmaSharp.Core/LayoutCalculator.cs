@@ -1,5 +1,5 @@
 using System;
-using WingedBean.Contracts.FigmaSharp;
+using Plate.CrossMilo.Contracts.FigmaSharp;
 
 namespace WingedBean.FigmaSharp.Core;
 

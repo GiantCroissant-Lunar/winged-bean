@@ -94,7 +94,7 @@ public class SuperSocketWebSocketServiceTests
         var serviceType = typeof(SuperSocketWebSocketService);
 
         // Act
-        var pluginAttributes = serviceType.GetCustomAttributes(typeof(WingedBean.Contracts.Core.PluginAttribute), false);
+        var pluginAttributes = serviceType.GetCustomAttributes(typeof(Plate.PluginManoi.Contracts.PluginAttribute), false);
 
         // Assert
         pluginAttributes.Should().NotBeEmpty();

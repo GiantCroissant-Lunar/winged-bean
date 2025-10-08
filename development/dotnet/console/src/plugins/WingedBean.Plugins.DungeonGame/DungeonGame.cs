@@ -1,10 +1,14 @@
 using Microsoft.Extensions.Logging;
-using WingedBean.Contracts.Core;
-using WingedBean.Contracts.ECS;
-using WingedBean.Contracts.Resource;
+using Plate.PluginManoi.Contracts;
+using Plate.CrossMilo.Contracts.ECS;
+using Plate.CrossMilo.Contracts.Resource.Services;
 using WingedBean.Plugins.DungeonGame.Components;
 using WingedBean.Plugins.DungeonGame.Data;
 using WingedBean.Plugins.DungeonGame.Systems;
+
+// Type aliases for backward compatibility during namespace migration
+using IECSService = Plate.CrossMilo.Contracts.ECS.Services.IService;
+using IResourceService = Plate.CrossMilo.Contracts.Resource.Services.IService;
 
 namespace WingedBean.Plugins.DungeonGame;
 

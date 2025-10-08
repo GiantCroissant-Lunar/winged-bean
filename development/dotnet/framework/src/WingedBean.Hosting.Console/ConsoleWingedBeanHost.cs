@@ -1,8 +1,15 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using WingedBean.Contracts.Hosting;
+using Plate.CrossMilo.Contracts.Hosting.Host;
+
+// Type aliases to avoid ambiguity
+using IWingedBeanHost = Plate.CrossMilo.Contracts.Hosting.Host.IService;
+using IWingedBeanHostBuilder = Plate.CrossMilo.Contracts.Hosting.Host.IServiceBuilder;
 
 namespace WingedBean.Hosting.Console;
 

@@ -24,9 +24,13 @@
     "ExecutableTarget": {
       "type": "string",
       "enum": [
+        "BuildAll",
+        "CI",
         "Clean",
         "Compile",
-        "Restore"
+        "DebugWrapper",
+        "Restore",
+        "Test"
       ]
     },
     "Verbosity": {
@@ -108,9 +112,17 @@
             "Release"
           ]
         },
-        "Solution": {
+        "wrapper-config-path": {
           "type": "string",
-          "description": "Path to a solution file that is automatically loaded. Default is ../../development/dotnet/console/Console.sln"
+          "description": "Config path override from wrapper script"
+        },
+        "wrapper-nuke-root": {
+          "type": "string",
+          "description": "NUKE root directory override from wrapper script"
+        },
+        "wrapper-script-dir": {
+          "type": "string",
+          "description": "Script directory from wrapper script"
         }
       }
     },

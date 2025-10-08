@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../../../../framework/src/WingedBean.PluginLoader/WingedBean.PluginLoader.csproj" />
+    <ProjectReference Include="../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Loader/PluginManoi.Loader.csproj" />
     <ProjectReference Include="../../../src/providers/WingedBean.Providers.AssemblyContext/WingedBean.Providers.AssemblyContext.csproj" />
   </ItemGroup>
 

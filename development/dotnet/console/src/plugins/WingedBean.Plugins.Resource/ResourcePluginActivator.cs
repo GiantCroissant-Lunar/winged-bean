@@ -1,7 +1,11 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using WingedBean.Contracts.Resource;
-using WingedBean.PluginSystem;
+using Plate.CrossMilo.Contracts.Resource.Services;
+using Plate.CrossMilo.Contracts.Resource;
+using Plate.PluginManoi.Core;
+
+// Type alias for IService (IResourceService)
+using IResourceService = Plate.CrossMilo.Contracts.Resource.Services.IService;
 
 namespace WingedBean.Plugins.Resource;
 

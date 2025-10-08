@@ -1,14 +1,14 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using WingedBean.Contracts.FigmaSharp;
+using Plate.CrossMilo.Contracts.FigmaSharp;
 
 namespace WingedBean.FigmaSharp.Core;
 
 /// <summary>
 /// Transforms Figma objects to framework-agnostic UI elements
 /// </summary>
-public class FigmaTransformer : IFigmaTransformer
+public class FigmaTransformer : IService
 {
     private readonly LayoutCalculator _layoutCalculator;
     private readonly StyleBuilder _styleBuilder;

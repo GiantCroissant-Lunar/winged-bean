@@ -1,10 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Reactive.Subjects;
-using WingedBean.Contracts.Core;
-using WingedBean.Contracts.ECS;
-using WingedBean.Contracts.Game;
+using Plate.PluginManoi.Contracts;
+using Plate.CrossMilo.Contracts.ECS;
+using Plate.CrossMilo.Contracts.Game;
+using Plate.CrossMilo.Contracts.Game.Dungeon;
 using WingedBean.Plugins.DungeonGame.Components;
+
+// Type alias for backward compatibility during namespace migration
+using IECSService = Plate.CrossMilo.Contracts.ECS.Services.IService;
 
 namespace WingedBean.Plugins.DungeonGame;
 
@@ -12,7 +16,7 @@ namespace WingedBean.Plugins.DungeonGame;
 /// Implementation of IDungeonGameService with reactive patterns and multi-world support.
 /// Wraps the core DungeonGame class and exposes observables for game state.
 /// </summary>
-public class DungeonGameService : IDungeonGameService, IDisposable
+public class DungeonGameService : IService, IDisposable
 {
     private readonly IRegistry _registry;
     private readonly IECSService _ecs;
@@ -138,7 +142,7 @@ public class DungeonGameService : IDungeonGameService, IDisposable
 
             snapshots.Add(new EntitySnapshot(
                 Guid.NewGuid(),
-                new Contracts.Game.Position(pos.X, pos.Y, pos.Floor),
+                new Plate.CrossMilo.Contracts.Game.Position(pos.X, pos.Y, pos.Floor),
                 render.Symbol,
                 render.ForegroundColor,
                 render.BackgroundColor,

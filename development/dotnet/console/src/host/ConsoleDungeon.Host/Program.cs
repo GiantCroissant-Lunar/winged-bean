@@ -13,15 +13,18 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Scrutor;
-using WingedBean.Contracts.Core;
-using WingedBean.Contracts.Terminal;
-using WingedBean.Contracts.Game;
-using WingedBean.Registry;
-using WingedBean.PluginLoader;
-using WingedBean.Providers.AssemblyContext;
-using WingedBean.PluginSystem;
+using Plate.PluginManoi.Contracts;
+using Plate.PluginManoi.Registry;
+using Plate.PluginManoi.Loader;
+using Plate.PluginManoi.Loader.AssemblyContext;
+using Plate.PluginManoi.Core;
 using WingedBean.Host.Console;
 using WingedBean.Hosting;
+
+// Terminal and UI contracts now in Plate.CrossMilo.Contracts namespace
+using ITerminalApp = Plate.CrossMilo.Contracts.TerminalUI.ITerminalApp;
+using TerminalAppConfig = Plate.CrossMilo.Contracts.TerminalUI.TerminalAppConfig;
+using LegacyTerminalAppAdapter = Plate.CrossMilo.Contracts.Terminal.LegacyTerminalAppAdapter;
 // Console host entry point with dynamic plugin loading.
 // Initializes Registry, loads plugins from configuration, and launches ConsoleDungeon app.
 
@@ -50,7 +53,12 @@ var host = WingedBeanHost.CreateConsoleBuilder(args)
             // Register foundation services
             services.AddSingleton<IRegistry, ActualRegistry>();
             services.AddSingleton<AssemblyContextProvider>();
-            services.AddSingleton<WingedBean.Contracts.Core.IPluginLoader, ActualPluginLoader>();
+            services.AddSingleton<Plate.PluginManoi.Contracts.IPluginLoader>(sp =>
+            {
+                var contextProvider = sp.GetRequiredService<AssemblyContextProvider>();
+                var logger = sp.GetService<ILogger<ActualPluginLoader>>();
+                return new ActualPluginLoader(contextProvider, logger!);
+            });
 
             // Register plugin loader hosted service (runs before terminal app)
             services.AddHostedService<PluginLoaderHostedService>();

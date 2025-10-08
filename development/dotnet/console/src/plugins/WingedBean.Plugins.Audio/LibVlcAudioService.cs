@@ -1,15 +1,16 @@
 using LibVLCSharp.Shared;
 using Microsoft.Extensions.Logging;
-using WingedBean.Contracts.Audio;
-using WingedBean.Contracts.Core;
+using Plate.CrossMilo.Contracts.Audio.Services;
+using Plate.CrossMilo.Contracts.Audio;
+using Plate.PluginManoi.Contracts;
 
 namespace WingedBean.Plugins.Audio;
 
 /// <summary>
 /// Audio service implementation using LibVLC for console applications.
 /// </summary>
-[RealizeService(typeof(IAudioService))]
-public sealed class LibVlcAudioService : IAudioService, IDisposable
+[RealizeService(typeof(IService))]
+public sealed class LibVlcAudioService : IService, IDisposable
 {
     private readonly ILogger<LibVlcAudioService> _logger;
     private readonly object _lock = new();

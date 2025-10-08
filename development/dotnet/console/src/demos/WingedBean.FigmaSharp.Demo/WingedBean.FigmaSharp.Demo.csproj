@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\framework\src\WingedBean.Contracts.FigmaSharp\WingedBean.Contracts.FigmaSharp.csproj" />
+    <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.FigmaSharp/CrossMilo.Contracts.FigmaSharp.csproj" />
     <ProjectReference Include="..\..\..\..\framework\src\WingedBean.FigmaSharp.Core\WingedBean.FigmaSharp.Core.csproj" />
     <ProjectReference Include="..\..\plugins\WingedBean.Plugins.FigmaSharp.TerminalGui\WingedBean.Plugins.FigmaSharp.TerminalGui.csproj" />
   </ItemGroup>

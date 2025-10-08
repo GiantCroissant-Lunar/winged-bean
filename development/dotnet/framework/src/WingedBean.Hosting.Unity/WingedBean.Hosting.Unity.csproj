@@ -10,11 +10,12 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\WingedBean.Contracts.Hosting\WingedBean.Contracts.Hosting.csproj" />
-    <ProjectReference Include="..\WingedBean.Contracts.UI\WingedBean.Contracts.UI.csproj" />
+    <ProjectReference Include="../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Hosting/CrossMilo.Contracts.Hosting.csproj" />
+    <ProjectReference Include="../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.UI/CrossMilo.Contracts.UI.csproj" />
   </ItemGroup>
 
 </Project>

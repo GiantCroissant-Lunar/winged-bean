@@ -18,7 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../../src/WingedBean.FigmaSharp.Core/WingedBean.FigmaSharp.Core.csproj" />
-    <ProjectReference Include="../../src/WingedBean.Contracts.FigmaSharp/WingedBean.Contracts.FigmaSharp.csproj" />
+    <ProjectReference Include="../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.FigmaSharp/CrossMilo.Contracts.FigmaSharp.csproj" />
   </ItemGroup>
 
   <ItemGroup>

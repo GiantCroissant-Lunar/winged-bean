@@ -1,7 +1,8 @@
 using Terminal.Gui;
-using WingedBean.Contracts.Game;
-using WingedBean.Contracts.Input;
-using WingedBean.Contracts.Scene;
+using Plate.CrossMilo.Contracts.Game;
+using Plate.CrossMilo.Contracts.Input;
+using Plate.CrossMilo.Contracts.Scene.Services;
+using Plate.CrossMilo.Contracts.Scene;
 
 namespace WingedBean.Providers.TerminalGuiScene;
 

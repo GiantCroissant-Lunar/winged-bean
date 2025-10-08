@@ -20,7 +20,7 @@
   "exports": {
     "services": [
       {
-        "interface": "WingedBean.Contracts.Audio.IAudioService",
+        "interface": "Plate.CrossMilo.Contracts.Audio.Services.IService",
         "implementation": "WingedBean.Plugins.Audio.LibVlcAudioService",
         "lifecycle": "singleton"
       }

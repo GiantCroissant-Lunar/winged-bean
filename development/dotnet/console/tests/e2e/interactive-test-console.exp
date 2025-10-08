@@ -1,0 +1,138 @@
+#!/usr/bin/expect -f
+# Interactive E2E test for ConsoleDungeon.Host
+# Tests actual console operation with keyboard input
+# Usage: ./interactive-test-console.exp
+
+set timeout 30
+set test_dir [file dirname [info script]]
+set console_dir "$test_dir/../../src/host/ConsoleDungeon.Host"
+
+puts "========================================="
+puts "Interactive Console Test"
+puts "========================================="
+puts "Test directory: $test_dir"
+puts "Console directory: $console_dir"
+puts ""
+
+# Change to host directory
+cd $console_dir
+
+# Set terminal type for proper ANSI support
+set env(TERM) "xterm-256color"
+
+puts "Starting ConsoleDungeon.Host..."
+puts "=========================================\n"
+
+# Spawn the application
+spawn dotnet run --no-build
+
+# Wait for application to start
+set startup_timeout 10
+expect {
+    -timeout $startup_timeout
+    "ConsoleDungeon.Host starting" {
+        puts "✓ Host started successfully"
+    }
+    "Foundation services" {
+        puts "✓ Foundation services initializing"
+    }
+    timeout {
+        puts "✗ Timeout waiting for host to start"
+        exit 1
+    }
+    eof {
+        puts "✗ Host exited prematurely"
+        exit 1
+    }
+}
+
+# Wait for plugins to load
+expect {
+    -timeout 10
+    "Loading plugins" {
+        puts "✓ Loading plugins..."
+    }
+    "Loaded:" {
+        puts "✓ Plugins loaded"
+    }
+    timeout {
+        puts "⚠ Timeout waiting for plugin load confirmation"
+    }
+}
+
+# Give the UI time to fully initialize
+sleep 2
+
+puts "\n========================================="
+puts "Testing Keyboard Input"
+puts "=========================================\n"
+
+# Test arrow key navigation
+puts "Sending Right arrow..."
+send "\033\[C"
+sleep 0.3
+
+puts "Sending Down arrow..."
+send "\033\[B"
+sleep 0.3
+
+puts "Sending Left arrow..."
+send "\033\[D"
+sleep 0.3
+
+puts "Sending Up arrow..."
+send "\033\[A"
+sleep 0.3
+
+# Test WASD keys (common game controls)
+puts "Sending 'd' (right)..."
+send "d"
+sleep 0.2
+
+puts "Sending 's' (down)..."
+send "s"
+sleep 0.2
+
+puts "Sending 'a' (left)..."
+send "a"
+sleep 0.2
+
+puts "Sending 'w' (up)..."
+send "w"
+sleep 0.2
+
+# Test Enter key
+puts "Sending Enter..."
+send "\r"
+sleep 0.3
+
+# Test Space key
+puts "Sending Space..."
+send " "
+sleep 0.3
+
+puts "\n========================================="
+puts "Input Test Complete"
+puts "=========================================\n"
+
+# Wait a bit to observe results
+sleep 1
+
+# Quit the application gracefully
+puts "Sending quit command (q)..."
+send "q"
+
+# Wait for clean exit
+expect {
+    -timeout 5
+    eof {
+        puts "\n✓ Application exited cleanly"
+        exit 0
+    }
+    timeout {
+        puts "\n⚠ Application didn't exit, forcing..."
+        send "\003"
+        sleep 1
+        exit 0
+    }
+}

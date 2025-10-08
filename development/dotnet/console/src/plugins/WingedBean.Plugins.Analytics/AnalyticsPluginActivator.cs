@@ -1,7 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using WingedBean.Contracts.Analytics;
-using WingedBean.PluginSystem;
+using Plate.CrossMilo.Contracts.Analytics.Services;
+using Plate.CrossMilo.Contracts.Analytics;
+using Plate.PluginManoi.Core;
 
 namespace WingedBean.Plugins.Analytics;
 
@@ -33,7 +34,7 @@ public class AnalyticsPluginActivator : IPluginActivator
         services.AddSingleton<IAnalyticsBackend, InMemoryAnalyticsBackend>();
 
         // Register the analytics service
-        services.AddSingleton<IAnalyticsService, AnalyticsService>();
+        services.AddSingleton<IService, AnalyticsService>();
 
         logger?.LogInformation("Analytics plugin activated successfully");
         return Task.CompletedTask;

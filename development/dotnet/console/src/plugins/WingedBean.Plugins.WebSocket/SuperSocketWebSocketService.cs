@@ -1,8 +1,9 @@
 using SuperSocket.WebSocket.Server;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
-using WingedBean.Contracts.Core;
-using WingedBean.Contracts.WebSocket;
+using Plate.PluginManoi.Contracts;
+using Plate.CrossMilo.Contracts.WebSocket.Services;
+using Plate.CrossMilo.Contracts.WebSocket;
 
 namespace WingedBean.Plugins.WebSocket;
 
@@ -12,10 +13,10 @@ namespace WingedBean.Plugins.WebSocket;
 /// </summary>
 [Plugin(
     Name = "WebSocket.SuperSocket",
-    Provides = new[] { typeof(IWebSocketService) },
+    Provides = new[] { typeof(IService) },
     Priority = 10
 )]
-public class SuperSocketWebSocketService : IWebSocketService
+public class SuperSocketWebSocketService : IService
 {
     private IHost? _host;
     private int _port;

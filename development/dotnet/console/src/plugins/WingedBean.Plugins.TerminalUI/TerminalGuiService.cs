@@ -1,6 +1,7 @@
 using Terminal.Gui;
-using WingedBean.Contracts.Core;
-using WingedBean.Contracts.TerminalUI;
+using Plate.PluginManoi.Contracts;
+using Plate.CrossMilo.Contracts.TerminalUI.Services;
+using Plate.CrossMilo.Contracts.TerminalUI;
 
 namespace WingedBean.Plugins.TerminalUI;
 
@@ -10,10 +11,10 @@ namespace WingedBean.Plugins.TerminalUI;
 /// </summary>
 [Plugin(
     Name = "TerminalGuiService",
-    Provides = new[] { typeof(ITerminalUIService) },
+    Provides = new[] { typeof(IService) },
     Priority = 100
 )]
-public class TerminalGuiService : ITerminalUIService
+public class TerminalGuiService : IService
 {
     private bool _initialized = false;
     private Window? _mainWindow;

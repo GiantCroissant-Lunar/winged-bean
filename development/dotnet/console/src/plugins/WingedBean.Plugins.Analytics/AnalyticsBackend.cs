@@ -1,3 +1,4 @@
+using Plate.CrossMilo.Contracts.Analytics;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FirebaseAdmin;

@@ -1,17 +1,17 @@
-using WingedBean.Contracts.Game;
-using WingedBean.Contracts.Input;
+using Plate.CrossMilo.Contracts.Game;
+using Plate.CrossMilo.Contracts.Input;
 
 namespace WingedBean.Providers.Input;
 
 /// <summary>
 /// Default stack-based input router.
 /// </summary>
-public class DefaultInputRouter : IInputRouter
+public class DefaultInputRouter : IService
 {
-    private readonly Stack<IInputScope> _scopes = new();
+    private readonly Stack<IService> _scopes = new();
     private readonly object _lock = new();
 
-    public IInputScope? Top
+    public IService? Top
     {
         get
         {
@@ -22,7 +22,7 @@ public class DefaultInputRouter : IInputRouter
         }
     }
 
-    public IDisposable PushScope(IInputScope scope)
+    public IDisposable PushScope(IService scope)
     {
         lock (_lock)
         {
@@ -33,7 +33,7 @@ public class DefaultInputRouter : IInputRouter
 
     public void Dispatch(GameInputEvent inputEvent)
     {
-        IInputScope? currentScope;
+        IService? currentScope;
         lock (_lock)
         {
             currentScope = Top;
@@ -42,7 +42,7 @@ public class DefaultInputRouter : IInputRouter
         currentScope?.Handle(inputEvent);
     }
 
-    private void PopScope(IInputScope scope)
+    private void PopScope(IService scope)
     {
         lock (_lock)
         {
@@ -56,10 +56,10 @@ public class DefaultInputRouter : IInputRouter
     private class ScopeHandle : IDisposable
     {
         private readonly DefaultInputRouter _router;
-        private readonly IInputScope _scope;
+        private readonly IService _scope;
         private bool _disposed = false;
 
-        public ScopeHandle(DefaultInputRouter router, IInputScope scope)
+        public ScopeHandle(DefaultInputRouter router, IService scope)
         {
             _router = router;
             _scope = scope;

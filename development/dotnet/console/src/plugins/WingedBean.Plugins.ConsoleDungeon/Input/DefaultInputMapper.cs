@@ -1,5 +1,8 @@
-using WingedBean.Contracts.Game;
-using WingedBean.Contracts.Input;
+using Plate.CrossMilo.Contracts.Game;
+using Plate.CrossMilo.Contracts.Input;
+
+// Type alias for IService pattern
+using IInputMapper = Plate.CrossMilo.Contracts.Input.Mapper.IService;
 
 namespace WingedBean.Plugins.ConsoleDungeon.Input;
 

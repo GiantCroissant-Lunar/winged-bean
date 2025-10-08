@@ -1,22 +1,23 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using WingedBean.Contracts.ECS;
-using WingedBean.PluginSystem;
+using Plate.CrossMilo.Contracts.ECS;
+using Plate.CrossMilo.Contracts.ECS.Services;
+using Plate.PluginManoi.Core;
 
 namespace WingedBean.Plugins.ArchECS;
 
 /// <summary>
 /// Plugin activator for Arch ECS service.
-/// Registers IECSService backed by ArchECSService for ALC discovery path.
+/// Registers IService backed by ArchECSService for ALC discovery path.
 /// </summary>
 public class ArchECSPluginActivator : IPluginActivator
 {
     public Task ActivateAsync(IServiceCollection services, IServiceProvider hostServices, CancellationToken ct = default)
     {
         var logger = hostServices.GetService<ILogger<ArchECSPluginActivator>>();
-        logger?.LogInformation("Registering IECSService -> ArchECSService");
+        logger?.LogInformation("Registering IService -> ArchECSService");
 
-        services.AddSingleton<IECSService, ArchECSService>();
+        services.AddSingleton<IService, ArchECSService>();
         return Task.CompletedTask;
     }
 

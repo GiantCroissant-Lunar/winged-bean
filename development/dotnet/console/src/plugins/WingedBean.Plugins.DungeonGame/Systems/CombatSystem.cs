@@ -1,5 +1,8 @@
-using WingedBean.Contracts.ECS;
+using Plate.CrossMilo.Contracts.ECS;
 using WingedBean.Plugins.DungeonGame.Components;
+
+// Type alias for backward compatibility during namespace migration
+using IECSService = Plate.CrossMilo.Contracts.ECS.Services.IService;
 
 namespace WingedBean.Plugins.DungeonGame.Systems;
 

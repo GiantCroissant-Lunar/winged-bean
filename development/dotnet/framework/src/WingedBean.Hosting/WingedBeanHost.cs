@@ -1,7 +1,12 @@
-using WingedBean.Contracts.Hosting;
+using System;
+using System.Linq;
+using Plate.CrossMilo.Contracts.Hosting.Host;
 using WingedBean.Hosting.Console;
 using WingedBean.Hosting.Unity;
 using WingedBean.Hosting.Godot;
+
+// Type alias
+using IWingedBeanHostBuilder = Plate.CrossMilo.Contracts.Hosting.Host.IServiceBuilder;
 
 namespace WingedBean.Hosting;
 

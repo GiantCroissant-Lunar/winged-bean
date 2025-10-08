@@ -9,7 +9,7 @@
   "exports": {
     "services": [
       {
-        "interface": "WingedBean.Contracts.TerminalUI.ITerminalUIService",
+        "interface": "Plate.CrossMilo.Contracts.TerminalUI.Services.IService",
         "implementation": "WingedBean.Plugins.TerminalUI.TerminalGuiService",
         "lifecycle": "singleton"
       }

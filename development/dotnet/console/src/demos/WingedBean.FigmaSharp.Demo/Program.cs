@@ -1,5 +1,5 @@
 using Terminal.Gui;
-using WingedBean.Contracts.FigmaSharp;
+using Plate.CrossMilo.Contracts.FigmaSharp;
 using WingedBean.FigmaSharp.Core;
 using WingedBean.Plugins.FigmaSharp.TerminalGui;
 using FigmaColor = WingedBean.Contracts.FigmaSharp.Color;

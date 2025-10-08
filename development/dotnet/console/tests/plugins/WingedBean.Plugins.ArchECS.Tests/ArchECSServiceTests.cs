@@ -3,6 +3,7 @@ using System.Linq;
 using FluentAssertions;
 using Plate.CrossMilo.Contracts.ECS;
 using Xunit;
+using IECSService = Plate.CrossMilo.Contracts.ECS.Services.IService;
 
 namespace WingedBean.Plugins.ArchECS.Tests;
 
@@ -162,8 +163,8 @@ public class ArchECSServiceTests
         var type = typeof(ArchECSService);
 
         // Act
-        var attribute = type.GetCustomAttributes(typeof(WingedBean.Contracts.Core.PluginAttribute), false)
-            .FirstOrDefault() as WingedBean.Contracts.Core.PluginAttribute;
+        var attribute = type.GetCustomAttributes(typeof(Plate.PluginManoi.Contracts.PluginAttribute), false)
+            .FirstOrDefault() as Plate.PluginManoi.Contracts.PluginAttribute;
 
         // Assert
         attribute.Should().NotBeNull();

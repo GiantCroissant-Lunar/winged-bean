@@ -1,22 +1,23 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using WingedBean.Contracts.Game;
-using WingedBean.PluginSystem;
+using Plate.CrossMilo.Contracts.Game.Dungeon;
+using Plate.PluginManoi.Core;
 
 namespace WingedBean.Plugins.DungeonGame;
 
 /// <summary>
 /// Plugin activator for Dungeon Game logic.
-/// Registers IDungeonGameService backed by DungeonGameService when loaded via ALC discovery.
+/// Registers IService (Game.Dungeon) backed by DungeonGameService when loaded via ALC discovery.
+/// NOTE: The DungeonGamePlugin bridge class is now the primary registration method for manifest-based loading.
 /// </summary>
 public class DungeonGamePluginActivator : IPluginActivator
 {
     public Task ActivateAsync(IServiceCollection services, IServiceProvider hostServices, CancellationToken ct = default)
     {
         var logger = hostServices.GetService<ILogger<DungeonGamePluginActivator>>();
-        logger?.LogInformation("Registering IDungeonGameService -> DungeonGameService");
+        logger?.LogInformation("Registering IService (Game.Dungeon) -> DungeonGameService");
 
-        services.AddSingleton<IDungeonGameService, DungeonGameService>();
+        services.AddSingleton<IService, DungeonGameService>();
         return Task.CompletedTask;
     }
 

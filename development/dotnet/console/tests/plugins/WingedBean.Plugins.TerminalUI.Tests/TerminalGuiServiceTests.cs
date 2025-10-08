@@ -89,8 +89,8 @@ public class TerminalGuiServiceTests
         var serviceType = typeof(TerminalGuiService);
 
         // Act
-        var pluginAttribute = serviceType.GetCustomAttributes(typeof(WingedBean.Contracts.Core.PluginAttribute), false)
-            .FirstOrDefault() as WingedBean.Contracts.Core.PluginAttribute;
+        var pluginAttribute = serviceType.GetCustomAttributes(typeof(Plate.PluginManoi.Contracts.PluginAttribute), false)
+            .FirstOrDefault() as Plate.PluginManoi.Contracts.PluginAttribute;
 
         // Assert
         pluginAttribute.Should().NotBeNull();

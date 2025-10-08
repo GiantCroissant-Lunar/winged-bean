@@ -1,13 +1,21 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using WingedBean.Contracts.Terminal;
-using WingedBean.Contracts.Core;
-using WingedBean.Contracts.Game;
-using WingedBean.Contracts.Input;
-using WingedBean.Contracts.Scene;
+using Plate.CrossMilo.Contracts.TerminalUI;
+using Plate.PluginManoi.Contracts;
+using Plate.CrossMilo.Contracts.Game;
+using Plate.CrossMilo.Contracts.Input;
+using Plate.CrossMilo.Contracts.Scene;
+using Plate.CrossMilo.Contracts.Scene.Services;
 using WingedBean.Plugins.ConsoleDungeon.Input;
 using WingedBean.Plugins.ConsoleDungeon.Scene;
 using System.IO;
+
+// Type aliases for IService pattern
+using IDungeonGameService = Plate.CrossMilo.Contracts.Game.Dungeon.IService;
+using IRenderService = Plate.CrossMilo.Contracts.Game.Render.IService;
+using ISceneService = Plate.CrossMilo.Contracts.Scene.Services.IService;
+using IInputRouter = Plate.CrossMilo.Contracts.Input.Router.IService;
+using IInputMapper = Plate.CrossMilo.Contracts.Input.Mapper.IService;
 
 namespace WingedBean.Plugins.ConsoleDungeon;
 
@@ -23,8 +31,8 @@ namespace WingedBean.Plugins.ConsoleDungeon;
 )]
 public class ConsoleDungeonAppRefactored : ITerminalApp, IRegistryAware, IDisposable
 {
-        private readonly ILogger<ConsoleDungeonAppRefactored> _logger;
-        private TerminalAppConfig _config;
+    private readonly ILogger<ConsoleDungeonAppRefactored> _logger;
+    private TerminalAppConfig _config;
     private IDungeonGameService? _gameService;
     private IRegistry? _registry;
     private ISceneService? _sceneService;
@@ -41,6 +49,14 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IRegistryAware, IDispos
 
     public event EventHandler<TerminalOutputEventArgs>? OutputReceived;
     public event EventHandler<TerminalExitEventArgs>? Exited;
+
+    // IWingedBeanApp members
+    public string Name => _config?.Name ?? "Console Dungeon";
+    public Plate.CrossMilo.Contracts.Hosting.App.AppState State { get; private set; } = Plate.CrossMilo.Contracts.Hosting.App.AppState.NotStarted;
+    public event EventHandler<Plate.CrossMilo.Contracts.Hosting.App.AppStateChangedEventArgs>? StateChanged;
+
+    // IUIApp members  
+    public event EventHandler<Plate.CrossMilo.Contracts.UI.App.UIEventArgs>? UIEvent;
 
     public ConsoleDungeonAppRefactored(
         ILogger<ConsoleDungeonAppRefactored> logger,
@@ -102,7 +118,7 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IRegistryAware, IDispos
                     if (_registry == null)
                         throw new InvalidOperationException("Registry is not available");
                     _renderService = _registry.Get<IRenderService>();
-                    _renderService.SetRenderMode(RenderMode.ASCII);
+                    _renderService.SetRenderMode(Plate.CrossMilo.Contracts.Game.Render.RenderMode.ASCII);
                     _logger.LogInformation("✓ IRenderService injected (ASCII mode)");
                     Diag("IRenderService ready (ASCII mode)");
                 }
@@ -350,11 +366,55 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IRegistryAware, IDispos
         return Task.CompletedTask;
     }
 
+    // ITerminalApp.SendRawInputAsync - send raw terminal input
+    public Task SendRawInputAsync(byte[] data, CancellationToken ct = default)
+    {
+        return SendInputAsync(data, ct);
+    }
+
+    // ITerminalApp.SetCursorPositionAsync - set cursor position
+    public Task SetCursorPositionAsync(int x, int y, CancellationToken ct = default)
+    {
+        // Terminal.Gui manages cursor position automatically
+        return Task.CompletedTask;
+    }
+
+    // ITerminalApp.WriteAnsiAsync - write ANSI escape sequences
+    public Task WriteAnsiAsync(string ansiSequence, CancellationToken ct = default)
+    {
+        // Terminal.Gui handles ANSI rendering
+        return Task.CompletedTask;
+    }
+
+    // IUIApp.HandleInputAsync - handle platform-agnostic input
+    public Task HandleInputAsync(Plate.CrossMilo.Contracts.UI.App.InputEvent input, CancellationToken cancellationToken = default)
+    {
+        // Terminal-specific input handling is done via SendRawInputAsync and Terminal.Gui events
+        // This method can be used for cross-platform input events if needed
+        return Task.CompletedTask;
+    }
+
+    // IUIApp.RenderAsync - render current frame
+    public Task RenderAsync(CancellationToken cancellationToken = default)
+    {
+        // Terminal.Gui handles rendering automatically via its main loop
+        // Custom rendering is done via the GameWorldView control
+        return Task.CompletedTask;
+    }
+
+    // ITerminalApp.ResizeAsync - override for terminal-specific resize
     public Task ResizeAsync(int cols, int rows, CancellationToken ct = default)
     {
         _logger.LogInformation("Resize request: {Cols}x{Rows}", cols, rows);
         // Terminal.Gui handles resizing automatically
         return Task.CompletedTask;
+    }
+
+    // IUIApp.ResizeAsync - platform-agnostic resize (width/height in pixels or logical units)
+    Task Plate.CrossMilo.Contracts.UI.App.IService.ResizeAsync(int width, int height, CancellationToken cancellationToken)
+    {
+        // Convert to cols/rows for terminal (assuming character size)
+        return ResizeAsync(width, height, cancellationToken);
     }
 
     public void Dispose()

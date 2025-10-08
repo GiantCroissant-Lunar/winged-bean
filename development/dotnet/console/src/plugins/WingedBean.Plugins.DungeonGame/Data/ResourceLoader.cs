@@ -1,5 +1,8 @@
 using Microsoft.Extensions.Logging;
-using WingedBean.Contracts.Resource;
+using Plate.CrossMilo.Contracts.Resource.Services;
+
+// Type alias for backward compatibility during namespace migration
+using IResourceService = Plate.CrossMilo.Contracts.Resource.Services.IService;
 
 namespace WingedBean.Plugins.DungeonGame.Data;
 

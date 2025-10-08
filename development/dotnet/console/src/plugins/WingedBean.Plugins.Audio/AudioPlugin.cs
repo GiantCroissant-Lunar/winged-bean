@@ -1,31 +1,57 @@
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using WingedBean.Contracts;
-using WingedBean.Contracts.Audio;
-using WingedBean.PluginSystem;
+using Microsoft.Extensions.Logging.Abstractions;
+using Plate.PluginManoi.Contracts;
+using Plate.CrossMilo.Contracts.Audio.Services;
 
 namespace WingedBean.Plugins.Audio;
 
 /// <summary>
-/// Plugin activator for Audio services
+/// Legacy plugin interface implementation for backward compatibility with the current host.
+/// This bridges the gap between the new IPluginActivator pattern and the old IPlugin pattern.
 /// </summary>
-public class AudioPlugin : IPluginActivator
+public class AudioPlugin : IPlugin
 {
-    public Task ActivateAsync(IServiceCollection services, IServiceProvider hostServices, CancellationToken ct = default)
+    private LibVlcAudioService? _serviceInstance;
+
+    public string Id => "wingedbean.plugins.audio";
+    public string Version => "1.0.0";
+
+    public Task OnActivateAsync(IRegistry registry, CancellationToken ct = default)
     {
-        // Register LibVlcAudioService as the IAudioService implementation
-        services.AddSingleton<IAudioService, LibVlcAudioService>();
+        // Try to get ILoggerFactory from registry, otherwise use NullLoggerFactory
+        ILoggerFactory? loggerFactory = null;
+        try
+        {
+            loggerFactory = registry.Get<ILoggerFactory>();
+        }
+        catch
+        {
+            // Fall back to null logger if not available
+        }
 
-        // Log activation
-        var logger = hostServices.GetService<ILogger<AudioPlugin>>();
-        logger?.LogInformation("Audio plugin activated (LibVLC)");
+        var logger = loggerFactory?.CreateLogger<LibVlcAudioService>() 
+                     ?? NullLogger<LibVlcAudioService>.Instance;
 
+        // Create the audio service instance
+        _serviceInstance = new LibVlcAudioService(logger);
+        
+        // Register the service directly with the registry (priority 50 from manifest)
+        registry.Register<IService>(_serviceInstance, priority: 50);
+        
         return Task.CompletedTask;
     }
 
-    public Task DeactivateAsync(CancellationToken ct = default)
+    public Task OnDeactivateAsync(CancellationToken ct = default)
     {
-        // LibVlcAudioService implements IDisposable and will be disposed by DI container
+        _serviceInstance?.Dispose();
         return Task.CompletedTask;
+    }
+
+    public IEnumerable<object> GetServices()
+    {
+        if (_serviceInstance != null)
+        {
+            yield return _serviceInstance;
+        }
     }
 }

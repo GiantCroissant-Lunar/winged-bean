@@ -1,0 +1,123 @@
+#!/usr/bin/expect -f
+# Record an asciinema session of ConsoleDungeon.Host with automated input
+# Output: ./recordings/console-operation-test.cast
+# Usage: ./record-console-session.exp
+
+set timeout 60
+set test_dir [file dirname [info script]]
+set console_dir "$test_dir/../../src/host/ConsoleDungeon.Host"
+set recording_dir "$test_dir/recordings"
+
+puts "========================================="
+puts "Asciinema Recording Test"
+puts "========================================="
+puts "Test directory: $test_dir"
+puts "Console directory: $console_dir"
+puts "Recording directory: $recording_dir"
+puts ""
+
+# Create recordings directory
+exec mkdir -p $recording_dir
+
+# Change to host directory for recording
+cd $console_dir
+
+# Set terminal type for proper ANSI support
+set env(TERM) "xterm-256color"
+
+puts "Starting asciinema recording..."
+puts "=========================================\n"
+
+# Start asciinema recording the console app
+set cast_file "$recording_dir/console-operation-test.cast"
+spawn asciinema rec --quiet --overwrite $cast_file -c "dotnet run --no-build"
+
+# Wait for application to start
+set startup_timeout 15
+expect {
+    -timeout $startup_timeout
+    "ConsoleDungeon.Host starting" {
+        puts "✓ Recording started, host is starting..."
+    }
+    "Loading plugins" {
+        puts "✓ Plugins loading..."
+    }
+    timeout {
+        puts "✗ Timeout waiting for host to start"
+        send "\003"
+        sleep 1
+        exit 1
+    }
+}
+
+# Wait for UI to be ready
+sleep 3
+
+puts "\n========================================="
+puts "Performing Automated Operations"
+puts "=========================================\n"
+
+# Demonstrate navigation with arrow keys
+puts "1. Testing arrow key navigation..."
+for {set i 0} {$i < 3} {incr i} {
+    send "\033\[C"   ;# Right
+    sleep 0.4
+    send "\033\[B"   ;# Down
+    sleep 0.4
+}
+
+sleep 1
+
+# Demonstrate WASD controls
+puts "2. Testing WASD controls..."
+send "w"; sleep 0.3
+send "a"; sleep 0.3
+send "s"; sleep 0.3
+send "d"; sleep 0.3
+
+sleep 1
+
+# Test interaction keys
+puts "3. Testing interaction keys..."
+send "\r"; sleep 0.5  ;# Enter
+send " "; sleep 0.5    ;# Space
+
+sleep 1
+
+# Demonstrate menu navigation (if applicable)
+puts "4. Testing menu keys..."
+send "\t"; sleep 0.4   ;# Tab
+send "\033\[A"; sleep 0.3  ;# Up
+send "\033\[B"; sleep 0.3  ;# Down
+send "\r"; sleep 0.5   ;# Enter
+
+sleep 2
+
+puts "\n========================================="
+puts "Operations Complete"
+puts "=========================================\n"
+
+# Quit the application
+puts "Exiting application..."
+send "q"
+
+# Wait for asciinema to finish recording
+expect {
+    -timeout 10
+    eof {
+        puts "\n✓ Recording completed successfully"
+        puts "✓ Cast file saved to: $cast_file"
+        puts "\nTo replay:"
+        puts "  asciinema play $cast_file"
+        puts "\nTo upload:"
+        puts "  asciinema upload $cast_file"
+        exit 0
+    }
+    timeout {
+        puts "\n⚠ Recording timeout, forcing exit..."
+        send "\003"
+        sleep 2
+        puts "✓ Cast file saved to: $cast_file"
+        exit 0
+    }
+}

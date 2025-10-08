@@ -322,8 +322,8 @@ public class ConfigServiceTests
         var type = typeof(ConfigService);
 
         // Act
-        var attribute = type.GetCustomAttributes(typeof(WingedBean.Contracts.Core.PluginAttribute), false)
-            .FirstOrDefault() as WingedBean.Contracts.Core.PluginAttribute;
+        var attribute = type.GetCustomAttributes(typeof(Plate.PluginManoi.Contracts.PluginAttribute), false)
+            .FirstOrDefault() as Plate.PluginManoi.Contracts.PluginAttribute;
 
         // Assert
         attribute.Should().NotBeNull();

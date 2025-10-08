@@ -9,7 +9,7 @@
   "exports": {
     "services": [
       {
-        "interface": "WingedBean.Contracts.ITerminalApp",
+        "interface": "Plate.CrossMilo.Contracts.TerminalUI.ITerminalApp",
         "implementation": "WingedBean.Plugins.ConsoleDungeon.ConsoleDungeonAppRefactored",
         "lifecycle": "singleton",
         "priority": 51

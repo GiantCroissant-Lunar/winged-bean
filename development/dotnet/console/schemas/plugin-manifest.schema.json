@@ -1,0 +1,133 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Plugin Manifest",
+  "description": "Schema for .plugin.json manifest files",
+  "type": "object",
+  "required": ["id", "version", "name", "entryPoint"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for the plugin",
+      "pattern": "^[a-z0-9.-]+$"
+    },
+    "version": {
+      "type": "string",
+      "description": "Semantic version of the plugin"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Plugin description"
+    },
+    "author": {
+      "type": "string"
+    },
+    "license": {
+      "type": "string"
+    },
+    "entryPoint": {
+      "type": "object",
+      "description": "Entry points for different platforms",
+      "properties": {
+        "dotnet": {
+          "type": ["string", "null"],
+          "description": "Path to .NET DLL"
+        },
+        "nodejs": {
+          "type": ["string", "null"]
+        },
+        "unity": {
+          "type": ["string", "null"]
+        },
+        "godot": {
+          "type": ["string", "null"]
+        }
+      }
+    },
+    "dependencies": {
+      "type": "object",
+      "description": "Plugin and package dependencies",
+      "properties": {
+        "plugins": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of plugin IDs this plugin depends on"
+        },
+        "nuget": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["packageId", "version"],
+            "properties": {
+              "packageId": {
+                "type": "string"
+              },
+              "version": {
+                "type": "string"
+              },
+              "optional": {
+                "type": "boolean",
+                "default": false
+              },
+              "reason": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "exports": {
+      "type": "object",
+      "properties": {
+        "services": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["interface", "implementation", "lifecycle"],
+            "properties": {
+              "interface": {
+                "type": "string"
+              },
+              "implementation": {
+                "type": "string"
+              },
+              "lifecycle": {
+                "type": "string",
+                "enum": ["singleton", "scoped", "transient"]
+              }
+            }
+          }
+        }
+      }
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "supportedProfiles": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["console", "unity", "godot", "web"]
+      }
+    },
+    "loadStrategy": {
+      "type": "string",
+      "enum": ["eager", "lazy", "on-demand"],
+      "default": "eager"
+    },
+    "priority": {
+      "type": "integer",
+      "description": "Load priority (higher loads first)",
+      "default": 0
+    }
+  }
+}

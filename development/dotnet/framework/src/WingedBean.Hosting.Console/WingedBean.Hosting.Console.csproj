@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\WingedBean.Contracts.Hosting\WingedBean.Contracts.Hosting.csproj" />
+    <ProjectReference Include="../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Hosting/CrossMilo.Contracts.Hosting.csproj" />
   </ItemGroup>
 
 </Project>

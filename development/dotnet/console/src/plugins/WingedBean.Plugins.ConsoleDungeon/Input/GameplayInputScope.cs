@@ -1,6 +1,10 @@
 using Microsoft.Extensions.Logging;
-using WingedBean.Contracts.Game;
-using WingedBean.Contracts.Input;
+using Plate.CrossMilo.Contracts.Game;
+using Plate.CrossMilo.Contracts.Input;
+
+// Type aliases for IService pattern
+using IDungeonGameService = Plate.CrossMilo.Contracts.Game.Dungeon.IService;
+using IInputScope = Plate.CrossMilo.Contracts.Input.Scope.IService;
 
 namespace WingedBean.Plugins.ConsoleDungeon.Input;
 

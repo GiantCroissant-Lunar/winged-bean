@@ -1,13 +1,22 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using WingedBean.Contracts.Hosting;
-using WingedBean.Contracts.UI;
+using Plate.CrossMilo.Contracts.Hosting.Host;
+using Plate.CrossMilo.Contracts.Hosting.App;
+
+// Type aliases to avoid IService ambiguity
+using IWingedBeanHost = Plate.CrossMilo.Contracts.Hosting.Host.IService;
+using IWingedBeanApp = Plate.CrossMilo.Contracts.Hosting.App.IService;
+using IWingedBeanHostBuilder = Plate.CrossMilo.Contracts.Hosting.Host.IServiceBuilder;
+using IUIApp = Plate.CrossMilo.Contracts.UI.App.IService;
 
 namespace WingedBean.Hosting.Godot;
 
 /// <summary>
-/// Godot host that bridges Godot Node lifecycle to IWingedBeanApp.
+/// Godot host that bridges Godot Node lifecycle to IWingedBeanHost.
 /// Godot's lifecycle is authoritative (_Ready, _Process, _ExitTree, etc.).
 /// </summary>
 #if GODOT

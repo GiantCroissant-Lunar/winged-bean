@@ -1,13 +1,14 @@
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using WingedBean.Contracts.Recorder;
+using Plate.CrossMilo.Contracts.Recorder.Services;
+using Plate.CrossMilo.Contracts.Recorder;
 
 namespace WingedBean.Plugins.AsciinemaRecorder;
 
 /// <summary>
 /// Asciinema v2 format recorder implementation
 /// </summary>
-public class AsciinemaRecorder : IRecorder
+public class AsciinemaRecorder : IService
 {
     private readonly Dictionary<string, RecordingContext> _activeRecordings = new();
     private readonly ILogger<AsciinemaRecorder> _logger;

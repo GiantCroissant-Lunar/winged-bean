@@ -1,8 +1,9 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using WingedBean.Contracts.FigmaSharp;
-using WingedBean.PluginSystem;
+using Plate.CrossMilo.Contracts.FigmaSharp;
+using Plate.CrossMilo.Contracts.FigmaSharp.Renderer;
+using Plate.PluginManoi.Core;
 
 namespace WingedBean.Plugins.FigmaSharp.TerminalGui;
 
@@ -14,7 +15,7 @@ public class TerminalGuiRendererPlugin : IPluginActivator
     public Task ActivateAsync(IServiceCollection services, IServiceProvider hostServices, CancellationToken ct = default)
     {
         // Register Terminal.Gui renderer as singleton
-        services.AddSingleton<IUIRenderer, TerminalGuiRenderer>();
+        services.AddSingleton<IService, TerminalGuiRenderer>();
         
         return Task.CompletedTask;
     }

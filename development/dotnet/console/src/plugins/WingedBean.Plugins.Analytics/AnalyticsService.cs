@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using WingedBean.Contracts.Analytics;
+using Plate.CrossMilo.Contracts.Analytics.Services;
+using Plate.CrossMilo.Contracts.Analytics;
 
 namespace WingedBean.Plugins.Analytics;
 
 /// <summary>
 /// Comprehensive analytics service implementation supporting multiple backends.
 /// </summary>
-public class AnalyticsService : IAnalyticsService
+public class AnalyticsService : IService
 {
     private readonly ILogger<AnalyticsService> _logger;
     private readonly AnalyticsConfig _config;

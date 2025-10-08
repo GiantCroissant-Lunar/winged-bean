@@ -1,4 +1,4 @@
-using WingedBean.Contracts.FigmaSharp;
+using Plate.CrossMilo.Contracts.FigmaSharp;
 
 namespace WingedBean.FigmaSharp.Core;
 
@@ -7,10 +7,10 @@ namespace WingedBean.FigmaSharp.Core;
 /// </summary>
 public class FigmaToUIPipeline
 {
-    private readonly IFigmaTransformer _transformer;
-    private readonly IUIRenderer _renderer;
+    private readonly IService _transformer;
+    private readonly IService _renderer;
     
-    public FigmaToUIPipeline(IFigmaTransformer transformer, IUIRenderer renderer)
+    public FigmaToUIPipeline(IService transformer, IService renderer)
     {
         _transformer = transformer;
         _renderer = renderer;
