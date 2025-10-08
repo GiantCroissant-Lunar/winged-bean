@@ -31,7 +31,7 @@ tasks:
       - echo "Setup complete!"
 
   ci:
-    desc: "Full CI pipeline"
+    desc: "Full CI pipeline (traditional Task-based)"
     cmds:
       - task: clean
       - task: build-all
@@ -39,11 +39,44 @@ tasks:
       - task: test-e2e
       - echo "CI pipeline completed successfully!"
 
+  ci-nuke:
+    desc: "Full CI pipeline via Nuke (RFC-0040 - includes test metrics)"
+    cmds:
+      - task: nuke-ci
+      - task: nodejs:test
+      - task: test-e2e
+      - echo "Nuke CI pipeline completed successfully!"
+
   version:
     desc: Show current GitVersion
     cmds:
       - 'echo "Version: {{.VERSION}}"'
       - 'echo "Full Version: {{.FULL_VERSION}}"'
+
+  # Nuke Build Integration (RFC-0040)
+  nuke-build:
+    desc: "Build via Nuke components (RFC-0040)"
+    dir: nuke
+    cmds:
+      - ./build.sh BuildAll --no-logo
+
+  nuke-test:
+    desc: "Test via Nuke (includes metric collection)"
+    dir: nuke
+    cmds:
+      - ./build.sh Test --no-logo
+
+  nuke-ci:
+    desc: "Full Nuke CI pipeline"
+    dir: nuke
+    cmds:
+      - ./build.sh CI --no-logo
+
+  nuke-clean:
+    desc: "Clean via Nuke"
+    dir: nuke
+    cmds:
+      - ./build.sh Clean --no-logo
 
   init-dirs:
     desc: Initialize build artifact directories
