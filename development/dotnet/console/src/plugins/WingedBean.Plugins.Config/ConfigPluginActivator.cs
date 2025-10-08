@@ -1,7 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using WingedBean.Contracts.Config;
-using WingedBean.PluginSystem;
+using Plate.CrossMilo.Contracts.Config.Services;
+using Plate.CrossMilo.Contracts.Config;
+using Plate.PluginManoi.Core;
+using IConfigService = Plate.CrossMilo.Contracts.Config.Services.IService;
 
 namespace WingedBean.Plugins.Config;
 

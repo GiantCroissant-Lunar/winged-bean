@@ -11,6 +11,7 @@ using Plate.CrossMilo.Contracts.Game;
 using Plate.CrossMilo.Contracts.Game.Dungeon;
 using Plate.CrossMilo.Contracts.Game.GameUI;
 using Plate.CrossMilo.Contracts.Game.Render;
+using Plate.CrossMilo.Contracts.TerminalUI;
 using Plate.PluginManoi.Contracts;
 using Plate.PluginManoi.Registry;
 using Terminal.Gui;

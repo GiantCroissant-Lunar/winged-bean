@@ -1,12 +1,13 @@
 using Microsoft.Extensions.Configuration;
-using WingedBean.Contracts.Config;
+using Plate.CrossMilo.Contracts.Config.Services;
+using Plate.CrossMilo.Contracts.Config;
 
 namespace WingedBean.Plugins.Config;
 
 /// <summary>
-/// Implementation of IConfigSection wrapping Microsoft.Extensions.Configuration.IConfigurationSection.
+/// Implementation of Plate.CrossMilo.Contracts.Config.IConfigSection wrapping Microsoft.Extensions.Configuration.IConfigurationSection.
 /// </summary>
-internal class ConfigSection : IConfigSection
+internal class ConfigSection : Plate.CrossMilo.Contracts.Config.IConfigSection
 {
     private readonly IConfigurationSection _section;
 
@@ -19,12 +20,12 @@ internal class ConfigSection : IConfigSection
 
     public string? Value => _section.Value;
 
-    public IConfigSection GetSection(string key)
+    public Plate.CrossMilo.Contracts.Config.IConfigSection GetSection(string key)
     {
         return new ConfigSection(_section.GetSection(key));
     }
 
-    public IEnumerable<IConfigSection> GetChildren()
+    public IEnumerable<Plate.CrossMilo.Contracts.Config.IConfigSection> GetChildren()
     {
         return _section.GetChildren().Select(c => new ConfigSection(c));
     }

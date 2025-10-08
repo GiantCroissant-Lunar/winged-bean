@@ -1,7 +1,8 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Primitives;
-using WingedBean.Contracts.Config;
-using WingedBean.Contracts.Core;
+using Plate.CrossMilo.Contracts.Config.Services;
+using Plate.CrossMilo.Contracts.Config;
+using Plate.PluginManoi.Contracts;
 
 namespace WingedBean.Plugins.Config;
 
@@ -11,10 +12,10 @@ namespace WingedBean.Plugins.Config;
 /// </summary>
 [Plugin(
     Name = "ConfigService",
-    Provides = new[] { typeof(IConfigService) },
+    Provides = new[] { typeof(IService) },
     Priority = 100
 )]
-public class ConfigService : IConfigService
+public class ConfigService : IService
 {
     private IConfigurationRoot _configuration;
     private readonly Dictionary<string, string?> _originalValues = new();
@@ -99,7 +100,7 @@ public class ConfigService : IConfigService
     /// <summary>
     /// Get a configuration section.
     /// </summary>
-    public IConfigSection GetSection(string key)
+    public Plate.CrossMilo.Contracts.Config.IConfigSection GetSection(string key)
     {
         if (string.IsNullOrEmpty(key))
             throw new ArgumentException("Key cannot be null or empty", nameof(key));

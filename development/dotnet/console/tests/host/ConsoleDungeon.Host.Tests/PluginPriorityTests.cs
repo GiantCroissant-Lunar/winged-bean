@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Plate.PluginManoi.Contracts;
 using Plate.PluginManoi.Registry;
 using Plate.PluginManoi.Loader;
 using Plate.PluginManoi.Loader.AssemblyContext;
