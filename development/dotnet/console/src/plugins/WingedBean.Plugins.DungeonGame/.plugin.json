@@ -8,12 +8,17 @@
   "exports": {
     "services": [
       {
-        "interface": "WingedBean.Contracts.Game.IDungeonGameService",
+        "interface": "Plate.CrossMilo.Contracts.Game.Dungeon.IService",
         "implementation": "WingedBean.Plugins.DungeonGame.DungeonGameService",
+        "lifecycle": "singleton"
+      },
+      {
+        "interface": "Plate.CrossMilo.Contracts.Game.Render.IService",
+        "implementation": "WingedBean.Plugins.DungeonGame.Services.RenderServiceProvider",
         "lifecycle": "singleton"
       }
     ]
   },
   "capabilities": [ "game-logic" ],
-  "loadStrategy": "Eager"
+  "loadStrategy": "eager"
 }
