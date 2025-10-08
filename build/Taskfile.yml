@@ -14,7 +14,7 @@ vars:
     sh: ./get-version.sh
   FULL_VERSION:
     sh: ./get-version.sh
-  ARTIFACT_DIR: _artifacts/v{{.VERSION}}
+  ARTIFACT_DIR: _artifacts/{{.VERSION}}
 
 tasks:
   default:
@@ -65,8 +65,8 @@ tasks:
         SRC_BIN="$(pwd)/bin/Debug/net8.0"
         popd >/dev/null
         # Copy to artifacts bin
-        rm -rf _artifacts/v{{.VERSION}}/dotnet/bin/*
-        cp -r "$SRC_BIN"/* _artifacts/v{{.VERSION}}/dotnet/bin/
+        rm -rf _artifacts/{{.VERSION}}/dotnet/bin/*
+        cp -r "$SRC_BIN"/* _artifacts/{{.VERSION}}/dotnet/bin/
 
   build-web:
     desc: "Build web projects"
@@ -104,7 +104,7 @@ tasks:
     internal: true
     cmds:
       - rm -rf _artifacts/latest
-      - cp -r _artifacts/v{{.VERSION}} _artifacts/latest
+      - cp -r _artifacts/{{.VERSION}} _artifacts/latest
       - echo "Updated _artifacts/latest to point to version {{.VERSION}}"
 
   console:debug:
@@ -180,7 +180,7 @@ tasks:
     cmds:
       - |
         set -euo pipefail
-        ART_DIR="_artifacts/v{{.VERSION}}"
+        ART_DIR="_artifacts/{{.VERSION}}"
         DIST="$ART_DIR/pty/dist"
         BIN="$ART_DIR/dotnet/bin"
         echo "Using artifacts at: $ART_DIR"
@@ -228,7 +228,7 @@ tasks:
         SRC_BIN="$(pwd)/bin/Debug/net8.0"
         popd >/dev/null
         # Use latest artifact PTY server for consistency
-        ART_DIR="_artifacts/v{{.VERSION}}"
+        ART_DIR="_artifacts/{{.VERSION}}"
         DIST="$ART_DIR/pty/dist"
         echo "Using PTY from: $DIST"
         # Ensure ws-send-keys is available in dist where ws is installed

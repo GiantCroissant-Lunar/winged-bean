@@ -2,17 +2,43 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <RootNamespace></RootNamespace>
     <NoWarn>CS0649;CS0169;CA1050;CA1822;CA2211;IDE1006</NoWarn>
     <NukeRootDirectory>..</NukeRootDirectory>
     <NukeScriptDirectory>..</NukeScriptDirectory>
     <NukeTelemetryVersion>1</NukeTelemetryVersion>
     <IsPackable>false</IsPackable>
+    <!-- Default to local infra project references for development -->
+    <UseLocalProjectReferences Condition="'$(UseLocalProjectReferences)' == ''">true</UseLocalProjectReferences>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Nuke.Common" Version="9.0.4" />
+    <PackageReference Include="Nuke.Common" />
+    <PackageReference Include="Serilog" />
+    <PackageReference Include="Serilog.Sinks.Console" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageDownload Include="GitVersion.Tool" Version="[6.3.0]" />
+  </ItemGroup>
+
+  <!-- Prefer ProjectReference by default for local development -->
+  <ItemGroup Condition="'$(UseLocalProjectReferences)' != 'false'">
+    <ProjectReference Include="..\..\..\..\..\infra-projects\giantcroissant-lunar-build\build\nuke\components\Configuration\Lunar.Build.Configuration.csproj" />
+    <ProjectReference Include="..\..\..\..\..\infra-projects\giantcroissant-lunar-build\build\nuke\components\CoreAbstractions\Lunar.Build.CoreAbstractions.csproj" />
+    <ProjectReference Include="..\..\..\..\..\infra-projects\giantcroissant-lunar-build\build\nuke\components\CodeQuality\Lunar.Build.CodeQuality.csproj" />
+    <!-- Reporting component from giantcroissant-lunar-report -->
+    <ProjectReference Include="..\..\..\..\..\infra-projects\giantcroissant-lunar-report\build\nuke\components\Reporting\NFunReportComponents.csproj" />
+  </ItemGroup>
+
+  <!-- Fallback to PackageReference when explicitly disabled -->
+  <ItemGroup Condition="'$(UseLocalProjectReferences)' == 'false'">
+    <PackageReference Include="GiantCroissant.Lunar.Build" />
+    <PackageReference Include="GiantCroissant.Lunar.Build.Configuration" />
+    <PackageReference Include="GiantCroissant.Lunar.Build.CoreAbstractions" />
+    <PackageReference Include="GiantCroissant.Lunar.Build.CodeQuality" />
+    <PackageReference Include="GiantCroissant.Lunar.NfunReport.Build.Reporting" />
   </ItemGroup>
 
 </Project>

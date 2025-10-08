@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Build configuration for WingedBean Console",
+  "projectType": "multi-group-build",
+
+  "paths": {
+    "projectDiscoveryPaths": [
+      "../../development/dotnet/console/src/**/*.csproj",
+      "../../development/dotnet/console/tests/**/*.csproj"
+    ],
+    "sourceDirectory": "../../development/dotnet/console/src"
+  },
+
+  "projectGroups": [
+    {
+      "name": "console-host",
+      "buildType": "dotnet-console",
+      "sourceDirectory": "../../development/dotnet/console/src",
+      "outputs": [
+        {
+          "type": "console-executable",
+          "directory": "../_artifacts/{GitVersion}/dotnet/bin"
+        }
+      ]
+    },
+    {
+      "name": "console-tests",
+      "buildType": "dotnet-test",
+      "sourceDirectory": "../../development/dotnet/console/tests",
+      "outputs": [
+        {
+          "type": "test-results",
+          "directory": "../_artifacts/{GitVersion}/dotnet/test-results"
+        }
+      ]
+    }
+  ],
+
+  "globalPaths": {
+    "artifactsDirectory": "../_artifacts",
+    "nugetRepositoryDirectory": "../../../packages/nuget-repo"
+  },
+
+  "codeQuality": {
+    "outputDirectory": "../_artifacts/{GitVersion}/dotnet/test-results",
+    "solutionFile": "../../development/dotnet/console/Console.sln",
+    "failOnIssues": false,
+    "thresholds": {
+      "maxWarnings": 100,
+      "maxErrors": 0,
+      "minCoverage": 80.0
+    },
+    "coverage": {
+      "enable": true,
+      "format": "cobertura",
+      "threshold": 80.0
+    }
+  },
+
+  "reporting": {
+    "enabled": true,
+    "outputDirectory": "../_artifacts/{GitVersion}/reports"
+  },
+
+  "reportProviders": []
+}

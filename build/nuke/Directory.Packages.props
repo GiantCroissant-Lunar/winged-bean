@@ -1,0 +1,25 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Nuke Framework -->
+    <PackageVersion Include="Nuke.Common" Version="9.0.4" />
+
+    <!-- Logging -->
+    <PackageVersion Include="Serilog" Version="4.3.0" />
+    <PackageVersion Include="Serilog.Sinks.Console" Version="6.0.0" />
+
+    <!-- Tools -->
+    <PackageVersion Include="GitVersion.Tool" Version="6.3.0" />
+    <PackageVersion Include="GitVersion.MsBuild" Version="6.3.0" />
+
+    <!-- Lunar Build Components - Use ProjectReference by default, these are for PackageReference fallback -->
+    <PackageVersion Include="GiantCroissant.Lunar.Build" Version="1.0.0-202508012052" />
+    <PackageVersion Include="GiantCroissant.Lunar.Build.Configuration" Version="1.0.0-202508012052" />
+    <PackageVersion Include="GiantCroissant.Lunar.Build.CoreAbstractions" Version="1.0.0-202508012052" />
+    <PackageVersion Include="GiantCroissant.Lunar.Build.CodeQuality" Version="1.0.0-202508012052" />
+    <PackageVersion Include="GiantCroissant.Lunar.NfunReport.Build.Reporting" Version="0.1.0-ci" />
+  </ItemGroup>
+</Project>
