@@ -20,7 +20,7 @@
   "exports": {
     "services": [
       {
-        "interface": "WingedBean.Contracts.Config.IConfigService",
+        "interface": "Plate.CrossMilo.Contracts.Config.Services.IService",
         "implementation": "WingedBean.Plugins.Config.ConfigService",
         "lifecycle": "singleton"
       }

@@ -20,7 +20,7 @@
   "exports": {
     "services": [
       {
-        "interface": "WingedBean.Contracts.ECS.IECSService",
+        "interface": "Plate.CrossMilo.Contracts.ECS.Services.IService",
         "implementation": "WingedBean.Plugins.ArchECS.ArchECSService",
         "lifecycle": "singleton"
       }
