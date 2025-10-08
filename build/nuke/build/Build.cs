@@ -33,13 +33,13 @@ partial class Build :
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
 
-    [Solution("../../development/dotnet/console/Console.sln")]
-    readonly Solution? Solution;
-
     [GitVersion(NoFetch = true)]
     GitVersion _gitVersion = null!;
 
     public GitVersion GitVersion => _gitVersion;
+
+    // Solution path - manually specified since attribute injection doesn't work with component interfaces
+    AbsolutePath SolutionPath => RootDirectory.Parent.Parent / "development" / "dotnet" / "console" / "Console.sln";
 
     // IWrapperPathComponent implementation
     public string[] ProjectConfigIdentifiers => new[]
@@ -72,10 +72,10 @@ partial class Build :
         .Executes(() =>
         {
             Log.Information("Cleaning solution...");
-            if (Solution != null)
+            if (SolutionPath.FileExists())
             {
                 DotNetClean(s => s
-                    .SetProject(Solution)
+                    .SetProject(SolutionPath)
                     .SetConfiguration(Configuration));
             }
         });
@@ -84,10 +84,10 @@ partial class Build :
         .Executes(() =>
         {
             Log.Information("Restoring solution...");
-            if (Solution != null)
+            if (SolutionPath.FileExists())
             {
                 DotNetRestore(s => s
-                    .SetProjectFile(Solution));
+                    .SetProjectFile(SolutionPath));
             }
         });
 
@@ -96,10 +96,10 @@ partial class Build :
         .Executes(() =>
         {
             Log.Information("Building solution...");
-            if (Solution != null)
+            if (SolutionPath.FileExists())
             {
                 DotNetBuild(s => s
-                    .SetProjectFile(Solution)
+                    .SetProjectFile(SolutionPath)
                     .SetConfiguration(Configuration)
                     .EnableNoRestore());
             }
@@ -119,25 +119,44 @@ partial class Build :
         .DependsOn(BuildAll)
         .Executes(() =>
         {
-            Log.Information("Running tests...");
+            Log.Information("Running tests for version {Version}...", GitVersion.SemVer);
             var testResultsDir = ArtifactsDirectory / "dotnet" / "test-results";
             testResultsDir.CreateOrCleanDirectory();
 
-            if (Solution != null)
+            if (SolutionPath.FileExists())
             {
+                Log.Information("Test results directory: {Directory}", testResultsDir);
+
                 DotNetTest(s => s
-                    .SetProjectFile(Solution)
+                    .SetProjectFile(SolutionPath)
                     .SetConfiguration(Configuration)
-                    .SetLoggers(
-                        $"trx;LogFileName={testResultsDir}/test-results.trx",
-                        $"html;LogFileName={testResultsDir}/test-report.html")
+                    .SetResultsDirectory(testResultsDir)
+                    .AddLoggers(
+                        $"trx;LogFileName=test-results.trx",
+                        $"html;LogFileName=test-report.html")
                     .SetProperty("CollectCoverage", "true")
                     .SetProperty("CoverletOutputFormat", "cobertura")
                     .SetProperty("CoverletOutput", $"{testResultsDir}/coverage/")
-                    .EnableNoBuild());
-            }
+                    .EnableNoBuild()
+                    .EnableNoRestore());
 
-            Log.Information("Test results saved to: {Directory}", testResultsDir);
+                Log.Information("Test results saved to: {Directory}", testResultsDir);
+
+                // Check if TRX file was created
+                var trxFile = testResultsDir / "test-results.trx";
+                if (trxFile.FileExists())
+                {
+                    Log.Information("✓ TRX file created: {File}", trxFile);
+                }
+                else
+                {
+                    Log.Warning("TRX file not found at: {File}", trxFile);
+                }
+            }
+            else
+            {
+                Log.Error("Cannot run tests: Solution not found at {Path}", SolutionPath);
+            }
         });
 
     Target CI => _ => _
