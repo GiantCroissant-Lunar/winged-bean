@@ -20,7 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../../../src/plugins/WingedBean.Plugins.Resilience/WingedBean.Plugins.Resilience.csproj" />
-    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Resilience/WingedBean.Contracts.Resilience.csproj" />
+    <ProjectReference Include="../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Resilience/CrossMilo.Contracts.Resilience.csproj" />
   </ItemGroup>
 
 </Project>

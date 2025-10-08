@@ -2,7 +2,7 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using WingedBean.Contracts.Resource;
+using Plate.CrossMilo.Contracts.Resource;
 using WingedBean.PluginSystem;
 using Xunit;
 

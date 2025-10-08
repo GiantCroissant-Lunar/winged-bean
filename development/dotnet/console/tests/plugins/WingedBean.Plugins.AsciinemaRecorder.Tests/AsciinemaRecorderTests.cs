@@ -1,6 +1,6 @@
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
-using WingedBean.Contracts.Recorder;
+using Plate.CrossMilo.Contracts.Recorder;
 using Xunit;
 
 namespace WingedBean.Plugins.AsciinemaRecorder.Tests;

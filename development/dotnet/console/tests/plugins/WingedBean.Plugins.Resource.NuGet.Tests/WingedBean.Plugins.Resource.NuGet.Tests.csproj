@@ -4,22 +4,21 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <LangVersion>latest</LangVersion>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="FluentAssertions" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio" />
-    <PackageReference Include="coverlet.collector" />
-    <PackageReference Include="FluentAssertions" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../../src/plugins/WingedBean.Plugins.Analytics/WingedBean.Plugins.Analytics.csproj" />
-    <ProjectReference Include="../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Analytics/CrossMilo.Contracts.Analytics.csproj" />
+    <ProjectReference Include="../../../src/plugins/WingedBean.Plugins.Resource.NuGet/WingedBean.Plugins.Resource.NuGet.csproj" />
+    <ProjectReference Include="../../../src/plugins/WingedBean.Plugins.Resource/WingedBean.Plugins.Resource.csproj" />
   </ItemGroup>
 
 </Project>

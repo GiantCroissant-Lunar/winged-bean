@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using FluentAssertions;
-using WingedBean.Contracts.ECS;
+using Plate.CrossMilo.Contracts.ECS;
 using Xunit;
 
 namespace WingedBean.Plugins.ArchECS.Tests;

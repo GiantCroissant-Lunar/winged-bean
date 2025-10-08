@@ -2,7 +2,7 @@ using System.Text.Json;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using WingedBean.Contracts.Resource;
+using Plate.CrossMilo.Contracts.Resource;
 using Xunit;
 
 namespace WingedBean.Plugins.Resource.Tests;

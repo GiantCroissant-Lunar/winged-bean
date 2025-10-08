@@ -1,5 +1,5 @@
 using FluentAssertions;
-using WingedBean.Contracts.Game;
+using Plate.CrossMilo.Contracts.Game;
 using WingedBean.Contracts.Input;
 using WingedBean.Plugins.ConsoleDungeon.Input;
 
