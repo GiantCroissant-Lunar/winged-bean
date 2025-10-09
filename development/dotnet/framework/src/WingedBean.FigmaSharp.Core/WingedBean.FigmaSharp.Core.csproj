@@ -1,13 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <ItemGroup>
-    <ProjectReference Include="../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.FigmaSharp/CrossMilo.Contracts.FigmaSharp.csproj" />
-  </ItemGroup>
-
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>10.0</LangVersion>
     <Nullable>enable</Nullable>
+
+    <!-- NuGet Packaging (RFC-0041) -->
+    <IsPackable>true</IsPackable>
+    <PackageId>GiantCroissant.Yokan.WingedBean.FigmaSharp.Core</PackageId>
+    <Description>WingedBean framework library - FigmaSharp core functionality for Figma integration</Description>
+    <Authors>GiantCroissant</Authors>
+    <Company>GiantCroissant</Company>
+    <PackageTags>winged-bean;game-framework;yokan;figma;figmasharp</PackageTags>
+    <PackageProjectUrl>https://github.com/giantcroissant/winged-bean</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/giantcroissant/winged-bean</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.FigmaSharp/CrossMilo.Contracts.FigmaSharp.csproj" />
+  </ItemGroup>
 
 </Project>

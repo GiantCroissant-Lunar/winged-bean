@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Build configuration for WingedBean Framework Libraries - RFC-0041",
+  "projectType": "multi-group-build",
+
+  "paths": {
+    "projectDiscoveryPaths": [
+      "../../development/dotnet/framework/src/**/*.csproj"
+    ],
+    "sourceDirectory": "../../development/dotnet/framework/src"
+  },
+
+  "projectGroups": [
+    {
+      "name": "hosting-framework",
+      "buildType": "dotnet-library",
+      "sourceDirectory": "../../development/dotnet/framework/src",
+      "outputs": [
+        {
+          "type": "nuget-package",
+          "directory": "../_artifacts/{GitVersion}/dotnet/packages"
+        }
+      ],
+      "explicitProjects": [
+        "WingedBean.Hosting/WingedBean.Hosting.csproj",
+        "WingedBean.Hosting.Console/WingedBean.Hosting.Console.csproj",
+        "WingedBean.Hosting.Unity/WingedBean.Hosting.Unity.csproj",
+        "WingedBean.Hosting.Godot/WingedBean.Hosting.Godot.csproj"
+      ],
+      "comments": "WingedBean.FigmaSharp.Core temporarily excluded due to missing CrossMilo.Contracts.FigmaSharp types",
+      "buildConfiguration": {
+        "configuration": "Release",
+        "targetFramework": "net8.0"
+      }
+    }
+  ],
+
+  "globalPaths": {
+    "artifactsDirectory": "../_artifacts",
+    "nugetRepositoryDirectory": "../../../../../packages/nuget-repo"
+  },
+
+  "nuget": {
+    "localNugetRepositories": ["../../../../../packages/nuget-repo"],
+    "syncLayout": "both",
+    "outputDirectory": "../_artifacts/{GitVersion}/dotnet/packages"
+  },
+
+  "reporting": {
+    "enabled": false,
+    "outputDirectory": "../_artifacts/{GitVersion}/reports"
+  }
+}

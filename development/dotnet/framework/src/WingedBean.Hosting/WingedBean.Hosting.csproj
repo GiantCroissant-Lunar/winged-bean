@@ -5,6 +5,18 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>12</LangVersion>
+
+    <!-- NuGet Packaging (RFC-0041) -->
+    <IsPackable>true</IsPackable>
+    <PackageId>GiantCroissant.Yokan.WingedBean.Hosting</PackageId>
+    <Description>WingedBean framework library - Core hosting abstractions for multi-platform game hosting</Description>
+    <Authors>GiantCroissant</Authors>
+    <Company>GiantCroissant</Company>
+    <PackageTags>winged-bean;game-framework;yokan;hosting;multi-platform</PackageTags>
+    <PackageProjectUrl>https://github.com/giantcroissant/winged-bean</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/giantcroissant/winged-bean</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
