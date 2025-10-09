@@ -137,7 +137,6 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IRegistryAware, IDispos
             if (_renderService == null)
             {
                 _logger.LogError("Cannot create scene without render service");
-                try { System.Console.WriteLine("[ConsoleDungeonApp] Abort: render service is null"); } catch { }
                 return;
             }
 
@@ -232,6 +231,7 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IRegistryAware, IDispos
                 {
                     _gameService?.Update(0.1f);
                     updateCount++;
+                    // Game update diagnostics written to file only (every 50th update)
                     if (updateCount == 1 || updateCount % 50 == 0)
                     {
                         Diag($"Game update #{updateCount}");
@@ -319,8 +319,9 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IRegistryAware, IDispos
             Directory.CreateDirectory(dir);
             var line = $"[{DateTimeOffset.Now:HH:mm:ss}] [ConsoleDungeonApp] {msg}\n";
             File.AppendAllText(Path.Combine(dir, "ui-diag.log"), line);
-            Console.Write(line);
-            Console.Out.Flush();
+            // Console output removed - use log file only to avoid interfering with Terminal.Gui
+            // Console.Write(line);
+            // Console.Out.Flush();
         }
         catch { }
     }

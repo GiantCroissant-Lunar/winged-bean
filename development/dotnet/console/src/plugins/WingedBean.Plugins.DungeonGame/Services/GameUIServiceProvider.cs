@@ -30,11 +30,8 @@ public class GameUIServiceProvider : IGameUIService
         // More flexible type checking - just store the object and try to use it
         _mainWindow = mainWindow as Window;
         
-        if (_mainWindow == null)
-        {
-            // Log warning but don't throw - allow graceful degradation
-            System.Console.WriteLine($"[GameUIService] Warning: mainWindow is not a Window (type: {mainWindow?.GetType().Name ?? "null"})");
-        }
+        // Note: If mainWindow is not a Window, graceful degradation will occur
+        // Consider adding ILogger support for proper warning logging
     }
     
     public void ShowMenu(MenuType type)

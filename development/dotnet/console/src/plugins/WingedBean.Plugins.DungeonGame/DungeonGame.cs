@@ -80,15 +80,15 @@ public class DungeonGame
         if (_isInitialized)
             return;
 
-        Console.WriteLine("Initializing DungeonGame with ECS...");
+        _logger?.LogInformation("Initializing DungeonGame with ECS...");
 
         // Resolve default runtime world but delay population until systems registered
         EnsureRuntimeWorld(_ecs.DefaultRuntimeWorld, populateIfEmpty: false);
-        Console.WriteLine($"✓ Runtime world ready ({_runtimeHandle})");
+        _logger?.LogInformation("Runtime world ready ({RuntimeHandle})", _runtimeHandle);
 
         // Register systems in execution order
         RegisterSystems();
-        Console.WriteLine($"✓ Registered {_systems.Count} systems");
+        _logger?.LogInformation("Registered {SystemCount} systems", _systems.Count);
 
         // Initialize the game world with entities (now data-driven if resources available)
         if (_resourceLoader != null)
@@ -100,12 +100,12 @@ public class DungeonGame
             InitializeWorldLegacy();
         }
         
-        Console.WriteLine($"✓ World initialized with {_world.EntityCount} entities");
+        _logger?.LogInformation("World initialized with {EntityCount} entities", _world.EntityCount);
 
         _lastUpdateTime = DateTime.UtcNow;
         _isInitialized = true;
 
-        Console.WriteLine("DungeonGame initialization complete!");
+        _logger?.LogInformation("DungeonGame initialization complete!");
     }
 
     private void RegisterSystems()
@@ -127,7 +127,7 @@ public class DungeonGame
             return;
         }
 
-        Console.WriteLine("Loading game data from resources...");
+        _logger?.LogInformation("Loading game data from resources...");
 
         try
         {
@@ -143,14 +143,14 @@ public class DungeonGame
                 return;
             }
 
-            Console.WriteLine($"  Loaded level: {levelData.Name}");
+            _logger?.LogInformation("Loaded level: {LevelName}", levelData.Name);
 
             // Create player from resource data
             var playerData = await _resourceLoader.LoadPlayerAsync("default-player");
             if (playerData != null)
             {
                 EntityFactory.CreatePlayer(_world, playerData);
-                Console.WriteLine($"  • Created player from resources");
+                _logger?.LogInformation("Created player from resources");
             }
             else
             {
@@ -159,17 +159,16 @@ public class DungeonGame
 
             // Spawn enemies from level data
             var random = Random.Shared;
-            await EntityFactory.SpawnEnemiesFromLevelAsync(_world, levelData, _resourceLoader, random);
+            await EntityFactory.SpawnEnemiesFromLevelAsync(_world, levelData, _resourceLoader, random, _logger);
 
             // Spawn items from level data  
-            await EntityFactory.SpawnItemsFromLevelAsync(_world, levelData, _resourceLoader, random);
+            await EntityFactory.SpawnItemsFromLevelAsync(_world, levelData, _resourceLoader, random, _logger);
 
             _logger?.LogInformation("World initialized from resources successfully");
         }
         catch (Exception ex)
         {
             _logger?.LogError(ex, "Failed to load resources, falling back to hardcoded data");
-            Console.WriteLine($"Warning: Resource loading failed - {ex.Message}");
             InitializeWorldLegacy();
         }
     }
@@ -184,7 +183,7 @@ public class DungeonGame
             return;
         }
 
-        Console.WriteLine("Using hardcoded game data (legacy mode)");
+        _logger?.LogInformation("Using hardcoded game data (legacy mode)");
 
         // Create the player entity
         CreatePlayerLegacy();
@@ -225,7 +224,7 @@ public class DungeonGame
             RenderLayer = 2
         });
 
-        Console.WriteLine("  • Created player entity at (40, 12)");
+        _logger?.LogDebug("Created player entity at (40, 12)");
     }
 
     private void CreateEnemiesLegacy(int count)
@@ -282,7 +281,7 @@ public class DungeonGame
                 RenderLayer = 2
             });
 
-            Console.WriteLine($"  • Created goblin at ({x}, {y})");
+            _logger?.LogDebug("Created goblin at ({X}, {Y})", x, y);
         }
     }
 
@@ -293,7 +292,7 @@ public class DungeonGame
     {
         if (!_isInitialized)
         {
-            Console.WriteLine("Warning: DungeonGame.Update() called before Initialize()");
+            _logger?.LogWarning("DungeonGame.Update() called before Initialize()");
             return;
         }
 
@@ -316,7 +315,7 @@ public class DungeonGame
     {
         Initialize();
 
-        Console.WriteLine("Starting game loop (target: 60 FPS)...");
+        _logger?.LogInformation("Starting game loop (target: 60 FPS)...");
 
         while (true)
         {
@@ -328,7 +327,7 @@ public class DungeonGame
             // Check for game over conditions
             if (IsGameOver())
             {
-                Console.WriteLine("Game Over!");
+                _logger?.LogInformation("Game Over!");
                 break;
             }
         }

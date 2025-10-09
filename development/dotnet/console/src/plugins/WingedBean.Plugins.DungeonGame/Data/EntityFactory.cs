@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Plate.CrossMilo.Contracts.ECS;
 using WingedBean.Plugins.DungeonGame.Components;
 
@@ -164,7 +165,8 @@ public static class EntityFactory
         IWorld world,
         DungeonLevelData level,
         ResourceLoader resourceLoader,
-        Random random)
+        Random random,
+        ILogger? logger = null)
     {
         if (level.EnemySpawns == null)
         {
@@ -176,7 +178,7 @@ public static class EntityFactory
             var enemyData = await resourceLoader.LoadEnemyAsync(spawn.EnemyId);
             if (enemyData == null)
             {
-                Console.WriteLine($"Warning: Enemy '{spawn.EnemyId}' not found in resources");
+                logger?.LogWarning("Enemy '{EnemyId}' not found in resources", spawn.EnemyId);
                 continue;
             }
 
@@ -207,7 +209,7 @@ public static class EntityFactory
                 CreateEnemy(world, enemyData, position);
             }
 
-            Console.WriteLine($"  • Spawned {count} {spawn.EnemyId}(s)");
+            logger?.LogDebug("Spawned {Count} {EnemyId}(s)", count, spawn.EnemyId);
         }
     }
 
@@ -218,7 +220,8 @@ public static class EntityFactory
         IWorld world,
         DungeonLevelData level,
         ResourceLoader resourceLoader,
-        Random random)
+        Random random,
+        ILogger? logger = null)
     {
         if (level.ItemSpawns == null)
         {
@@ -230,7 +233,7 @@ public static class EntityFactory
             var itemData = await resourceLoader.LoadItemAsync(spawn.ItemId);
             if (itemData == null)
             {
-                Console.WriteLine($"Warning: Item '{spawn.ItemId}' not found in resources");
+                logger?.LogWarning("Item '{ItemId}' not found in resources", spawn.ItemId);
                 continue;
             }
 
@@ -261,7 +264,7 @@ public static class EntityFactory
                 CreateItem(world, itemData, position);
             }
 
-            Console.WriteLine($"  • Spawned {count} {spawn.ItemId}(s)");
+            logger?.LogDebug("Spawned {Count} {ItemId}(s)", count, spawn.ItemId);
         }
     }
 }
