@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using System.Text;
 using Terminal.Gui;
 using Plate.CrossMilo.Contracts.Game;
@@ -106,10 +107,24 @@ public class TerminalGuiSceneProvider : ISceneService
             BorderStyle = LineStyle.Single
         };
 
-        _statusLabel = new Label
+        // Menu hint bar at top
+        var menuHint = new Label
         {
             X = 0,
             Y = 0,
+            Width = Dim.Fill(),
+            Height = 1,
+            Text = "F1=Help | F2=Version | F3=Plugins | F4=Audio | ESC=Quit",
+            ColorScheme = new ColorScheme
+            {
+                Normal = Application.Driver.MakeAttribute(Color.Black, Color.Gray)
+            }
+        };
+
+        _statusLabel = new Label
+        {
+            X = 0,
+            Y = 1,
             Width = Dim.Fill(),
             Height = 1,
             Text = "Loading..."
@@ -118,9 +133,9 @@ public class TerminalGuiSceneProvider : ISceneService
         _gameWorldView = new GameWorldView
         {
             X = 0,
-            Y = 1,
+            Y = 2,
             Width = Dim.Fill(),
-            Height = Dim.Fill()
+            Height = Dim.Fill() - 2  // Fill remaining space below status and menu
         };
         _gameWorldView.SetContent("Initializing game...");
 
@@ -128,6 +143,7 @@ public class TerminalGuiSceneProvider : ISceneService
         _mainWindow.KeyDown += OnKeyDown;
         _gameWorldView.KeyDown += OnKeyDown;
 
+        _mainWindow.Add(menuHint);
         _mainWindow.Add(_statusLabel);
         _mainWindow.Add(_gameWorldView);
         
@@ -136,6 +152,7 @@ public class TerminalGuiSceneProvider : ISceneService
         {
             _gameWorldView.SetFocus();
             System.Console.WriteLine("[TerminalGuiSceneProvider] Window setup complete, focus set on game view");
+            System.Console.WriteLine("[TerminalGuiSceneProvider] Menu bar: F1=Help, F2=Version, F3=Plugins, F4=Audio");
         }
         catch (Exception ex)
         {
@@ -150,6 +167,27 @@ public class TerminalGuiSceneProvider : ISceneService
         try { 
             System.Console.WriteLine($"[TerminalGuiSceneProvider] KeyDown: KeyCode={keyEvent.KeyCode}, AsRune={keyEvent.AsRune.Value}"); 
         } catch { }
+        
+        // Handle menu F-keys first
+        switch (keyEvent.KeyCode)
+        {
+            case KeyCode.F1:
+                ShowHelpDialog();
+                keyEvent.Handled = true;
+                return;
+            case KeyCode.F2:
+                ShowVersionDialog();
+                keyEvent.Handled = true;
+                return;
+            case KeyCode.F3:
+                ShowPluginsDialog();
+                keyEvent.Handled = true;
+                return;
+            case KeyCode.F4:
+                ShowAudioDialog();
+                keyEvent.Handled = true;
+                return;
+        }
         
         // Handle ESC key to exit the application
         if (keyEvent.KeyCode == KeyCode.Esc)
@@ -311,5 +349,83 @@ public class TerminalGuiSceneProvider : ISceneService
             Application.Shutdown();
             try { System.Console.WriteLine("[TerminalGuiSceneProvider] Application.Run finished. Shutdown complete."); } catch { }
         }
+    }
+
+    private void ShowHelpDialog()
+    {
+        var helpText = @"Console Dungeon - Help
+
+Movement:
+  ↑/↓/←/→  Move player
+  ESC      Quit game
+
+Menu:
+  F1       Show this help
+  F2       Show version info
+  F3       Show loaded plugins
+  F4       Show audio info
+
+The game world is displayed in the center.";
+
+        try { System.Console.WriteLine("[TerminalGuiSceneProvider] Showing help dialog"); } catch { }
+        MessageBox.Query("Help", helpText, "OK");
+    }
+
+    private void ShowVersionDialog()
+    {
+        try
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var version = assembly.GetName().Version;
+            var fileVersion = assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version;
+            var infoVersion = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+
+            var message = $"Console Dungeon Plugin\n\n" +
+                         $"Version: {version}\n" +
+                         $"File Version: {fileVersion ?? "N/A"}\n" +
+                         $"Info Version: {infoVersion ?? "N/A"}\n\n" +
+                         $"Framework: .NET 8.0\n" +
+                         $"Terminal.Gui: 2.0.0";
+
+            System.Console.WriteLine("[TerminalGuiSceneProvider] Showing version dialog");
+            MessageBox.Query("Version", message, "OK");
+        }
+        catch (Exception ex)
+        {
+            try { System.Console.WriteLine($"[TerminalGuiSceneProvider] Version dialog error: {ex.Message}"); } catch { }
+            MessageBox.ErrorQuery("Error", $"Failed to get version info: {ex.Message}", "OK");
+        }
+    }
+
+    private void ShowPluginsDialog()
+    {
+        try
+        {
+            var message = "Loaded Services:\n\n";
+            message += "✓ Render Service\n";
+            message += "✓ Input Mapper Service\n";
+            message += "✓ Input Router Service\n";
+            message += "✓ Scene Service (Terminal.Gui)\n";
+
+            System.Console.WriteLine("[TerminalGuiSceneProvider] Showing plugins dialog");
+            MessageBox.Query("Plugins & Services", message, "OK");
+        }
+        catch (Exception ex)
+        {
+            try { System.Console.WriteLine($"[TerminalGuiSceneProvider] Plugins dialog error: {ex.Message}"); } catch { }
+            MessageBox.ErrorQuery("Error", $"Failed to get plugin info: {ex.Message}", "OK");
+        }
+    }
+
+    private void ShowAudioDialog()
+    {
+        var message = "Audio Service: Not Available\n\n" +
+                     "The audio plugin is optional and\n" +
+                     "requires LibVLC to be installed.\n\n" +
+                     "Enable it in plugins.json to use\n" +
+                     "audio features.";
+
+        try { System.Console.WriteLine("[TerminalGuiSceneProvider] Showing audio dialog"); } catch { }
+        MessageBox.Query("Audio", message, "OK");
     }
 }
