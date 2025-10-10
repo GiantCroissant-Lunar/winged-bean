@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using System.Text;
+using Microsoft.Extensions.Logging;
 using Terminal.Gui;
 using Plate.CrossMilo.Contracts.Game;
 using Plate.CrossMilo.Contracts.Input;
@@ -20,11 +21,13 @@ namespace WingedBean.Plugins.ConsoleDungeon.Scene;
 /// </summary>
 internal class GameWorldView : View
 {
+    private readonly ILogger? _logger;
     private Label _contentLabel;
     private int _updateCount = 0;
 
-    public GameWorldView()
+    public GameWorldView(ILogger? logger = null)
     {
+        _logger = logger;
         CanFocus = true;
         _contentLabel = new Label
         {
@@ -42,7 +45,7 @@ internal class GameWorldView : View
         _updateCount++;
         if (_updateCount == 1 || _updateCount % 100 == 0)
         {
-            try { System.Console.WriteLine($"[GameWorldView] SetContent called #{_updateCount}"); } catch { }
+            _logger?.LogDebug("GameWorldView SetContent called #{UpdateCount}", _updateCount);
         }
         _contentLabel.Text = content;
     }
@@ -55,6 +58,7 @@ internal class GameWorldView : View
 /// </summary>
 public class TerminalGuiSceneProvider : ISceneService
 {
+    private readonly ILogger<TerminalGuiSceneProvider>? _logger;
     private readonly IRenderService _renderService;
     private readonly IInputMapper _inputMapper;
     private readonly IInputRouter _inputRouter;
@@ -65,6 +69,7 @@ public class TerminalGuiSceneProvider : ISceneService
     private TextView? _consoleLogView;
     private bool _initialized = false;
     private Camera _camera = Camera.Static(0, 0);
+    private MenuBar? _menuBar;
 
     // Debouncing and throttling
     private IReadOnlyList<EntitySnapshot>? _pendingSnapshots;
@@ -72,9 +77,9 @@ public class TerminalGuiSceneProvider : ISceneService
     private bool _updatePending = false;
     private DateTime _lastUpdate = DateTime.MinValue;
     private const int MinUpdateIntervalMs = 50; // Max 20 FPS
-    
-    // Console log buffer (stores last 3 lines of messages)
-    private readonly System.Collections.Generic.Queue<string> _consoleLogBuffer = new(3);
+
+    // Console log buffer (stores last 100 messages with timestamps)
+    private readonly System.Collections.Generic.Queue<string> _consoleLogBuffer = new(100);
     private readonly object _logLock = new();
 
     public event EventHandler<SceneShutdownEventArgs>? Shutdown;
@@ -82,8 +87,10 @@ public class TerminalGuiSceneProvider : ISceneService
     public TerminalGuiSceneProvider(
         IRenderService renderService,
         IInputMapper inputMapper,
-        IInputRouter inputRouter)
+        IInputRouter inputRouter,
+        ILogger<TerminalGuiSceneProvider>? logger = null)
     {
+        _logger = logger;
         _renderService = renderService;
         _inputMapper = inputMapper;
         _inputRouter = inputRouter;
@@ -102,7 +109,7 @@ public class TerminalGuiSceneProvider : ISceneService
 
         if (_headlessMode)
         {
-            try { System.Console.WriteLine("[TerminalGuiSceneProvider] HEADLESS mode: Skipping Terminal.Gui initialization (no TTY/TERM)"); } catch { }
+            _logger?.LogInformation("HEADLESS mode: Skipping Terminal.Gui initialization (no TTY/TERM)");
             _initialized = true; // Mark as initialized for headless no-op operations
             return;
         }
@@ -110,11 +117,7 @@ public class TerminalGuiSceneProvider : ISceneService
         if (Application.Driver == null)
         {
             Application.Init();
-            try
-            {
-                System.Console.WriteLine($"[TerminalGuiSceneProvider] Terminal.Gui initialized. Driver={Application.Driver?.GetType().FullName}");
-            }
-            catch { /* ignore console failures */ }
+            _logger?.LogInformation("Terminal.Gui initialized. Driver={DriverType}", Application.Driver?.GetType().FullName);
         }
 
         _mainWindow = new Window
@@ -127,18 +130,34 @@ public class TerminalGuiSceneProvider : ISceneService
             BorderStyle = LineStyle.Single
         };
 
-        // Menu hint bar at top
-        var menuHint = new Label
+        // Create proper menu bar (added directly to window)
+        _menuBar = new MenuBar
         {
             X = 0,
             Y = 0,
-            Width = Dim.Fill(),
-            Height = 1,
-            Text = "F1=Help | F2=Version | F3=Plugins | F4=Audio | ESC=Quit",
-            ColorScheme = new ColorScheme
+            Width = Dim.Fill()
+        };
+        
+        _menuBar.Menus = new[]
+        {
+            new MenuBarItem("_File", new MenuItem[]
             {
-                Normal = new Terminal.Gui.Attribute(Color.Black, Color.Gray)
-            }
+                new MenuItem("_Quit", "Exit the game", () => Application.RequestStop(), null, null, KeyCode.Esc)
+            }),
+            new MenuBarItem("_View", new MenuItem[]
+            {
+                new MenuItem("_Version", "Show version information", ShowVersionDialog, null, null, KeyCode.F2),
+                new MenuItem("_Plugins", "Show loaded plugins", ShowPluginsDialog, null, null, KeyCode.F3)
+            }),
+            new MenuBarItem("_Audio", new MenuItem[]
+            {
+                new MenuItem("Audio _Info", "Show audio information", ShowAudioDialog, null, null, KeyCode.F4)
+            }),
+            new MenuBarItem("_Help", new MenuItem[]
+            {
+                new MenuItem("_Help", "Show help", ShowHelpDialog, null, null, KeyCode.F1),
+                new MenuItem("_About", "About Console Dungeon", ShowAboutDialog)
+            })
         };
 
         _statusLabel = new Label
@@ -150,7 +169,7 @@ public class TerminalGuiSceneProvider : ISceneService
             Text = "Loading..."
         };
 
-        _gameWorldView = new GameWorldView
+        _gameWorldView = new GameWorldView(_logger)
         {
             X = 0,
             Y = 2,
@@ -159,7 +178,7 @@ public class TerminalGuiSceneProvider : ISceneService
         };
         _gameWorldView.SetContent("Initializing game...");
 
-        // Console log view at bottom (4 lines for messages)
+        // Console log view at bottom (4 lines for messages) - scrollable
         _consoleLogView = new TextView
         {
             X = 0,
@@ -167,7 +186,7 @@ public class TerminalGuiSceneProvider : ISceneService
             Width = Dim.Fill(),
             Height = 4,
             ReadOnly = true,
-            Text = "=== Console Log ==="
+            Text = "=== Console Log (scrollable) ==="
         };
         
         // Add initial message
@@ -177,7 +196,8 @@ public class TerminalGuiSceneProvider : ISceneService
         _mainWindow.KeyDown += OnKeyDown;
         _gameWorldView.KeyDown += OnKeyDown;
 
-        _mainWindow.Add(menuHint);
+        // Add menu bar FIRST, then other components
+        _mainWindow.Add(_menuBar);
         _mainWindow.Add(_statusLabel);
         _mainWindow.Add(_gameWorldView);
         _mainWindow.Add(_consoleLogView);
@@ -186,12 +206,12 @@ public class TerminalGuiSceneProvider : ISceneService
         try
         {
             _gameWorldView.SetFocus();
-            System.Console.WriteLine("[TerminalGuiSceneProvider] Window setup complete, focus set on game view");
-            System.Console.WriteLine("[TerminalGuiSceneProvider] Menu bar: F1=Help, F2=Version, F3=Plugins, F4=Audio");
+            _logger?.LogInformation("Window setup complete, focus set on game view");
+            _logger?.LogInformation("Menu bar: File, View, Audio, Help (Alt+F/V/A/H or F9 to open)");
         }
         catch (Exception ex)
         {
-            try { System.Console.WriteLine($"[TerminalGuiSceneProvider] Warning: Could not set focus: {ex.Message}"); } catch { }
+            _logger?.LogWarning(ex, "Could not set focus");
         }
 
         _initialized = true;
@@ -199,9 +219,7 @@ public class TerminalGuiSceneProvider : ISceneService
 
     private void OnKeyDown(object? sender, Key keyEvent)
     {
-        try { 
-            System.Console.WriteLine($"[TerminalGuiSceneProvider] KeyDown: KeyCode={keyEvent.KeyCode}, AsRune={keyEvent.AsRune.Value}"); 
-        } catch { }
+        _logger?.LogDebug("KeyDown: KeyCode={KeyCode}, AsRune={Rune}", keyEvent.KeyCode, keyEvent.AsRune.Value);
         
         // Handle menu F-keys first
         switch (keyEvent.KeyCode)
@@ -227,7 +245,7 @@ public class TerminalGuiSceneProvider : ISceneService
         // Handle ESC key to exit the application
         if (keyEvent.KeyCode == KeyCode.Esc)
         {
-            try { System.Console.WriteLine("[TerminalGuiSceneProvider] ESC detected, closing window"); } catch { }
+            _logger?.LogInformation("ESC detected, closing window");
             // In Terminal.Gui v2, when running a specific window, we need to request stop on that window
             _mainWindow?.RequestStop();
             keyEvent.Handled = true;
@@ -349,7 +367,7 @@ public class TerminalGuiSceneProvider : ISceneService
             }
             catch (Exception ex)
             {
-                try { System.Console.WriteLine($"[TerminalGuiSceneProvider] UpdateWorld error: {ex.Message}"); } catch { }
+                _logger?.LogError(ex, "UpdateWorld error");
             }
         });
     }
@@ -382,7 +400,7 @@ public class TerminalGuiSceneProvider : ISceneService
     }
 
     /// <summary>
-    /// Adds a message to the console log view (keeps last 3 messages).
+    /// Adds a message to the console log view with timestamp (keeps last 100 messages).
     /// </summary>
     public void AddConsoleLog(string message)
     {
@@ -393,24 +411,37 @@ public class TerminalGuiSceneProvider : ISceneService
         
         lock (_logLock)
         {
-            // Keep only last 3 messages
-            if (_consoleLogBuffer.Count >= 3)
+            // Keep only last 100 messages
+            if (_consoleLogBuffer.Count >= 100)
             {
                 _consoleLogBuffer.Dequeue();
             }
-            _consoleLogBuffer.Enqueue($"> {message}");
+            
+            // Add timestamp to message
+            var timestamp = DateTime.Now.ToString("HH:mm:ss");
+            _consoleLogBuffer.Enqueue($"[{timestamp}] {message}");
             
             // Update the TextView
             Application.Invoke(() =>
             {
                 if (_consoleLogView != null)
                 {
-                    var sb = new StringBuilder("=== Console Log ===\n");
+                    var sb = new StringBuilder("=== Console Log (scrollable) ===\n");
                     foreach (var msg in _consoleLogBuffer)
                     {
                         sb.AppendLine(msg);
                     }
                     _consoleLogView.Text = sb.ToString().TrimEnd();
+                    
+                    // Auto-scroll to bottom
+                    try
+                    {
+                        _consoleLogView.MoveEnd();
+                    }
+                    catch
+                    {
+                        // Ignore scrolling errors
+                    }
                 }
             });
         }
@@ -421,13 +452,13 @@ public class TerminalGuiSceneProvider : ISceneService
         if (_headlessMode)
         {
             // Immediately return; caller is responsible for keepalive behavior
-            try { System.Console.WriteLine("[TerminalGuiSceneProvider] HEADLESS Run(): returning immediately"); } catch { }
+            _logger?.LogInformation("HEADLESS Run(): returning immediately");
             return;
         }
 
         if (!_initialized)
         {
-            try { System.Console.WriteLine("[TerminalGuiSceneProvider] ERROR: Scene not initialized. Call Initialize() first."); } catch { }
+            _logger?.LogError("ERROR: Scene not initialized. Call Initialize() first");
             throw new InvalidOperationException("Scene not initialized. Call Initialize() first.");
         }
 
@@ -435,32 +466,34 @@ public class TerminalGuiSceneProvider : ISceneService
         {
             // Window is null but we're not in headless mode - this means initialization failed
             // Treat this as headless mode to avoid crash
-            try { System.Console.WriteLine("[TerminalGuiSceneProvider] WARNING: _mainWindow is null (initialization may have failed). Treating as headless mode."); } catch { }
+            _logger?.LogWarning("_mainWindow is null (initialization may have failed). Treating as headless mode");
             _headlessMode = true;
             return;
         }
 
         try
         {
-            try { System.Console.WriteLine($"[TerminalGuiSceneProvider] Entering Application.Run with _mainWindow... (CanFocus={_gameWorldView?.CanFocus}, HasFocus={_mainWindow.HasFocus})"); } catch { }
-            try { System.Console.WriteLine($"[TerminalGuiSceneProvider] Window state: Subviews={_mainWindow.Subviews?.Count}, Width={_mainWindow.Frame.Width}, Height={_mainWindow.Frame.Height}"); } catch { }
-            
-            // Run the main window explicitly - this blocks until window is closed
+            _logger?.LogInformation("Entering Application.Run with _mainWindow (CanFocus={CanFocus}, HasFocus={HasFocus})",
+                _gameWorldView?.CanFocus, _mainWindow.HasFocus);
+            _logger?.LogDebug("Window state: Subviews={SubviewCount}, Width={Width}, Height={Height}",
+                _mainWindow.Subviews?.Count, _mainWindow.Frame.Width, _mainWindow.Frame.Height);
+
+            // Run the main window - this blocks until window is closed
             Application.Run(_mainWindow);
-            
-            try { System.Console.WriteLine("[TerminalGuiSceneProvider] Application.Run returned"); } catch { }
+
+            _logger?.LogInformation("Application.Run returned");
         }
         finally
         {
-            try { System.Console.WriteLine("[TerminalGuiSceneProvider] Invoking Shutdown event"); } catch { }
+            _logger?.LogInformation("Invoking Shutdown event");
             Shutdown?.Invoke(this, new SceneShutdownEventArgs
             {
                 Reason = ShutdownReason.UserRequest
             });
 
-            try { System.Console.WriteLine("[TerminalGuiSceneProvider] Calling Application.Shutdown()"); } catch { }
+            _logger?.LogInformation("Calling Application.Shutdown()");
             Application.Shutdown();
-            try { System.Console.WriteLine("[TerminalGuiSceneProvider] Application.Run finished. Shutdown complete."); } catch { }
+            _logger?.LogInformation("Application.Run finished. Shutdown complete");
         }
     }
 
@@ -472,15 +505,24 @@ Movement:
   ↑/↓/←/→  Move player
   ESC      Quit game
 
-Menu:
-  F1       Show this help
-  F2       Show version info
-  F3       Show loaded plugins
-  F4       Show audio info
+Menus:
+  Alt+F    File menu (Quit)
+  Alt+V    View menu (Version, Plugins)
+  Alt+A    Audio menu
+  Alt+H    Help menu
+  F1       This help dialog
+  F2       Version info
+  F3       Loaded plugins
+  F4       Audio info
 
-The game world is displayed in the center.";
+Mouse:
+  Click menu bar items to open menus
+  
+Console Log:
+  Scroll with ↑/↓ when focused
+  Shows timestamped game events";
 
-        try { System.Console.WriteLine("[TerminalGuiSceneProvider] Showing help dialog"); } catch { }
+        _logger?.LogDebug("Showing help dialog");
         MessageBox.Query("Help", helpText, "OK");
     }
 
@@ -500,12 +542,12 @@ The game world is displayed in the center.";
                          $"Framework: .NET 8.0\n" +
                          $"Terminal.Gui: 2.0.0";
 
-            System.Console.WriteLine("[TerminalGuiSceneProvider] Showing version dialog");
+            _logger?.LogDebug("Showing version dialog");
             MessageBox.Query("Version", message, "OK");
         }
         catch (Exception ex)
         {
-            try { System.Console.WriteLine($"[TerminalGuiSceneProvider] Version dialog error: {ex.Message}"); } catch { }
+            _logger?.LogError(ex, "Version dialog error");
             MessageBox.ErrorQuery("Error", $"Failed to get version info: {ex.Message}", "OK");
         }
     }
@@ -520,12 +562,12 @@ The game world is displayed in the center.";
             message += "✓ Input Router Service\n";
             message += "✓ Scene Service (Terminal.Gui)\n";
 
-            System.Console.WriteLine("[TerminalGuiSceneProvider] Showing plugins dialog");
+            _logger?.LogDebug("Showing plugins dialog");
             MessageBox.Query("Plugins & Services", message, "OK");
         }
         catch (Exception ex)
         {
-            try { System.Console.WriteLine($"[TerminalGuiSceneProvider] Plugins dialog error: {ex.Message}"); } catch { }
+            _logger?.LogError(ex, "Plugins dialog error");
             MessageBox.ErrorQuery("Error", $"Failed to get plugin info: {ex.Message}", "OK");
         }
     }
@@ -538,7 +580,29 @@ The game world is displayed in the center.";
                      "Enable it in plugins.json to use\n" +
                      "audio features.";
 
-        try { System.Console.WriteLine("[TerminalGuiSceneProvider] Showing audio dialog"); } catch { }
+        _logger?.LogDebug("Showing audio dialog");
         MessageBox.Query("Audio", message, "OK");
+    }
+
+    private void ShowAboutDialog()
+    {
+        var message = @"Console Dungeon
+Rogue-like Adventure Game
+
+Built with:
+  • .NET 8.0
+  • Terminal.Gui 2.0
+  • ECS Architecture
+
+Features:
+  • ASCII graphics
+  • Turn-based combat
+  • Procedural dungeons
+  • Plugin system
+
+© 2025 Winged Bean Project";
+
+        _logger?.LogDebug("Showing about dialog");
+        MessageBox.Query("About Console Dungeon", message, "OK");
     }
 }

@@ -1,6 +1,7 @@
 using SuperSocket.WebSocket.Server;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Plate.PluginManoi.Contracts;
 using Plate.CrossMilo.Contracts.WebSocket.Services;
 using Plate.CrossMilo.Contracts.WebSocket;
@@ -21,11 +22,17 @@ namespace WingedBean.Plugins.WebSocket;
 )]
 public class SuperSocketWebSocketService : IService
 {
+    private readonly ILogger<SuperSocketWebSocketService>? _logger;
     private IHost? _host;
     private int _port;
     private readonly List<WebSocketSession> _sessions = new();
     private readonly object _lock = new();
     private bool _isStarted = false;
+
+    public SuperSocketWebSocketService(ILogger<SuperSocketWebSocketService>? logger = null)
+    {
+        _logger = logger;
+    }
 
     /// <inheritdoc />
     public event Action<string>? MessageReceived;
@@ -38,7 +45,7 @@ public class SuperSocketWebSocketService : IService
         {
             if (_isStarted)
             {
-                Console.WriteLine($"⚠ WebSocket server already running on port {_port}. Ignoring duplicate Start() call.");
+                _logger?.LogWarning("WebSocket server already running on port {Port}. Ignoring duplicate Start() call", _port);
                 return;
             }
         }
@@ -92,32 +99,31 @@ public class SuperSocketWebSocketService : IService
 
                 // Small delay to let the server start and potentially fail
                 Thread.Sleep(100);
-                
-                Console.WriteLine($"✓ WebSocket server started on port {_port}");
-                
+
+                _logger?.LogInformation("WebSocket server started on port {Port}", _port);
+
                 // Mark as started
                 lock (_lock)
                 {
                     _isStarted = true;
                 }
-                
+
                 // Write port info file for PTY service discovery
                 WritePortInfoFile(_port);
-                
+
                 return; // Success!
             }
             catch (Exception ex)
             {
                 lastException = ex;
-                Console.WriteLine($"✗ Failed to start on port {tryPort}: {ex.Message}");
+                _logger?.LogWarning(ex, "Failed to start on port {Port}", tryPort);
                 _host = null;
             }
         }
-        
+
         // All ports failed - log but don't throw (WebSocket is optional)
-        Console.WriteLine($"⚠ WebSocket server could not start on any port. Tried: {string.Join(", ", portsToTry)}");
-        Console.WriteLine($"  Last error: {lastException?.Message}");
-        Console.WriteLine($"  Application will continue without WebSocket support.");
+        _logger?.LogWarning("WebSocket server could not start on any port. Tried: {Ports}", string.Join(", ", portsToTry));
+        _logger?.LogWarning("Last error: {Error}. Application will continue without WebSocket support", lastException?.Message);
     }
     
     private void WritePortInfoFile(int actualPort)
@@ -129,16 +135,16 @@ public class SuperSocketWebSocketService : IService
             var logsDir = Path.Combine(Directory.GetCurrentDirectory(), "logs");
             Directory.CreateDirectory(logsDir);
             var logsPortInfoPath = Path.Combine(logsDir, "websocket-port.txt");
-            
+
             var portInfo = $"{actualPort}";
             File.WriteAllText(portInfoPath, portInfo);
             File.WriteAllText(logsPortInfoPath, portInfo);
-            
-            Console.WriteLine($"✓ Port info written to: {portInfoPath}");
+
+            _logger?.LogDebug("Port info written to: {PortInfoPath}", portInfoPath);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"⚠ Failed to write port info file: {ex.Message}");
+            _logger?.LogWarning(ex, "Failed to write port info file");
         }
     }
 
@@ -162,7 +168,7 @@ public class SuperSocketWebSocketService : IService
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error broadcasting to session: {ex.Message}");
+                    _logger?.LogWarning(ex, "Error broadcasting to session");
                     // Remove disconnected session
                     _sessions.Remove(session);
                 }

@@ -32,28 +32,40 @@ using LegacyTerminalAppAdapter = Plate.CrossMilo.Contracts.Terminal.LegacyTermin
 // DIAGNOSTIC LOGGING - Capture startup errors for PTY debugging
 // ============================================================================
 var diagnosticLogPath = Path.Combine(
-    AppContext.BaseDirectory, 
-    "logs", 
+    AppContext.BaseDirectory,
+    "logs",
     $"diagnostic-startup-{DateTime.Now:yyyy-MM-dd-HHmmss}.log"
 );
 Directory.CreateDirectory(Path.GetDirectoryName(diagnosticLogPath)!);
 
-void LogDiagnostic(string message)
+// Create early logger for diagnostic output before host is built
+using var earlyLoggerFactory = LoggerFactory.Create(builder =>
 {
-    var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
-    var logMessage = $"[{timestamp}] {message}\n";
-    File.AppendAllText(diagnosticLogPath, logMessage);
-    Console.WriteLine(message);
+    builder.AddConsole();
+    builder.SetMinimumLevel(LogLevel.Debug);
+});
+var diagnosticLogger = earlyLoggerFactory.CreateLogger("Diagnostic");
+
+// Also write to diagnostic log file manually for troubleshooting
+void WriteDiagnosticLog(string message)
+{
+    try
+    {
+        var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+        File.AppendAllText(diagnosticLogPath, $"[{timestamp}] {message}\n");
+    }
+    catch { /* Ignore file write errors */ }
 }
 
 try
 {
-    LogDiagnostic("=== ConsoleDungeon.Host Diagnostic Startup ===");
-    LogDiagnostic($"Process ID: {Environment.ProcessId}");
-    LogDiagnostic($"Current Directory: {Environment.CurrentDirectory}");
-    LogDiagnostic($"Base Directory: {AppContext.BaseDirectory}");
-    LogDiagnostic($"Command Line: {Environment.CommandLine}");
-    LogDiagnostic($"Is Interactive: {Environment.UserInteractive}");
+    diagnosticLogger.LogInformation("=== ConsoleDungeon.Host Diagnostic Startup ===");
+    diagnosticLogger.LogInformation("Process ID: {ProcessId}", Environment.ProcessId);
+    diagnosticLogger.LogInformation("Current Directory: {CurrentDirectory}", Environment.CurrentDirectory);
+    diagnosticLogger.LogInformation("Base Directory: {BaseDirectory}", AppContext.BaseDirectory);
+    diagnosticLogger.LogInformation("Command Line: {CommandLine}", Environment.CommandLine);
+    diagnosticLogger.LogInformation("Is Interactive: {IsInteractive}", Environment.UserInteractive);
+
     // Ensure sane TERM defaults to avoid ncurses init errors in headless
     var term = Environment.GetEnvironmentVariable("TERM");
     if (string.IsNullOrWhiteSpace(term))
@@ -67,29 +79,29 @@ try
         Environment.SetEnvironmentVariable("COLORTERM", "truecolor");
         colorTerm = "truecolor";
     }
-    LogDiagnostic($"TERM: {term}");
-    LogDiagnostic($"COLORTERM: {colorTerm}");
-    LogDiagnostic($"Console.IsInputRedirected: {Console.IsInputRedirected}");
-    LogDiagnostic($"Console.IsOutputRedirected: {Console.IsOutputRedirected}");
-    LogDiagnostic($"Console.IsErrorRedirected: {Console.IsErrorRedirected}");
-    
+    diagnosticLogger.LogInformation("TERM: {Term}", term);
+    diagnosticLogger.LogInformation("COLORTERM: {ColorTerm}", colorTerm);
+    diagnosticLogger.LogInformation("Console.IsInputRedirected: {IsInputRedirected}", Console.IsInputRedirected);
+    diagnosticLogger.LogInformation("Console.IsOutputRedirected: {IsOutputRedirected}", Console.IsOutputRedirected);
+    diagnosticLogger.LogInformation("Console.IsErrorRedirected: {IsErrorRedirected}", Console.IsErrorRedirected);
+
     try
     {
-        LogDiagnostic($"Console.BufferHeight: {Console.BufferHeight}");
-        LogDiagnostic($"Console.BufferWidth: {Console.BufferWidth}");
-        LogDiagnostic($"Console.WindowHeight: {Console.WindowHeight}");
-        LogDiagnostic($"Console.WindowWidth: {Console.WindowWidth}");
+        diagnosticLogger.LogDebug("Console.BufferHeight: {BufferHeight}", Console.BufferHeight);
+        diagnosticLogger.LogDebug("Console.BufferWidth: {BufferWidth}", Console.BufferWidth);
+        diagnosticLogger.LogDebug("Console.WindowHeight: {WindowHeight}", Console.WindowHeight);
+        diagnosticLogger.LogDebug("Console.WindowWidth: {WindowWidth}", Console.WindowWidth);
     }
     catch (Exception ex)
     {
-        LogDiagnostic($"Console properties unavailable: {ex.Message}");
+        diagnosticLogger.LogWarning(ex, "Console properties unavailable");
     }
-    
-    LogDiagnostic("Starting host builder...");
+
+    diagnosticLogger.LogInformation("Starting host builder...");
 }
 catch (Exception ex)
 {
-    LogDiagnostic($"ERROR in pre-initialization: {ex}");
+    diagnosticLogger.LogError(ex, "ERROR in pre-initialization");
     throw;
 }
 
@@ -97,17 +109,15 @@ Console.WriteLine("ConsoleDungeon.Host starting...");
 var host = WingedBeanHost.CreateConsoleBuilder(args)
         .ConfigureAppConfiguration(config =>
         {
-            LogDiagnostic("Configuring app configuration...");
-            Console.WriteLine("Configuring app configuration...");
+            diagnosticLogger.LogInformation("Configuring app configuration...");
             config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
             config.AddEnvironmentVariables(prefix: "DUNGEON_");
             config.AddCommandLine(args);
-            LogDiagnostic("App configuration complete");
+            diagnosticLogger.LogInformation("App configuration complete");
         })
         .ConfigureServices(services =>
         {
-            LogDiagnostic("Configuring services...");
-            Console.WriteLine("Configuring services...");
+            diagnosticLogger.LogInformation("Configuring services...");
             // Register configuration - we'll need to build it manually since we don't have context
             var configBuilder = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
@@ -152,7 +162,7 @@ var host = WingedBeanHost.CreateConsoleBuilder(args)
 
             if (headless)
             {
-                LogDiagnostic("Headless environment detected: skipping LegacyTerminalAppAdapter registration");
+                diagnosticLogger.LogInformation("Headless environment detected: skipping LegacyTerminalAppAdapter registration");
                 // Start a lightweight keepalive + WebSocket bootstrapper so the host
                 // stays running and can accept connections from the web UI.
                 services.AddHostedService<HeadlessKeepaliveHostedService>();
@@ -174,15 +184,16 @@ var host = WingedBeanHost.CreateConsoleBuilder(args)
             {
                 var registry = sp.GetRequiredService<IRegistry>();
                 var lifetime = sp.GetRequiredService<IHostApplicationLifetime>();
-                
+                var logger = sp.GetService<ILogger<Program>>();
+
                 // Register the lifetime in the registry so plugins can access it
                 registry.Register<IHostApplicationLifetime>(lifetime);
-                Console.WriteLine("[Program] IHostApplicationLifetime registered in IRegistry");
-                
+                logger?.LogInformation("IHostApplicationLifetime registered in IRegistry");
+
                 // Return a no-op hosted service
                 return new HostLifetimeBridgeService();
             });
-            LogDiagnostic("Services configuration complete");
+            diagnosticLogger.LogInformation("Services configuration complete");
 
             // Decorate all hosted services with a startup sentinel that logs Start/Stop entry/exit
             // This helps identify which service cancels or throws during Host.StartAsync
@@ -190,8 +201,7 @@ var host = WingedBeanHost.CreateConsoleBuilder(args)
         })
         .ConfigureLogging(logging =>
         {
-            LogDiagnostic("Configuring logging...");
-            Console.WriteLine("Configuring logging...");
+            diagnosticLogger.LogInformation("Configuring logging...");
             // Note: Configuration needs to be built separately for logging
             var configBuilder = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
@@ -199,27 +209,25 @@ var host = WingedBeanHost.CreateConsoleBuilder(args)
                 .AddCommandLine(args);
             var configuration = configBuilder.Build();
             logging.AddConfiguration(configuration.GetSection("Logging"));
-            LogDiagnostic("Logging configuration complete");
+            diagnosticLogger.LogInformation("Logging configuration complete");
         })
         .Build();
 
-LogDiagnostic("Host build complete");
+diagnosticLogger.LogInformation("Host build complete");
 
 Console.WriteLine("Host built, starting RunAsync...");
 try
 {
-    LogDiagnostic("Calling host.RunAsync()...");
+    diagnosticLogger.LogInformation("Calling host.RunAsync()...");
     await host.RunAsync();
-    LogDiagnostic("host.RunAsync() completed successfully");
+    diagnosticLogger.LogInformation("host.RunAsync() completed successfully");
 }
 catch (Exception ex)
 {
-    LogDiagnostic($"FATAL ERROR in host.RunAsync(): {ex.GetType().Name}: {ex.Message}");
-    LogDiagnostic($"Stack trace: {ex.StackTrace}");
-    LogDiagnostic($"Inner exception: {ex.InnerException?.ToString() ?? "(none)"}");
+    diagnosticLogger.LogCritical(ex, "FATAL ERROR in host.RunAsync()");
     Console.WriteLine($"Fatal error: {ex.Message}");
     Console.WriteLine(ex.StackTrace);
-    
+
     // Return exit code 1 for errors
     Environment.ExitCode = 1;
     throw;
@@ -256,7 +264,7 @@ class HeadlessKeepaliveHostedService : IHostedService
         {
             try
             {
-                Console.WriteLine("[HeadlessKeepalive] StartAsync");
+                _logger?.LogInformation("HeadlessKeepalive StartAsync");
                 // Give the PluginLoaderHostedService a moment to register services
                 await Task.Delay(200, ct);
 
@@ -287,7 +295,7 @@ class HeadlessKeepaliveHostedService : IHostedService
                             var results = getAll.Invoke(registry, Array.Empty<object>());
                             var enumerable = results as System.Collections.IEnumerable;
                             var list = enumerable?.Cast<object>().ToList();
-                            Console.WriteLine($"[HeadlessKeepalive] IWebSocket candidates: {list?.Count ?? 0} (attempt {i+1})");
+                            _logger?.LogDebug("IWebSocket candidates: {Count} (attempt {Attempt})", list?.Count ?? 0, i + 1);
                             resolved = list?.FirstOrDefault();
                             if (resolved != null) break;
                             await Task.Delay(200, ct);
@@ -297,12 +305,11 @@ class HeadlessKeepaliveHostedService : IHostedService
                         {
                             var startMethod = wsInterface.GetMethod("Start", new[] { typeof(int) });
                             startMethod?.Invoke(resolved, new object[] { port });
-                            Console.WriteLine($"[HeadlessKeepalive] WebSocket server start requested on {port}");
-                            _logger?.LogInformation("Headless keepalive: WebSocket server started on port {Port}", port);
+                            _logger?.LogInformation("WebSocket server start requested on port {Port}", port);
                         }
                         else
                         {
-                            Console.WriteLine("[HeadlessKeepalive] IWebSocket service not found after waiting; attempting direct instantiation");
+                            _logger?.LogWarning("IWebSocket service not found after waiting; attempting direct instantiation");
                             // Fallback: try to instantiate SuperSocketWebSocketService directly
                             var implType = AppDomain.CurrentDomain
                                 .GetAssemblies()
@@ -315,27 +322,27 @@ class HeadlessKeepaliveHostedService : IHostedService
                                     var instance = Activator.CreateInstance(implType);
                                     var start = implType.GetMethod("Start", new[] { typeof(int) });
                                     start?.Invoke(instance, new object[] { port });
-                                    Console.WriteLine($"[HeadlessKeepalive] Direct WebSocket start requested on {port}");
+                                    _logger?.LogInformation("Direct WebSocket start requested on port {Port}", port);
                                 }
                                 catch (Exception ex)
                                 {
-                                    Console.WriteLine($"[HeadlessKeepalive] Direct WebSocket start failed: {ex.Message}");
+                                    _logger?.LogWarning(ex, "Direct WebSocket start failed");
                                 }
                             }
                             else
                             {
-                                Console.WriteLine("[HeadlessKeepalive] WebSocket implementation type not found");
+                                _logger?.LogWarning("WebSocket implementation type not found");
                             }
                         }
                     }
                     else
                     {
-                        _logger?.LogWarning("Headless keepalive: WebSocket interface type not found");
+                        _logger?.LogWarning("WebSocket interface type not found");
                     }
                 }
                 catch (Exception ex)
                 {
-                    _logger?.LogWarning(ex, "Headless keepalive: WebSocket service not available or failed to start");
+                    _logger?.LogWarning(ex, "WebSocket service not available or failed to start");
                 }
 
                 // Idle until cancellation
@@ -389,12 +396,14 @@ class WebSocketBootstrapperHostedService : IHostedService
 {
     private readonly IServiceProvider _services;
     private readonly IHostApplicationLifetime _lifetime;
+    private readonly ILogger<WebSocketBootstrapperHostedService>? _logger;
     private Task? _startupTask;
 
     public WebSocketBootstrapperHostedService(IServiceProvider services, IHostApplicationLifetime lifetime)
     {
         _services = services;
         _lifetime = lifetime;
+        _logger = services.GetService<ILogger<WebSocketBootstrapperHostedService>>();
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
@@ -405,10 +414,10 @@ class WebSocketBootstrapperHostedService : IHostedService
         {
             try
             {
-                Console.WriteLine("[WebSocketBootstrapper] StartAsync");
+                _logger?.LogInformation("WebSocketBootstrapper StartAsync");
                 // Give plugin loader a moment to complete
                 await Task.Delay(500);
-                
+
                 var registry = _services.GetRequiredService<IRegistry>();
 
                 // Find interface type across all ALCs
@@ -418,7 +427,7 @@ class WebSocketBootstrapperHostedService : IHostedService
                     .FirstOrDefault(t => t.FullName == "Plate.CrossMilo.Contracts.WebSocket.Services.IService");
                 if (wsInterface == null)
                 {
-                    Console.WriteLine("[WebSocketBootstrapper] IWebSocket interface not found");
+                    _logger?.LogWarning("IWebSocket interface not found");
                     return;
                 }
 
@@ -429,7 +438,7 @@ class WebSocketBootstrapperHostedService : IHostedService
                 {
                     var results = getAll.Invoke(registry, Array.Empty<object>());
                     var list = (results as System.Collections.IEnumerable)?.Cast<object>().ToList() ?? new List<object>();
-                    Console.WriteLine($"[WebSocketBootstrapper] candidates: {list.Count} (attempt {i + 1})");
+                    _logger?.LogDebug("IWebSocket candidates: {Count} (attempt {Attempt})", list.Count, i + 1);
                     resolved = list.FirstOrDefault();
                     if (resolved != null) break;
                     await Task.Delay(200);
@@ -437,7 +446,7 @@ class WebSocketBootstrapperHostedService : IHostedService
 
                 if (resolved == null)
                 {
-                    Console.WriteLine("[WebSocketBootstrapper] No IWebSocket service registered");
+                    _logger?.LogWarning("No IWebSocket service registered");
                     return;
                 }
 
@@ -448,11 +457,11 @@ class WebSocketBootstrapperHostedService : IHostedService
 
                 var startMethod = wsInterface.GetMethod("Start", new[] { typeof(int) });
                 startMethod?.Invoke(resolved, new object[] { port });
-                Console.WriteLine($"[WebSocketBootstrapper] WebSocket server start requested on {port}");
+                _logger?.LogInformation("WebSocket server start requested on port {Port}", port);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[WebSocketBootstrapper] Error: {ex.Message}");
+                _logger?.LogError(ex, "WebSocketBootstrapper error");
             }
         });
 
@@ -558,56 +567,40 @@ sealed class HostedServiceLoggingDecorator : IHostedService
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        var msgStart = $"[StartupSentinel] -> StartAsync: {_innerTypeName}";
-        Console.WriteLine(msgStart);
-        _logger?.LogInformation("{Message}", msgStart);
+        _logger?.LogInformation("[StartupSentinel] -> StartAsync: {ServiceType}", _innerTypeName);
         try
         {
             await _inner.StartAsync(cancellationToken);
-            var msgOk = $"[StartupSentinel] <- StartAsync OK: {_innerTypeName}";
-            Console.WriteLine(msgOk);
-            _logger?.LogInformation("{Message}", msgOk);
+            _logger?.LogInformation("[StartupSentinel] <- StartAsync OK: {ServiceType}", _innerTypeName);
         }
         catch (OperationCanceledException oce)
         {
-            var msgCanceled = $"[StartupSentinel] <- StartAsync CANCELED: {_innerTypeName}: {oce.Message}";
-            Console.WriteLine(msgCanceled);
-            _logger?.LogWarning(oce, "{Message}", msgCanceled);
+            _logger?.LogWarning(oce, "[StartupSentinel] <- StartAsync CANCELED: {ServiceType}", _innerTypeName);
             throw;
         }
         catch (Exception ex)
         {
-            var msgFail = $"[StartupSentinel] <- StartAsync FAILED: {_innerTypeName}: {ex.Message}";
-            Console.WriteLine(msgFail);
-            _logger?.LogError(ex, "{Message}", msgFail);
+            _logger?.LogError(ex, "[StartupSentinel] <- StartAsync FAILED: {ServiceType}", _innerTypeName);
             throw;
         }
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)
     {
-        var msgStart = $"[StartupSentinel] -> StopAsync: {_innerTypeName}";
-        Console.WriteLine(msgStart);
-        _logger?.LogInformation("{Message}", msgStart);
+        _logger?.LogInformation("[StartupSentinel] -> StopAsync: {ServiceType}", _innerTypeName);
         try
         {
             await _inner.StopAsync(cancellationToken);
-            var msgOk = $"[StartupSentinel] <- StopAsync OK: {_innerTypeName}";
-            Console.WriteLine(msgOk);
-            _logger?.LogInformation("{Message}", msgOk);
+            _logger?.LogInformation("[StartupSentinel] <- StopAsync OK: {ServiceType}", _innerTypeName);
         }
         catch (OperationCanceledException oce)
         {
-            var msgCanceled = $"[StartupSentinel] <- StopAsync CANCELED: {_innerTypeName}: {oce.Message}";
-            Console.WriteLine(msgCanceled);
-            _logger?.LogWarning(oce, "{Message}", msgCanceled);
+            _logger?.LogWarning(oce, "[StartupSentinel] <- StopAsync CANCELED: {ServiceType}", _innerTypeName);
             throw;
         }
         catch (Exception ex)
         {
-            var msgFail = $"[StartupSentinel] <- StopAsync FAILED: {_innerTypeName}: {ex.Message}";
-            Console.WriteLine(msgFail);
-            _logger?.LogError(ex, "{Message}", msgFail);
+            _logger?.LogError(ex, "[StartupSentinel] <- StopAsync FAILED: {ServiceType}", _innerTypeName);
             throw;
         }
     }

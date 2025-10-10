@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Plate.PluginManoi.Contracts;
 using IService = Plate.CrossMilo.Contracts.WebSocket.Services.IService;
 
@@ -10,13 +11,17 @@ namespace WingedBean.Plugins.WebSocket;
 public class WebSocketPlugin : IPlugin
 {
     private SuperSocketWebSocketService? _service;
+    private ILogger<WebSocketPlugin>? _logger;
 
     public string Id => "wingedbean.plugins.websocket";
     public string Version => "1.0.0";
 
     public Task OnActivateAsync(IRegistry registry, CancellationToken ct = default)
     {
-        _service = new SuperSocketWebSocketService();
+        // Try to get logger from registry
+        _logger = registry.GetAll<ILogger<WebSocketPlugin>>().FirstOrDefault();
+
+        _service = new SuperSocketWebSocketService(registry.GetAll<ILogger<SuperSocketWebSocketService>>().FirstOrDefault());
         registry.Register<IService>(_service, priority: 10);
         // Auto-start on default port for integration verification
         try
@@ -25,12 +30,12 @@ public class WebSocketPlugin : IPlugin
             var envPort = Environment.GetEnvironmentVariable("DUNGEON_WS_PORT");
             if (!string.IsNullOrWhiteSpace(envPort) && int.TryParse(envPort, out var p))
                 port = p;
-            Console.WriteLine($"[WebSocketPlugin] Autostarting WebSocket on port {port}");
+            _logger?.LogInformation("Autostarting WebSocket on port {Port}", port);
             _service.Start(port);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[WebSocketPlugin] Autostart error: {ex.Message}");
+            _logger?.LogError(ex, "Autostart error");
         }
         return Task.CompletedTask;
     }
