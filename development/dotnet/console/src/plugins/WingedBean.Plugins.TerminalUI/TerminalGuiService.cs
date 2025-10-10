@@ -23,6 +23,7 @@ public class TerminalGuiService : IService
     private TextView? _logView;
     private readonly ConcurrentQueue<string> _logMessages = new();
     private const int MaxLogMessages = 100;
+    private bool _headlessMode = false;
 
     /// <summary>
     /// Initialize the terminal UI system.
@@ -32,6 +33,21 @@ public class TerminalGuiService : IService
     {
         if (_initialized)
         {
+            return;
+        }
+
+        // Detect headless/non-interactive environment (no PTY / TERM)
+        try
+        {
+            var term = Environment.GetEnvironmentVariable("TERM");
+            var redirected = Console.IsInputRedirected || Console.IsOutputRedirected;
+            _headlessMode = string.IsNullOrEmpty(term) || redirected;
+        }
+        catch { _headlessMode = true; }
+
+        if (_headlessMode)
+        {
+            _initialized = true; // Headless no-op initialized
             return;
         }
 
@@ -201,7 +217,7 @@ public class TerminalGuiService : IService
         }
         
         // Update the TextView if it exists
-        if (_logView != null)
+        if (_logView != null && !_headlessMode)
         {
             Application.Invoke(() =>
             {
@@ -218,6 +234,12 @@ public class TerminalGuiService : IService
     /// </summary>
     public void Run()
     {
+        if (_headlessMode)
+        {
+            // No-op in headless mode
+            return;
+        }
+
         if (!_initialized || _mainWindow == null)
         {
             throw new InvalidOperationException("Terminal UI must be initialized before running. Call Initialize() first.");

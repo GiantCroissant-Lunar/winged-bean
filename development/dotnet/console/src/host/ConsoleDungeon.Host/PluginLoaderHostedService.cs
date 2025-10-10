@@ -198,11 +198,62 @@ public class PluginLoaderHostedService : IHostedService
             _logger.LogInformation("[3/3] Verifying service registry...");
             VerifyRequiredServices();
             _logger.LogInformation("✓ All required services registered");
+
+            // Micro step: try to start WebSocket server if service is available
+            _logger.LogInformation("→ Attempting WebSocket bootstrap on port 4040...");
+            TryStartWebSocketServer(4040);
         }
         catch (Exception ex)
         {
             _logger.LogCritical(ex, "FATAL ERROR during plugin loading: {Message}", ex.Message);
             throw;
+        }
+    }
+
+    private void TryStartWebSocketServer(int port)
+    {
+        try
+        {
+            _logger.LogInformation("WebSocket bootstrap: begin");
+            // Find the IWebSocket service interface type without compile-time dependency
+            var wsInterface = AppDomain.CurrentDomain
+                .GetAssemblies()
+                .SelectMany(a =>
+                {
+                    try { return a.GetTypes(); } catch { return Array.Empty<Type>(); }
+                })
+                .FirstOrDefault(t => t.FullName == "Plate.CrossMilo.Contracts.WebSocket.Services.IService");
+
+            if (wsInterface == null)
+            {
+                _logger.LogInformation("WebSocket bootstrap: interface not found; skipping start");
+                return;
+            }
+
+            // Get all registered implementations from registry
+            var getAll = typeof(IRegistry).GetMethod("GetAll")!.MakeGenericMethod(wsInterface);
+            object? first = null;
+            for (var i = 0; i < 10; i++)
+            {
+                var results = getAll.Invoke(_registry, Array.Empty<object>()) as System.Collections.IEnumerable;
+                first = results?.Cast<object>().FirstOrDefault();
+                if (first != null) break;
+                Thread.Sleep(100);
+            }
+            if (first == null)
+            {
+                _logger.LogInformation("WebSocket bootstrap: no service registered; skipping start");
+                return;
+            }
+
+            // Invoke Start(int)
+            var start = wsInterface.GetMethod("Start", new[] { typeof(int) });
+            start?.Invoke(first, new object[] { port });
+            _logger.LogInformation("WebSocket bootstrap: start requested on port {Port}", port);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "WebSocket bootstrap: failed to start (optional)");
         }
     }
 

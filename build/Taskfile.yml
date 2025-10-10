@@ -145,6 +145,74 @@ tasks:
       - cp -r _artifacts/{{.VERSION}} _artifacts/latest
       - echo "Updated _artifacts/latest to point to version {{.VERSION}}"
 
+  artifacts:sync-from-source:
+    desc: "Sync Debug builds into versioned artifacts and update latest"
+    cmds:
+      - |
+        set -euo pipefail
+        export PATH="/opt/homebrew/opt/node@20/bin:$PATH"
+        VER="{{.VERSION}}"
+        ART_ROOT="_artifacts"
+        VER_DIR="$ART_ROOT/$VER"
+        LATEST_DIR="$ART_ROOT/latest"
+        # Create dirs
+        mkdir -p "$VER_DIR/dotnet/bin" "$VER_DIR/web/dist" "$VER_DIR/pty/dist" "$VER_DIR/_logs"
+        # Copy ConsoleDungeon.Host Debug bin
+        SRC_BIN="../development/dotnet/console/src/host/ConsoleDungeon.Host/bin/Debug/net8.0"
+        if [ ! -d "$SRC_BIN" ]; then
+          echo "Building ConsoleDungeon.Host..."
+          (cd ../development/dotnet/console/src/host/ConsoleDungeon.Host && dotnet build -c Debug)
+        fi
+        cp -R "$SRC_BIN"/* "$VER_DIR/dotnet/bin/"
+        # Copy docs dist (build if missing)
+        WEB_DIST_SRC="../development/nodejs/sites/docs/dist"
+        if [ ! -d "$WEB_DIST_SRC" ]; then
+          echo "Building docs site..."
+          (cd ../development/nodejs/sites/docs && pnpm build)
+        fi
+        cp -R "$WEB_DIST_SRC"/* "$VER_DIR/web/dist/"
+        # Copy PTY service files and install prod deps
+        PTY_SRC="../development/nodejs/pty-service"
+        cp -f "$PTY_SRC"/*.js "$PTY_SRC"/package*.json ../development/nodejs/get-version.js "$VER_DIR/pty/dist/" 2>/dev/null || true
+        (cd "$VER_DIR/pty/dist" && npm ci --omit=dev >/dev/null)
+        # Update latest
+        rm -rf "$LATEST_DIR" && cp -R "$VER_DIR" "$LATEST_DIR"
+        echo "✅ Artifacts synced to $VER_DIR and latest"
+
+  pm2:stop-artifacts:
+    desc: "Stop PM2 services for web/pty/console artifacts"
+    cmds:
+      - pm2 delete web-artifacts >/dev/null 2>&1 || true
+      - pm2 delete pty-artifacts >/dev/null 2>&1 || true
+      - pm2 delete console-dungeon >/dev/null 2>&1 || true
+      - echo "✅ Stopped PM2 artifact services"
+
+  pm2:start-artifacts:
+    desc: "Start web(4321), pty(4041), console(artifacts) via PM2"
+    deps:
+      - artifacts:sync-from-source
+    cmds:
+      - |
+        set -euo pipefail
+        export PATH="/opt/homebrew/opt/node@20/bin:$PATH"
+        ROOT="$PWD/_artifacts/latest"
+        # Web (static) on 4321
+        pm2 start http-server --name web-artifacts --cwd "$ROOT/web/dist" -- -p 4321 -c-1
+        # PTY service (ws 4041) with BIN_DIR pointing to dotnet bin
+        PORT=4041 BIN_DIR="$ROOT/dotnet/bin" pm2 start server.js --name pty-artifacts --cwd "$ROOT/pty/dist"
+        # Console host headless with ws 4042 to avoid conflict
+        TERM=xterm-256color DUNGEON_HEADLESS=1 DUNGEON_WS_PORT=4042 pm2 start ./ConsoleDungeon.Host --name console-dungeon --cwd "$ROOT/dotnet/bin" --interpreter none
+        pm2 save || true
+        echo "✅ PM2 services started: web(4321), pty(4041), console(ws4042)"
+
+  pm2:restart-artifacts:
+    desc: "Restart PM2 artifact services (re-sync artifacts first)"
+    deps:
+      - pm2:stop-artifacts
+      - pm2:start-artifacts
+    cmds:
+      - echo "✅ PM2 artifact services restarted"
+
   console:debug:
     desc: "Run ConsoleDungeon.Host from latest artifact in DEBUG_MINIMAL_UI"
     deps:
