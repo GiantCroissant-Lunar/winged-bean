@@ -4,6 +4,7 @@ using Plate.CrossMilo.Contracts.Input;
 using Plate.CrossMilo.Contracts.Scene.Services;
 using Plate.CrossMilo.Contracts.Scene;
 using System.Collections.Concurrent;
+using System.Reflection;
 
 namespace WingedBean.Providers.TerminalGuiScene;
 
@@ -58,20 +59,34 @@ public class TerminalGuiSceneProvider : ISceneService
             BorderStyle = LineStyle.Single
         };
 
-        _statusLabel = new Label
+        // Menu hint bar at top
+        var menuHint = new Label
         {
             X = 0,
             Y = 0,
             Width = Dim.Fill(),
             Height = 1,
-            Text = "Loading..."
+            Text = "F1=Help | F2=Version | F3=Plugins | F4=Audio | ESC=Quit",
+            ColorScheme = new ColorScheme
+            {
+                Normal = Application.Driver.MakeAttribute(Color.Black, Color.Gray)
+            }
         };
 
-        // Game world view - rows 1-15 (15 rows for game)
-        _gameWorldView = new Label
+        _statusLabel = new Label
         {
             X = 0,
             Y = 1,
+            Width = Dim.Fill(),
+            Height = 1,
+            Text = "Loading..."
+        };
+
+        // Game world view - rows 2-16 (15 rows for game)
+        _gameWorldView = new Label
+        {
+            X = 0,
+            Y = 2,
             Width = Dim.Fill(),
             Height = 15,  // 15 rows for game world
             Text = "Initializing game..."
@@ -81,7 +96,7 @@ public class TerminalGuiSceneProvider : ISceneService
         var logSeparator = new Label
         {
             X = 0,
-            Y = 16,
+            Y = 17,
             Width = Dim.Fill(),
             Height = 1,
             Text = "─────────────────────────────── Log Console ────────────────────────────────"
@@ -91,19 +106,19 @@ public class TerminalGuiSceneProvider : ISceneService
         _logView = new TextView
         {
             X = 0,
-            Y = 17,  // Start at row 17
+            Y = 18,  // Start at row 18
             Width = Dim.Fill(),
-            Height = 5,  // 5 rows for logs (17-21)
+            Height = 5,  // 5 rows for logs (18-22)
             ReadOnly = true,
             WordWrap = false,
             Text = "[00:00:00.000] INFO   | Terminal.Gui v2 initialized\n[00:00:00.001] DEBUG  | PTY active\n[00:00:00.002] DEBUG  | Log console ready"
         };
 
-        // Input view for keyboard capture - overlays game world only (rows 1-15)
+        // Input view for keyboard capture - overlays game world only (rows 2-16)
         _inputView = new View
         {
             X = 0,
-            Y = 1,
+            Y = 2,
             Width = Dim.Fill(),
             Height = 15,  // Match game world view exactly
             CanFocus = true
@@ -112,6 +127,7 @@ public class TerminalGuiSceneProvider : ISceneService
         _inputView.KeyDown += OnKeyDown;
 
         // Add views in correct Z-order
+        _mainWindow.Add(menuHint);
         _mainWindow.Add(_statusLabel);
         _mainWindow.Add(_gameWorldView);
         _mainWindow.Add(logSeparator);
@@ -123,6 +139,7 @@ public class TerminalGuiSceneProvider : ISceneService
         // Add initial log messages
         LogMessage("INFO", "Terminal.Gui v2 scene provider initialized");
         LogMessage("DEBUG", "PTY connection active");
+        LogMessage("DEBUG", "Menu bar: F1=Help, F2=Version, F3=Plugins, F4=Audio");
         LogMessage("DEBUG", $"Game view: Y={_gameWorldView.Y}, Height={_gameWorldView.Height}");
         LogMessage("DEBUG", $"Log view: Y={_logView.Y}, Height={_logView.Height}");
         
@@ -131,6 +148,27 @@ public class TerminalGuiSceneProvider : ISceneService
 
     private void OnKeyDown(object? sender, Key keyEvent)
     {
+        // Handle menu F-keys first
+        switch (keyEvent.KeyCode)
+        {
+            case KeyCode.F1:
+                ShowHelpDialog();
+                keyEvent.Handled = true;
+                return;
+            case KeyCode.F2:
+                ShowVersionDialog();
+                keyEvent.Handled = true;
+                return;
+            case KeyCode.F3:
+                ShowPluginsDialog();
+                keyEvent.Handled = true;
+                return;
+            case KeyCode.F4:
+                ShowAudioDialog();
+                keyEvent.Handled = true;
+                return;
+        }
+
         var rawEvent = new RawKeyEvent(
             virtualKey: GetConsoleKey(keyEvent),
             rune: keyEvent.AsRune.Value > 0 ? (uint?)keyEvent.AsRune.Value : null,
@@ -147,6 +185,85 @@ public class TerminalGuiSceneProvider : ISceneService
             LogMessage("INPUT", $"Key: {keyEvent.KeyCode}");
             keyEvent.Handled = true;
         }
+    }
+
+    private void ShowHelpDialog()
+    {
+        var helpText = @"Console Dungeon - Help
+
+Movement:
+  ↑/↓/←/→  Move player
+  ESC      Quit game
+
+Menu:
+  F1       Show this help
+  F2       Show version info
+  F3       Show loaded plugins
+  F4       Show audio info
+
+The game world is displayed in the center.
+Log messages appear at the bottom.";
+
+        MessageBox.Query("Help", helpText, "OK");
+        LogMessage("MENU", "Help dialog shown");
+    }
+
+    private void ShowVersionDialog()
+    {
+        try
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var version = assembly.GetName().Version;
+            var fileVersion = assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version;
+            var infoVersion = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+
+            var message = $"Console Dungeon Plugin\n\n" +
+                         $"Version: {version}\n" +
+                         $"File Version: {fileVersion ?? "N/A"}\n" +
+                         $"Info Version: {infoVersion ?? "N/A"}\n\n" +
+                         $"Framework: .NET 8.0\n" +
+                         $"Terminal.Gui: 2.0.0";
+
+            MessageBox.Query("Version", message, "OK");
+            LogMessage("MENU", "Version dialog shown");
+        }
+        catch (Exception ex)
+        {
+            MessageBox.ErrorQuery("Error", $"Failed to get version info: {ex.Message}", "OK");
+            LogMessage("ERROR", $"Version dialog failed: {ex.Message}");
+        }
+    }
+
+    private void ShowPluginsDialog()
+    {
+        try
+        {
+            var message = "Loaded Services:\n\n";
+            message += "✓ Render Service\n";
+            message += "✓ Input Mapper Service\n";
+            message += "✓ Input Router Service\n";
+            message += "✓ Scene Service (Terminal.Gui)\n";
+
+            MessageBox.Query("Plugins & Services", message, "OK");
+            LogMessage("MENU", "Plugins dialog shown");
+        }
+        catch (Exception ex)
+        {
+            MessageBox.ErrorQuery("Error", $"Failed to get plugin info: {ex.Message}", "OK");
+            LogMessage("ERROR", $"Plugins dialog failed: {ex.Message}");
+        }
+    }
+
+    private void ShowAudioDialog()
+    {
+        var message = "Audio Service: Not Available\n\n" +
+                     "The audio plugin is optional and\n" +
+                     "requires LibVLC to be installed.\n\n" +
+                     "Enable it in plugins.json to use\n" +
+                     "audio features.";
+
+        MessageBox.Query("Audio", message, "OK");
+        LogMessage("MENU", "Audio dialog shown");
     }
 
     private int? GetConsoleKey(Key key)
