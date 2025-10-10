@@ -62,6 +62,7 @@ public class TerminalGuiSceneProvider : ISceneService
     private Window? _mainWindow;
     private GameWorldView? _gameWorldView;
     private Label? _statusLabel;
+    private TextView? _consoleLogView;
     private bool _initialized = false;
     private Camera _camera = Camera.Static(0, 0);
 
@@ -150,9 +151,20 @@ public class TerminalGuiSceneProvider : ISceneService
             X = 0,
             Y = 2,
             Width = Dim.Fill(),
-            Height = Dim.Fill() - 2  // Fill remaining space below status and menu
+            Height = Dim.Fill() - 6  // Leave space for console log at bottom (4 lines + padding)
         };
         _gameWorldView.SetContent("Initializing game...");
+
+        // Console log view at bottom (4 lines for messages)
+        _consoleLogView = new TextView
+        {
+            X = 0,
+            Y = Pos.Bottom(_gameWorldView),
+            Width = Dim.Fill(),
+            Height = 4,
+            ReadOnly = true,
+            Text = "=== Console Log ===\n> Game started\n> Use arrow keys to move\n> Press ESC to quit"
+        };
 
         // Attach KeyDown handler to the window to catch all key events
         _mainWindow.KeyDown += OnKeyDown;
@@ -161,6 +173,7 @@ public class TerminalGuiSceneProvider : ISceneService
         _mainWindow.Add(menuHint);
         _mainWindow.Add(_statusLabel);
         _mainWindow.Add(_gameWorldView);
+        _mainWindow.Add(_consoleLogView);
         
         // Set focus on the game view so it receives key events
         try
