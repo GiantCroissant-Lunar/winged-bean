@@ -58,6 +58,7 @@ public class TerminalGuiSceneProvider : ISceneService
     private readonly IRenderService _renderService;
     private readonly IInputMapper _inputMapper;
     private readonly IInputRouter _inputRouter;
+    private bool _headlessMode = false;
     private Window? _mainWindow;
     private GameWorldView? _gameWorldView;
     private Label? _statusLabel;
@@ -86,6 +87,20 @@ public class TerminalGuiSceneProvider : ISceneService
     public void Initialize()
     {
         if (_initialized) return;
+        try
+        {
+            var term = Environment.GetEnvironmentVariable("TERM");
+            var redirected = System.Console.IsInputRedirected || System.Console.IsOutputRedirected;
+            _headlessMode = string.IsNullOrEmpty(term) || redirected;
+        }
+        catch { _headlessMode = true; }
+
+        if (_headlessMode)
+        {
+            try { System.Console.WriteLine("[TerminalGuiSceneProvider] HEADLESS mode: Skipping Terminal.Gui initialization (no TTY/TERM)"); } catch { }
+            _initialized = true; // Mark as initialized for headless no-op operations
+            return;
+        }
 
         if (Application.Driver == null)
         {
@@ -117,7 +132,7 @@ public class TerminalGuiSceneProvider : ISceneService
             Text = "F1=Help | F2=Version | F3=Plugins | F4=Audio | ESC=Quit",
             ColorScheme = new ColorScheme
             {
-                Normal = Application.Driver.MakeAttribute(Color.Black, Color.Gray)
+                Normal = new Terminal.Gui.Attribute(Color.Black, Color.Gray)
             }
         };
 
@@ -258,6 +273,11 @@ public class TerminalGuiSceneProvider : ISceneService
 
     public void UpdateWorld(IReadOnlyList<EntitySnapshot> snapshots)
     {
+        if (_headlessMode)
+        {
+            // No-op in headless mode
+            return;
+        }
         lock (_lock)
         {
             _pendingSnapshots = snapshots;
@@ -313,6 +333,10 @@ public class TerminalGuiSceneProvider : ISceneService
 
     public void UpdateStatus(string status)
     {
+        if (_headlessMode)
+        {
+            return; // No-op
+        }
         Application.Invoke(() =>
         {
             if (_statusLabel != null)
@@ -324,8 +348,27 @@ public class TerminalGuiSceneProvider : ISceneService
 
     public void Run()
     {
-        if (!_initialized || _mainWindow == null)
+        if (_headlessMode)
+        {
+            // Immediately return; caller is responsible for keepalive behavior
+            try { System.Console.WriteLine("[TerminalGuiSceneProvider] HEADLESS Run(): returning immediately"); } catch { }
+            return;
+        }
+
+        if (!_initialized)
+        {
+            try { System.Console.WriteLine("[TerminalGuiSceneProvider] ERROR: Scene not initialized. Call Initialize() first."); } catch { }
             throw new InvalidOperationException("Scene not initialized. Call Initialize() first.");
+        }
+
+        if (_mainWindow == null)
+        {
+            // Window is null but we're not in headless mode - this means initialization failed
+            // Treat this as headless mode to avoid crash
+            try { System.Console.WriteLine("[TerminalGuiSceneProvider] WARNING: _mainWindow is null (initialization may have failed). Treating as headless mode."); } catch { }
+            _headlessMode = true;
+            return;
+        }
 
         try
         {

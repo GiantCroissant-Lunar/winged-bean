@@ -9,6 +9,7 @@ using Plate.CrossMilo.Contracts.Scene.Services;
 using WingedBean.Plugins.ConsoleDungeon.Input;
 using WingedBean.Plugins.ConsoleDungeon.Scene;
 using System.IO;
+using Terminal.Gui;
 
 // Type aliases for IService pattern
 using IDungeonGameService = Plate.CrossMilo.Contracts.Game.Dungeon.IService;
@@ -249,51 +250,113 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IRegistryAware, IDispos
             _isRunning = true;
 
             // Run scene in background (don't await - it will signal shutdown when done)
-            _ = Task.Run(() =>
+            _ = Task.Run(async () =>
             {
+                var suppressShutdown = false;
                 try
                 {
-                    Diag("Entering scene.Run()");
+                    // Capture driver info to determine if we are on a real TTY
+                    var driverName = Application.Driver?.GetType().Name ?? "(null)";
+                    var isHeadlessDriver = string.Equals(driverName, "FakeDriver", StringComparison.OrdinalIgnoreCase)
+                                           || string.Equals(driverName, "HeadlessDriver", StringComparison.OrdinalIgnoreCase);
+
+                    var runStart = DateTime.UtcNow;
+                    Diag($"Entering scene.Run() [Driver={driverName}, Headless={isHeadlessDriver}]");
                     _sceneService.Run();
+                    var ranFor = DateTime.UtcNow - runStart;
+                    Diag($"scene.Run() returned after {ranFor.TotalMilliseconds:F0}ms");
+
+                    // If Terminal.Gui failed to actually start (no TTY / fake driver)
+                    // Application.Run tends to return immediately. In that case we should
+                    // NOT stop the host — keep the process alive so a PTY-attached run
+                    // (via the web UI) can launch correctly.
+                    // Treat very-fast returns as failed UI init; keep process alive for PTY attach
+                    var fastReturnThreshold = TimeSpan.FromSeconds(2);
+                    if (isHeadlessDriver || ranFor < fastReturnThreshold)
+                    {
+                        Diag("Detected headless or fast-return UI; suppressing host shutdown and keeping process alive");
+
+                        try
+                        {
+                            // Wait for host shutdown signal to exit cleanly
+                            if (_hostLifetime != null)
+                            {
+                                await Task.Run(() => _hostLifetime.ApplicationStopping.WaitHandle.WaitOne());
+                                Diag("ApplicationStopping signaled; exiting headless keepalive");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Diag($"Error during headless keepalive wait: {ex.Message}");
+                        }
+                        // Skip normal shutdown signaling below
+                        suppressShutdown = true;
+                    }
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Error running scene");
                     Diag($"Error in scene.Run: {ex.Message}");
+                    
+                    // If scene.Run() throws an exception, treat it like a headless/fast-return scenario
+                    // Keep the process alive rather than shutting down the host
+                    Diag("Exception during scene.Run(); treating as headless mode - keeping process alive");
+                    suppressShutdown = true;
+                    
+                    // Wait for host shutdown signal
+                    try
+                    {
+                        if (_hostLifetime != null)
+                        {
+                            await Task.Run(() => _hostLifetime.ApplicationStopping.WaitHandle.WaitOne());
+                            Diag("ApplicationStopping signaled after scene error");
+                        }
+                    }
+                    catch (Exception waitEx)
+                    {
+                        Diag($"Error during keepalive wait after scene error: {waitEx.Message}");
+                    }
                 }
                 finally
                 {
                     Diag("UI loop finished");
-                    
-                    // Stop game timer immediately to prevent further updates
-                    try
+                    if (!suppressShutdown)
                     {
-                        _gameTimer?.Stop();
-                        _gameTimer?.Dispose();
-                        _gameTimer = null;
-                        Diag("Game timer stopped");
-                    }
-                    catch (Exception ex)
-                    {
-                        Diag($"Error stopping timer: {ex.Message}");
-                    }
-                    
-                    Exited?.Invoke(this, new TerminalExitEventArgs
-                    {
-                        ExitCode = 0,
-                        Timestamp = DateTimeOffset.UtcNow
-                    });
-                    
-                    // Request host shutdown (which will call StopAsync to complete cleanup)
-                    if (_hostLifetime != null)
-                    {
-                        Diag("Requesting host shutdown via IHostApplicationLifetime.StopApplication()");
-                        _hostLifetime.StopApplication();
+                        // Stop game timer immediately to prevent further updates
+                        try
+                        {
+                            _gameTimer?.Stop();
+                            _gameTimer?.Dispose();
+                            _gameTimer = null;
+                            Diag("Game timer stopped");
+                        }
+                        catch (Exception ex)
+                        {
+                            Diag($"Error stopping timer: {ex.Message}");
+                        }
+                        
+                        Exited?.Invoke(this, new TerminalExitEventArgs
+                        {
+                            ExitCode = 0,
+                            Timestamp = DateTimeOffset.UtcNow
+                        });
+
+                        // Decide whether to terminate the host
+                        var exitEnv = (Environment.GetEnvironmentVariable("DUNGEON_EXIT_ON_UI") ?? string.Empty).ToLowerInvariant();
+                        var shouldExitHost = exitEnv == "1" || exitEnv == "true";
+                        if (shouldExitHost && _hostLifetime != null)
+                        {
+                            Diag("Env DUNGEON_EXIT_ON_UI enabled; requesting host shutdown");
+                            _hostLifetime.StopApplication();
+                        }
+                        else
+                        {
+                            Diag("Preserving host process (no StopApplication)");
+                        }
                     }
                     else
                     {
-                        Diag("WARNING: IHostApplicationLifetime not available, host will not shutdown automatically");
-                        _isRunning = false;  // Only set here if we can't trigger proper shutdown
+                        Diag("Headless mode: skipping game timer stop and host shutdown");
                     }
                 }
             }, cancellationToken);
