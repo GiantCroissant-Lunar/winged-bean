@@ -5,6 +5,8 @@ using Plate.PluginManoi.Contracts;
 using Plate.CrossMilo.Contracts.WebSocket.Services;
 using Plate.CrossMilo.Contracts.WebSocket;
 using IService = Plate.CrossMilo.Contracts.WebSocket.Services.IService;
+using System.Net.Sockets;
+using System.IO;
 
 namespace WingedBean.Plugins.WebSocket;
 
@@ -30,46 +32,97 @@ public class SuperSocketWebSocketService : IService
     /// <inheritdoc />
     public void Start(int port)
     {
-        _port = port;
-
-        // Create configuration with specified port
-        var configBuilder = new ConfigurationBuilder();
-        configBuilder.AddInMemoryCollection(new Dictionary<string, string?>
+        // Try to start on the requested port, with fallback to alternative ports
+        var portsToTry = new List<int> { port, 4041, 4042, 4043, 4044 };
+        Exception? lastException = null;
+        
+        foreach (var tryPort in portsToTry)
         {
-            { "serverOptions:name", "WingedBeanWebSocketServer" },
-            { "serverOptions:listeners:0:ip", "Any" },
-            { "serverOptions:listeners:0:port", port.ToString() }
-        });
-        var configuration = configBuilder.Build();
-
-        // Build the WebSocket host
-        _host = WebSocketHostBuilder.Create(Array.Empty<string>())
-            .ConfigureAppConfiguration((hostCtx, configApp) =>
+            try
             {
-                configApp.AddConfiguration(configuration);
-            })
-            .UseWebSocketMessageHandler((session, message) =>
-            {
-                // Track connected session
-                lock (_lock)
+                _port = tryPort;
+                
+                // Create configuration with specified port
+                var configBuilder = new ConfigurationBuilder();
+                configBuilder.AddInMemoryCollection(new Dictionary<string, string?>
                 {
-                    if (!_sessions.Contains(session))
+                    { "serverOptions:name", "WingedBeanWebSocketServer" },
+                    { "serverOptions:listeners:0:ip", "Any" },
+                    { "serverOptions:listeners:0:port", tryPort.ToString() }
+                });
+                var configuration = configBuilder.Build();
+
+                // Build the WebSocket host
+                _host = WebSocketHostBuilder.Create(Array.Empty<string>())
+                    .ConfigureAppConfiguration((hostCtx, configApp) =>
                     {
-                        _sessions.Add(session);
-                    }
-                }
+                        configApp.AddConfiguration(configuration);
+                    })
+                    .UseWebSocketMessageHandler((session, message) =>
+                    {
+                        // Track connected session
+                        lock (_lock)
+                        {
+                            if (!_sessions.Contains(session))
+                            {
+                                _sessions.Add(session);
+                            }
+                        }
 
-                // Raise the MessageReceived event
-                MessageReceived?.Invoke(message.Message);
+                        // Raise the MessageReceived event
+                        MessageReceived?.Invoke(message.Message);
 
-                return ValueTask.CompletedTask;
-            })
-            .Build();
+                        return ValueTask.CompletedTask;
+                    })
+                    .Build();
 
-        // Start the WebSocket server in background
-        _ = Task.Run(() => _host.Run());
+                // Start the WebSocket server in background
+                _ = Task.Run(() => _host.Run());
 
-        Console.WriteLine($"WebSocket server started on port {port}");
+                // Small delay to let the server start and potentially fail
+                Thread.Sleep(100);
+                
+                Console.WriteLine($"✓ WebSocket server started on port {_port}");
+                
+                // Write port info file for PTY service discovery
+                WritePortInfoFile(_port);
+                
+                return; // Success!
+            }
+            catch (Exception ex)
+            {
+                lastException = ex;
+                Console.WriteLine($"✗ Failed to start on port {tryPort}: {ex.Message}");
+                _host = null;
+            }
+        }
+        
+        // All ports failed - log but don't throw (WebSocket is optional)
+        Console.WriteLine($"⚠ WebSocket server could not start on any port. Tried: {string.Join(", ", portsToTry)}");
+        Console.WriteLine($"  Last error: {lastException?.Message}");
+        Console.WriteLine($"  Application will continue without WebSocket support.");
+    }
+    
+    private void WritePortInfoFile(int actualPort)
+    {
+        try
+        {
+            // Write to both current directory and logs directory
+            var portInfoPath = Path.Combine(Directory.GetCurrentDirectory(), "websocket-port.txt");
+            var logsDir = Path.Combine(Directory.GetCurrentDirectory(), "logs");
+            Directory.CreateDirectory(logsDir);
+            var logsPortInfoPath = Path.Combine(logsDir, "websocket-port.txt");
+            
+            var portInfo = $"{actualPort}";
+            File.WriteAllText(portInfoPath, portInfo);
+            File.WriteAllText(logsPortInfoPath, portInfo);
+            
+            Console.WriteLine($"✓ Port info written to: {portInfoPath}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"⚠ Failed to write port info file: {ex.Message}");
+        }
     }
 
     /// <inheritdoc />

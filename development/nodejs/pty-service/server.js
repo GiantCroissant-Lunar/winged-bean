@@ -1,11 +1,48 @@
 const pty = require("node-pty");
 const WebSocket = require("ws");
 const path = require("path");
+const fs = require("fs");
 const RecordingManager = require("./recording-manager");
 const { getArtifactsPath } = require("./get-version");
 
 // WebSocket server configuration
-const WS_PORT = 4041;
+// Try to read the port from websocket-port.txt written by ConsoleDungeon.Host
+// Otherwise use environment variable or default
+function discoverWebSocketPort() {
+  const portFilePath = path.join(getArtifactsPath("dotnet", "bin"), "websocket-port.txt");
+  const logsPortFilePath = path.join(getArtifactsPath("dotnet", "bin"), "logs", "websocket-port.txt");
+
+  // Try reading from port info file first
+  for (const filePath of [portFilePath, logsPortFilePath]) {
+    try {
+      if (fs.existsSync(filePath)) {
+        const portStr = fs.readFileSync(filePath, "utf8").trim();
+        const port = parseInt(portStr, 10);
+        if (!isNaN(port) && port > 0) {
+          console.log(`✓ Discovered WebSocket port from ${filePath}: ${port}`);
+          return port;
+        }
+      }
+    } catch (err) {
+      // Ignore and try next
+    }
+  }
+
+  // Fallback to environment variable or default
+  const envPort = process.env.PTY_WS_PORT || process.env.DUNGEON_WS_PORT;
+  if (envPort) {
+    const port = parseInt(envPort, 10);
+    if (!isNaN(port)) {
+      console.log(`✓ Using WebSocket port from environment: ${port}`);
+      return port;
+    }
+  }
+
+  console.log(`✓ Using default WebSocket port: 4041`);
+  return 4041; // Default
+}
+
+const WS_PORT = discoverWebSocketPort();
 
 // Terminal.Gui application configuration
 // ALWAYS run from versioned artifacts so plugins resolve correctly (R-CODE-050)
