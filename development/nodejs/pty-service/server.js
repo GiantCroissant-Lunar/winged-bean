@@ -29,13 +29,12 @@ console.log(`Ready to spawn from: ${BIN_DIR}/${DOTNET_DLL}`);
 wss.on("connection", (ws) => {
   console.log("WebSocket client connected");
 
-  // Spawn .NET application from build output so relative plugin paths resolve
-  const cmd = `TERM=xterm-256color COLORTERM=truecolor dotnet ./${DOTNET_DLL}`;
-  const ptyProcess = pty.spawn("/bin/bash", ["-lc", cmd], {
+  // Spawn .NET application via shell with exec to ensure proper runtime initialization
+  // Direct spawning of dotnet with DLL path fails in PTY without shell context
+  const ptyProcess = pty.spawn("sh", ["-c", `cd "${BIN_DIR}" && exec dotnet ./${DOTNET_DLL}`, "sh"], {
     name: "xterm-256color",
     cols: 80,
     rows: 24,
-    cwd: BIN_DIR,
     env: {
       ...process.env,
       // Try different TERM settings for Terminal.Gui compatibility

@@ -1,0 +1,24 @@
+<Project>
+  <PropertyGroup>
+    <!-- Symbol Package Configuration -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+    <!-- Deterministic Build -->
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+
+    <!-- Source Link -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+
+    <!-- Version from GitVersion (set by Nuke build) -->
+    <!-- When building via Nuke, these properties will be set by DotNetPack -->
+    <!-- Version is automatically picked up from GitVersion via Nuke -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Source Link Support (no version - managed centrally) -->
+    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
+  </ItemGroup>
+</Project>

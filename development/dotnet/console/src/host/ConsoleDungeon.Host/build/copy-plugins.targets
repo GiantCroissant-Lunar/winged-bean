@@ -9,6 +9,12 @@
       <PluginFiles Include="../../plugins/**/bin/$(Configuration)/$(TargetFramework)/*.dll" />
       <PluginFiles Include="../../plugins/**/bin/$(Configuration)/$(TargetFramework)/*.pdb" />
       <PluginFiles Include="../../plugins/**/bin/$(Configuration)/$(TargetFramework)/.plugin.json" />
+
+      <!-- Exclude Analytics and Diagnostics plugins (require Google.Cloud.Firestore which causes runtime errors) -->
+      <PluginFiles Remove="../../plugins/WingedBean.Plugins.Analytics/bin/$(Configuration)/$(TargetFramework)/*.dll" />
+      <PluginFiles Remove="../../plugins/WingedBean.Plugins.Analytics/bin/$(Configuration)/$(TargetFramework)/*.pdb" />
+      <PluginFiles Remove="../../plugins/WingedBean.Plugins.Diagnostics/bin/$(Configuration)/$(TargetFramework)/*.dll" />
+      <PluginFiles Remove="../../plugins/WingedBean.Plugins.Diagnostics/bin/$(Configuration)/$(TargetFramework)/*.pdb" />
     </ItemGroup>
 
     <!-- Create plugins directory -->
@@ -22,6 +28,11 @@
       OverwriteReadOnlyFiles="true" />
 
     <Message Importance="high" Text="Copied @(PluginFiles->Count()) plugin files to $(OutDir)plugins/" />
+
+    <!-- Remove Analytics and Diagnostics plugin directories if they exist -->
+    <RemoveDir Directories="$(OutDir)plugins/WingedBean.Plugins.Analytics" Condition="Exists('$(OutDir)plugins/WingedBean.Plugins.Analytics')" />
+    <RemoveDir Directories="$(OutDir)plugins/WingedBean.Plugins.Diagnostics" Condition="Exists('$(OutDir)plugins/WingedBean.Plugins.Diagnostics')" />
+    <Message Importance="high" Text="Excluded Analytics and Diagnostics plugins (Google.Cloud.Firestore dependency)" Condition="Exists('$(OutDir)plugins/')" />
   </Target>
 
   <Target Name="CleanPlugins" AfterTargets="Clean">

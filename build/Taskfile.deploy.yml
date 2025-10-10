@@ -5,7 +5,7 @@ version: '3'
 vars:
   VERSION:
     sh: dotnet gitversion /showvariable SemVer
-  ARTIFACT_DIR: _artifacts/v{{.VERSION}}
+  ARTIFACT_DIR: _artifacts/{{.VERSION}}
 
 tasks:
   deploy-vercel-docs:

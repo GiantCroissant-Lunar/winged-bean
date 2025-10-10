@@ -3,6 +3,7 @@ using Plate.CrossMilo.Contracts.Game;
 using Plate.CrossMilo.Contracts.Input;
 using Plate.CrossMilo.Contracts.Scene.Services;
 using Plate.CrossMilo.Contracts.Scene;
+using System.Collections.Concurrent;
 
 namespace WingedBean.Providers.TerminalGuiScene;
 
@@ -20,6 +21,9 @@ public class TerminalGuiSceneProvider : ISceneService
     private View? _inputView;
     private Label? _gameWorldView;
     private Label? _statusLabel;
+    private TextView? _logView;
+    private readonly ConcurrentQueue<string> _logMessages = new();
+    private const int MaxLogMessages = 100;
     private bool _initialized = false;
     private Camera _camera = Camera.Static(0, 0);
 
@@ -63,32 +67,65 @@ public class TerminalGuiSceneProvider : ISceneService
             Text = "Loading..."
         };
 
+        // Game world view - rows 1-15 (15 rows for game)
         _gameWorldView = new Label
         {
             X = 0,
             Y = 1,
             Width = Dim.Fill(),
-            Height = Dim.Fill(),
+            Height = 15,  // 15 rows for game world
             Text = "Initializing game..."
         };
 
+        // Separator line before log console
+        var logSeparator = new Label
+        {
+            X = 0,
+            Y = 16,
+            Width = Dim.Fill(),
+            Height = 1,
+            Text = "─────────────────────────────── Log Console ────────────────────────────────"
+        };
+
+        // Log console at bottom - 4 lines as simple TextView (no frame to save space)
+        _logView = new TextView
+        {
+            X = 0,
+            Y = 17,  // Start at row 17
+            Width = Dim.Fill(),
+            Height = 5,  // 5 rows for logs (17-21)
+            ReadOnly = true,
+            WordWrap = false,
+            Text = "[00:00:00.000] INFO   | Terminal.Gui v2 initialized\n[00:00:00.001] DEBUG  | PTY active\n[00:00:00.002] DEBUG  | Log console ready"
+        };
+
+        // Input view for keyboard capture - overlays game world only (rows 1-15)
         _inputView = new View
         {
             X = 0,
-            Y = 0,
+            Y = 1,
             Width = Dim.Fill(),
-            Height = Dim.Fill(),
+            Height = 15,  // Match game world view exactly
             CanFocus = true
         };
 
         _inputView.KeyDown += OnKeyDown;
 
+        // Add views in correct Z-order
         _mainWindow.Add(_statusLabel);
         _mainWindow.Add(_gameWorldView);
-        _mainWindow.Add(_inputView);
+        _mainWindow.Add(logSeparator);
+        _mainWindow.Add(_logView);
+        _mainWindow.Add(_inputView);  // Add last so it's on top for input
 
         _inputView.SetFocus();
 
+        // Add initial log messages
+        LogMessage("INFO", "Terminal.Gui v2 scene provider initialized");
+        LogMessage("DEBUG", "PTY connection active");
+        LogMessage("DEBUG", $"Game view: Y={_gameWorldView.Y}, Height={_gameWorldView.Height}");
+        LogMessage("DEBUG", $"Log view: Y={_logView.Y}, Height={_logView.Height}");
+        
         _initialized = true;
     }
 
@@ -107,6 +144,7 @@ public class TerminalGuiSceneProvider : ISceneService
         if (mapped != null)
         {
             _inputRouter.Dispatch(mapped);
+            LogMessage("INPUT", $"Key: {keyEvent.KeyCode}");
             keyEvent.Handled = true;
         }
     }
@@ -164,6 +202,8 @@ public class TerminalGuiSceneProvider : ISceneService
             var viewport = GetViewport();
             var buffer = _renderService.Render(toRender, viewport.Width, viewport.Height);
             _gameWorldView.Text = buffer.ToText();
+            
+            LogMessage("RENDER", $"Entities: {toRender.Count}, Viewport: {viewport.Width}x{viewport.Height}");
         });
     }
 
@@ -188,6 +228,39 @@ public class TerminalGuiSceneProvider : ISceneService
                 _statusLabel.Text = status;
             }
         });
+        
+        LogMessage("STATUS", status);
+    }
+
+    /// <summary>
+    /// Add a log message to the log console view.
+    /// Messages are displayed in a scrollable TextView at the bottom of the screen.
+    /// </summary>
+    /// <param name="level">Log level (INFO, DEBUG, RENDER, INPUT, STATUS)</param>
+    /// <param name="message">Log message text</param>
+    private void LogMessage(string level, string message)
+    {
+        var timestamp = DateTime.Now.ToString("HH:mm:ss.fff");
+        var logLine = $"[{timestamp}] {level.PadRight(6)} | {message}";
+        
+        _logMessages.Enqueue(logLine);
+        
+        // Keep only the last N messages
+        while (_logMessages.Count > MaxLogMessages)
+        {
+            _logMessages.TryDequeue(out _);
+        }
+        
+        // Update the TextView if it exists
+        if (_logView != null)
+        {
+            Application.Invoke(() =>
+            {
+                _logView.Text = string.Join("\n", _logMessages);
+                // Scroll to bottom to show latest message
+                _logView.MoveEnd();
+            });
+        }
     }
 
     public void Run()

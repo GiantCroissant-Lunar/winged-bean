@@ -8,6 +8,9 @@ includes:
   console:
     taskfile: ../development/dotnet/console/Taskfile.yml
     dir: ../development/dotnet/console
+  framework:
+    taskfile: ../development/dotnet/framework/Taskfile.yml
+    dir: ../development/dotnet/framework
 
 vars:
   VERSION:
@@ -81,10 +84,11 @@ tasks:
   init-dirs:
     desc: Initialize build artifact directories
     cmds:
-      - mkdir -p {{.ARTIFACT_DIR}}/dotnet/{bin,recordings,logs}
+      - mkdir -p {{.ARTIFACT_DIR}}/dotnet/{bin,packages,recordings,logs}
       - mkdir -p {{.ARTIFACT_DIR}}/web/{dist,recordings,logs,test-reports,test-results}
       - mkdir -p {{.ARTIFACT_DIR}}/pty/{dist,logs}
       - mkdir -p {{.ARTIFACT_DIR}}/_logs
+      - echo "✅ Build directories initialized (added packages/ for RFC-0041)"
 
   build-dotnet:
     desc: "Build .NET projects (host + plugins)"
@@ -123,12 +127,13 @@ tasks:
         cd ../../../build/{{.ARTIFACT_DIR}}/pty/dist && npm ci --omit=dev 2>&1 | tee -a ../../_logs/pty-build.log
 
   build-all:
-    desc: "Build all components"
+    desc: "Build all components (console, web, pty, framework)"
     deps:
       - build-dotnet
       - build-web
       - build-pty
     cmds:
+      - task: framework:pack-and-sync
       - echo "All builds completed for version {{.VERSION}}"
       - task: update-latest
 

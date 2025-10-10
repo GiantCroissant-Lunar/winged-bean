@@ -1,0 +1,18 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Microsoft Extensions (matching CrossMilo.Contracts dependencies) -->
+    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Logging" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.2" />
+
+    <!-- Source Link -->
+    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
+  </ItemGroup>
+</Project>

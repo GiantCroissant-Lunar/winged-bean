@@ -1,0 +1,14 @@
+{
+  "version": "0.0.1-392",
+  "timestamp": "2025-10-09T08:32:05.697Z",
+  "checks": {
+    "hasTitle": false,
+    "hasGameplay": false,
+    "hasStats": false,
+    "hasEntities": false,
+    "hasGameState": false
+  },
+  "terminalPreview": "Terminal not initialized",
+  "url": "http://localhost:4321/demo/",
+  "browser": "chromium"
+}

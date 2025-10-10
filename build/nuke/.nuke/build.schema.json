@@ -26,10 +26,19 @@
       "enum": [
         "BuildAll",
         "CI",
+        "CIWithReports",
         "Clean",
+        "CleanBuildPackages",
+        "CleanRepository",
         "Compile",
         "DebugWrapper",
+        "GenerateComponentReports",
+        "NuGetWorkflow",
+        "Pack",
+        "Push",
         "Restore",
+        "RestoreSolution",
+        "SyncNugetPackagesToLocalFeeds",
         "Test"
       ]
     },
@@ -104,6 +113,10 @@
   "allOf": [
     {
       "properties": {
+        "BuiltPackagesDirectoryParam": {
+          "type": "string",
+          "description": "Directory where freshly built packages (.nupkg) are placed (overrides config)"
+        },
         "Configuration": {
           "type": "string",
           "description": "Configuration to build - Default is 'Debug' (local) or 'Release' (server)",
@@ -111,6 +124,43 @@
             "Debug",
             "Release"
           ]
+        },
+        "NuGetLocalRepositoriesParam": {
+          "type": "string",
+          "description": "Comma-separated list of local NuGet repositories to copy to (overrides config array)"
+        },
+        "NuGetNuGetApiKey": {
+          "type": "string",
+          "description": "NuGet API key for push"
+        },
+        "NuGetNuGetConfiguration": {
+          "type": "string",
+          "description": "Configuration to build"
+        },
+        "NuGetNuGetExcludePackages": {
+          "type": "string",
+          "description": "Packages to exclude from cleanup"
+        },
+        "NuGetNuGetMaxVersions": {
+          "type": "integer",
+          "description": "Maximum versions to keep during cleanup",
+          "format": "int32"
+        },
+        "NuGetNuGetProjects": {
+          "type": "string",
+          "description": "Projects to pack (semicolon-separated)"
+        },
+        "NuGetNuGetSource": {
+          "type": "string",
+          "description": "NuGet push source URL or name"
+        },
+        "NuGetSyncLayoutParam": {
+          "type": "string",
+          "description": "Sync layout: hierarchical | flat | both (overrides config)"
+        },
+        "Project": {
+          "type": "string",
+          "description": "Project to build: 'console' (default) or 'framework'"
         },
         "wrapper-config-path": {
           "type": "string",

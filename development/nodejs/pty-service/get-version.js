@@ -49,11 +49,12 @@ function getArtifactsPath(component, subdir) {
   const repoRoot = findRepositoryRoot();
 
   if (repoRoot) {
-    return path.join(repoRoot, "build", "_artifacts", `v${version}`, component, subdir);
+    // Don't add 'v' prefix - match Taskfile.yml artifact directory structure
+    return path.join(repoRoot, "build", "_artifacts", version, component, subdir);
   }
 
   // Fallback: use relative path
-  return path.join(process.cwd(), "build", "_artifacts", `v${version}`, component, subdir);
+  return path.join(process.cwd(), "build", "_artifacts", version, component, subdir);
 }
 
 /**

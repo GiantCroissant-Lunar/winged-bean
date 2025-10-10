@@ -38,7 +38,7 @@
 
   "globalPaths": {
     "artifactsDirectory": "../_artifacts",
-    "nugetRepositoryDirectory": "../../../packages/nuget-repo"
+    "nugetRepositoryDirectory": "../../../../packages/nuget-repo"
   },
 
   "codeQuality": {

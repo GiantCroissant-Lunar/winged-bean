@@ -1,0 +1,59 @@
+version: '3'
+
+vars:
+  VERSION:
+    sh: ../../../build/get-version.sh
+  ARTIFACT_DIR: ../../../build/_artifacts/{{.VERSION}}/dotnet/packages
+  WORKSPACE_REPO: ../../../../../packages/nuget-repo
+  NUKE_DIR: ../../../build/nuke
+
+tasks:
+  build:
+    desc: "Build framework libraries"
+    dir: '{{.NUKE_DIR}}'
+    cmds:
+      - ./build.sh BuildAll --project framework --no-logo
+
+  pack:
+    desc: "Pack NuGet packages via Nuke (RFC-0041)"
+    dir: '{{.NUKE_DIR}}'
+    cmds:
+      - ./build.sh Pack --project framework --no-logo
+
+  pack-and-sync:
+    desc: "Pack and sync to workspace repository (RFC-0041)"
+    dir: '{{.NUKE_DIR}}'
+    cmds:
+      - ./build.sh NuGetWorkflow --project framework --no-logo
+
+  clean:
+    desc: "Clean build artifacts"
+    cmds:
+      - rm -rf {{.ARTIFACT_DIR}}/*
+      - echo "Cleaned {{.ARTIFACT_DIR}}"
+
+  list-packages:
+    desc: "List generated NuGet packages"
+    cmds:
+      - ls -lh {{.ARTIFACT_DIR}}/ 2>/dev/null || echo "No packages found"
+
+  list-workspace:
+    desc: "List packages in workspace repository"
+    cmds:
+      - echo "Flat layout:"
+      - ls -lh {{.WORKSPACE_REPO}}/*.nupkg 2>/dev/null || echo "  (none)"
+      - echo ""
+      - echo "Hierarchical layout:"
+      - find {{.WORKSPACE_REPO}} -name "*.nupkg" -not -path "*/.*" | head -10
+
+  ci:
+    desc: "Full CI pipeline for framework (RFC-0041)"
+    cmds:
+      - task: clean
+      - task: pack-and-sync
+      - task: list-packages
+
+  help:
+    desc: "Show available tasks"
+    cmds:
+      - task --list

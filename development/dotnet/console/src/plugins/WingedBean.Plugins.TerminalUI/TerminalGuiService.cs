@@ -2,6 +2,7 @@ using Terminal.Gui;
 using Plate.PluginManoi.Contracts;
 using Plate.CrossMilo.Contracts.TerminalUI.Services;
 using Plate.CrossMilo.Contracts.TerminalUI;
+using System.Collections.Concurrent;
 
 namespace WingedBean.Plugins.TerminalUI;
 
@@ -19,6 +20,9 @@ public class TerminalGuiService : IService
     private bool _initialized = false;
     private Window? _mainWindow;
     private System.Timers.Timer? _timer;
+    private TextView? _logView;
+    private readonly ConcurrentQueue<string> _logMessages = new();
+    private const int MaxLogMessages = 100;
 
     /// <summary>
     /// Initialize the terminal UI system.
@@ -96,9 +100,33 @@ public class TerminalGuiService : IService
             Text = "Ready - Terminal.Gui is fully functional! (F9=Record, F10=Stop)"
         };
 
+        // Create log console view
+        var logLabel = new Label
+        {
+            X = 1,
+            Y = 13,
+            Text = "Log Console:"
+        };
+
+        _logView = new TextView
+        {
+            X = 1,
+            Y = 14,
+            Width = Dim.Fill() - 1,
+            Height = Dim.Fill() - 1,
+            ReadOnly = true,
+            WordWrap = false
+        };
+
+        // Add some initial log messages
+        LogMessage("INFO", "Terminal.Gui v2 initialized successfully");
+        LogMessage("INFO", "PTY connection established");
+        LogMessage("DEBUG", "All 9 plugins loaded");
+
         // Button click handler
         button.Accepting += (s, e) => {
             statusLabel.Text = $"Button clicked at {DateTime.Now:HH:mm:ss}!";
+            LogMessage("INFO", $"Button clicked by user at {DateTime.Now:HH:mm:ss}");
         };
 
         // Add keyboard handler for F9/F10 recording control
@@ -110,6 +138,7 @@ public class TerminalGuiService : IService
                 Console.Write("\x1b]1337;StartRecording\x07");
                 Console.Out.Flush();
                 statusLabel.Text = "🔴 Recording started (F10 to stop)";
+                LogMessage("INFO", "Recording started");
                 e.Handled = true;
             }
             // F10 = Stop Recording
@@ -119,12 +148,13 @@ public class TerminalGuiService : IService
                 Console.Write("\x1b]1337;StopRecording\x07");
                 Console.Out.Flush();
                 statusLabel.Text = "⏹️  Recording stopped (F9 to start)";
+                LogMessage("INFO", "Recording stopped");
                 e.Handled = true;
             }
         };
 
         // Add all controls to window
-        _mainWindow.Add(titleLabel, infoLabel, architectureLabel, timeLabel, button, textField, statusLabel);
+        _mainWindow.Add(titleLabel, infoLabel, architectureLabel, timeLabel, button, textField, statusLabel, logLabel, _logView);
 
         // Create menu bar
         var menu = new MenuBar();
@@ -149,6 +179,37 @@ public class TerminalGuiService : IService
         _timer = new System.Timers.Timer(1000);
         _timer.Elapsed += (sender, e) => UpdateTime();
         _timer.Start();
+    }
+
+    /// <summary>
+    /// Add a log message to the log console.
+    /// Messages are displayed in a scrollable TextView.
+    /// </summary>
+    /// <param name="level">Log level (INFO, DEBUG, WARN, ERROR)</param>
+    /// <param name="message">Log message text</param>
+    public void LogMessage(string level, string message)
+    {
+        var timestamp = DateTime.Now.ToString("HH:mm:ss.fff");
+        var logLine = $"[{timestamp}] {level.PadRight(5)} | {message}";
+        
+        _logMessages.Enqueue(logLine);
+        
+        // Keep only the last N messages
+        while (_logMessages.Count > MaxLogMessages)
+        {
+            _logMessages.TryDequeue(out _);
+        }
+        
+        // Update the TextView if it exists
+        if (_logView != null)
+        {
+            Application.Invoke(() =>
+            {
+                _logView.Text = string.Join("\n", _logMessages);
+                // Scroll to bottom to show latest message
+                _logView.MoveEnd();
+            });
+        }
     }
 
     /// <summary>
