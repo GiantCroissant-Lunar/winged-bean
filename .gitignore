@@ -51,3 +51,4 @@ TestResults/
 # Debug logs and build output
 build/debug_script_*.log
 **/build_output.txt
+development/build/_artifacts/
