@@ -25,6 +25,7 @@ public class SuperSocketWebSocketService : IService
     private int _port;
     private readonly List<WebSocketSession> _sessions = new();
     private readonly object _lock = new();
+    private bool _isStarted = false;
 
     /// <inheritdoc />
     public event Action<string>? MessageReceived;
@@ -32,6 +33,16 @@ public class SuperSocketWebSocketService : IService
     /// <inheritdoc />
     public void Start(int port)
     {
+        // Check if already started - make this method idempotent
+        lock (_lock)
+        {
+            if (_isStarted)
+            {
+                Console.WriteLine($"⚠ WebSocket server already running on port {_port}. Ignoring duplicate Start() call.");
+                return;
+            }
+        }
+        
         // Try to start on the requested port, with fallback to alternative ports
         var portsToTry = new List<int> { port, 4041, 4042, 4043, 4044 };
         Exception? lastException = null;
@@ -83,6 +94,12 @@ public class SuperSocketWebSocketService : IService
                 Thread.Sleep(100);
                 
                 Console.WriteLine($"✓ WebSocket server started on port {_port}");
+                
+                // Mark as started
+                lock (_lock)
+                {
+                    _isStarted = true;
+                }
                 
                 // Write port info file for PTY service discovery
                 WritePortInfoFile(_port);
