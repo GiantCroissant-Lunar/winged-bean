@@ -51,8 +51,19 @@ Successfully resolved critical startup crash (`TaskCanceledException`) that prev
 
 **Solution:** Added `TextView` console log view:
 - Position: Bottom 4 lines of the terminal
-- Content: Instructions and game messages
+- Content: Dynamic game event messages (e.g., "Moved north", "Moved east")
 - Layout: Menu bar → Status bar → Game view → Console log (4 lines)
+- Implementation: Added message buffer that keeps last 3 messages and updates in real-time
+
+### 5. **Console Log Showing Static Help Text** ✅
+**Problem:** Console log initially showed redundant help text that duplicated information in the help dialog (F1).
+
+**Solution:** Replaced static text with dynamic game event logging:
+- Added `AddConsoleLog(string message)` method to append messages
+- Implemented rolling buffer that keeps last 3 messages
+- Added movement event logging in `OnKeyDown` handler
+- Initial message: "Game initialized. Ready to play!"
+- Movement messages: "Moved north/south/east/west" based on arrow key input
 
 ---
 
@@ -97,6 +108,13 @@ Successfully resolved critical startup crash (`TaskCanceledException`) that prev
 8. **`development/dotnet/console/src/plugins/WingedBean.Plugins.ConsoleDungeon/Scene/TerminalGuiSceneProvider.cs`** (+14 lines)
    - Added console log TextView at bottom (lines 157-165)
    - Changed game view height calculation (line 153: `Dim.Fill() - 6`)
+
+### Console Log Dynamic Updates (Current Session)
+9. **`development/dotnet/console/src/plugins/WingedBean.Plugins.ConsoleDungeon/Scene/TerminalGuiSceneProvider.cs`** (+45 modified)
+   - Added console log buffer and lock (lines 76-77: `_consoleLogBuffer` and `_logLock`)
+   - Replaced static help text with dynamic initialization message (lines 159-171)
+   - Added `AddConsoleLog(string message)` method (lines 362-395)
+   - Added movement event logging in `OnKeyDown` handler (lines 253-266)
 
 ### Maintenance (Commit: `2bbf4fb`)
 9. **`.gitignore`** (+1 line)
@@ -153,9 +171,9 @@ export DUNGEON_HEADLESS=1
 │                                                         │
 ├────────────────────────────────────────────────────────┤
 │ === Console Log ===                                    │
-│ > Game started                                         │ Console log
-│ > Use arrow keys to move                               │ (4 lines)
-│ > Press ESC to quit                                    │
+│ > Game initialized. Ready to play!                     │ Console log
+│ > Moved south                                          │ (4 lines)
+│ > Moved east                                           │ (last 3 messages)
 └────────────────────────────────────────────────────────┘
 ```
 
@@ -237,10 +255,12 @@ cp development/dotnet/console/src/host/ConsoleDungeon.Host/bin/Debug/net8.0/Cons
    - Workaround: Use different port via `DUNGEON_WS_PORT` env var
 
 ### Future Enhancements
-1. **Console log functionality**: The TextView is static. Consider adding:
-   - Dynamic message logging from game events
-   - Scrolling capability
+1. **Console log enhancements**: Consider adding:
+   - Scrolling capability for message history
    - Color-coded messages (info, warning, error)
+   - Combat event messages ("Hit goblin for 5 damage")
+   - Item pickup messages ("Picked up health potion")
+   - Level up notifications
 
 2. **Headless mode improvements**: Better detection and fallback logic
 

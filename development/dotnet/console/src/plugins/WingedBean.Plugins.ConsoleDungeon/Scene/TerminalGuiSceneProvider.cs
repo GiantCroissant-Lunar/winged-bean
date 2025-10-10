@@ -72,6 +72,10 @@ public class TerminalGuiSceneProvider : ISceneService
     private bool _updatePending = false;
     private DateTime _lastUpdate = DateTime.MinValue;
     private const int MinUpdateIntervalMs = 50; // Max 20 FPS
+    
+    // Console log buffer (stores last 3 lines of messages)
+    private readonly System.Collections.Generic.Queue<string> _consoleLogBuffer = new(3);
+    private readonly object _logLock = new();
 
     public event EventHandler<SceneShutdownEventArgs>? Shutdown;
 
@@ -163,8 +167,11 @@ public class TerminalGuiSceneProvider : ISceneService
             Width = Dim.Fill(),
             Height = 4,
             ReadOnly = true,
-            Text = "=== Console Log ===\n> Game started\n> Use arrow keys to move\n> Press ESC to quit"
+            Text = "=== Console Log ==="
         };
+        
+        // Add initial message
+        AddConsoleLog("Game initialized. Ready to play!");
 
         // Attach KeyDown handler to the window to catch all key events
         _mainWindow.KeyDown += OnKeyDown;
@@ -241,6 +248,21 @@ public class TerminalGuiSceneProvider : ISceneService
         {
             _inputRouter.Dispatch(mapped);
             keyEvent.Handled = true;
+            
+            // Log movement actions to console
+            var actionName = mapped.Type switch
+            {
+                GameInputType.MoveUp => "Moved north",
+                GameInputType.MoveDown => "Moved south",
+                GameInputType.MoveLeft => "Moved west",
+                GameInputType.MoveRight => "Moved east",
+                _ => null
+            };
+            
+            if (actionName != null)
+            {
+                AddConsoleLog(actionName);
+            }
         }
     }
 
@@ -357,6 +379,41 @@ public class TerminalGuiSceneProvider : ISceneService
                 _statusLabel.Text = status;
             }
         });
+    }
+
+    /// <summary>
+    /// Adds a message to the console log view (keeps last 3 messages).
+    /// </summary>
+    public void AddConsoleLog(string message)
+    {
+        if (_headlessMode)
+        {
+            return; // No-op
+        }
+        
+        lock (_logLock)
+        {
+            // Keep only last 3 messages
+            if (_consoleLogBuffer.Count >= 3)
+            {
+                _consoleLogBuffer.Dequeue();
+            }
+            _consoleLogBuffer.Enqueue($"> {message}");
+            
+            // Update the TextView
+            Application.Invoke(() =>
+            {
+                if (_consoleLogView != null)
+                {
+                    var sb = new StringBuilder("=== Console Log ===\n");
+                    foreach (var msg in _consoleLogBuffer)
+                    {
+                        sb.AppendLine(msg);
+                    }
+                    _consoleLogView.Text = sb.ToString().TrimEnd();
+                }
+            });
+        }
     }
 
     public void Run()

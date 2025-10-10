@@ -655,7 +655,7 @@ task capture:state  # Capture new screenshots
 2. Press F9 (should see title change to "🔴 RECORDING")
 3. Interact with the game (press keys, etc.)
 4. Press F10 (should see title revert)
-5. Check recording saved: `build/_artifacts/v{VERSION}/pty/recordings/session-*.cast`
+5. Check recording saved: `build/_artifacts/{VERSION}/pty/recordings/session-*.cast`
 6. Play back with: `asciinema play session-*.cast`
 
 **Expected Behavior**:
@@ -811,9 +811,9 @@ tail -f development/dotnet/console/src/host/ConsoleDungeon.Host/bin/Debug/net8.0
 
 **Key Directories**:
 - Logs: `bin/Debug/net8.0/logs/`
-- Artifacts: `build/_artifacts/v{VERSION}/`
-- Screenshots: `build/_artifacts/v{VERSION}/web/screenshots/`
-- Recordings: `build/_artifacts/v{VERSION}/pty/recordings/`
+- Artifacts: `build/_artifacts/{VERSION}/`
+- Screenshots: `build/_artifacts/{VERSION}/web/screenshots/`
+- Recordings: `build/_artifacts/{VERSION}/pty/recordings/`
 
 ---
 

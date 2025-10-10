@@ -22,10 +22,10 @@ Traditional spec tests only tell you if something **passes or fails**. They don'
 
 ## Solution: Versioned State Capture
 
-Every test run captures artifacts into `build/_artifacts/v{GitVersion}/`:
+Every test run captures artifacts into `build/_artifacts/{GitVersion}/`:
 
 ```
-build/_artifacts/v0.0.1-architecture-realignment.1/
+build/_artifacts/0.0.1-architecture-realignment.1/
 ├── dotnet/
 │   ├── bin/           # .NET binaries
 │   ├── recordings/    # Asciinema cast files
@@ -48,7 +48,7 @@ build/_artifacts/v0.0.1-architecture-realignment.1/
 
 ## Real Example from Today
 
-**Version**: `v0.0.1-architecture-realignment.1`  
+**Version**: `0.0.1-architecture-realignment.1`  
 **Date**: 2025-10-03
 
 ### What We Captured
@@ -144,11 +144,11 @@ task verify:visual
    ```bash
    # Compare versions
    diff \
-     build/_artifacts/v0.0.1/web/terminal-captures/terminal-buffer-*.txt \
-     build/_artifacts/v0.0.2/web/terminal-captures/terminal-buffer-*.txt
+     build/_artifacts/0.0.1/web/terminal-captures/terminal-buffer-*.txt \
+     build/_artifacts/0.0.2/web/terminal-captures/terminal-buffer-*.txt
    
    # View screenshots side-by-side
-   open build/_artifacts/v*/web/screenshots/dungeon-running-*.png
+   open build/_artifacts/*/web/screenshots/dungeon-running-*.png
    ```
 
 ---
@@ -168,13 +168,13 @@ test('dungeon displays correctly', async ({ page }) => {
 
 ### Versioned State Capture
 ```javascript
-test('capture dungeon state for v0.0.1', async ({ page }) => {
+test('capture dungeon state for 0.0.1', async ({ page }) => {
   await page.goto('/demo/');
-  await page.screenshot({ path: 'v0.0.1/web/screenshots/dungeon.png' });
+  await page.screenshot({ path: '0.0.1/web/screenshots/dungeon.png' });
   const terminalText = await getTerminalBuffer();
-  fs.writeFileSync('v0.0.1/web/terminal-captures/buffer.txt', terminalText);
+  fs.writeFileSync('0.0.1/web/terminal-captures/buffer.txt', terminalText);
   const checks = runVerificationChecks(terminalText);
-  fs.writeFileSync('v0.0.1/web/logs/verification.json', JSON.stringify(checks));
+  fs.writeFileSync('0.0.1/web/logs/verification.json', JSON.stringify(checks));
 });
 ```
 **Result**: ✅ Pass + artifacts  
@@ -198,7 +198,7 @@ test('capture dungeon state for v0.0.1', async ({ page }) => {
 - Plugin: `WingedBean.Plugins.AsciinemaRecorder`
 - Status: Lazy-loaded (not currently active)
 - Future: Integrate recording trigger from tests
-- Cast files → `build/_artifacts/v{VERSION}/dotnet/recordings/`
+- Cast files → `build/_artifacts/{VERSION}/dotnet/recordings/`
 
 ### PM2 (Runtime management)
 - Logs auto-saved to: `development/nodejs/pty-service/logs/`
@@ -240,20 +240,20 @@ Watch the stats update in real-time as the game ticks!
 
 ### 1. Automated Visual Regression
 ```bash
-task compare:versions --from=v0.0.1 --to=v0.0.2
+task compare:versions --from=0.0.1 --to=0.0.2
 # Output: Pixel-by-pixel diff highlighting changes
 ```
 
 ### 2. Video Recordings
 ```javascript
 // Save Playwright videos to artifacts
-await testInfo.video().saveAs(`v${VERSION}/web/recordings/test.webm`);
+await testInfo.video().saveAs(`${VERSION}/web/recordings/test.webm`);
 ```
 
 ### 3. Asciinema Integration
 ```bash
 task capture:asciinema --duration=30s
-# Saves to: v{VERSION}/dotnet/recordings/session-{timestamp}.cast
+# Saves to: {VERSION}/dotnet/recordings/session-{timestamp}.cast
 ```
 
 ### 4. CI Artifact Upload
@@ -264,7 +264,7 @@ task capture:asciinema --duration=30s
 - uses: actions/upload-artifact@v3
   with:
     name: version-artifacts-${{ VERSION }}
-    path: build/_artifacts/v*/
+    path: build/_artifacts/*/
 ```
 
 ---
