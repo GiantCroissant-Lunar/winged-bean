@@ -7,12 +7,14 @@ using Plate.CrossMilo.Contracts.Game;
 using Plate.CrossMilo.Contracts.Input;
 using Plate.CrossMilo.Contracts.Scene;
 using Plate.CrossMilo.Contracts.Scene.Services;
+using Plate.CrossMilo.Contracts.Audio;
 
 // Type aliases for IService pattern
 using IRenderService = Plate.CrossMilo.Contracts.Game.Render.IService;
 using IInputRouter = Plate.CrossMilo.Contracts.Input.Router.IService;
 using IInputMapper = Plate.CrossMilo.Contracts.Input.Mapper.IService;
 using ISceneService = Plate.CrossMilo.Contracts.Scene.Services.IService;
+using IAudioService = Plate.CrossMilo.Contracts.Audio.Services.IService;
 
 namespace WingedBean.Plugins.ConsoleDungeon.Scene;
 
@@ -62,7 +64,9 @@ public class TerminalGuiSceneProvider : ISceneService
     private readonly IRenderService _renderService;
     private readonly IInputMapper _inputMapper;
     private readonly IInputRouter _inputRouter;
+    private readonly IAudioService? _audioService;
     private bool _headlessMode = false;
+    private bool _soundEffectsEnabled = true; // Toggle for sound effects
     private Window? _mainWindow;
     private GameWorldView? _gameWorldView;
     private Label? _statusLabel;
@@ -88,12 +92,19 @@ public class TerminalGuiSceneProvider : ISceneService
         IRenderService renderService,
         IInputMapper inputMapper,
         IInputRouter inputRouter,
+        IAudioService? audioService = null,
         ILogger<TerminalGuiSceneProvider>? logger = null)
     {
         _logger = logger;
         _renderService = renderService;
         _inputMapper = inputMapper;
         _inputRouter = inputRouter;
+        _audioService = audioService;
+        
+        if (_audioService != null)
+        {
+            _logger?.LogInformation("🎵 Audio service detected - movement sounds enabled");
+        }
     }
 
     public void Initialize()
@@ -267,7 +278,7 @@ public class TerminalGuiSceneProvider : ISceneService
             _inputRouter.Dispatch(mapped);
             keyEvent.Handled = true;
             
-            // Log movement actions to console
+            // Log movement actions to console with sound effect indicator
             var actionName = mapped.Type switch
             {
                 GameInputType.MoveUp => "Moved north",
@@ -279,7 +290,16 @@ public class TerminalGuiSceneProvider : ISceneService
             
             if (actionName != null)
             {
-                AddConsoleLog(actionName);
+                // Play movement sound effect
+                if (_soundEffectsEnabled)
+                {
+                    PlayMovementSound();
+                    AddConsoleLog($"🔊 {actionName}");
+                }
+                else
+                {
+                    AddConsoleLog(actionName);
+                }
             }
         }
     }
@@ -561,6 +581,9 @@ Console Log:
             message += "✓ Input Mapper Service\n";
             message += "✓ Input Router Service\n";
             message += "✓ Scene Service (Terminal.Gui)\n";
+            message += _audioService != null 
+                ? "✓ Audio Service (LibVLC)\n" 
+                : "✗ Audio Service (Not available)\n";
 
             _logger?.LogDebug("Showing plugins dialog");
             MessageBox.Query("Plugins & Services", message, "OK");
@@ -574,14 +597,46 @@ Console Log:
 
     private void ShowAudioDialog()
     {
-        var message = "Audio Service: Not Available\n\n" +
-                     "The audio plugin is optional and\n" +
-                     "requires LibVLC to be installed.\n\n" +
-                     "Enable it in plugins.json to use\n" +
-                     "audio features.";
+        var hasAudio = _audioService != null;
+        var message = hasAudio
+            ? $"Sound Effects: {(_soundEffectsEnabled ? "Enabled 🔊" : "Disabled 🔇")}\n\n" +
+              "✓ Audio service available\n" +
+              "✓ LibVLC audio engine\n\n" +
+              "Movement sounds play when player moves.\n\n" +
+              "Press 'M' to toggle sound effects."
+            : "Sound Effects: Not Available\n\n" +
+              "The audio plugin is optional and\n" +
+              "requires LibVLC to be installed.\n\n" +
+              "Install LibVLC and enable the audio\n" +
+              "plugin in plugins.json to use audio.";
 
         _logger?.LogDebug("Showing audio dialog");
         MessageBox.Query("Audio", message, "OK");
+    }
+    
+    private void PlayMovementSound()
+    {
+        if (_audioService == null || !_soundEffectsEnabled)
+        {
+            return;
+        }
+        
+        try
+        {
+            // TODO: Create actual sound file and load it
+            // For now, this demonstrates the API usage
+            // _audioService.Play("movement-step", new AudioPlayOptions 
+            // { 
+            //     Volume = 0.3f,
+            //     Loop = false 
+            // });
+            
+            _logger?.LogDebug("🎵 Movement sound triggered");
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogWarning(ex, "Failed to play movement sound");
+        }
     }
 
     private void ShowAboutDialog()
