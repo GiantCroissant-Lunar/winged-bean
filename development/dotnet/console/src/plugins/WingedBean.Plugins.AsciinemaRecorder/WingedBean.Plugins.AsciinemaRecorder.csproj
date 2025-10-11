@@ -15,6 +15,10 @@
       <Private>false</Private>
       <ExcludeAssets>runtime</ExcludeAssets>
     </ProjectReference>
+    <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts/CrossMilo.Contracts.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
 
     <!-- Plugin-specific contracts: Normal reference (loaded in plugin ALC) -->
     <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Recorder/CrossMilo.Contracts.Recorder.csproj" />

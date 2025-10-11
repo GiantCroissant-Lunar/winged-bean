@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Plate.PluginManoi.Contracts;
+using Plate.CrossMilo.Contracts;
 using Plate.CrossMilo.Contracts.Recorder.Services;
 
 namespace WingedBean.Plugins.AsciinemaRecorder;

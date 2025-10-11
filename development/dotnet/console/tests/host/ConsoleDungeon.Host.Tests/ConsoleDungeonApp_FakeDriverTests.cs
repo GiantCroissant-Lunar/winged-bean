@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
+using Plate.CrossMilo.Contracts;
 using Plate.CrossMilo.Contracts.ECS;
 using Plate.CrossMilo.Contracts.Terminal;
 using ConsoleDungeon.Contracts;
