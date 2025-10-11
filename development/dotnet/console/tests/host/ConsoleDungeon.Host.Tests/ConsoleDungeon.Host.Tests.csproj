@@ -31,8 +31,7 @@
     <ProjectReference Include="../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Contracts/PluginManoi.Contracts.csproj" />
     <ProjectReference Include="../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Registry/PluginManoi.Registry.csproj" />
     <ProjectReference Include="../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Loader/PluginManoi.Loader.csproj" />
-    <ProjectReference Include="../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Game/CrossMilo.Contracts.Game.csproj" />
-    <ProjectReference Include="../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.ECS/CrossMilo.Contracts.ECS.csproj" />
+    <ProjectReference Include="../../../src/game/ConsoleDungeon.Contracts/ConsoleDungeon.Contracts.csproj" />
     <ProjectReference Include="../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.UI/CrossMilo.Contracts.UI.csproj" />
     <ProjectReference Include="../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Terminal/CrossMilo.Contracts.Terminal.csproj" />
   </ItemGroup>

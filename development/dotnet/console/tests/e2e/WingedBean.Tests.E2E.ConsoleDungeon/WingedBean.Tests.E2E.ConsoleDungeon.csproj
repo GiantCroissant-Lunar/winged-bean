@@ -35,8 +35,7 @@
   <ItemGroup>
     <ProjectReference Include="../../../src/plugins/WingedBean.Plugins.ConsoleDungeon/WingedBean.Plugins.ConsoleDungeon.csproj" />
     <ProjectReference Include="../../../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Contracts/PluginManoi.Contracts.csproj" />
-    <ProjectReference Include="../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Game/CrossMilo.Contracts.Game.csproj" />
-    <ProjectReference Include="../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.ECS/CrossMilo.Contracts.ECS.csproj" />
+    <ProjectReference Include="../../../src/game/ConsoleDungeon.Contracts/ConsoleDungeon.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>
