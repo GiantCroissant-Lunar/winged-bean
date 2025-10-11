@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Build configuration for WingedBean Console using build-arcane",
+
+  "solution": "Console.sln",
+
+  "projects": [
+    "src/host/ConsoleDungeon.Host/ConsoleDungeon.Host.csproj",
+    "src/game/ConsoleDungeon.Contracts/ConsoleDungeon.Contracts.csproj",
+    "src/plugins/WingedBean.Plugins.ArchECS/WingedBean.Plugins.ArchECS.csproj",
+    "src/plugins/WingedBean.Plugins.ConsoleDungeon/WingedBean.Plugins.ConsoleDungeon.csproj",
+    "src/plugins/WingedBean.Plugins.DungeonGame/WingedBean.Plugins.DungeonGame.csproj"
+  ],
+
+  "tests": {
+    "enabled": true,
+    "filter": null,
+    "coverage": false
+  },
+
+  "pack": {
+    "enable": false,
+    "versioning": "GitVersion"
+  },
+
+  "publish": {
+    "artifacts": [
+      "src/host/ConsoleDungeon.Host/ConsoleDungeon.Host.csproj"
+    ]
+  },
+
+  "report": {
+    "coverage": false
+  },
+  "metrics": {
+    "enabled": true,
+    "exclude": [
+      "obj",
+      "bin",
+      ".git",
+      ".vs",
+      ".idea",
+      "node_modules",
+      "game-resources"
+    ],
+    "thresholds": {
+      "maxAverageComplexity": 50,
+      "minCommentPercentage": 10
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "giantcroissant.plate.buildarcane.build.runner": {
+      "version": "0.0.1-25",
+      "commands": [
+        "lunar-build"
+      ],
+      "rollForward": false
+    }
+  }
+}
