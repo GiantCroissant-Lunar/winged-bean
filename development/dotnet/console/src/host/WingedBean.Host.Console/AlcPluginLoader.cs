@@ -87,18 +87,18 @@ public class AlcPluginLoader : IPluginLoader
                 {
                     var sharedAssembly = AssemblyLoadContext.Default.Assemblies
                         .FirstOrDefault(a => a.GetName().Name == name.Name);
-                    
+
                     if (sharedAssembly != null)
                     {
                         _logger?.LogDebug(
-                            "Resolved {AssemblyName} from Default ALC (shared contract)", 
+                            "Resolved {AssemblyName} from Default ALC (shared contract)",
                             name.Name);
                         return sharedAssembly;
                     }
-                    
+
                     _logger?.LogWarning(
                         "Shared contract {AssemblyName} not found in Default ALC, " +
-                        "falling back to plugin-local resolution", 
+                        "falling back to plugin-local resolution",
                         name.Name);
                 }
 

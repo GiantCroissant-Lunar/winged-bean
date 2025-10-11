@@ -1,7 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Plate.CrossMilo.Contracts.ECS;
-using Plate.CrossMilo.Contracts.ECS.Services;
 using Plate.PluginManoi.Core;
 
 namespace WingedBean.Plugins.ArchECS;
@@ -15,9 +13,10 @@ public class ArchECSPluginActivator : IPluginActivator
     public Task ActivateAsync(IServiceCollection services, IServiceProvider hostServices, CancellationToken ct = default)
     {
         var logger = hostServices.GetService<ILogger<ArchECSPluginActivator>>();
-        logger?.LogInformation("Registering IService -> ArchECSService");
+        logger?.LogInformation("Registering ArchECSService (internal ECS implementation)");
 
-        services.AddSingleton<IService, ArchECSService>();
+        // ECS service is now internal to the plugin, used by DungeonGame
+        services.AddSingleton<ArchECSService>();
         return Task.CompletedTask;
     }
 

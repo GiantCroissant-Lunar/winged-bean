@@ -1,14 +1,13 @@
 using Microsoft.Extensions.Logging;
-using Plate.PluginManoi.Contracts;
 using Plate.CrossMilo.Contracts;
-using Plate.CrossMilo.Contracts.ECS;
 using Plate.CrossMilo.Contracts.Resource.Services;
+using Plate.PluginManoi.Contracts;
+using WingedBean.Plugins.ArchECS;
+using WingedBean.Plugins.ArchECS.Internal;
 using WingedBean.Plugins.DungeonGame.Components;
 using WingedBean.Plugins.DungeonGame.Data;
 using WingedBean.Plugins.DungeonGame.Systems;
-
-// Type aliases for backward compatibility during namespace migration
-using IECSService = Plate.CrossMilo.Contracts.ECS.Services.IService;
+// Type alias for backward compatibility during namespace migration
 using IResourceService = Plate.CrossMilo.Contracts.Resource.Services.IService;
 
 namespace WingedBean.Plugins.DungeonGame;
@@ -20,7 +19,7 @@ namespace WingedBean.Plugins.DungeonGame;
 public class DungeonGame
 {
     private readonly IRegistry _registry;
-    private readonly IECSService _ecs;
+    private readonly ArchECSService _ecs;
     private readonly IResourceService? _resourceService;
     private readonly ILogger<DungeonGame>? _logger;
     private readonly ResourceLoader? _resourceLoader;
@@ -33,8 +32,8 @@ public class DungeonGame
     public DungeonGame(IRegistry registry)
     {
         _registry = registry ?? throw new ArgumentNullException(nameof(registry));
-        _ecs = registry.Get<IECSService>();
-        
+        _ecs = registry.Get<ArchECSService>();
+
         // Try to get resource service (optional for backward compatibility)
         try
         {
@@ -45,7 +44,7 @@ public class DungeonGame
         {
             _resourceService = null;
         }
-        
+
         // Try to get logger
         try
         {
@@ -55,7 +54,7 @@ public class DungeonGame
         {
             _logger = null;
         }
-        
+
         if (_resourceService != null)
         {
             ILogger<ResourceLoader>? resourceLogger = null;
@@ -64,7 +63,7 @@ public class DungeonGame
                 resourceLogger = registry.Get<ILogger<ResourceLoader>>();
             }
             catch { }
-            
+
             _resourceLoader = new ResourceLoader(_resourceService, resourceLogger);
         }
         else
@@ -100,7 +99,7 @@ public class DungeonGame
         {
             InitializeWorldLegacy();
         }
-        
+
         _logger?.LogInformation("World initialized with {EntityCount} entities", _world.EntityCount);
 
         _lastUpdateTime = DateTime.UtcNow;
@@ -232,7 +231,7 @@ public class DungeonGame
     {
         var random = Random.Shared;
 
-        for (int i = 0; i < count; i++)
+        for (var i = 0; i < count; i++)
         {
             var enemy = _world.CreateEntity();
 
@@ -305,7 +304,7 @@ public class DungeonGame
         // Execute all systems
         foreach (var system in _systems)
         {
-            system.Execute(_ecs, _world, deltaTime);
+            system.Execute(_world, deltaTime);
         }
     }
 

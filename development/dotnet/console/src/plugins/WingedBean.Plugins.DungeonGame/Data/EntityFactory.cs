@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Logging;
-using Plate.CrossMilo.Contracts.ECS;
+using WingedBean.Plugins.ArchECS.Internal;
 using WingedBean.Plugins.DungeonGame.Components;
 
 namespace WingedBean.Plugins.DungeonGame.Data;
@@ -184,7 +184,7 @@ public static class EntityFactory
 
             var count = random.Next(spawn.MinCount, spawn.MaxCount + 1);
 
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 // Pick a random spawn area
                 var spawnAreas = spawn.SpawnAreas ?? Array.Empty<SpawnAreaData>();
@@ -239,7 +239,7 @@ public static class EntityFactory
 
             var count = random.Next(spawn.MinCount, spawn.MaxCount + 1);
 
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 // Pick a random spawn area
                 var spawnAreas = spawn.SpawnAreas ?? Array.Empty<SpawnAreaData>();

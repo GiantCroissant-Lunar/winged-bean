@@ -1,7 +1,7 @@
-using Terminal.Gui;
-using Plate.PluginManoi.Contracts;
-using Plate.CrossMilo.Contracts.Terminal;
 using System.Collections.Concurrent;
+using Plate.CrossMilo.Contracts.Terminal;
+using Plate.PluginManoi.Contracts;
+using Terminal.Gui;
 
 namespace WingedBean.Plugins.TerminalUI;
 
@@ -139,13 +139,15 @@ public class TerminalGuiService : ITerminalUIService
         LogMessage("DEBUG", "All 9 plugins loaded");
 
         // Button click handler
-        button.Accepting += (s, e) => {
+        button.Accepting += (s, e) =>
+        {
             statusLabel.Text = $"Button clicked at {DateTime.Now:HH:mm:ss}!";
             LogMessage("INFO", $"Button clicked by user at {DateTime.Now:HH:mm:ss}");
         };
 
         // Add keyboard handler for F9/F10 recording control
-        _mainWindow.KeyDown += (sender, e) => {
+        _mainWindow.KeyDown += (sender, e) =>
+        {
             // F9 = Start Recording
             if (e.KeyCode == KeyCode.F9)
             {
@@ -206,15 +208,15 @@ public class TerminalGuiService : ITerminalUIService
     {
         var timestamp = DateTime.Now.ToString("HH:mm:ss.fff");
         var logLine = $"[{timestamp}] {level.PadRight(5)} | {message}";
-        
+
         _logMessages.Enqueue(logLine);
-        
+
         // Keep only the last N messages
         while (_logMessages.Count > MaxLogMessages)
         {
             _logMessages.TryDequeue(out _);
         }
-        
+
         // Update the TextView if it exists
         if (_logView != null && !_headlessMode)
         {

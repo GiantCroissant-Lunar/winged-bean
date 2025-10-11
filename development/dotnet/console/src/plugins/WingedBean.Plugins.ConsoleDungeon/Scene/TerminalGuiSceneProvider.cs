@@ -2,23 +2,22 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Text;
-using Microsoft.Extensions.Logging;
-using Terminal.Gui;
 using ConsoleDungeon.Contracts;
+using Microsoft.Extensions.Logging;
+using Plate.CrossMilo.Contracts.Audio;
 using Plate.CrossMilo.Contracts.Input;
 using Plate.CrossMilo.Contracts.Scene;
 using Plate.CrossMilo.Contracts.Scene.Services;
-using Plate.CrossMilo.Contracts.Audio;
-
-// Type aliases for IService pattern
-using IInputRouter = Plate.CrossMilo.Contracts.Input.Router.IService;
-using IInputMapper = Plate.CrossMilo.Contracts.Input.Mapper.IService;
-using ISceneService = Plate.CrossMilo.Contracts.Scene.Services.IService;
-using IAudioService = Plate.CrossMilo.Contracts.Audio.Services.IService;
+using Terminal.Gui;
 // Use CrossMilo.Contracts types (compatibility shims) for interface implementation
 using EntitySnapshot = Plate.CrossMilo.Contracts.Scene.EntitySnapshot;
 using GameInputEvent = Plate.CrossMilo.Contracts.Input.GameInputEvent;
 using GameInputType = Plate.CrossMilo.Contracts.Input.GameInputType;
+using IAudioService = Plate.CrossMilo.Contracts.Audio.Services.IService;
+using IInputMapper = Plate.CrossMilo.Contracts.Input.Mapper.IService;
+// Type aliases for IService pattern
+using IInputRouter = Plate.CrossMilo.Contracts.Input.Router.IService;
+using ISceneService = Plate.CrossMilo.Contracts.Scene.Services.IService;
 
 namespace WingedBean.Plugins.ConsoleDungeon.Scene;
 
@@ -104,7 +103,7 @@ public class TerminalGuiSceneProvider : ISceneService
         _inputMapper = inputMapper;
         _inputRouter = inputRouter;
         _audioService = audioService;
-        
+
         if (_audioService != null)
         {
             _logger?.LogInformation("🎵 Audio service detected - movement sounds enabled");
@@ -152,7 +151,7 @@ public class TerminalGuiSceneProvider : ISceneService
             Y = 0,
             Width = Dim.Fill()
         };
-        
+
         _menuBar.Menus = new[]
         {
             new MenuBarItem("_File", new MenuItem[]
@@ -203,7 +202,7 @@ public class TerminalGuiSceneProvider : ISceneService
             ReadOnly = true,
             Text = "=== Console Log (scrollable) ==="
         };
-        
+
         // Add initial message
         AddConsoleLog("Game initialized. Ready to play!");
 
@@ -216,7 +215,7 @@ public class TerminalGuiSceneProvider : ISceneService
         _mainWindow.Add(_statusLabel);
         _mainWindow.Add(_gameWorldView);
         _mainWindow.Add(_consoleLogView);
-        
+
         // Set focus on the game view so it receives key events
         try
         {
@@ -235,7 +234,7 @@ public class TerminalGuiSceneProvider : ISceneService
     private void OnKeyDown(object? sender, Key keyEvent)
     {
         _logger?.LogDebug("KeyDown: KeyCode={KeyCode}, AsRune={Rune}", keyEvent.KeyCode, keyEvent.AsRune.Value);
-        
+
         // Handle menu F-keys first
         switch (keyEvent.KeyCode)
         {
@@ -256,7 +255,7 @@ public class TerminalGuiSceneProvider : ISceneService
                 keyEvent.Handled = true;
                 return;
         }
-        
+
         // Handle ESC key to exit the application
         if (keyEvent.KeyCode == KeyCode.Esc)
         {
@@ -281,7 +280,7 @@ public class TerminalGuiSceneProvider : ISceneService
         {
             _inputRouter.Dispatch(mapped);
             keyEvent.Handled = true;
-            
+
             // Log movement actions to console with sound effect indicator
             var actionName = mapped.Type switch
             {
@@ -291,7 +290,7 @@ public class TerminalGuiSceneProvider : ISceneService
                 GameInputType.MoveRight => "Moved east",
                 _ => null
             };
-            
+
             if (actionName != null)
             {
                 // Play movement sound effect
@@ -328,8 +327,8 @@ public class TerminalGuiSceneProvider : ISceneService
             return new Viewport(80, 24);
 
         // Use Frame dimensions if available, otherwise fallback to 80x24
-        int width = _gameWorldView.Frame.Width;
-        int height = _gameWorldView.Frame.Height;
+        var width = _gameWorldView.Frame.Width;
+        var height = _gameWorldView.Frame.Height;
 
         // If Frame hasn't been laid out yet (width/height are 0), use defaults
         if (width <= 0) width = 80;
@@ -358,7 +357,7 @@ public class TerminalGuiSceneProvider : ISceneService
         lock (_lock)
         {
             _pendingSnapshots = snapshots;
-            
+
             // Throttle updates to avoid infinite render loop
             var now = DateTime.UtcNow;
             if (_updatePending || (now - _lastUpdate).TotalMilliseconds < MinUpdateIntervalMs)
@@ -386,7 +385,7 @@ public class TerminalGuiSceneProvider : ISceneService
                 var viewport = GetViewport();
                 // TODO: Implement inline rendering - RenderService was removed from framework
                 var text = RenderEntitiesSimple(toRender, viewport.Width, viewport.Height);
-                
+
                 _gameWorldView.SetContent(text);
             }
             catch (Exception ex)
@@ -432,7 +431,7 @@ public class TerminalGuiSceneProvider : ISceneService
         {
             return; // No-op
         }
-        
+
         lock (_logLock)
         {
             // Keep only last 100 messages
@@ -440,11 +439,11 @@ public class TerminalGuiSceneProvider : ISceneService
             {
                 _consoleLogBuffer.Dequeue();
             }
-            
+
             // Add timestamp to message
             var timestamp = DateTime.Now.ToString("HH:mm:ss");
             _consoleLogBuffer.Enqueue($"[{timestamp}] {message}");
-            
+
             // Update the TextView
             Application.Invoke(() =>
             {
@@ -456,7 +455,7 @@ public class TerminalGuiSceneProvider : ISceneService
                         sb.AppendLine(msg);
                     }
                     _consoleLogView.Text = sb.ToString().TrimEnd();
-                    
+
                     // Auto-scroll to bottom
                     try
                     {
@@ -585,8 +584,8 @@ Console Log:
             message += "✓ Input Mapper Service\n";
             message += "✓ Input Router Service\n";
             message += "✓ Scene Service (Terminal.Gui)\n";
-            message += _audioService != null 
-                ? "✓ Audio Service (LibVLC)\n" 
+            message += _audioService != null
+                ? "✓ Audio Service (LibVLC)\n"
                 : "✗ Audio Service (Not available)\n";
 
             _logger?.LogDebug("Showing plugins dialog");
@@ -617,14 +616,14 @@ Console Log:
         _logger?.LogDebug("Showing audio dialog");
         MessageBox.Query("Audio", message, "OK");
     }
-    
+
     private void PlayMovementSound()
     {
         if (_audioService == null || !_soundEffectsEnabled)
         {
             return;
         }
-        
+
         try
         {
             // Construct path to sound file relative to the application
@@ -632,15 +631,15 @@ Console Log:
             var baseDir = AppContext.BaseDirectory;
             var soundPath = Path.Combine(baseDir, "..", "..", "..", "assets", "sounds", "movement-step.wav");
             var fullPath = Path.GetFullPath(soundPath);
-            
+
             _logger?.LogInformation("🔊 Playing sound: {Path} (exists: {Exists})", fullPath, File.Exists(fullPath));
-            
-            _audioService.Play(fullPath, new AudioPlayOptions 
-            { 
+
+            _audioService.Play(fullPath, new AudioPlayOptions
+            {
                 Volume = 0.3f,
-                Loop = false 
+                Loop = false
             });
-            
+
             _logger?.LogDebug("🎵 Movement sound triggered: {Path}", fullPath);
         }
         catch (Exception ex)
@@ -678,40 +677,40 @@ Features:
     private string RenderEntitiesSimple(IReadOnlyList<EntitySnapshot> entities, int width, int height)
     {
         var sb = new StringBuilder();
-        
+
         // Create a simple grid
         var grid = new char[height, width];
-        for (int y = 0; y < height; y++)
+        for (var y = 0; y < height; y++)
         {
-            for (int x = 0; x < width; x++)
+            for (var x = 0; x < width; x++)
             {
                 grid[y, x] = '.';
             }
         }
-        
+
         // Place entities on the grid
         foreach (var entity in entities)
         {
-            int x = entity.Position.X;
-            int y = entity.Position.Y;
-            
+            var x = entity.Position.X;
+            var y = entity.Position.Y;
+
             if (x >= 0 && x < width && y >= 0 && y < height)
             {
                 grid[y, x] = entity.Symbol;
             }
         }
-        
+
         // Convert grid to string
-        for (int y = 0; y < height; y++)
+        for (var y = 0; y < height; y++)
         {
-            for (int x = 0; x < width; x++)
+            for (var x = 0; x < width; x++)
             {
                 sb.Append(grid[y, x]);
             }
             if (y < height - 1)
                 sb.AppendLine();
         }
-        
+
         return sb.ToString();
     }
 }

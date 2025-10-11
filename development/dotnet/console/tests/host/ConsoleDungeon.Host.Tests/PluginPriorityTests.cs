@@ -6,9 +6,9 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Plate.PluginManoi.Contracts;
-using Plate.PluginManoi.Registry;
 using Plate.PluginManoi.Loader;
 using Plate.PluginManoi.Loader.AssemblyContext;
+using Plate.PluginManoi.Registry;
 using Xunit;
 
 namespace ConsoleDungeon.Host.Tests;
@@ -222,7 +222,7 @@ public class PluginPriorityTests : IDisposable
         registry.Register<ITestService>(service3, priority: 3);
 
         // Act: Explicitly request highest priority
-        var result = registry.Get<ITestService>(SelectionMode.HighestPriority);
+        var result = registry.Get<ITestService>(Plate.CrossMilo.Contracts.SelectionMode.HighestPriority);
 
         // Assert
         result.Should().BeSameAs(service2);
@@ -280,7 +280,7 @@ public class PluginPriorityTests : IDisposable
         eagerPlugins[0].Priority.Should().Be(100);
         eagerPlugins[1].Id.Should().Be("wingedbean.plugins.eager.low");
         eagerPlugins[1].Priority.Should().Be(50);
-        
+
         // Lazy plugin should not be in eager load list
         eagerPlugins.Should().NotContain(p => p.Id == "wingedbean.plugins.lazy.high");
     }
@@ -334,7 +334,7 @@ public class PluginPriorityTests : IDisposable
         // Assert: All have same priority
         enabledPlugins.Should().HaveCount(3);
         enabledPlugins.All(p => p.Priority == 100).Should().BeTrue();
-        
+
         // Original order is preserved (stable sort)
         // Note: OrderByDescending uses stable sort, so original order is maintained for equal values
         var ids = enabledPlugins.Select(p => p.Id).ToList();

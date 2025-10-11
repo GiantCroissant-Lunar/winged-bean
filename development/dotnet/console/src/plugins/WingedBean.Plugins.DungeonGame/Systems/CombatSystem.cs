@@ -1,8 +1,5 @@
-using Plate.CrossMilo.Contracts.ECS;
+using WingedBean.Plugins.ArchECS.Internal;
 using WingedBean.Plugins.DungeonGame.Components;
-
-// Type alias for backward compatibility during namespace migration
-using IECSService = Plate.CrossMilo.Contracts.ECS.Services.IService;
 
 namespace WingedBean.Plugins.DungeonGame.Systems;
 
@@ -12,7 +9,7 @@ namespace WingedBean.Plugins.DungeonGame.Systems;
 /// </summary>
 public class CombatSystem : IECSSystem
 {
-    public void Execute(IECSService ecs, IWorld world, float deltaTime)
+    public void Execute(IWorld world, float deltaTime)
     {
         // Find player entity
         EntityHandle? playerHandle = null;
@@ -41,8 +38,8 @@ public class CombatSystem : IECSSystem
             if (IsAdjacent(playerPos, enemyPos))
             {
                 // Calculate damage (attacker's strength minus defender's defense)
-                int damageToEnemy = Math.Max(1, playerStats.Strength - enemyStats.Defense / 2);
-                int damageToPlayer = Math.Max(1, enemyStats.Strength - playerStats.Defense / 2);
+                var damageToEnemy = Math.Max(1, playerStats.Strength - enemyStats.Defense / 2);
+                var damageToPlayer = Math.Max(1, enemyStats.Strength - playerStats.Defense / 2);
 
                 // Apply damage
                 enemyStats.CurrentHP -= damageToEnemy;
@@ -83,7 +80,7 @@ public class CombatSystem : IECSSystem
         foreach (var entity in entitiesToDestroy)
         {
             world.DestroyEntity(entity);
-    }
+        }
     }
 
     private static bool IsAdjacent(Position a, Position b)

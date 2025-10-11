@@ -2,8 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Arch.Core;
-using Plate.CrossMilo.Contracts.ECS;
-using Plate.CrossMilo.Contracts.ECS.Services;
+using WingedBean.Plugins.ArchECS.Internal;
 
 namespace WingedBean.Plugins.ArchECS;
 

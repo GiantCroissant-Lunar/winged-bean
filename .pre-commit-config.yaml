@@ -103,17 +103,26 @@ repos:
         args: ['--fix', '--disable', 'MD013']  # Disable line length rule
         exclude: ^ref-projects/
 
-  # .NET formatting and analysis (for projects/dotnet/)
+  # Hook Validator - .NET specific validation and formatting
   - repo: local
     hooks:
-      - id: dotnet-format
-        name: dotnet format (whitespace + style)
-        entry: sh
-        args: ['-c', 'if command -v dotnet >/dev/null 2>&1; then cd projects/dotnet && if [ -f "WingedBean.sln" ]; then dotnet format WingedBean.sln --verbosity minimal || true; else echo "No solution found"; fi; else echo "dotnet CLI not found, skipping format"; fi']
+      # Auto-format C# code with dotnet format (via hook-validator)
+      - id: format-dotnet
+        name: Format C# code with dotnet format
+        entry: python3 ../../plate-projects/hook-validator/python/src/validators/dotnet/format_code.py
         language: system
-        files: ^projects/dotnet/.*\.(cs|vb|fs)$
-        pass_filenames: false
-        require_serial: true
+        files: \.cs$
+        pass_filenames: true
+        # Exclude projects with dependency issues (Terminal.Gui System.Text.Json conflict)
+        exclude: |
+          (?x)^(
+            development/dotnet/console/src/plugins/WingedBean\.Plugins\.ConsoleDungeon/.*|
+            development/dotnet/console/src/plugins/WingedBean\.Plugins\.DungeonGame/.*|
+            development/dotnet/console/src/plugins/WingedBean\.Plugins\.TerminalUI/.*|
+            development/dotnet/console/tests/host/ConsoleDungeon\.Host\.Tests/.*|
+            development/dotnet/console/tests/plugins/WingedBean\.Plugins\.DungeonGame\.Tests/.*|
+            development/dotnet/console/tests/plugins/WingedBean\.Plugins\.TerminalUI\.Tests/.*
+          )$
 
       - id: validate-issue-dependencies
         name: Validate Issue Dependencies (R-ISS-030)

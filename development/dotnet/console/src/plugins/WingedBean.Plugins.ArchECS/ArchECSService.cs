@@ -2,21 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Plate.PluginManoi.Contracts;
-using Plate.CrossMilo.Contracts.ECS;
-using Plate.CrossMilo.Contracts.ECS.Services;
+using WingedBean.Plugins.ArchECS.Internal;
 
 namespace WingedBean.Plugins.ArchECS;
 
 /// <summary>
-/// Arch-based implementation of <see cref="IService"/>.
+/// Arch-based implementation of internal ECS service.
 /// Provides high-performance Entity Component System functionality using Arch ECS library.
+/// This is an internal implementation detail, not exposed as a public contract.
 /// </summary>
-[Plugin(
-    Name = "Arch.ECS",
-    Provides = new[] { typeof(IService) },
-    Priority = 100
-)]
-public class ArchECSService : IService
+public class ArchECSService : IECSService
 {
     private readonly Dictionary<int, WorldMetadata> _worlds = new();
     private readonly Dictionary<AuthoringNodeId, AuthoringMapping> _authoringMappings = new();

@@ -6,26 +6,24 @@ using System.Reflection;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using ConsoleDungeon.Host;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Plate.PluginManoi.Contracts;
 using Plate.CrossMilo.Contracts;
+using Plate.PluginManoi.Contracts;
 using Plate.PluginManoi.Core;
-using Plate.PluginManoi.Registry;
 using Plate.PluginManoi.Loader;
-using ConsoleDungeon.Host;
-
-// Terminal and UI contracts now in Plate.CrossMilo.Contracts namespace
-using ITerminalApp = Plate.CrossMilo.Contracts.Terminal.ITerminalApp;
+using Plate.PluginManoi.Registry;
 // Game contracts migrated to ConsoleDungeon.Contracts
 using IDungeonService = ConsoleDungeon.Contracts.IDungeonService;
+using ILoadedPlugin = Plate.PluginManoi.Contracts.ILoadedPlugin;
+// Type aliases for old references that haven't been migrated yet
+using IPluginLoader = Plate.PluginManoi.Contracts.IPluginLoader;
 // RenderService removed from framework
 // Resource service for NuGet loading
 using IResourceService = Plate.CrossMilo.Contracts.Resource.Services.IService;
-
-// Type aliases for old references that haven't been migrated yet
-using IPluginLoader = Plate.PluginManoi.Contracts.IPluginLoader;
-using ILoadedPlugin = Plate.PluginManoi.Contracts.ILoadedPlugin;
+// Terminal and UI contracts now in Plate.CrossMilo.Contracts namespace
+using ITerminalApp = Plate.CrossMilo.Contracts.Terminal.ITerminalApp;
 using PluginAttribute = Plate.PluginManoi.Contracts.PluginAttribute;
 using PluginManifest = Plate.PluginManoi.Core.PluginManifest;
 
@@ -107,9 +105,9 @@ public class PluginLoaderHostedService : IHostedService
                         // Resolve entry point path relative to manifest directory
                         var entryPoint = manifest.EntryPoint?.Dotnet ?? $"./{manifest.Id}.dll";
                         var assemblyPath = Path.GetFullPath(Path.Combine(pluginDir, entryPoint));
-                        
+
                         _logger.LogInformation("  → Loading manifest plugin: {PluginId} from {AssemblyPath}", pluginId, assemblyPath);
-                        
+
                         // Load plugin using resolved assembly path
                         var plugin = await _pluginLoader.LoadAsync(assemblyPath);
                         loadedPlugins[pluginId] = plugin;
@@ -425,7 +423,7 @@ public class PluginLoaderHostedService : IHostedService
             _logger.LogWarning("  ⚠ IDungeonService not registered: {Message}", ex.Message);
         }
     }
-    
+
     /// <summary>
     /// Load NuGet package dependencies for a plugin before the plugin assembly is loaded.
     /// </summary>
@@ -440,18 +438,18 @@ public class PluginLoaderHostedService : IHostedService
             var json = await File.ReadAllTextAsync(manifestPath, cancellationToken);
             using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
-            
+
             // Check if dependencies.nuget exists
             if (!root.TryGetProperty("dependencies", out var depsElement))
             {
                 return; // No dependencies at all
             }
-            
+
             if (!depsElement.TryGetProperty("nuget", out var nugetElement))
             {
                 return; // No NuGet dependencies
             }
-            
+
             // Try to get Resource service from registry
             IResourceService? resourceService = null;
             try
@@ -465,13 +463,13 @@ public class PluginLoaderHostedService : IHostedService
                 _logger.LogDebug("    → Resource service not available for NuGet dependency loading (will be available after Resource plugin loads)");
                 return;
             }
-            
+
             if (resourceService == null)
             {
                 _logger.LogWarning("    → Resource service not available, skipping NuGet dependencies for {PluginId}", pluginId);
                 return;
             }
-            
+
             // Parse NuGet dependencies array
             var nugetDeps = new List<NuGetDependency>();
             foreach (var element in nugetElement.EnumerateArray())
@@ -484,20 +482,20 @@ public class PluginLoaderHostedService : IHostedService
                     Optional = element.TryGetProperty("optional", out var optElem) && optElem.GetBoolean(),
                     Reason = element.TryGetProperty("reason", out var reasonElem) ? reasonElem.GetString() : null
                 };
-                
+
                 if (!string.IsNullOrWhiteSpace(dep.PackageId))
                 {
                     nugetDeps.Add(dep);
                 }
             }
-            
+
             if (nugetDeps.Count == 0)
             {
                 return; // No valid NuGet dependencies
             }
-            
+
             _logger.LogInformation("    → Loading {Count} NuGet dependencies for {PluginId}...", nugetDeps.Count, pluginId);
-            
+
             // Load each NuGet package
             foreach (var dep in nugetDeps)
             {
@@ -506,14 +504,14 @@ public class PluginLoaderHostedService : IHostedService
                     var versionStr = dep.Version != null ? $"/{dep.Version}" : "";
                     var feedStr = dep.Feed != null ? $"@{dep.Feed}" : "";
                     var nugetUri = $"nuget:{dep.PackageId}{versionStr}{feedStr}";
-                    
+
                     _logger.LogInformation("      → Loading NuGet: {PackageId} {Version}", dep.PackageId, dep.Version ?? "latest");
-                    
+
                     // Dynamically load NuGetPackageResource type
                     var nugetResourceType = Type.GetType(
                         "WingedBean.Plugins.Resource.NuGet.NuGetPackageResource, WingedBean.Plugins.Resource.NuGet"
                     );
-                    
+
                     if (nugetResourceType == null)
                     {
                         _logger.LogWarning("        ⊘ NuGet provider not available, skipping package: {PackageId}", dep.PackageId);
@@ -525,36 +523,36 @@ public class PluginLoaderHostedService : IHostedService
                         }
                         continue;
                     }
-                    
+
                     // Call LoadAsync via reflection
                     var loadAsyncMethod = typeof(IResourceService)
                         .GetMethod(nameof(IResourceService.LoadAsync))!
                         .MakeGenericMethod(nugetResourceType);
-                    
+
                     var loadTask = (Task)loadAsyncMethod.Invoke(
                         resourceService,
                         new object[] { nugetUri, cancellationToken }
                     )!;
-                    
+
                     await loadTask.ConfigureAwait(false);
-                    
+
                     var package = loadTask.GetType().GetProperty("Result")!.GetValue(loadTask);
-                    
+
                     if (package == null && !dep.Optional)
                     {
                         throw new InvalidOperationException(
                             $"Required NuGet package '{dep.PackageId}' version '{dep.Version ?? "latest"}' not found"
                         );
                     }
-                    
+
                     if (package != null)
                     {
                         // Get version from loaded package
                         var versionProp = nugetResourceType.GetProperty("Version");
                         var loadedVersion = versionProp?.GetValue(package)?.ToString() ?? "unknown";
-                        
+
                         _logger.LogInformation("        ✓ Loaded: {PackageId} v{Version}", dep.PackageId, loadedVersion);
-                        
+
                         if (!string.IsNullOrWhiteSpace(dep.Reason))
                         {
                             _logger.LogDebug("          Reason: {Reason}", dep.Reason);
@@ -581,7 +579,7 @@ public class PluginLoaderHostedService : IHostedService
                     }
                 }
             }
-            
+
             _logger.LogInformation("    ✓ NuGet dependencies loaded for {PluginId}", pluginId);
         }
         catch (Exception ex) when (ex is not InvalidOperationException)

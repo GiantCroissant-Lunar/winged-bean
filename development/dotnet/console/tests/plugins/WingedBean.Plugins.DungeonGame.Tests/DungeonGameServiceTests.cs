@@ -4,16 +4,15 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
-using FluentAssertions;
-using Plate.PluginManoi.Contracts;
-using Plate.CrossMilo.Contracts;
-using Plate.CrossMilo.Contracts.ECS;
 using ConsoleDungeon.Contracts;
+using FluentAssertions;
+using Plate.CrossMilo.Contracts;
+using Plate.PluginManoi.Contracts;
 using WingedBean.Plugins.ArchECS;
+using WingedBean.Plugins.ArchECS.Internal;
 using WingedBean.Plugins.DungeonGame;
-using DungeonComponents = WingedBean.Plugins.DungeonGame.Components;
 using Xunit;
-using IECSService = Plate.CrossMilo.Contracts.ECS.Services.IService;
+using DungeonComponents = WingedBean.Plugins.DungeonGame.Components;
 
 namespace WingedBean.Plugins.DungeonGame.Tests;
 
@@ -24,7 +23,7 @@ public class DungeonGameServiceTests
     public DungeonGameServiceTests()
     {
         _registry = new TestRegistry();
-        _registry.Register<IECSService>(new ArchECSService(), priority: 100);
+        _registry.Register<ArchECSService>(new ArchECSService(), priority: 100);
     }
 
     [Fact]

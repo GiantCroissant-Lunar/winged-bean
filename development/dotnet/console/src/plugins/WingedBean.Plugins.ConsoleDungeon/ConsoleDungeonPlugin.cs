@@ -2,8 +2,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Plate.CrossMilo.Contracts;
 using Plate.CrossMilo.Contracts.Terminal;
-using Plate.PluginManoi.Core;
 using Plate.PluginManoi.Contracts;
+using Plate.PluginManoi.Core;
 
 namespace WingedBean.Plugins.ConsoleDungeon;
 
@@ -43,13 +43,13 @@ public class ConsoleDungeonPlugin : IPlugin
     {
         // Create the terminal app instance using parameterless constructor
         _appInstance = new ConsoleDungeonAppRefactored();
-        
+
         // Set registry for the app (RFC-0038)
         _appInstance.SetRegistry(registry);
-        
+
         // Register the service directly with the registry (priority 51 from Plugin attribute)
         registry.Register<ITerminalApp>(_appInstance, priority: 51);
-        
+
         return Task.CompletedTask;
     }
 

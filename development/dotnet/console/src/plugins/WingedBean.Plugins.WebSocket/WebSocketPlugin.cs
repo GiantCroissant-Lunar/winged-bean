@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
-using Plate.PluginManoi.Contracts;
 using Plate.CrossMilo.Contracts;
+using Plate.PluginManoi.Contracts;
 using IService = Plate.CrossMilo.Contracts.WebSocket.Services.IService;
 
 namespace WingedBean.Plugins.WebSocket;

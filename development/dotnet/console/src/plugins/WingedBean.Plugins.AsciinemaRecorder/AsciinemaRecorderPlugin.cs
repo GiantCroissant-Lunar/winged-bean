@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Plate.PluginManoi.Contracts;
 using Plate.CrossMilo.Contracts;
 using Plate.CrossMilo.Contracts.Recorder.Services;
+using Plate.PluginManoi.Contracts;
 
 namespace WingedBean.Plugins.AsciinemaRecorder;
 
@@ -30,15 +30,15 @@ public class AsciinemaRecorderPlugin : IPlugin
             // Fall back to null logger if not available
         }
 
-        var logger = loggerFactory?.CreateLogger<AsciinemaRecorder>() 
+        var logger = loggerFactory?.CreateLogger<AsciinemaRecorder>()
                      ?? NullLogger<AsciinemaRecorder>.Instance;
 
         // Create the recorder instance (transient lifecycle from manifest)
         _serviceInstance = new AsciinemaRecorder(logger);
-        
+
         // Register the service directly with the registry
         registry.Register<IService>(_serviceInstance, priority: 50);
-        
+
         return Task.CompletedTask;
     }
 

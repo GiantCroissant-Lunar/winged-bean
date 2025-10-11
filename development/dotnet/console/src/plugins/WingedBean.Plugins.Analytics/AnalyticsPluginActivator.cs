@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Plate.CrossMilo.Contracts.Analytics.Services;
 using Plate.CrossMilo.Contracts.Analytics;
+using Plate.CrossMilo.Contracts.Analytics.Services;
 using Plate.PluginManoi.Core;
 
 namespace WingedBean.Plugins.Analytics;

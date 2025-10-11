@@ -1,14 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Reactive.Subjects;
-using Plate.PluginManoi.Contracts;
-using Plate.CrossMilo.Contracts;
-using Plate.CrossMilo.Contracts.ECS;
 using ConsoleDungeon.Contracts;
+using Plate.CrossMilo.Contracts;
+using Plate.PluginManoi.Contracts;
+using WingedBean.Plugins.ArchECS;
+using WingedBean.Plugins.ArchECS.Internal;
 using WingedBean.Plugins.DungeonGame.Components;
-
-// Type alias for ECS service (internal implementation detail)
-using IECSService = Plate.CrossMilo.Contracts.ECS.Services.IService;
 
 namespace WingedBean.Plugins.DungeonGame;
 
@@ -19,7 +17,7 @@ namespace WingedBean.Plugins.DungeonGame;
 public class DungeonGameService : IDungeonService, IDisposable
 {
     private readonly IRegistry _registry;
-    private readonly IECSService _ecs;
+    private readonly ArchECSService _ecs;
     private readonly DungeonGame _game;
 
     private readonly BehaviorSubject<GameState> _gameStateSubject;
@@ -31,7 +29,7 @@ public class DungeonGameService : IDungeonService, IDisposable
     public DungeonGameService(IRegistry registry)
     {
         _registry = registry ?? throw new ArgumentNullException(nameof(registry));
-        _ecs = _registry.Get<IECSService>();
+        _ecs = _registry.Get<ArchECSService>();
         _game = new DungeonGame(registry);
 
         _ecs.ModeChanged += HandleModeChanged;

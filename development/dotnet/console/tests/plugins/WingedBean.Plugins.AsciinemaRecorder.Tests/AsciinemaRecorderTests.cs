@@ -22,11 +22,11 @@ public class AsciinemaRecorderTests
         // Assert
         recorder.Should().NotBeNull();
         recorder.Should().BeAssignableTo<IRecorder>();
-        
+
         // Verify that recordings directory is created
         var version = GitVersionHelper.GetVersion();
         var recordingsDir = GitVersionHelper.GetRecordingsDirectory();
-        
+
         recordingsDir.Should().Contain("build/_artifacts");
         recordingsDir.Should().Contain($"v{version}");
         recordingsDir.Should().Contain("dotnet/recordings");
@@ -86,7 +86,7 @@ public class AsciinemaRecorderTests
         // Assert
         var outputPath = await recorder.StopRecordingAsync(sessionId);
         outputPath.Should().Contain(GitVersionHelper.GetRecordingsDirectory());
-        
+
         var content = await File.ReadAllTextAsync(outputPath);
         content.Should().Contain("Hello, World!");
 

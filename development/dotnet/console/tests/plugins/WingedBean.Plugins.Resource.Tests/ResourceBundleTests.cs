@@ -4,8 +4,8 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Plate.CrossMilo.Contracts.Resource;
-using IResourceService = Plate.CrossMilo.Contracts.Resource.Services.IService;
 using Xunit;
+using IResourceService = Plate.CrossMilo.Contracts.Resource.Services.IService;
 
 namespace WingedBean.Plugins.Resource.Tests;
 
@@ -40,7 +40,7 @@ public class ResourceBundleTests : IDisposable
         // Arrange
         var dataDir = Path.Combine(_testPath, "data");
         Directory.CreateDirectory(dataDir);
-        
+
         var testFile = Path.Combine(dataDir, "test.json");
         await File.WriteAllTextAsync(testFile, "{\"name\":\"Test\",\"value\":42}");
 
@@ -70,7 +70,7 @@ public class ResourceBundleTests : IDisposable
         // Arrange
         var dataDir = Path.Combine(_testPath, "data");
         Directory.CreateDirectory(dataDir);
-        
+
         await File.WriteAllTextAsync(Path.Combine(dataDir, "file1.json"), "{}");
         await File.WriteAllTextAsync(Path.Combine(dataDir, "file2.json"), "{}");
 
@@ -90,7 +90,7 @@ public class ResourceBundleTests : IDisposable
     {
         // Arrange
         await CreateTestBundle();
-        
+
         var resourcesDir = Path.Combine(_testPath, "resources");
         Directory.CreateDirectory(resourcesDir);
         File.Move(_bundlePath, Path.Combine(resourcesDir, "test.wbundle"));
@@ -111,7 +111,7 @@ public class ResourceBundleTests : IDisposable
     {
         // Arrange
         await CreateTestBundle();
-        
+
         var resourcesDir = Path.Combine(_testPath, "resources");
         Directory.CreateDirectory(resourcesDir);
         File.Move(_bundlePath, Path.Combine(resourcesDir, "test.wbundle"));
@@ -136,7 +136,7 @@ public class ResourceBundleTests : IDisposable
     {
         // Arrange
         await CreateTestBundle();
-        
+
         var resourcesDir = Path.Combine(_testPath, "resources");
         Directory.CreateDirectory(resourcesDir);
         File.Move(_bundlePath, Path.Combine(resourcesDir, "test.wbundle"));
@@ -161,7 +161,7 @@ public class ResourceBundleTests : IDisposable
     {
         var dataDir = Path.Combine(_testPath, "temp-data");
         Directory.CreateDirectory(dataDir);
-        
+
         var testFile = Path.Combine(dataDir, "test.json");
         await File.WriteAllTextAsync(testFile, "{\"name\":\"Test\",\"value\":42}");
 

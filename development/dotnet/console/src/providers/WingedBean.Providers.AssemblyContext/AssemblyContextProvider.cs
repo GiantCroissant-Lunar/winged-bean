@@ -55,14 +55,14 @@ public class AssemblyContextProvider : IDisposable
                 contextName, isCollectible);
 
             var alc = new AssemblyLoadContext(contextName, isCollectible);
-            
+
             // Add dependency resolver for plugin assemblies
             // This resolves dependencies from the plugin directory
             alc.Resolving += (context, assemblyName) =>
             {
                 _logger?.LogDebug("Resolving dependency: {AssemblyName} in context: {ContextName}",
                     assemblyName.FullName, contextName);
-                
+
                 // Try to resolve from already loaded assemblies in this context
                 var assemblyKey = $"{contextName}:{assemblyName.FullName}";
                 if (_loadedAssemblies.TryGetValue(assemblyKey, out var loadedAssembly))
@@ -70,14 +70,14 @@ public class AssemblyContextProvider : IDisposable
                     _logger?.LogDebug("Resolved from cache: {AssemblyName}", assemblyName.FullName);
                     return loadedAssembly;
                 }
-                
+
                 // Try to find the assembly file in known plugin directories
                 // First check if we have any loaded assemblies in this context to get the directory
                 var contextAssemblies = _loadedAssemblies
                     .Where(kv => kv.Key.StartsWith($"{contextName}:"))
                     .Select(kv => kv.Value)
                     .ToList();
-                
+
                 foreach (var asm in contextAssemblies)
                 {
                     if (!string.IsNullOrEmpty(asm.Location))
@@ -92,14 +92,14 @@ public class AssemblyContextProvider : IDisposable
                                 {
                                     _logger?.LogDebug("Loading dependency from: {DependencyPath}", dependencyPath);
                                     var depAssembly = context.LoadFromAssemblyPath(dependencyPath);
-                                    
+
                                     // Cache it
                                     var depKey = $"{contextName}:{depAssembly.FullName}";
                                     lock (_lock)
                                     {
                                         _loadedAssemblies[depKey] = depAssembly;
                                     }
-                                    
+
                                     return depAssembly;
                                 }
                                 catch (Exception ex)
@@ -110,11 +110,11 @@ public class AssemblyContextProvider : IDisposable
                         }
                     }
                 }
-                
+
                 // If not found, return null to let default resolution continue
                 return null;
             };
-            
+
             _contexts[contextName] = alc;
 
             _logger?.LogInformation("Created AssemblyLoadContext: {ContextName}", contextName);
@@ -236,7 +236,7 @@ public class AssemblyContextProvider : IDisposable
                 // Give GC time to clean up
                 await Task.Run(() =>
                 {
-                    for (int i = 0; i < 10 && alc.IsCollectible; i++)
+                    for (var i = 0; i < 10 && alc.IsCollectible; i++)
                     {
                         GC.Collect();
                         GC.WaitForPendingFinalizers();

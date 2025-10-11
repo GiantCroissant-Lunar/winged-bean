@@ -1,8 +1,5 @@
-using Plate.CrossMilo.Contracts.ECS;
+using WingedBean.Plugins.ArchECS.Internal;
 using WingedBean.Plugins.DungeonGame.Components;
-
-// Type alias for backward compatibility during namespace migration
-using IECSService = Plate.CrossMilo.Contracts.ECS.Services.IService;
 
 namespace WingedBean.Plugins.DungeonGame.Systems;
 
@@ -12,7 +9,7 @@ namespace WingedBean.Plugins.DungeonGame.Systems;
 /// </summary>
 public class AISystem : IECSSystem
 {
-    public void Execute(IECSService ecs, IWorld world, float deltaTime)
+    public void Execute(IWorld world, float deltaTime)
     {
         // Find player position
         Position? playerPosition = null;
@@ -35,7 +32,7 @@ public class AISystem : IECSSystem
             ref var enemyPos = ref world.GetComponent<Position>(enemyEntity);
 
             // Calculate distance to player
-            float distance = CalculateDistance(enemyPos, playerPosition.Value);
+            var distance = CalculateDistance(enemyPos, playerPosition.Value);
 
             // Update AI state based on distance
             switch (enemy.State)
@@ -61,8 +58,8 @@ public class AISystem : IECSSystem
                         // Random patrol movement
                         if (Random.Shared.NextDouble() < 0.1) // 10% chance to move each frame
                         {
-                            int dx = Random.Shared.Next(-1, 2);
-                            int dy = Random.Shared.Next(-1, 2);
+                            var dx = Random.Shared.Next(-1, 2);
+                            var dy = Random.Shared.Next(-1, 2);
                             enemyPos.X += dx;
                             enemyPos.Y += dy;
                         }
@@ -117,8 +114,8 @@ public class AISystem : IECSSystem
         if (a.Floor != b.Floor)
             return float.MaxValue;
 
-        int dx = a.X - b.X;
-        int dy = a.Y - b.Y;
+        var dx = a.X - b.X;
+        var dy = a.Y - b.Y;
         return MathF.Sqrt(dx * dx + dy * dy);
     }
 

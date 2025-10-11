@@ -12,7 +12,7 @@ internal class ResourceCache
     public bool TryGet<TResource>(string resourceId, out TResource? resource)
         where TResource : class
     {
-        if (_cache.TryGetValue(resourceId, out var entry) && 
+        if (_cache.TryGetValue(resourceId, out var entry) &&
             entry.Resource is TResource typedResource)
         {
             entry.LastAccessed = DateTime.UtcNow;

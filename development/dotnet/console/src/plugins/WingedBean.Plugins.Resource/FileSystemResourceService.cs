@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
-using Plate.CrossMilo.Contracts.Resource.Services;
 using Plate.CrossMilo.Contracts.Resource;
+using Plate.CrossMilo.Contracts.Resource.Services;
 using WingedBean.Plugins.Resource.Providers;
 
 namespace WingedBean.Plugins.Resource;
@@ -23,22 +23,22 @@ public class FileSystemResourceService : IService
         _logger = logger;
         _cache = new ResourceCache();
         _providers = new List<IResourceProvider>();
-        
+
         // Add custom providers first (higher priority)
         if (customProviders != null)
         {
             _providers.AddRange(customProviders);
         }
-        
+
         // Add NuGet provider for Console profile (compile-time check)
-        #if !UNITY_2021_1_OR_NEWER && !GODOT
+#if !UNITY_2021_1_OR_NEWER && !GODOT
         try
         {
             // Dynamically load NuGet provider if available
             var nugetProviderType = Type.GetType(
                 "WingedBean.Plugins.Resource.NuGet.NuGetResourceProvider, WingedBean.Plugins.Resource.NuGet"
             );
-            
+
             if (nugetProviderType != null)
             {
                 var nugetProvider = Activator.CreateInstance(nugetProviderType, logger, null);
@@ -53,11 +53,11 @@ public class FileSystemResourceService : IService
         {
             logger.LogWarning(ex, "NuGet resource provider not available (optional)");
         }
-        #endif
-        
+#endif
+
         // Add default file system provider (lowest priority)
         _providers.Add(new FileSystemProvider(logger, basePath));
-        
+
         logger.LogInformation(
             "Resource service initialized with {ProviderCount} provider(s)",
             _providers.Count
@@ -66,7 +66,7 @@ public class FileSystemResourceService : IService
 
     /// <inheritdoc/>
     public async Task<TResource?> LoadAsync<TResource>(
-        string resourceId, 
+        string resourceId,
         CancellationToken cancellationToken = default)
         where TResource : class
     {
@@ -87,9 +87,9 @@ public class FileSystemResourceService : IService
                     resourceId,
                     provider.GetType().Name
                 );
-                
+
                 var resource = await provider.LoadAsync<TResource>(resourceId, cancellationToken);
-                
+
                 if (resource != null)
                 {
                     _cache.Set(resourceId, resource);
@@ -109,7 +109,7 @@ public class FileSystemResourceService : IService
 
     /// <inheritdoc/>
     public async Task<IEnumerable<TResource>> LoadAllAsync<TResource>(
-        string pattern, 
+        string pattern,
         CancellationToken cancellationToken = default)
         where TResource : class
     {
@@ -122,7 +122,7 @@ public class FileSystemResourceService : IService
                 // For now, only file system provider supports patterns
                 // Load matching resources individually
                 var resources = new List<TResource>();
-                
+
                 // This is a simplified implementation
                 // Real implementation would need provider-specific pattern matching
                 var resource = await provider.LoadAsync<TResource>(pattern, cancellationToken);
@@ -130,11 +130,11 @@ public class FileSystemResourceService : IService
                 {
                     resources.Add(resource);
                 }
-                
+
                 return resources;
             }
         }
-        
+
         return Enumerable.Empty<TResource>();
     }
 
@@ -152,8 +152,8 @@ public class FileSystemResourceService : IService
     {
         var count = _cache.RemoveAll<TResource>();
         _logger.LogInformation(
-            "Unloaded {Count} resources of type {Type}", 
-            count, 
+            "Unloaded {Count} resources of type {Type}",
+            count,
             typeof(TResource).Name
         );
     }
@@ -166,7 +166,7 @@ public class FileSystemResourceService : IService
 
     /// <inheritdoc/>
     public async Task<ResourceMetadata?> GetMetadataAsync(
-        string resourceId, 
+        string resourceId,
         CancellationToken cancellationToken = default)
     {
         // Try each provider
@@ -181,23 +181,23 @@ public class FileSystemResourceService : IService
                 }
             }
         }
-        
+
         return null;
     }
 
     /// <inheritdoc/>
     public async Task PreloadAsync(
-        IEnumerable<string> resourceIds, 
+        IEnumerable<string> resourceIds,
         CancellationToken cancellationToken = default)
     {
-        var tasks = resourceIds.Select(id => 
+        var tasks = resourceIds.Select(id =>
             LoadAsync<object>(id, cancellationToken)
         );
 
         await Task.WhenAll(tasks);
 
         _logger.LogInformation(
-            "Preloaded {Count} resources", 
+            "Preloaded {Count} resources",
             resourceIds.Count()
         );
     }

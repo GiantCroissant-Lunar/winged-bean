@@ -41,7 +41,7 @@ public class DefaultInputMapper : IInputMapper, IDisposable
         if (rawEvent.Rune.HasValue)
         {
             var rune = rawEvent.Rune.Value;
-            
+
             // ESC sequence start
             if (rune == 0x1B && !_escPending && !_escBracketPending && !_escOPending)
             {

@@ -8,16 +8,13 @@
   "exports": {
     "services": [
       {
-        "interface": "Plate.CrossMilo.Contracts.Game.Dungeon.IService",
+        "interface": "ConsoleDungeon.Contracts.IDungeonService",
         "implementation": "WingedBean.Plugins.DungeonGame.DungeonGameService",
-        "lifecycle": "singleton"
-      },
-      {
-        "interface": "Plate.CrossMilo.Contracts.Game.Render.IService",
-        "implementation": "WingedBean.Plugins.DungeonGame.Services.RenderServiceProvider",
-        "lifecycle": "singleton"
+        "lifecycle": "singleton",
+        "comment": "Game-specific service contract"
       }
-    ]
+    ],
+    "comment": "RenderService removed - was framework-level service that didn't belong in game plugin"
   },
   "capabilities": [ "game-logic" ],
   "loadStrategy": "eager"

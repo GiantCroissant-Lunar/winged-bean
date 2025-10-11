@@ -1,9 +1,8 @@
 using System;
 using System.Linq;
 using FluentAssertions;
-using Plate.CrossMilo.Contracts.ECS;
+using WingedBean.Plugins.ArchECS.Internal;
 using Xunit;
-using IECSService = Plate.CrossMilo.Contracts.ECS.Services.IService;
 
 namespace WingedBean.Plugins.ArchECS.Tests;
 
@@ -157,20 +156,17 @@ public class ArchECSServiceTests
     }
 
     [Fact]
-    public void ArchECSService_HasPluginAttribute()
+    public void ArchECSService_IsPublicClass()
     {
         // Arrange
         var type = typeof(ArchECSService);
 
-        // Act
-        var attribute = type.GetCustomAttributes(typeof(Plate.PluginManoi.Contracts.PluginAttribute), false)
-            .FirstOrDefault() as Plate.PluginManoi.Contracts.PluginAttribute;
-
-        // Assert
-        attribute.Should().NotBeNull();
-        attribute!.Name.Should().Be("Arch.ECS");
-        attribute.Provides.Should().Contain(typeof(IECSService));
-        attribute.Priority.Should().Be(100);
+        // Act & Assert
+        // ArchECSService is now a concrete service class, not a plugin-attributed service
+        // It's registered directly by ArchECSPluginActivator
+        type.Should().NotBeNull();
+        type.IsPublic.Should().BeTrue("ArchECSService should be public for registration");
+        type.GetInterfaces().Should().Contain(typeof(IECSService), "ArchECSService should implement IECSService");
     }
 
     // Helper class for testing invalid world
@@ -187,5 +183,8 @@ public class ArchECSServiceTests
         public IEnumerable<EntityHandle> CreateQuery<T1, T2>() where T1 : struct where T2 : struct => throw new NotImplementedException();
         public IEnumerable<EntityHandle> CreateQuery<T1, T2, T3>() where T1 : struct where T2 : struct where T3 : struct => throw new NotImplementedException();
         public int EntityCount => throw new NotImplementedException();
+        public IQuery Query<T1>() where T1 : struct => throw new NotImplementedException();
+        public IQuery Query<T1, T2>() where T1 : struct where T2 : struct => throw new NotImplementedException();
+        public IQuery Query<T1, T2, T3>() where T1 : struct where T2 : struct where T3 : struct => throw new NotImplementedException();
     }
 }

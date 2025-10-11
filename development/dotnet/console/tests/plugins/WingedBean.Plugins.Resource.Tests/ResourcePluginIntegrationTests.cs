@@ -3,8 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Plate.CrossMilo.Contracts.Resource;
-using IResourceService = Plate.CrossMilo.Contracts.Resource.Services.IService;
 using Xunit;
+using IResourceService = Plate.CrossMilo.Contracts.Resource.Services.IService;
 
 namespace WingedBean.Plugins.Resource.Tests;
 
@@ -19,7 +19,7 @@ public class ResourcePluginIntegrationTests
         // Arrange
         var services = new ServiceCollection();
         services.AddLogging(); // Need to add logging to the services being built
-        
+
         var hostServices = new ServiceCollection()
             .AddLogging()
             .BuildServiceProvider();
@@ -42,7 +42,7 @@ public class ResourcePluginIntegrationTests
         // Arrange
         var services = new ServiceCollection();
         services.AddLogging(); // Need to add logging to the services being built
-        
+
         var hostServices = new ServiceCollection()
             .AddLogging()
             .BuildServiceProvider();
@@ -75,7 +75,7 @@ public class ResourcePluginIntegrationTests
 
             var services = new ServiceCollection();
             services.AddSingleton<ILogger<FileSystemResourceService>>(NullLogger<FileSystemResourceService>.Instance);
-            
+
             var hostServices = new ServiceCollection()
                 .AddLogging()
                 .BuildServiceProvider();
@@ -126,7 +126,7 @@ public class ResourcePluginIntegrationTests
         // Arrange
         var services = new ServiceCollection();
         services.AddLogging(); // Need to add logging to the services being built
-        
+
         var hostServices = new ServiceCollection()
             .AddLogging()
             .BuildServiceProvider();

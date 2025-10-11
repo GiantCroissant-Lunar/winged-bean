@@ -1,9 +1,6 @@
 using System.Text;
-using Plate.CrossMilo.Contracts.ECS;
+using WingedBean.Plugins.ArchECS.Internal;
 using WingedBean.Plugins.DungeonGame.Components;
-
-// Type alias for backward compatibility during namespace migration
-using IECSService = Plate.CrossMilo.Contracts.ECS.Services.IService;
 
 namespace WingedBean.Plugins.DungeonGame.Systems;
 
@@ -14,15 +11,15 @@ namespace WingedBean.Plugins.DungeonGame.Systems;
 public class RenderSystem : IECSSystem
 {
     private readonly List<(Position pos, Renderable render)> _renderBuffer = new();
-    
+
     // Public property to access the last rendered frame
     public string? LastRenderedFrame { get; private set; }
-    
+
     // Render dimensions
     private int _renderWidth = 40;
     private int _renderHeight = 15;
-    
-    public void Execute(IECSService ecs, IWorld world, float deltaTime)
+
+    public void Execute(IWorld world, float deltaTime)
     {
         // Clear the render buffer
         _renderBuffer.Clear();
@@ -41,19 +38,19 @@ public class RenderSystem : IECSSystem
         // Render to text buffer instead of console
         LastRenderedFrame = RenderToTextBuffer();
     }
-    
+
     private string RenderToTextBuffer()
     {
         // Create a 2D buffer filled with empty spaces
         var buffer = new char[_renderHeight, _renderWidth];
-        for (int y = 0; y < _renderHeight; y++)
+        for (var y = 0; y < _renderHeight; y++)
         {
-            for (int x = 0; x < _renderWidth; x++)
+            for (var x = 0; x < _renderWidth; x++)
             {
                 buffer[y, x] = '.'; // Floor/background character
             }
         }
-        
+
         // Draw entities into the buffer
         foreach (var (pos, render) in _renderBuffer)
         {
@@ -64,12 +61,12 @@ public class RenderSystem : IECSSystem
                 buffer[pos.Y, pos.X] = render.Symbol;
             }
         }
-        
+
         // Convert buffer to string
         var sb = new StringBuilder();
-        for (int y = 0; y < _renderHeight; y++)
+        for (var y = 0; y < _renderHeight; y++)
         {
-            for (int x = 0; x < _renderWidth; x++)
+            for (var x = 0; x < _renderWidth; x++)
             {
                 sb.Append(buffer[y, x]);
             }
@@ -78,10 +75,10 @@ public class RenderSystem : IECSSystem
                 sb.AppendLine();
             }
         }
-        
+
         return sb.ToString();
     }
-    
+
     public void SetRenderDimensions(int width, int height)
     {
         _renderWidth = Math.Max(1, width);

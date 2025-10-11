@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Configuration;
-using Plate.CrossMilo.Contracts.Config.Services;
 using Plate.CrossMilo.Contracts.Config;
+using Plate.CrossMilo.Contracts.Config.Services;
 
 namespace WingedBean.Plugins.Config;
 

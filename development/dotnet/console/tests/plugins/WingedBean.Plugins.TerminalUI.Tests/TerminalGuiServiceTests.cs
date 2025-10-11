@@ -1,8 +1,9 @@
 using FluentAssertions;
 using Plate.CrossMilo.Contracts.Terminal;
-using ITerminalUIService = Plate.CrossMilo.Contracts.Terminal.Services.IService;
 using WingedBean.Plugins.TerminalUI;
 using Xunit;
+// Note: Terminal.Services.IService doesn't exist - using ITerminalApp instead
+using ITerminalUIService = Plate.CrossMilo.Contracts.Terminal.ITerminalApp;
 
 namespace WingedBean.Plugins.TerminalUI.Tests;
 

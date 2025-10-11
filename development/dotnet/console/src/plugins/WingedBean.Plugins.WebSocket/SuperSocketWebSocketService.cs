@@ -1,13 +1,13 @@
-using SuperSocket.WebSocket.Server;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Plate.PluginManoi.Contracts;
-using Plate.CrossMilo.Contracts.WebSocket.Services;
-using Plate.CrossMilo.Contracts.WebSocket;
-using IService = Plate.CrossMilo.Contracts.WebSocket.Services.IService;
-using System.Net.Sockets;
 using System.IO;
+using System.Net.Sockets;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Plate.CrossMilo.Contracts.WebSocket;
+using Plate.CrossMilo.Contracts.WebSocket.Services;
+using Plate.PluginManoi.Contracts;
+using SuperSocket.WebSocket.Server;
+using IService = Plate.CrossMilo.Contracts.WebSocket.Services.IService;
 
 namespace WingedBean.Plugins.WebSocket;
 
@@ -49,17 +49,17 @@ public class SuperSocketWebSocketService : IService
                 return;
             }
         }
-        
+
         // Try to start on the requested port, with fallback to alternative ports
         var portsToTry = new List<int> { port, 4041, 4042, 4043, 4044 };
         Exception? lastException = null;
-        
+
         foreach (var tryPort in portsToTry)
         {
             try
             {
                 _port = tryPort;
-                
+
                 // Create configuration with specified port
                 var configBuilder = new ConfigurationBuilder();
                 configBuilder.AddInMemoryCollection(new Dictionary<string, string?>
@@ -125,7 +125,7 @@ public class SuperSocketWebSocketService : IService
         _logger?.LogWarning("WebSocket server could not start on any port. Tried: {Ports}", string.Join(", ", portsToTry));
         _logger?.LogWarning("Last error: {Error}. Application will continue without WebSocket support", lastException?.Message);
     }
-    
+
     private void WritePortInfoFile(int actualPort)
     {
         try

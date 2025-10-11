@@ -1,5 +1,5 @@
 using FluentAssertions;
-using Plate.CrossMilo.Contracts.ECS;
+using WingedBean.Plugins.ArchECS.Internal;
 using Xunit;
 
 namespace WingedBean.Plugins.ArchECS.Tests;
@@ -18,18 +18,18 @@ internal class TestSystem : SystemBase
 
     // Expose protected members for testing
     public IWorld GetWorld() => World;
-    
+
     public IQuery TestGetQuery<T1>() where T1 : struct => GetQuery<T1>();
-    
-    public IQuery TestGetQuery<T1, T2>() 
-        where T1 : struct 
-        where T2 : struct 
+
+    public IQuery TestGetQuery<T1, T2>()
+        where T1 : struct
+        where T2 : struct
         => GetQuery<T1, T2>();
-    
-    public IQuery TestGetQuery<T1, T2, T3>() 
-        where T1 : struct 
-        where T2 : struct 
-        where T3 : struct 
+
+    public IQuery TestGetQuery<T1, T2, T3>()
+        where T1 : struct
+        where T2 : struct
+        where T3 : struct
         => GetQuery<T1, T2, T3>();
 }
 
@@ -97,7 +97,7 @@ public class SystemBaseTests
         var service = new ArchECSService();
 
         // Act
-        var act = () => system.Execute(service, default!, 0.016f);
+        var act = () => system.Execute(default!, 0.016f);
 
         // Assert
         act.Should().Throw<System.InvalidOperationException>()
@@ -114,7 +114,7 @@ public class SystemBaseTests
         system.Initialize(world);
 
         // Act
-        system.Execute(service, world, 0.016f);
+        system.Execute(world, 0.016f);
 
         // Assert
         system.UpdateCallCount.Should().Be(1);
@@ -131,9 +131,9 @@ public class SystemBaseTests
         system.Initialize(world);
 
         // Act
-        system.Execute(service, world, 0.016f);
-        system.Execute(service, world, 0.033f);
-        system.Execute(service, world, 0.050f);
+        system.Execute(world, 0.016f);
+        system.Execute(world, 0.033f);
+        system.Execute(world, 0.050f);
 
         // Assert
         system.UpdateCallCount.Should().Be(3);
@@ -268,7 +268,7 @@ public class SystemBaseTests
         // No velocity component
 
         // Act
-        system.Execute(service, world, 0.016f);
+        system.Execute(world, 0.016f);
 
         // Assert
         system.EntitiesProcessed.Should().Be(2); // Only entities with both Position and Velocity
@@ -301,13 +301,16 @@ internal class MockWorld : IWorld
     public ref T GetComponent<T>(EntityHandle entity) where T : struct => throw new System.NotImplementedException();
     public bool HasComponent<T>(EntityHandle entity) where T : struct => false;
     public bool IsAlive(EntityHandle entity) => false;
-    public System.Collections.Generic.IEnumerable<EntityHandle> CreateQuery<T1>() where T1 : struct => 
+    public System.Collections.Generic.IEnumerable<EntityHandle> CreateQuery<T1>() where T1 : struct =>
         System.Array.Empty<EntityHandle>();
-    public System.Collections.Generic.IEnumerable<EntityHandle> CreateQuery<T1, T2>() 
-        where T1 : struct where T2 : struct => 
+    public System.Collections.Generic.IEnumerable<EntityHandle> CreateQuery<T1, T2>()
+        where T1 : struct where T2 : struct =>
         System.Array.Empty<EntityHandle>();
-    public System.Collections.Generic.IEnumerable<EntityHandle> CreateQuery<T1, T2, T3>() 
-        where T1 : struct where T2 : struct where T3 : struct => 
+    public System.Collections.Generic.IEnumerable<EntityHandle> CreateQuery<T1, T2, T3>()
+        where T1 : struct where T2 : struct where T3 : struct =>
         System.Array.Empty<EntityHandle>();
     public int EntityCount => 0;
+    public IQuery Query<T1>() where T1 : struct => throw new System.NotImplementedException();
+    public IQuery Query<T1, T2>() where T1 : struct where T2 : struct => throw new System.NotImplementedException();
+    public IQuery Query<T1, T2, T3>() where T1 : struct where T2 : struct where T3 : struct => throw new System.NotImplementedException();
 }

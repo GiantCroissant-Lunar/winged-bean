@@ -1,26 +1,25 @@
+using System.IO;
+using ConsoleDungeon.Contracts;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Plate.CrossMilo.Contracts;
-using Plate.CrossMilo.Contracts.Terminal;
-using Plate.PluginManoi.Contracts;
-using ConsoleDungeon.Contracts;
 using Plate.CrossMilo.Contracts.Input;
 using Plate.CrossMilo.Contracts.Scene;
 using Plate.CrossMilo.Contracts.Scene.Services;
+using Plate.CrossMilo.Contracts.Terminal;
+using Plate.PluginManoi.Contracts;
+using Terminal.Gui;
 using WingedBean.Plugins.ConsoleDungeon.Input;
 using WingedBean.Plugins.ConsoleDungeon.Scene;
 using WingedBean.Plugins.TerminalUI;
-using System.IO;
-using Terminal.Gui;
-
-// Type aliases for IService pattern
-using ISceneService = Plate.CrossMilo.Contracts.Scene.Services.IService;
-using IInputRouter = Plate.CrossMilo.Contracts.Input.Router.IService;
-using IInputMapper = Plate.CrossMilo.Contracts.Input.Mapper.IService;
-using IAudioService = Plate.CrossMilo.Contracts.Audio.Services.IService;
 // Type aliases for game types (to avoid ambiguity with Scene types)
 using GameEntitySnapshot = ConsoleDungeon.Contracts.EntitySnapshot;
 using GamePosition = ConsoleDungeon.Contracts.Position;
+using IAudioService = Plate.CrossMilo.Contracts.Audio.Services.IService;
+using IInputMapper = Plate.CrossMilo.Contracts.Input.Mapper.IService;
+using IInputRouter = Plate.CrossMilo.Contracts.Input.Router.IService;
+// Type aliases for IService pattern
+using ISceneService = Plate.CrossMilo.Contracts.Scene.Services.IService;
 
 namespace WingedBean.Plugins.ConsoleDungeon;
 
@@ -88,17 +87,17 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IRegistryAware, IDispos
     public void SetRegistry(IRegistry registry)
     {
         _registry = registry;
-        
+
         // Resolve configuration from registry (registered by host)
         _config = registry.IsRegistered<TerminalAppConfig>()
             ? registry.Get<TerminalAppConfig>()
             : new TerminalAppConfig { Name = "Console Dungeon", Cols = 80, Rows = 24 };
-        
+
         // Try to resolve game service from registry
         _gameService = registry.IsRegistered<IDungeonService>()
             ? registry.Get<IDungeonService>()
             : null;
-        
+
         Diag($"SetRegistry called: config={_config?.Name}, gameService={_gameService != null}");
     }
 
@@ -115,7 +114,7 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IRegistryAware, IDispos
             return;
         }
 
-        _logger.LogInformation("Starting Console Dungeon: {Name} ({Cols}x{Rows})", 
+        _logger.LogInformation("Starting Console Dungeon: {Name} ({Cols}x{Rows})",
             _config.Name, _config.Cols, _config.Rows);
 
         try
@@ -333,12 +332,12 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IRegistryAware, IDispos
                 {
                     _logger.LogError(ex, "Error running scene");
                     Diag($"Error in scene.Run: {ex.Message}");
-                    
+
                     // If scene.Run() throws an exception, treat it like a headless/fast-return scenario
                     // Keep the process alive rather than shutting down the host
                     Diag("Exception during scene.Run(); treating as headless mode - keeping process alive");
                     suppressShutdown = true;
-                    
+
                     // Wait for host shutdown signal
                     try
                     {
@@ -370,7 +369,7 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IRegistryAware, IDispos
                         {
                             Diag($"Error stopping timer: {ex.Message}");
                         }
-                        
+
                         Exited?.Invoke(this, new TerminalExitEventArgs
                         {
                             ExitCode = 0,
@@ -396,7 +395,7 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IRegistryAware, IDispos
                     }
                 }
             }, cancellationToken);
-            
+
             Diag("StartAsync returning immediately (UI running in background)");
         }
         catch (Exception ex)
@@ -406,7 +405,7 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IRegistryAware, IDispos
             Diag($"Failed to start: {ex.Message}");
             throw;
         }
-        
+
         Diag("StartAsync completed, returning to host");
     }
 

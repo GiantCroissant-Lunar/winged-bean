@@ -1,6 +1,6 @@
+using ConsoleDungeon.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using ConsoleDungeon.Contracts;
 using Plate.PluginManoi.Core;
 
 namespace WingedBean.Plugins.DungeonGame;

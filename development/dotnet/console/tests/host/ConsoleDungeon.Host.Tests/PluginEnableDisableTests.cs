@@ -6,9 +6,9 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Plate.PluginManoi.Contracts;
-using Plate.PluginManoi.Registry;
 using Plate.PluginManoi.Loader;
 using Plate.PluginManoi.Loader.AssemblyContext;
+using Plate.PluginManoi.Registry;
 using Xunit;
 
 namespace ConsoleDungeon.Host.Tests;
@@ -222,11 +222,11 @@ public class PluginEnableDisableTests : IDisposable
         var contextProvider = new AssemblyContextProvider();
         var pluginLoader = new ActualPluginLoader(contextProvider);
 
-        registry.Register<IRegistry>(registry);
+        registry.Register<Plate.CrossMilo.Contracts.IRegistry>(registry);
         registry.Register<IPluginLoader>(pluginLoader);
 
         // Act: Verify that foundation services are registered
-        var registryRegistered = registry.IsRegistered<IRegistry>();
+        var registryRegistered = registry.IsRegistered<Plate.CrossMilo.Contracts.IRegistry>();
         var pluginLoaderRegistered = registry.IsRegistered<IPluginLoader>();
 
         // Assert: Foundation services should be available

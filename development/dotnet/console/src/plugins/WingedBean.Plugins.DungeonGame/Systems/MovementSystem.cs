@@ -1,8 +1,5 @@
-using Plate.CrossMilo.Contracts.ECS;
+using WingedBean.Plugins.ArchECS.Internal;
 using WingedBean.Plugins.DungeonGame.Components;
-
-// Type alias for backward compatibility during namespace migration
-using IECSService = Plate.CrossMilo.Contracts.ECS.Services.IService;
 
 namespace WingedBean.Plugins.DungeonGame.Systems;
 
@@ -15,7 +12,7 @@ public class MovementSystem : IECSSystem
     private const int DungeonWidth = 80;
     private const int DungeonHeight = 24;
 
-    public void Execute(IECSService ecs, IWorld world, float deltaTime)
+    public void Execute(IWorld world, float deltaTime)
     {
         // Query all entities with Position components
         // Movement is typically triggered by input handlers that modify Position directly

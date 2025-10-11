@@ -13,7 +13,7 @@ public interface IResourceProvider
     /// </summary>
     /// <param name="resourceId">Resource identifier (e.g., "data/level.json", "nuget:PackageId")</param>
     bool CanHandle(string resourceId);
-    
+
     /// <summary>
     /// Load a resource asynchronously.
     /// </summary>
@@ -24,7 +24,7 @@ public interface IResourceProvider
         string resourceId,
         CancellationToken cancellationToken = default)
         where TResource : class;
-    
+
     /// <summary>
     /// Get resource metadata without loading full resource.
     /// </summary>

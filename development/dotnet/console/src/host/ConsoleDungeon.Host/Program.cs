@@ -12,16 +12,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Scrutor;
-using Plate.PluginManoi.Contracts;
 using Plate.CrossMilo.Contracts;
-using Plate.PluginManoi.Registry;
+using Plate.PluginManoi.Contracts;
+using Plate.PluginManoi.Core;
 using Plate.PluginManoi.Loader;
 using Plate.PluginManoi.Loader.AssemblyContext;
-using Plate.PluginManoi.Core;
+using Plate.PluginManoi.Registry;
+using Scrutor;
 using WingedBean.Host.Console;
 using WingedBean.Hosting;
-
 // Terminal and UI contracts now in Plate.CrossMilo.Contracts namespace
 using ITerminalApp = Plate.CrossMilo.Contracts.Terminal.ITerminalApp;
 using LegacyTerminalAppAdapter = Plate.CrossMilo.Contracts.Terminal.LegacyTerminalAppAdapter;

@@ -92,7 +92,7 @@ public static class GitVersionHelper
     public static string GetRecordingsDirectory()
     {
         var version = GetVersion();
-        
+
         // Find repository root by looking for .git directory
         var repoRoot = FindRepositoryRoot();
         if (repoRoot != null)
@@ -110,7 +110,7 @@ public static class GitVersionHelper
     public static string GetLogsDirectory()
     {
         var version = GetVersion();
-        
+
         // Find repository root by looking for .git directory
         var repoRoot = FindRepositoryRoot();
         if (repoRoot != null)
@@ -128,7 +128,7 @@ public static class GitVersionHelper
     private static string? FindRepositoryRoot()
     {
         var currentDir = Directory.GetCurrentDirectory();
-        
+
         while (currentDir != null)
         {
             if (Directory.Exists(Path.Combine(currentDir, ".git")))

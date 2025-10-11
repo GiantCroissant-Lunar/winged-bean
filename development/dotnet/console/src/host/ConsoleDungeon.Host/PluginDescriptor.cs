@@ -67,30 +67,30 @@ public class PluginDependenciesConverter : JsonConverter<PluginDependencies?>
         {
             return null;
         }
-        
+
         // Check if it's an array (legacy format: ["plugin1", "plugin2"])
         if (reader.TokenType == JsonTokenType.StartArray)
         {
             var plugins = JsonSerializer.Deserialize<List<string>>(ref reader, options);
             return new PluginDependencies { Plugins = plugins };
         }
-        
+
         // Check if it's an object (new format with nuget)
         if (reader.TokenType == JsonTokenType.StartObject)
         {
             return JsonSerializer.Deserialize<PluginDependencies>(ref reader, options);
         }
-        
+
         // Check if it's a single string (very old legacy format)
         if (reader.TokenType == JsonTokenType.String)
         {
             var singlePlugin = reader.GetString();
-            return new PluginDependencies 
-            { 
-                Plugins = singlePlugin != null ? new List<string> { singlePlugin } : null 
+            return new PluginDependencies
+            {
+                Plugins = singlePlugin != null ? new List<string> { singlePlugin } : null
             };
         }
-        
+
         throw new JsonException("Invalid dependencies format");
     }
 
@@ -101,7 +101,7 @@ public class PluginDependenciesConverter : JsonConverter<PluginDependencies?>
             writer.WriteNullValue();
             return;
         }
-        
+
         // Always write as object format for new manifests
         JsonSerializer.Serialize(writer, value, options);
     }

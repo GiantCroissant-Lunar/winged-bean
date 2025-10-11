@@ -50,7 +50,7 @@ public class BuildGameBundleTest
                     recursive: true,
                     filePatterns: new[] { "*.json" }
                 );
-                
+
                 var fileCount = Directory.GetFiles(categoryPath, "*.json", SearchOption.AllDirectories).Length;
                 Console.WriteLine($"  ✓ Added {fileCount} {category}");
             }
@@ -61,7 +61,7 @@ public class BuildGameBundleTest
         var bundleInfo = new FileInfo(bundlePath);
         Console.WriteLine($"\n✅ Bundle created: {bundlePath}");
         Console.WriteLine($"   Size: {bundleInfo.Length:N0} bytes ({bundleInfo.Length / 1024.0:F1} KB)");
-        
+
         // Verify bundle was created
         Assert.True(File.Exists(bundlePath));
         Assert.True(bundleInfo.Length > 0);

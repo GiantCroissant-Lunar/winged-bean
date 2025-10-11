@@ -1,9 +1,9 @@
 using System;
 using System.Threading.Tasks;
-using FluentAssertions;
-using Plate.PluginManoi.Contracts;
-using Plate.CrossMilo.Contracts;
 using ConsoleDungeon.Contracts;
+using FluentAssertions;
+using Plate.CrossMilo.Contracts;
+using Plate.PluginManoi.Contracts;
 using WingedBean.Plugins.ArchECS;
 using Xunit;
 
@@ -20,8 +20,8 @@ public class DungeonGamePluginTests
         // Arrange - Mock ECS service so DungeonGameService can be created
         var registry = new TestRegistry();
         var ecsService = new ArchECSService();
-        registry.Register<Plate.CrossMilo.Contracts.ECS.Services.IService>(ecsService);
-        
+        registry.Register<ArchECSService>(ecsService);
+
         var plugin = new DungeonGamePlugin();
 
         // Act
@@ -30,7 +30,7 @@ public class DungeonGamePluginTests
         // Assert - Check if dungeon service is registered
         registry.IsRegistered<IDungeonService>()
             .Should().BeTrue("Dungeon service should be registered");
-            
+
         // Try to retrieve it
         var dungeonService = registry.Get<IDungeonService>();
         dungeonService.Should().NotBeNull();
@@ -43,9 +43,9 @@ public class DungeonGamePluginTests
         // Arrange
         var registry = new TestRegistry();
         var ecsService = new ArchECSService();
-        registry.Register<Plate.CrossMilo.Contracts.ECS.Services.IService>(ecsService);
+        registry.Register<ArchECSService>(ecsService);
         var plugin = new DungeonGamePlugin();
-        
+
         // Act
         plugin.OnActivateAsync(registry).Wait();
         var services = plugin.GetServices();

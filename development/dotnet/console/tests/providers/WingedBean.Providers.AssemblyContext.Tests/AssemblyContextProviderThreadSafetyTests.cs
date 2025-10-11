@@ -29,7 +29,7 @@ public class AssemblyContextProviderThreadSafetyTests : IDisposable
         var tasks = new List<Task<string>>();
 
         // Act: Perform concurrent context creations
-        for (int i = 0; i < concurrentCount; i++)
+        for (var i = 0; i < concurrentCount; i++)
         {
             var contextName = $"TestContext_{i}_{Guid.NewGuid():N}";
             tasks.Add(Task.Run(() => _provider.CreateContext(contextName)));
@@ -57,7 +57,7 @@ public class AssemblyContextProviderThreadSafetyTests : IDisposable
 
         // Create contexts first
         var contextNames = new List<string>();
-        for (int i = 0; i < concurrentCount; i++)
+        for (var i = 0; i < concurrentCount; i++)
         {
             var contextName = $"TestContext_{i}_{Guid.NewGuid():N}";
             _provider.CreateContext(contextName);
@@ -91,7 +91,7 @@ public class AssemblyContextProviderThreadSafetyTests : IDisposable
         var tasks = new List<Task<System.Runtime.Loader.AssemblyLoadContext?>>();
 
         // Act: Perform concurrent reads
-        for (int i = 0; i < concurrentCount; i++)
+        for (var i = 0; i < concurrentCount; i++)
         {
             tasks.Add(Task.Run(() => _provider.GetContext(contextName)));
         }
@@ -114,7 +114,7 @@ public class AssemblyContextProviderThreadSafetyTests : IDisposable
         var contextNames = new List<string>();
 
         // Create contexts
-        for (int i = 0; i < concurrentCount; i++)
+        for (var i = 0; i < concurrentCount; i++)
         {
             var contextName = $"TestContext_{i}_{Guid.NewGuid():N}";
             _provider.CreateContext(contextName);
@@ -145,7 +145,7 @@ public class AssemblyContextProviderThreadSafetyTests : IDisposable
         var testAssemblyPath = Assembly.GetExecutingAssembly().Location;
 
         // Act: Perform concurrent mixed operations
-        for (int i = 0; i < operationsCount; i++)
+        for (var i = 0; i < operationsCount; i++)
         {
             var index = i;
             var contextName = $"TestContext_{index}_{Guid.NewGuid():N}";
@@ -193,7 +193,7 @@ public class AssemblyContextProviderThreadSafetyTests : IDisposable
         var tasks = new List<Task<bool>>();
 
         // Act: Perform concurrent existence checks
-        for (int i = 0; i < concurrentCount; i++)
+        for (var i = 0; i < concurrentCount; i++)
         {
             tasks.Add(Task.Run(() => _provider.ContextExists(contextName)));
         }
@@ -212,7 +212,7 @@ public class AssemblyContextProviderThreadSafetyTests : IDisposable
     {
         // Arrange
         // Create some contexts
-        for (int i = 0; i < 10; i++)
+        for (var i = 0; i < 10; i++)
         {
             var contextName = $"TestContext_{i}_{Guid.NewGuid():N}";
             _provider.CreateContext(contextName);
@@ -222,7 +222,7 @@ public class AssemblyContextProviderThreadSafetyTests : IDisposable
         var tasks = new List<Task<IEnumerable<string>>>();
 
         // Act: Perform concurrent GetLoadedContexts calls
-        for (int i = 0; i < concurrentCount; i++)
+        for (var i = 0; i < concurrentCount; i++)
         {
             tasks.Add(Task.Run(() => _provider.GetLoadedContexts()));
         }

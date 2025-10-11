@@ -199,7 +199,7 @@ public class ResourceCacheTests
         var tasks = new List<Task>();
 
         // Act
-        for (int i = 0; i < 100; i++)
+        for (var i = 0; i < 100; i++)
         {
             var index = i;
             tasks.Add(Task.Run(() =>
@@ -212,7 +212,7 @@ public class ResourceCacheTests
 
         // Assert
         cache.Count.Should().Be(100);
-        for (int i = 0; i < 100; i++)
+        for (var i = 0; i < 100; i++)
         {
             cache.Contains($"resource-{i}").Should().BeTrue();
         }

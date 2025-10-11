@@ -1,6 +1,5 @@
-using Plate.PluginManoi.Contracts;
 using Plate.CrossMilo.Contracts;
-using Plate.CrossMilo.Contracts.ECS.Services;
+using Plate.PluginManoi.Contracts;
 
 namespace WingedBean.Plugins.ArchECS;
 
@@ -19,10 +18,10 @@ public class ArchECSPlugin : IPlugin
     {
         // Create the ECS service instance
         _serviceInstance = new ArchECSService();
-        
-        // Register the service directly with the registry (priority 100 from Plugin attribute)
-        registry.Register<IService>(_serviceInstance, priority: 100);
-        
+
+        // Register the service directly with the registry
+        registry.Register<ArchECSService>(_serviceInstance, priority: 100);
+
         return Task.CompletedTask;
     }
 

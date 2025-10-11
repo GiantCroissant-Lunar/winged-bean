@@ -1,8 +1,8 @@
 using FluentAssertions;
-using WingedBean.Plugins.WebSocket;
 using Plate.CrossMilo.Contracts.WebSocket.Services;
-using IService = Plate.CrossMilo.Contracts.WebSocket.Services.IService;
+using WingedBean.Plugins.WebSocket;
 using Xunit;
+using IService = Plate.CrossMilo.Contracts.WebSocket.Services.IService;
 
 namespace WingedBean.Plugins.WebSocket.Tests;
 
@@ -26,7 +26,7 @@ public class SuperSocketWebSocketServiceTests
     {
         // Arrange
         var service = new SuperSocketWebSocketService();
-        int testPort = 4050; // Use a different port to avoid conflicts
+        var testPort = 4050; // Use a different port to avoid conflicts
 
         // Act
         Action act = () => service.Start(testPort);
@@ -43,7 +43,7 @@ public class SuperSocketWebSocketServiceTests
     {
         // Arrange
         var service = new SuperSocketWebSocketService();
-        bool subscribed = false;
+        var subscribed = false;
 
         // Act
         Action act = () =>

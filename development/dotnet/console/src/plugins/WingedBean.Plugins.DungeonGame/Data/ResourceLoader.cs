@@ -14,7 +14,7 @@ public class ResourceLoader
 {
     private readonly IResourceService _resourceService;
     private readonly ILogger<ResourceLoader>? _logger;
-    
+
     // Cached collections
     private Dictionary<string, EnemyData>? _enemies;
     private Dictionary<string, ItemData>? _items;
@@ -165,7 +165,7 @@ public class ResourceLoader
         _items = null;
         _players = null;
         _levels = null;
-        
+
         _logger?.LogDebug("Resource cache cleared");
     }
 }

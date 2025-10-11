@@ -28,6 +28,7 @@
   <ItemGroup>
     <ProjectReference Include="../../../src/host/ConsoleDungeon.Host/ConsoleDungeon.Host.csproj" />
     <ProjectReference Include="../../../src/plugins/WingedBean.Plugins.ConsoleDungeon/WingedBean.Plugins.ConsoleDungeon.csproj" />
+    <ProjectReference Include="../../../src/plugins/WingedBean.Plugins.ArchECS/WingedBean.Plugins.ArchECS.csproj" />
     <ProjectReference Include="../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Contracts/PluginManoi.Contracts.csproj" />
     <ProjectReference Include="../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Registry/PluginManoi.Registry.csproj" />
     <ProjectReference Include="../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Loader/PluginManoi.Loader.csproj" />

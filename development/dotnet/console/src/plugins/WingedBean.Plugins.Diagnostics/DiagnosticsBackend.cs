@@ -1,10 +1,10 @@
-using Plate.CrossMilo.Contracts.Diagnostics;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Plate.CrossMilo.Contracts.Diagnostics;
 using Sentry;
 using Sentry.Protocol;
-using Microsoft.Extensions.Logging;
-using System;
 using BreadcrumbLevel = Plate.CrossMilo.Contracts.Diagnostics.BreadcrumbLevel;
 
 namespace WingedBean.Plugins.Diagnostics;

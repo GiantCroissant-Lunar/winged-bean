@@ -3,8 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Arch.Core;
 using Arch.Core.Extensions;
-using Plate.CrossMilo.Contracts.ECS;
-using Plate.CrossMilo.Contracts.ECS.Services;
+using WingedBean.Plugins.ArchECS.Internal;
 
 namespace WingedBean.Plugins.ArchECS;
 
@@ -75,7 +74,7 @@ internal class ArchWorld : IWorld
         foreach (var chunk in query)
         {
             var entities = chunk.Entities;
-            for (int i = 0; i < chunk.Count; i++)
+            for (var i = 0; i < chunk.Count; i++)
             {
                 results.Add(new EntityHandle(entities[i].Id, entities[i].WorldId));
             }
@@ -94,7 +93,7 @@ internal class ArchWorld : IWorld
         foreach (var chunk in query)
         {
             var entities = chunk.Entities;
-            for (int i = 0; i < chunk.Count; i++)
+            for (var i = 0; i < chunk.Count; i++)
             {
                 results.Add(new EntityHandle(entities[i].Id, entities[i].WorldId));
             }
@@ -114,7 +113,7 @@ internal class ArchWorld : IWorld
         foreach (var chunk in query)
         {
             var entities = chunk.Entities;
-            for (int i = 0; i < chunk.Count; i++)
+            for (var i = 0; i < chunk.Count; i++)
             {
                 results.Add(new EntityHandle(entities[i].Id, entities[i].WorldId));
             }

@@ -116,9 +116,9 @@ public class PluginConfigurationTests
         };
 
         // Act
-        var json = JsonSerializer.Serialize(config, new JsonSerializerOptions 
-        { 
-            WriteIndented = true 
+        var json = JsonSerializer.Serialize(config, new JsonSerializerOptions
+        {
+            WriteIndented = true
         });
 
         // Assert
@@ -176,7 +176,7 @@ public class PluginConfigurationTests
         deserialized!.Version.Should().Be(original.Version);
         deserialized.PluginDirectory.Should().Be(original.PluginDirectory);
         deserialized.Plugins.Should().HaveCount(2);
-        
+
         deserialized.Plugins[0].Id.Should().Be(original.Plugins[0].Id);
         deserialized.Plugins[0].Path.Should().Be(original.Plugins[0].Path);
         deserialized.Plugins[0].Priority.Should().Be(original.Plugins[0].Priority);

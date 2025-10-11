@@ -3,8 +3,8 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Plate.CrossMilo.Contracts.Resource;
-using IResourceService = Plate.CrossMilo.Contracts.Resource.Services.IService;
 using Xunit;
+using IResourceService = Plate.CrossMilo.Contracts.Resource.Services.IService;
 
 namespace WingedBean.Plugins.Resource.Tests;
 
@@ -124,13 +124,13 @@ public class FileSystemResourceServiceTests : IDisposable
 
         var testData1 = new TestData { Name = "Item1", Value = 1 };
         var testData2 = new TestData { Name = "Item2", Value = 2 };
-        
+
         await File.WriteAllTextAsync(
-            Path.Combine(dataDir, "item1.json"), 
+            Path.Combine(dataDir, "item1.json"),
             JsonSerializer.Serialize(testData1)
         );
         await File.WriteAllTextAsync(
-            Path.Combine(dataDir, "item2.json"), 
+            Path.Combine(dataDir, "item2.json"),
             JsonSerializer.Serialize(testData2)
         );
 
@@ -203,13 +203,13 @@ public class FileSystemResourceServiceTests : IDisposable
         // Arrange
         var testData1 = new TestData { Name = "Test1", Value = 1 };
         var testData2 = new TestData { Name = "Test2", Value = 2 };
-        
+
         await File.WriteAllTextAsync(
-            Path.Combine(_testResourcePath, "test1.json"), 
+            Path.Combine(_testResourcePath, "test1.json"),
             JsonSerializer.Serialize(testData1)
         );
         await File.WriteAllTextAsync(
-            Path.Combine(_testResourcePath, "test2.json"), 
+            Path.Combine(_testResourcePath, "test2.json"),
             JsonSerializer.Serialize(testData2)
         );
 
@@ -260,13 +260,13 @@ public class FileSystemResourceServiceTests : IDisposable
         // Arrange
         var testData1 = new TestData { Name = "Test1", Value = 1 };
         var testData2 = new TestData { Name = "Test2", Value = 2 };
-        
+
         await File.WriteAllTextAsync(
-            Path.Combine(_testResourcePath, "test1.json"), 
+            Path.Combine(_testResourcePath, "test1.json"),
             JsonSerializer.Serialize(testData1)
         );
         await File.WriteAllTextAsync(
-            Path.Combine(_testResourcePath, "test2.json"), 
+            Path.Combine(_testResourcePath, "test2.json"),
             JsonSerializer.Serialize(testData2)
         );
 

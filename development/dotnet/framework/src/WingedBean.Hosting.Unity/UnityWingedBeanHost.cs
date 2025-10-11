@@ -4,14 +4,13 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Plate.CrossMilo.Contracts.Hosting.Host;
 using Plate.CrossMilo.Contracts.Hosting.App;
-
+using Plate.CrossMilo.Contracts.Hosting.Host;
+using IUIApp = Plate.CrossMilo.Contracts.UI.App.IService;
+using IWingedBeanApp = Plate.CrossMilo.Contracts.Hosting.App.IService;
 // Type aliases to avoid IService ambiguity
 using IWingedBeanHost = Plate.CrossMilo.Contracts.Hosting.Host.IService;
-using IWingedBeanApp = Plate.CrossMilo.Contracts.Hosting.App.IService;
 using IWingedBeanHostBuilder = Plate.CrossMilo.Contracts.Hosting.Host.IServiceBuilder;
-using IUIApp = Plate.CrossMilo.Contracts.UI.App.IService;
 
 namespace WingedBean.Hosting.Unity;
 

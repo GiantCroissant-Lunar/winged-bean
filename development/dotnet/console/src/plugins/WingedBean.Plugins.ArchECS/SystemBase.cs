@@ -1,6 +1,5 @@
 using System.Collections.Generic;
-using Plate.CrossMilo.Contracts.ECS;
-using Plate.CrossMilo.Contracts.ECS.Services;
+using WingedBean.Plugins.ArchECS.Internal;
 
 namespace WingedBean.Plugins.ArchECS;
 
@@ -30,10 +29,9 @@ public abstract class SystemBase : IECSSystem
     /// <summary>
     /// Execute system logic for this frame.
     /// </summary>
-    /// <param name="ecs">The ECS service providing access to entities and components.</param>
     /// <param name="world">The world this system should operate on.</param>
     /// <param name="deltaTime">Time elapsed since the last frame in seconds.</param>
-    public void Execute(IService ecs, IWorld world, float deltaTime)
+    public void Execute(IWorld world, float deltaTime)
     {
         // Update world reference if provided
         if (world != null)

@@ -1,5 +1,5 @@
 using FluentAssertions;
-using Plate.CrossMilo.Contracts.ECS;
+using WingedBean.Plugins.ArchECS.Internal;
 using Xunit;
 
 namespace WingedBean.Plugins.ArchECS.Tests;

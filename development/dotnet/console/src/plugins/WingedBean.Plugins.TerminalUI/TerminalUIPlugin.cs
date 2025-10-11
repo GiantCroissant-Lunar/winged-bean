@@ -1,5 +1,5 @@
-using Plate.PluginManoi.Contracts;
 using Plate.CrossMilo.Contracts;
+using Plate.PluginManoi.Contracts;
 
 namespace WingedBean.Plugins.TerminalUI;
 
@@ -18,10 +18,10 @@ public class TerminalUIPlugin : IPlugin
     {
         // Create the terminal UI service instance
         _serviceInstance = new TerminalGuiService();
-        
+
         // Register the service directly with the registry (priority 100 from Plugin attribute)
         registry.Register<ITerminalUIService>(_serviceInstance, priority: 100);
-        
+
         return Task.CompletedTask;
     }
 

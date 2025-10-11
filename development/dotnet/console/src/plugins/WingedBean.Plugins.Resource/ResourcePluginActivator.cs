@@ -1,9 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Plate.CrossMilo.Contracts.Resource.Services;
 using Plate.CrossMilo.Contracts.Resource;
+using Plate.CrossMilo.Contracts.Resource.Services;
 using Plate.PluginManoi.Core;
-
 // Type alias for IService (IResourceService)
 using IResourceService = Plate.CrossMilo.Contracts.Resource.Services.IService;
 
@@ -23,7 +22,7 @@ public class ResourcePluginActivator : IPluginActivator
         services.AddSingleton<IResourceService>(sp =>
         {
             var serviceLogger = sp.GetRequiredService<ILogger<FileSystemResourceService>>();
-            
+
             // TODO: Read base path from configuration if available
             // For now, use default (AppContext.BaseDirectory/resources)
             return new FileSystemResourceService(serviceLogger);

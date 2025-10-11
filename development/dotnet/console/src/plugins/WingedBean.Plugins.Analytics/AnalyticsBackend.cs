@@ -1,11 +1,11 @@
-using Plate.CrossMilo.Contracts.Analytics;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FirebaseAdmin;
-using Google.Cloud.Firestore;
 using Google.Apis.Auth.OAuth2;
+using Google.Cloud.Firestore;
 using Microsoft.Extensions.Logging;
-using System;
+using Plate.CrossMilo.Contracts.Analytics;
 
 namespace WingedBean.Plugins.Analytics;
 

@@ -1,6 +1,6 @@
-using Plate.PluginManoi.Contracts;
 using Plate.CrossMilo.Contracts;
 using Plate.CrossMilo.Contracts.Config.Services;
+using Plate.PluginManoi.Contracts;
 
 namespace WingedBean.Plugins.Config;
 
@@ -19,10 +19,10 @@ public class ConfigPlugin : IPlugin
     {
         // Create the config service instance using parameterless constructor
         _serviceInstance = new ConfigService();
-        
+
         // Register the service directly with the registry (priority 100 from Plugin attribute)
         registry.Register<IService>(_serviceInstance, priority: 100);
-        
+
         return Task.CompletedTask;
     }
 

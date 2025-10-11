@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using Plate.CrossMilo.Contracts.Recorder.Services;
 using Plate.CrossMilo.Contracts.Recorder;
+using Plate.CrossMilo.Contracts.Recorder.Services;
 
 namespace WingedBean.Plugins.AsciinemaRecorder;
 

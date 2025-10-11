@@ -4,8 +4,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Plate.CrossMilo.Contracts.Diagnostics.Services;
 using Plate.CrossMilo.Contracts.Diagnostics;
+using Plate.CrossMilo.Contracts.Diagnostics.Services;
 using BreadcrumbLevel = Plate.CrossMilo.Contracts.Diagnostics.BreadcrumbLevel;
 using ThreadState = System.Threading.ThreadState;
 

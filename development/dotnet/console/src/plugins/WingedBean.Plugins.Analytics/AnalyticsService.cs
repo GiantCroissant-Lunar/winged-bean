@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Plate.CrossMilo.Contracts.Analytics.Services;
 using Plate.CrossMilo.Contracts.Analytics;
+using Plate.CrossMilo.Contracts.Analytics.Services;
 
 namespace WingedBean.Plugins.Analytics;
 

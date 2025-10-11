@@ -1,7 +1,7 @@
-using Microsoft.Extensions.Logging;
-using Plate.PluginManoi.Contracts;
-using Plate.CrossMilo.Contracts;
 using ConsoleDungeon.Contracts;
+using Microsoft.Extensions.Logging;
+using Plate.CrossMilo.Contracts;
+using Plate.PluginManoi.Contracts;
 
 namespace WingedBean.Plugins.DungeonGame;
 
@@ -35,13 +35,13 @@ public class DungeonGamePlugin : IPlugin
         }
 
         _logger?.LogInformation("DungeonGamePlugin OnActivateAsync called");
-        
+
         // Register Dungeon Game service
         _dungeonService = new DungeonGameService(registry);
         _logger?.LogDebug("Created DungeonGameService instance");
         registry.Register<IDungeonService>(_dungeonService, priority: 100);
         _logger?.LogDebug("Registered IDungeonService");
-        
+
         await Task.CompletedTask;
     }
 

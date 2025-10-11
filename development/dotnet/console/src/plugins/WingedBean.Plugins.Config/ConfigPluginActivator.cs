@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Plate.CrossMilo.Contracts.Config.Services;
 using Plate.CrossMilo.Contracts.Config;
+using Plate.CrossMilo.Contracts.Config.Services;
 using Plate.PluginManoi.Core;
 using IConfigService = Plate.CrossMilo.Contracts.Config.Services.IService;
 

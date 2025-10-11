@@ -1,12 +1,11 @@
+using ConsoleDungeon.Contracts;
 using Microsoft.Extensions.Logging;
 using Plate.CrossMilo.Contracts.Input;
-using ConsoleDungeon.Contracts;
-
-// Type aliases for IService pattern
-using IInputScope = Plate.CrossMilo.Contracts.Input.Scope.IService;
 // Use CrossMilo.Contracts.Input types (compatibility shims) for interface implementation
 using GameInputEvent = Plate.CrossMilo.Contracts.Input.GameInputEvent;
 using GameInputType = Plate.CrossMilo.Contracts.Input.GameInputType;
+// Type aliases for IService pattern
+using IInputScope = Plate.CrossMilo.Contracts.Input.Scope.IService;
 
 namespace WingedBean.Plugins.ConsoleDungeon.Input;
 
