@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using Terminal.Gui;
-using Plate.CrossMilo.Contracts.Game;
+using ConsoleDungeon.Contracts;
 using Plate.CrossMilo.Contracts.Input;
 using Plate.CrossMilo.Contracts.Scene;
 using Plate.CrossMilo.Contracts.Scene.Services;

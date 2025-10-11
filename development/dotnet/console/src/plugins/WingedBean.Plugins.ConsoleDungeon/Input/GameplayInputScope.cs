@@ -1,9 +1,8 @@
 using Microsoft.Extensions.Logging;
-using Plate.CrossMilo.Contracts.Game;
+using ConsoleDungeon.Contracts;
 using Plate.CrossMilo.Contracts.Input;
 
 // Type aliases for IService pattern
-using IDungeonGameService = Plate.CrossMilo.Contracts.Game.Dungeon.IService;
 using IInputScope = Plate.CrossMilo.Contracts.Input.Scope.IService;
 
 namespace WingedBean.Plugins.ConsoleDungeon.Input;
@@ -13,12 +12,12 @@ namespace WingedBean.Plugins.ConsoleDungeon.Input;
 /// </summary>
 public class GameplayInputScope : IInputScope
 {
-    private readonly IDungeonGameService _gameService;
+    private readonly IDungeonService _gameService;
     private readonly ILogger? _logger;
 
     public bool CaptureAll => false;
 
-    public GameplayInputScope(IDungeonGameService gameService, ILogger? logger = null)
+    public GameplayInputScope(IDungeonService gameService, ILogger? logger = null)
     {
         _gameService = gameService;
         _logger = logger;

@@ -1,4 +1,4 @@
-using Plate.CrossMilo.Contracts.Game;
+using ConsoleDungeon.Contracts;
 using Plate.CrossMilo.Contracts.Input;
 
 // Type alias for IService pattern

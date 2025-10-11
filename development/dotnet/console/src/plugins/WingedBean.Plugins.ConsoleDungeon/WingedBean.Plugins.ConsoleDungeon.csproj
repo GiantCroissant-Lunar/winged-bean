@@ -19,6 +19,10 @@
     <ProjectReference Include="../../../../../../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Registry/PluginManoi.Registry.csproj" />
 
     <!-- Shared contracts: Compile-time reference, runtime from Default ALC (RFC-0037) -->
+    <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts/CrossMilo.Contracts.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
     <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Terminal/CrossMilo.Contracts.Terminal.csproj">
       <Private>false</Private>
       <ExcludeAssets>runtime</ExcludeAssets>
@@ -30,6 +34,10 @@
 
     <!-- Game-specific contracts: Normal reference (game-specific, not framework) -->
     <ProjectReference Include="../../game/ConsoleDungeon.Contracts/ConsoleDungeon.Contracts.csproj" />
+
+    <!-- Plugin dependencies -->
+    <ProjectReference Include="../WingedBean.Plugins.TerminalUI/WingedBean.Plugins.TerminalUI.csproj" />
+
     <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Scene/CrossMilo.Contracts.Scene.csproj">
       <Private>false</Private>
       <ExcludeAssets>runtime</ExcludeAssets>

@@ -1,18 +1,19 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Plate.CrossMilo.Contracts.TerminalUI;
+using Plate.CrossMilo.Contracts;
+using Plate.CrossMilo.Contracts.Terminal;
 using Plate.PluginManoi.Contracts;
-using Plate.CrossMilo.Contracts.Game;
+using ConsoleDungeon.Contracts;
 using Plate.CrossMilo.Contracts.Input;
 using Plate.CrossMilo.Contracts.Scene;
 using Plate.CrossMilo.Contracts.Scene.Services;
 using WingedBean.Plugins.ConsoleDungeon.Input;
 using WingedBean.Plugins.ConsoleDungeon.Scene;
+using WingedBean.Plugins.TerminalUI;
 using System.IO;
 using Terminal.Gui;
 
 // Type aliases for IService pattern
-using IDungeonGameService = Plate.CrossMilo.Contracts.Game.Dungeon.IService;
 using IRenderService = Plate.CrossMilo.Contracts.Game.Render.IService;
 using ISceneService = Plate.CrossMilo.Contracts.Scene.Services.IService;
 using IInputRouter = Plate.CrossMilo.Contracts.Input.Router.IService;
@@ -35,7 +36,7 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IRegistryAware, IDispos
 {
     private readonly ILogger<ConsoleDungeonAppRefactored> _logger;
     private TerminalAppConfig _config;
-    private IDungeonGameService? _gameService;
+    private IDungeonService? _gameService;
     private IRegistry? _registry;
     private ISceneService? _sceneService;
     private Microsoft.Extensions.Hosting.IHostApplicationLifetime? _hostLifetime;
@@ -63,7 +64,7 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IRegistryAware, IDispos
     public ConsoleDungeonAppRefactored(
         ILogger<ConsoleDungeonAppRefactored> logger,
         IOptions<TerminalAppConfig> config,
-        IDungeonGameService gameService,
+        IDungeonService gameService,
         IRegistry registry)
     {
         _logger = logger;
@@ -91,8 +92,8 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IRegistryAware, IDispos
             : new TerminalAppConfig { Name = "Console Dungeon", Cols = 80, Rows = 24 };
         
         // Try to resolve game service from registry
-        _gameService = registry.IsRegistered<IDungeonGameService>()
-            ? registry.Get<IDungeonGameService>()
+        _gameService = registry.IsRegistered<IDungeonService>()
+            ? registry.Get<IDungeonService>()
             : null;
         
         Diag($"SetRegistry called: config={_config?.Name}, gameService={_gameService != null}");
@@ -189,15 +190,15 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IRegistryAware, IDispos
                 {
                     if (_registry != null)
                     {
-                        _gameService = _registry.Get<IDungeonGameService>();
-                        _logger.LogInformation("✓ IDungeonGameService resolved from registry");
-                        Diag("IDungeonGameService resolved from registry");
+                        _gameService = _registry.Get<IDungeonService>();
+                        _logger.LogInformation("✓ IDungeonService resolved from registry");
+                        Diag("IDungeonService resolved from registry");
                     }
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "IDungeonGameService not available");
-                    Diag("Abort: IDungeonGameService is null");
+                    _logger.LogError(ex, "IDungeonService not available");
+                    Diag("Abort: IDungeonService is null");
                     return;
                 }
             }
