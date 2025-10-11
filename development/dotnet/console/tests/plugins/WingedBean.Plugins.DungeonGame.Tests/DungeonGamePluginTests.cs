@@ -2,8 +2,8 @@ using System;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Plate.PluginManoi.Contracts;
-using Plate.CrossMilo.Contracts.Game.Dungeon;
-using Plate.CrossMilo.Contracts.Game.Render;
+using Plate.CrossMilo.Contracts;
+using ConsoleDungeon.Contracts;
 using WingedBean.Plugins.ArchECS;
 using Xunit;
 
@@ -15,7 +15,7 @@ namespace WingedBean.Plugins.DungeonGame.Tests;
 public class DungeonGamePluginTests
 {
     [Fact]
-    public async Task OnActivateAsync_RegistersRenderService_Simple()
+    public async Task OnActivateAsync_RegistersDungeonService()
     {
         // Arrange - Mock ECS service so DungeonGameService can be created
         var registry = new TestRegistry();
@@ -27,53 +27,23 @@ public class DungeonGamePluginTests
         // Act
         await plugin.OnActivateAsync(registry);
 
-        // Assert - Check if render service is registered
-        registry.IsRegistered<Plate.CrossMilo.Contracts.Game.Render.IService>()
-            .Should().BeTrue("Render service should be registered");
+        // Assert - Check if dungeon service is registered
+        registry.IsRegistered<IDungeonService>()
+            .Should().BeTrue("Dungeon service should be registered");
             
         // Try to retrieve it
-        var renderService = registry.Get<Plate.CrossMilo.Contracts.Game.Render.IService>();
-        renderService.Should().NotBeNull();
-        renderService.Should().BeOfType<Services.RenderServiceProvider>();
+        var dungeonService = registry.Get<IDungeonService>();
+        dungeonService.Should().NotBeNull();
+        dungeonService.Should().BeOfType<DungeonGameService>();
     }
 
     [Fact]
-    public async Task OnActivateAsync_RegistersDungeonGameService()
+    public void GetServices_ReturnsDungeonService()
     {
         // Arrange
         var registry = new TestRegistry();
-        var plugin = new DungeonGamePlugin();
-
-        // Act
-        await plugin.OnActivateAsync(registry);
-        var service = registry.Get<Plate.CrossMilo.Contracts.Game.Dungeon.IService>();
-
-        // Assert
-        service.Should().NotBeNull();
-        service.Should().BeOfType<DungeonGameService>();
-    }
-
-    [Fact]
-    public async Task OnActivateAsync_RegistersRenderService()
-    {
-        // Arrange
-        var registry = new TestRegistry();
-        var plugin = new DungeonGamePlugin();
-
-        // Act
-        await plugin.OnActivateAsync(registry);
-        var service = registry.Get<Plate.CrossMilo.Contracts.Game.Render.IService>();
-
-        // Assert
-        service.Should().NotBeNull();
-        service.Should().BeOfType<Services.RenderServiceProvider>();
-    }
-
-    [Fact]
-    public void GetServices_ReturnsBothServices()
-    {
-        // Arrange
-        var registry = new TestRegistry();
+        var ecsService = new ArchECSService();
+        registry.Register<Plate.CrossMilo.Contracts.ECS.Services.IService>(ecsService);
         var plugin = new DungeonGamePlugin();
         
         // Act
@@ -81,7 +51,8 @@ public class DungeonGamePluginTests
         var services = plugin.GetServices();
 
         // Assert
-        services.Should().HaveCount(2, "plugin should return both services");
+        services.Should().HaveCount(1, "plugin should return dungeon service");
+        services.Should().ContainSingle(s => s is IDungeonService);
     }
 
     private sealed class TestRegistry : IRegistry

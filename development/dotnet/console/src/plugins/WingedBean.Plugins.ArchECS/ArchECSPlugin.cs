@@ -1,4 +1,5 @@
 using Plate.PluginManoi.Contracts;
+using Plate.CrossMilo.Contracts;
 using Plate.CrossMilo.Contracts.ECS.Services;
 
 namespace WingedBean.Plugins.ArchECS;
