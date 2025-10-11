@@ -1,7 +1,7 @@
 using FluentAssertions;
-using Plate.CrossMilo.Contracts.Game;
-using WingedBean.Contracts.Input;
+using Plate.CrossMilo.Contracts.Input;
 using WingedBean.Plugins.ConsoleDungeon.Input;
+// Note: GameInputEvent is now in CrossMilo.Contracts.Input (temporary compatibility shim)
 
 namespace WingedBean.Plugins.ConsoleDungeon.Tests.Input;
 

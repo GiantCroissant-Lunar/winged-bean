@@ -1,4 +1,5 @@
 using Plate.PluginManoi.Contracts;
+using Plate.CrossMilo.Contracts;
 using Plate.CrossMilo.Contracts.Config.Services;
 
 namespace WingedBean.Plugins.Config;

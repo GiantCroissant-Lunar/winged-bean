@@ -23,8 +23,8 @@ using WingedBean.Host.Console;
 using WingedBean.Hosting;
 
 // Terminal and UI contracts now in Plate.CrossMilo.Contracts namespace
-using ITerminalApp = Plate.CrossMilo.Contracts.TerminalUI.ITerminalApp;
-using TerminalAppConfig = Plate.CrossMilo.Contracts.TerminalUI.TerminalAppConfig;
+using ITerminalApp = Plate.CrossMilo.Contracts.Terminal.ITerminalApp;
+using TerminalAppConfig = WingedBean.Plugins.TerminalUI.TerminalAppConfig;
 using LegacyTerminalAppAdapter = Plate.CrossMilo.Contracts.Terminal.LegacyTerminalAppAdapter;
 // Console host entry point with dynamic plugin loading.
 // Initializes Registry, loads plugins from configuration, and launches ConsoleDungeon app.

@@ -1,8 +1,8 @@
 using Terminal.Gui;
-using Plate.CrossMilo.Contracts.Game;
 using Plate.CrossMilo.Contracts.Input;
-using Plate.CrossMilo.Contracts.Scene.Services;
 using Plate.CrossMilo.Contracts.Scene;
+using Plate.CrossMilo.Contracts.Scene.Services;
+// Note: EntitySnapshot and GameInputEvent are now in CrossMilo.Contracts.Scene/Input (temporary compatibility shims)
 using System.Collections.Concurrent;
 using System.Reflection;
 

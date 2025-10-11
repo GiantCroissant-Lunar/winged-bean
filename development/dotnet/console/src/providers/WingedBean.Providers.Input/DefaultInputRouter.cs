@@ -1,5 +1,5 @@
-using Plate.CrossMilo.Contracts.Game;
 using Plate.CrossMilo.Contracts.Input;
+// Note: GameInputEvent is now in CrossMilo.Contracts.Input (temporary compatibility shim)
 
 namespace WingedBean.Providers.Input;
 

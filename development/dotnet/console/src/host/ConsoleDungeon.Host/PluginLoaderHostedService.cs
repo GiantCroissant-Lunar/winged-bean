@@ -16,10 +16,10 @@ using Plate.PluginManoi.Loader;
 using ConsoleDungeon.Host;
 
 // Terminal and UI contracts now in Plate.CrossMilo.Contracts namespace
-using ITerminalApp = Plate.CrossMilo.Contracts.TerminalUI.ITerminalApp;
-// Game contracts are now in Plate.CrossMilo.Contracts.Game.*
-using IDungeonGameService = Plate.CrossMilo.Contracts.Game.Dungeon.IService;
-using IRenderService = Plate.CrossMilo.Contracts.Game.Render.IService;
+using ITerminalApp = Plate.CrossMilo.Contracts.Terminal.ITerminalApp;
+// Game contracts migrated to ConsoleDungeon.Contracts
+using IDungeonService = ConsoleDungeon.Contracts.IDungeonService;
+// RenderService removed from framework
 // Resource service for NuGet loading
 using IResourceService = Plate.CrossMilo.Contracts.Resource.Services.IService;
 
@@ -411,26 +411,18 @@ public class PluginLoaderHostedService : IHostedService
             _logger.LogWarning("  ⚠ ITerminalApp not registered: {Message}", ex.Message);
         }
 
-        // Check for render service
-        try
-        {
-            var renderService = _registry.Get<IRenderService>();
-            _logger.LogInformation("  ✓ IRenderService registered: {Type}", renderService.GetType().Name);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning("  ⚠ IRenderService not registered: {Message}", ex.Message);
-        }
+        // RenderService removed from framework
+        // _logger.LogInformation("  ℹ RenderService removed from framework (using inline rendering)");
 
         // Check for game service
         try
         {
-            var gameService = _registry.Get<IDungeonGameService>();
-            _logger.LogInformation("  ✓ IDungeonGameService registered: {Type}", gameService.GetType().Name);
+            var gameService = _registry.Get<IDungeonService>();
+            _logger.LogInformation("  ✓ IDungeonService registered: {Type}", gameService.GetType().Name);
         }
         catch (Exception ex)
         {
-            _logger.LogWarning("  ⚠ IDungeonGameService not registered: {Message}", ex.Message);
+            _logger.LogWarning("  ⚠ IDungeonService not registered: {Message}", ex.Message);
         }
     }
     
