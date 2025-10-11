@@ -1,11 +1,9 @@
 using Plate.CrossMilo.Contracts.Input;
-using ConsoleDungeon.Contracts;
 
 // Type aliases for IService pattern
 using IInputRouter = Plate.CrossMilo.Contracts.Input.Router.IService;
 using IInputScope = Plate.CrossMilo.Contracts.Input.Scope.IService;
-// Type alias to bridge game-specific GameInputEvent with CrossMilo.Contracts.Input expectations
-using GameInputEvent = ConsoleDungeon.Contracts.GameInputEvent;
+// Note: GameInputEvent is now in CrossMilo.Contracts.Input (temporary compatibility shim)
 
 namespace WingedBean.Plugins.ConsoleDungeon.Input;
 

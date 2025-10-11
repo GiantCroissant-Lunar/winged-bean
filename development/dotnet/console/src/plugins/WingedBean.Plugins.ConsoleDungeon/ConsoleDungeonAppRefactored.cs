@@ -18,6 +18,9 @@ using ISceneService = Plate.CrossMilo.Contracts.Scene.Services.IService;
 using IInputRouter = Plate.CrossMilo.Contracts.Input.Router.IService;
 using IInputMapper = Plate.CrossMilo.Contracts.Input.Mapper.IService;
 using IAudioService = Plate.CrossMilo.Contracts.Audio.Services.IService;
+// Type aliases for game types (to avoid ambiguity with Scene types)
+using GameEntitySnapshot = ConsoleDungeon.Contracts.EntitySnapshot;
+using GamePosition = ConsoleDungeon.Contracts.Position;
 
 namespace WingedBean.Plugins.ConsoleDungeon;
 
@@ -191,7 +194,23 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IRegistryAware, IDispos
             // Subscribe to entity updates for rendering
             _entitiesSubscription = _gameService.EntitiesObservable.Subscribe(entities =>
             {
-                _sceneService?.UpdateWorld(entities);
+                // Convert ConsoleDungeon.Contracts.EntitySnapshot to CrossMilo.Contracts.Scene.EntitySnapshot
+                var sceneSnapshots = new List<Plate.CrossMilo.Contracts.Scene.EntitySnapshot>();
+                foreach (GameEntitySnapshot gameEntity in entities)
+                {
+                    GamePosition gamePos = gameEntity.Position;
+                    var scenePos = new Plate.CrossMilo.Contracts.Scene.Position(
+                        gamePos.X, gamePos.Y, gamePos.Z);  // Z in game, Floor in scene
+                    sceneSnapshots.Add(new Plate.CrossMilo.Contracts.Scene.EntitySnapshot(
+                        gameEntity.Id,
+                        scenePos,
+                        gameEntity.Symbol,
+                        gameEntity.ForegroundColor,
+                        gameEntity.BackgroundColor,
+                        gameEntity.RenderLayer
+                    ));
+                }
+                _sceneService?.UpdateWorld(sceneSnapshots);
             });
 
             // Subscribe to stats updates for status display

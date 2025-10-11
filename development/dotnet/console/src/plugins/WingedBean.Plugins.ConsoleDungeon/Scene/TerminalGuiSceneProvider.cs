@@ -15,6 +15,10 @@ using IInputRouter = Plate.CrossMilo.Contracts.Input.Router.IService;
 using IInputMapper = Plate.CrossMilo.Contracts.Input.Mapper.IService;
 using ISceneService = Plate.CrossMilo.Contracts.Scene.Services.IService;
 using IAudioService = Plate.CrossMilo.Contracts.Audio.Services.IService;
+// Use CrossMilo.Contracts types (compatibility shims) for interface implementation
+using EntitySnapshot = Plate.CrossMilo.Contracts.Scene.EntitySnapshot;
+using GameInputEvent = Plate.CrossMilo.Contracts.Input.GameInputEvent;
+using GameInputType = Plate.CrossMilo.Contracts.Input.GameInputType;
 
 namespace WingedBean.Plugins.ConsoleDungeon.Scene;
 
