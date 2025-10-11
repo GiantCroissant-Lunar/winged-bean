@@ -11,7 +11,6 @@ using Plate.CrossMilo.Contracts.Scene.Services;
 using Plate.CrossMilo.Contracts.Audio;
 
 // Type aliases for IService pattern
-using IRenderService = Plate.CrossMilo.Contracts.Game.Render.IService;
 using IInputRouter = Plate.CrossMilo.Contracts.Input.Router.IService;
 using IInputMapper = Plate.CrossMilo.Contracts.Input.Mapper.IService;
 using ISceneService = Plate.CrossMilo.Contracts.Scene.Services.IService;
@@ -62,7 +61,8 @@ internal class GameWorldView : View
 public class TerminalGuiSceneProvider : ISceneService
 {
     private readonly ILogger<TerminalGuiSceneProvider>? _logger;
-    private readonly IRenderService _renderService;
+    // TODO: RenderService was removed from framework - need to implement inline rendering
+    // private readonly IRenderService _renderService;
     private readonly IInputMapper _inputMapper;
     private readonly IInputRouter _inputRouter;
     private readonly IAudioService? _audioService;
@@ -90,14 +90,13 @@ public class TerminalGuiSceneProvider : ISceneService
     public event EventHandler<SceneShutdownEventArgs>? Shutdown;
 
     public TerminalGuiSceneProvider(
-        IRenderService renderService,
         IInputMapper inputMapper,
         IInputRouter inputRouter,
         IAudioService? audioService = null,
         ILogger<TerminalGuiSceneProvider>? logger = null)
     {
         _logger = logger;
-        _renderService = renderService;
+        // _renderService = renderService; // TODO: Removed - implement inline rendering
         _inputMapper = inputMapper;
         _inputRouter = inputRouter;
         _audioService = audioService;
@@ -381,8 +380,8 @@ public class TerminalGuiSceneProvider : ISceneService
                 if (toRender == null || _gameWorldView == null) return;
 
                 var viewport = GetViewport();
-                var buffer = _renderService.Render(toRender, viewport.Width, viewport.Height);
-                var text = buffer.ToPlainText();
+                // TODO: Implement inline rendering - RenderService was removed from framework
+                var text = RenderEntitiesSimple(toRender, viewport.Width, viewport.Height);
                 
                 _gameWorldView.SetContent(text);
             }
@@ -666,5 +665,49 @@ Features:
 
         _logger?.LogDebug("Showing about dialog");
         MessageBox.Query("About Console Dungeon", message, "OK");
+    }
+
+    /// <summary>
+    /// Simple inline renderer to replace removed RenderService.
+    /// TODO: This is a temporary solution - consider implementing a proper rendering system.
+    /// </summary>
+    private string RenderEntitiesSimple(IReadOnlyList<EntitySnapshot> entities, int width, int height)
+    {
+        var sb = new StringBuilder();
+        
+        // Create a simple grid
+        var grid = new char[height, width];
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                grid[y, x] = '.';
+            }
+        }
+        
+        // Place entities on the grid
+        foreach (var entity in entities)
+        {
+            int x = entity.Position.X;
+            int y = entity.Position.Y;
+            
+            if (x >= 0 && x < width && y >= 0 && y < height)
+            {
+                grid[y, x] = entity.Symbol;
+            }
+        }
+        
+        // Convert grid to string
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                sb.Append(grid[y, x]);
+            }
+            if (y < height - 1)
+                sb.AppendLine();
+        }
+        
+        return sb.ToString();
     }
 }

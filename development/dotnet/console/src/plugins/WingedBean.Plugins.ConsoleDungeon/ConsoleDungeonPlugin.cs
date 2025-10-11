@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Plate.CrossMilo.Contracts;
-using Plate.CrossMilo.Contracts.TerminalUI;
+using Plate.CrossMilo.Contracts.Terminal;
 using Plate.PluginManoi.Core;
 using Plate.PluginManoi.Contracts;
 

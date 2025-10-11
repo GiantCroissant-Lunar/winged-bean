@@ -14,7 +14,6 @@ using System.IO;
 using Terminal.Gui;
 
 // Type aliases for IService pattern
-using IRenderService = Plate.CrossMilo.Contracts.Game.Render.IService;
 using ISceneService = Plate.CrossMilo.Contracts.Scene.Services.IService;
 using IInputRouter = Plate.CrossMilo.Contracts.Input.Router.IService;
 using IInputMapper = Plate.CrossMilo.Contracts.Input.Mapper.IService;
@@ -40,7 +39,8 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IRegistryAware, IDispos
     private IRegistry? _registry;
     private ISceneService? _sceneService;
     private Microsoft.Extensions.Hosting.IHostApplicationLifetime? _hostLifetime;
-    private IRenderService? _renderService;
+    // TODO: RenderService removed from framework - using inline rendering in TerminalGuiSceneProvider
+    // private IRenderService? _renderService;
     private IInputRouter? _inputRouter;
     private IInputMapper? _inputMapper;
     private IDisposable? _gameplayScope;
@@ -112,28 +112,13 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IRegistryAware, IDispos
             return;
         }
 
-        _logger.LogInformation("Starting Console Dungeon: {Name} ({Cols}x{Rows})",
+        _logger.LogInformation("Starting Console Dungeon: {Name} ({Cols}x{Rows})", 
             _config.Name, _config.Cols, _config.Rows);
 
         try
         {
-            // Get render service from registry
-            {
-                try
-                {
-                    if (_registry == null)
-                        throw new InvalidOperationException("Registry is not available");
-                    _renderService = _registry.Get<IRenderService>();
-                    _renderService.SetRenderMode(Plate.CrossMilo.Contracts.Game.Render.RenderMode.ASCII);
-                    _logger.LogInformation("✓ IRenderService injected (ASCII mode)");
-                    Diag("IRenderService ready (ASCII mode)");
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "IRenderService not available");
-                    Diag($"IRenderService not available: {ex.Message}");
-                }
-            }
+            // Using inline rendering (RenderService removed from framework)
+            _logger.LogInformation("Using inline rendering (RenderService removed from framework)");
 
             // Create input infrastructure
             _inputMapper = new DefaultInputMapper();
@@ -172,14 +157,8 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IRegistryAware, IDispos
                 _logger.LogError(ex, "========================================");
             }
 
-            // Create scene service
-            if (_renderService == null)
-            {
-                _logger.LogError("Cannot create scene without render service");
-                return;
-            }
-
-            _sceneService = new TerminalGuiSceneProvider(_renderService, _inputMapper, _inputRouter, audioService);
+            // Create scene service (without render service - using inline rendering)
+            _sceneService = new TerminalGuiSceneProvider(_inputMapper, _inputRouter, audioService);
             _sceneService.Initialize();
             Diag("Scene initialized");
 
