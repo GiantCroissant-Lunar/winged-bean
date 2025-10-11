@@ -1,11 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Plate.PluginManoi.Contracts;
-using Plate.CrossMilo.Contracts.Game;
-using Plate.CrossMilo.Contracts.Game.Render;
-
-// Type alias for backward compatibility during namespace migration
-using IRenderService = Plate.CrossMilo.Contracts.Game.Render.IService;
+using ConsoleDungeon.Contracts;
 
 namespace WingedBean.Plugins.DungeonGame.Services;
 

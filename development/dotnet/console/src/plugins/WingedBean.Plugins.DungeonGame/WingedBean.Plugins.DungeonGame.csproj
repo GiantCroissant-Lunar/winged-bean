@@ -31,6 +31,16 @@
       <Private>false</Private>
       <ExcludeAssets>runtime</ExcludeAssets>
     </ProjectReference>
+    <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts/CrossMilo.Contracts.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
+
+    <!-- ECS contracts: Internal implementation detail (not exposed in public API) -->
+    <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.ECS/CrossMilo.Contracts.ECS.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
 
     <!-- Game-specific contracts: Normal reference (game-specific, not framework) -->
     <ProjectReference Include="../../game/ConsoleDungeon.Contracts/ConsoleDungeon.Contracts.csproj" />
@@ -46,6 +56,12 @@
     <None Include=".plugin.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Temporarily exclude these services - they need refactoring to remove CrossMilo.Contracts.Game dependencies -->
+    <Compile Remove="Services/GameUIServiceProvider.cs" />
+    <Compile Remove="Services/RenderServiceProvider.cs" />
   </ItemGroup>
 
 </Project>

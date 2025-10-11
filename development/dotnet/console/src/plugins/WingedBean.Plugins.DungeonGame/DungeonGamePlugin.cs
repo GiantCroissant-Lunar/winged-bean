@@ -1,8 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Plate.PluginManoi.Contracts;
-using Plate.CrossMilo.Contracts.Game.Dungeon;
-using Plate.CrossMilo.Contracts.Game.Render;
-using WingedBean.Plugins.DungeonGame.Services;
+using Plate.CrossMilo.Contracts;
+using ConsoleDungeon.Contracts;
 
 namespace WingedBean.Plugins.DungeonGame;
 
@@ -12,13 +11,12 @@ namespace WingedBean.Plugins.DungeonGame;
 /// </summary>
 [Plugin(
     Name = "DungeonGameService",
-    Provides = new[] { typeof(Plate.CrossMilo.Contracts.Game.Dungeon.IService), typeof(Plate.CrossMilo.Contracts.Game.Render.IService) },
+    Provides = new[] { typeof(IDungeonService) },
     Priority = 100
 )]
 public class DungeonGamePlugin : IPlugin
 {
     private DungeonGameService? _dungeonService;
-    private RenderServiceProvider? _renderService;
     private ILogger? _logger;
 
     public string Id => "wingedbean.plugins.dungeongame";
@@ -41,14 +39,8 @@ public class DungeonGamePlugin : IPlugin
         // Register Dungeon Game service
         _dungeonService = new DungeonGameService(registry);
         _logger?.LogDebug("Created DungeonGameService instance");
-        registry.Register<Plate.CrossMilo.Contracts.Game.Dungeon.IService>(_dungeonService, priority: 100);
-        _logger?.LogDebug("Registered IService (Game.Dungeon)");
-        
-        // Register Render service
-        _renderService = new RenderServiceProvider();
-        _logger?.LogDebug("Created RenderServiceProvider instance");
-        registry.Register<Plate.CrossMilo.Contracts.Game.Render.IService>(_renderService, priority: 100);
-        _logger?.LogDebug("Registered IService (Game.Render)");
+        registry.Register<IDungeonService>(_dungeonService, priority: 100);
+        _logger?.LogDebug("Registered IDungeonService");
         
         await Task.CompletedTask;
     }
@@ -64,10 +56,6 @@ public class DungeonGamePlugin : IPlugin
         if (_dungeonService != null)
         {
             yield return _dungeonService;
-        }
-        if (_renderService != null)
-        {
-            yield return _renderService;
         }
     }
 }

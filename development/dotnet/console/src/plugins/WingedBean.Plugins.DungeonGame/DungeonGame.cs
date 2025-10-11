@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Plate.PluginManoi.Contracts;
+using Plate.CrossMilo.Contracts;
 using Plate.CrossMilo.Contracts.ECS;
 using Plate.CrossMilo.Contracts.Resource.Services;
 using WingedBean.Plugins.DungeonGame.Components;

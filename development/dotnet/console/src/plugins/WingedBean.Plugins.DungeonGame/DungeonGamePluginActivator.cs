@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Plate.CrossMilo.Contracts.Game.Dungeon;
+using ConsoleDungeon.Contracts;
 using Plate.PluginManoi.Core;
 
 namespace WingedBean.Plugins.DungeonGame;
@@ -15,9 +15,9 @@ public class DungeonGamePluginActivator : IPluginActivator
     public Task ActivateAsync(IServiceCollection services, IServiceProvider hostServices, CancellationToken ct = default)
     {
         var logger = hostServices.GetService<ILogger<DungeonGamePluginActivator>>();
-        logger?.LogInformation("Registering IService (Game.Dungeon) -> DungeonGameService");
+        logger?.LogInformation("Registering IDungeonService -> DungeonGameService");
 
-        services.AddSingleton<IService, DungeonGameService>();
+        services.AddSingleton<IDungeonService, DungeonGameService>();
         return Task.CompletedTask;
     }
 

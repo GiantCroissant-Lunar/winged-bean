@@ -2,11 +2,7 @@ using System;
 using System.Reactive.Subjects;
 using Terminal.Gui;
 using Plate.PluginManoi.Contracts;
-using Plate.CrossMilo.Contracts.Game;
-using Plate.CrossMilo.Contracts.Game.GameUI;
-
-// Type alias for backward compatibility during namespace migration
-using IGameUIService = Plate.CrossMilo.Contracts.Game.GameUI.IService;
+using ConsoleDungeon.Contracts;
 
 namespace WingedBean.Plugins.DungeonGame.Services;
 
