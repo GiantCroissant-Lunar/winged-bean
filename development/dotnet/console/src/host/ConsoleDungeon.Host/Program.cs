@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Scrutor;
 using Plate.PluginManoi.Contracts;
+using Plate.CrossMilo.Contracts;
 using Plate.PluginManoi.Registry;
 using Plate.PluginManoi.Loader;
 using Plate.PluginManoi.Loader.AssemblyContext;

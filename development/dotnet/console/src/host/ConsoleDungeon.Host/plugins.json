@@ -91,7 +91,7 @@
       "path": "plugins/WingedBean.Plugins.Audio/bin/Debug/net8.0/WingedBean.Plugins.Audio.dll",
       "priority": 150,
       "loadStrategy": "Eager",
-      "enabled": false,
+      "enabled": true,
       "metadata": {
         "description": "Audio service using LibVLC for sound effects and music",
         "author": "WingedBean",

@@ -17,6 +17,7 @@ using IRenderService = Plate.CrossMilo.Contracts.Game.Render.IService;
 using ISceneService = Plate.CrossMilo.Contracts.Scene.Services.IService;
 using IInputRouter = Plate.CrossMilo.Contracts.Input.Router.IService;
 using IInputMapper = Plate.CrossMilo.Contracts.Input.Mapper.IService;
+using IAudioService = Plate.CrossMilo.Contracts.Audio.Services.IService;
 
 namespace WingedBean.Plugins.ConsoleDungeon;
 
@@ -100,6 +101,9 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IRegistryAware, IDispos
     // IHostedService.StartAsync - no config parameter needed
     public async Task StartAsync(CancellationToken cancellationToken)
     {
+        _logger.LogInformation("========================================");
+        _logger.LogInformation("ConsoleDungeonAppRefactored.StartAsync CALLED");
+        _logger.LogInformation("========================================");
         Diag("StartAsync invoked");
         if (_isRunning)
         {
@@ -134,6 +138,39 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IRegistryAware, IDispos
             _inputMapper = new DefaultInputMapper();
             _inputRouter = new DefaultInputRouter();
 
+            // Resolve Audio service from registry (optional)
+            _logger.LogInformation("Attempting to resolve IAudioService from registry...");
+            IAudioService? audioService = null;
+            try
+            {
+                if (_registry != null)
+                {
+                    audioService = _registry.Get<IAudioService>();
+                    if (audioService != null)
+                    {
+                        _logger.LogInformation("========================================");
+                        _logger.LogInformation("✓ AUDIO SERVICE RESOLVED SUCCESSFULLY!");
+                        _logger.LogInformation("========================================");
+                    }
+                    else
+                    {
+                        _logger.LogWarning("========================================");
+                        _logger.LogWarning("❌ AUDIO SERVICE IS NULL AFTER Get<IAudioService>()");
+                        _logger.LogWarning("========================================");
+                    }
+                }
+                else
+                {
+                    _logger.LogWarning("Registry is null - cannot resolve IAudioService");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "========================================");
+                _logger.LogError(ex, "❌ EXCEPTION RESOLVING AUDIO SERVICE: {Message}", ex.Message);
+                _logger.LogError(ex, "========================================");
+            }
+
             // Create scene service
             if (_renderService == null)
             {
@@ -141,7 +178,7 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IRegistryAware, IDispos
                 return;
             }
 
-            _sceneService = new TerminalGuiSceneProvider(_renderService, _inputMapper, _inputRouter);
+            _sceneService = new TerminalGuiSceneProvider(_renderService, _inputMapper, _inputRouter, audioService);
             _sceneService.Initialize();
             Diag("Scene initialized");
 

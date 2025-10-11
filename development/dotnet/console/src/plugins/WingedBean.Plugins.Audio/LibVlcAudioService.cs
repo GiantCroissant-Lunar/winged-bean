@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 using LibVLCSharp.Shared;
 using Microsoft.Extensions.Logging;
 using Plate.CrossMilo.Contracts.Audio.Services;
@@ -51,9 +53,39 @@ public sealed class LibVlcAudioService : IService, IDisposable
     {
         ThrowIfDisposed();
 
+        // macOS fallback: use afplay if LibVLC not available
+        if (_libVlc == null && RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            try
+            {
+                if (File.Exists(clipId))
+                {
+                    _logger.LogInformation("🔊 Using afplay fallback for: {ClipId}", clipId);
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = "afplay",
+                        Arguments = clipId,
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    });
+                    return;
+                }
+                else
+                {
+                    _logger.LogError("Audio file not found: {ClipId}", clipId);
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to play audio with afplay: {ClipId}", clipId);
+                return;
+            }
+        }
+
         if (_libVlc == null)
         {
-            _logger.LogWarning("Cannot play audio - LibVLC not initialized");
+            _logger.LogWarning("Cannot play audio - LibVLC not initialized and no fallback available");
             return;
         }
 
@@ -63,6 +95,15 @@ public sealed class LibVlcAudioService : IService, IDisposable
         {
             try
             {
+                // Check if file exists
+                if (!File.Exists(clipId))
+                {
+                    _logger.LogError("Audio file not found: {ClipId}", clipId);
+                    return;
+                }
+
+                _logger.LogInformation("🔊 Playing audio with LibVLC: {ClipId} (Volume: {Volume})", clipId, options.Volume);
+
                 // Stop existing channel if playing
                 if (_channels.TryGetValue(clipId, out var existingChannel))
                 {
@@ -77,7 +118,7 @@ public sealed class LibVlcAudioService : IService, IDisposable
                 // Start playback
                 channel.Play();
 
-                _logger.LogDebug("Started playback: {ClipId}", clipId);
+                _logger.LogInformation("✓ Audio playback started: {ClipId}", clipId);
             }
             catch (Exception ex)
             {
@@ -236,9 +277,17 @@ public sealed class LibVlcAudioService : IService, IDisposable
     {
         try
         {
+            _logger.LogInformation("========================================");
+            _logger.LogInformation("Attempting to initialize LibVLC...");
+            _logger.LogInformation("========================================");
+            
             Core.Initialize();
+            _logger.LogInformation("LibVLC Core.Initialize() completed");
+            
             _libVlc = new LibVLC("--quiet");
-            _logger.LogInformation("LibVLC initialized successfully");
+            _logger.LogInformation("========================================");
+            _logger.LogInformation("✓ LibVLC initialized successfully");
+            _logger.LogInformation("========================================");
         }
         catch (Exception ex)
         {

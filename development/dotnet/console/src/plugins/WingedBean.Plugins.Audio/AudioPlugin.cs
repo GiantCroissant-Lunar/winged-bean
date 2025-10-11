@@ -34,9 +34,15 @@ public class AudioPlugin : IPlugin
 
         // Create the audio service instance
         _serviceInstance = new LibVlcAudioService(logger);
+        logger.LogInformation("========================================");
+        logger.LogInformation("✓ AUDIO SERVICE INSTANCE CREATED");
+        logger.LogInformation("========================================");
         
         // Register the service directly with the registry (priority 50 from manifest)
         registry.Register<IService>(_serviceInstance, priority: 50);
+        logger.LogInformation("========================================");
+        logger.LogInformation("✓ AUDIO SERVICE REGISTERED IN REGISTRY");
+        logger.LogInformation("========================================");
         
         return Task.CompletedTask;
     }

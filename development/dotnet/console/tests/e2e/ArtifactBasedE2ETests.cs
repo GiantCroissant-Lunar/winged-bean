@@ -10,7 +10,7 @@ namespace WingedBean.Tests.E2E.ConsoleDungeon;
 
 /// <summary>
 /// E2E tests that follow build artifact conventions (R-RUN-020).
-/// Always runs from versioned artifacts under build/_artifacts/v{version}/
+/// Always runs from versioned artifacts under build/_artifacts/{version}/
 /// instead of using 'dotnet run'.
 /// </summary>
 public class ArtifactBasedE2ETests : IDisposable
@@ -35,7 +35,7 @@ public class ArtifactBasedE2ETests : IDisposable
         _currentVersion = GetCurrentVersion();
         
         // Construct path to host binary following R-RUN-020
-        var versionDir = Path.Combine(_artifactsRoot, $"v{_currentVersion}");
+        var versionDir = Path.Combine(_artifactsRoot, _currentVersion);
         _hostBinaryPath = Path.Combine(versionDir, "dotnet/bin/ConsoleDungeon.Host");
         
         // Check if binary exists (may need to be built first)
@@ -47,7 +47,7 @@ public class ArtifactBasedE2ETests : IDisposable
         
         _output.WriteLine($"Project root: {_projectRoot}");
         _output.WriteLine($"Artifacts root: {_artifactsRoot}");
-        _output.WriteLine($"Current version: v{_currentVersion}");
+        _output.WriteLine($"Current version: {_currentVersion}");
         _output.WriteLine($"Host binary: {_hostBinaryPath}");
     }
 
@@ -203,12 +203,12 @@ public class ArtifactBasedE2ETests : IDisposable
     {
         // Verify version consistency
         var versionFromScript = GetCurrentVersion();
-        var versionDir = Path.Combine(_artifactsRoot, $"v{versionFromScript}");
+        var versionDir = Path.Combine(_artifactsRoot, versionFromScript);
         
         Assert.True(Directory.Exists(versionDir), 
             $"Version directory should exist: {versionDir}");
         
-        _output.WriteLine($"✓ Artifact version v{versionFromScript} is consistent");
+        _output.WriteLine($"✓ Artifact version {versionFromScript} is consistent");
     }
 
     [Theory(DisplayName = "Should run via provided scripts/tasks (R-RUN-021/R-RUN-022)")]

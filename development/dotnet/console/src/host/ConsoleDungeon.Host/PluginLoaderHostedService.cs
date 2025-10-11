@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Plate.PluginManoi.Contracts;
+using Plate.CrossMilo.Contracts;
 using Plate.PluginManoi.Core;
 using Plate.PluginManoi.Registry;
 using Plate.PluginManoi.Loader;

@@ -97,11 +97,11 @@ public static class GitVersionHelper
         var repoRoot = FindRepositoryRoot();
         if (repoRoot != null)
         {
-            return Path.Combine(repoRoot, "build", "_artifacts", $"v{version}", "dotnet", "recordings");
+            return Path.Combine(repoRoot, "build", "_artifacts", version, "dotnet", "recordings");
         }
 
         // Fallback: use a relative path from current directory
-        return Path.Combine(Directory.GetCurrentDirectory(), "build", "_artifacts", $"v{version}", "dotnet", "recordings");
+        return Path.Combine(Directory.GetCurrentDirectory(), "build", "_artifacts", version, "dotnet", "recordings");
     }
 
     /// <summary>
@@ -115,11 +115,11 @@ public static class GitVersionHelper
         var repoRoot = FindRepositoryRoot();
         if (repoRoot != null)
         {
-            return Path.Combine(repoRoot, "build", "_artifacts", $"v{version}", "dotnet", "logs");
+            return Path.Combine(repoRoot, "build", "_artifacts", version, "dotnet", "logs");
         }
 
         // Fallback: use a relative path from current directory
-        return Path.Combine(Directory.GetCurrentDirectory(), "build", "_artifacts", $"v{version}", "dotnet", "logs");
+        return Path.Combine(Directory.GetCurrentDirectory(), "build", "_artifacts", version, "dotnet", "logs");
     }
 
     /// <summary>

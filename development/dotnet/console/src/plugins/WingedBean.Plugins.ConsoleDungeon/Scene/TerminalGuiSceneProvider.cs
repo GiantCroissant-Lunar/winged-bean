@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Reflection;
 using System.Text;
 using Microsoft.Extensions.Logging;
@@ -623,19 +624,25 @@ Console Log:
         
         try
         {
-            // TODO: Create actual sound file and load it
-            // For now, this demonstrates the API usage
-            // _audioService.Play("movement-step", new AudioPlayOptions 
-            // { 
-            //     Volume = 0.3f,
-            //     Loop = false 
-            // });
+            // Construct path to sound file relative to the application
+            // In production, this could be configurable via settings
+            var baseDir = AppContext.BaseDirectory;
+            var soundPath = Path.Combine(baseDir, "..", "..", "..", "assets", "sounds", "movement-step.wav");
+            var fullPath = Path.GetFullPath(soundPath);
             
-            _logger?.LogDebug("🎵 Movement sound triggered");
+            _logger?.LogInformation("🔊 Playing sound: {Path} (exists: {Exists})", fullPath, File.Exists(fullPath));
+            
+            _audioService.Play(fullPath, new AudioPlayOptions 
+            { 
+                Volume = 0.3f,
+                Loop = false 
+            });
+            
+            _logger?.LogDebug("🎵 Movement sound triggered: {Path}", fullPath);
         }
         catch (Exception ex)
         {
-            _logger?.LogWarning(ex, "Failed to play movement sound");
+            _logger?.LogWarning(ex, "Failed to play movement sound: {Error}", ex.Message);
         }
     }
 

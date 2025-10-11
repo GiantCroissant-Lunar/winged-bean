@@ -35,6 +35,6 @@
 
   "supportedProfiles": ["console"],
 
-  "loadStrategy": "lazy",
-  "priority": 50
+  "loadStrategy": "eager",
+  "priority": 150
 }

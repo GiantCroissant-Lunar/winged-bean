@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Plate.PluginManoi.Contracts;
+using Plate.CrossMilo.Contracts;
 using Plate.CrossMilo.Contracts.Game.Dungeon;
 using Plate.CrossMilo.Contracts.Game.Render;
 using Plate.CrossMilo.Contracts.ECS.Services;
