@@ -52,3 +52,13 @@ TestResults/
 build/debug_script_*.log
 **/build_output.txt
 development/build/_artifacts/
+
+# Build artifacts (added by Cascade on 2025-10-12)
+build/docs/
+build/_artifacts/
+**/build/_artifacts/
+**/build/_temp/
+**/bin/
+**/obj/
+development/dotnet/console/build/
+development/dotnet/console/docs/build/
