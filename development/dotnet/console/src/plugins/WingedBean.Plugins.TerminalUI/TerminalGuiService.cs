@@ -4,6 +4,7 @@ using Plate.PluginManoi.Contracts;
 using Terminal.Gui;
 using ConsoleDungeon.Contracts;
 using WingedBeanGameplay = WingedBean.Contracts.Gameplay.IService;
+using WingedBean.Contracts.Gameplay;
 
 namespace WingedBean.Plugins.TerminalUI;
 
@@ -28,11 +29,14 @@ public class TerminalGuiService : ITerminalUIService
     private bool _headlessMode = false;
     private readonly IDungeonService? _dungeon;
     private readonly WingedBeanGameplay? _gameplay;
+    private readonly IWorldSnapshotProvider? _worldProvider;
+    private System.IDisposable? _worldSub;
 
-    public TerminalGuiService(IDungeonService? dungeon = null, WingedBeanGameplay? gameplay = null)
+    public TerminalGuiService(IDungeonService? dungeon = null, WingedBeanGameplay? gameplay = null, IWorldSnapshotProvider? worldProvider = null)
     {
         _dungeon = dungeon;
         _gameplay = gameplay;
+        _worldProvider = worldProvider;
     }
 
     /// <summary>
@@ -244,6 +248,18 @@ public class TerminalGuiService : ITerminalUIService
                 _ = _dungeon.GameStateObservable.Subscribe(state =>
                 {
                     LogMessage("INFO", $"State: {state}");
+                });
+            }
+            catch { }
+        }
+
+        if (_worldProvider != null)
+        {
+            try
+            {
+                _worldSub = _worldProvider.WorldObservable.Subscribe(ws =>
+                {
+                    LogMessage("DEBUG", $"World entities: {ws.Entities?.Count ?? 0}");
                 });
             }
             catch { }

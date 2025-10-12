@@ -12,7 +12,7 @@ namespace WingedBean.Plugins.DungeonGame;
 /// </summary>
 [Plugin(
     Name = "DungeonGameService",
-    Provides = new[] { typeof(IDungeonService), typeof(IService) },
+    Provides = new[] { typeof(IDungeonService), typeof(IService), typeof(IWorldSnapshotProvider) },
     Priority = 100
 )]
 public class DungeonGamePlugin : IPlugin
@@ -62,10 +62,11 @@ public class DungeonGamePlugin : IPlugin
         Console.WriteLine("DEBUG: Creating DungeonGameService");
         _dungeonService = new DungeonGameService(registry);
         _logger?.LogDebug("Created DungeonGameService instance");
-        Console.WriteLine("DEBUG: Registering IDungeonService + Gameplay IService");
+        Console.WriteLine("DEBUG: Registering IDungeonService + Gameplay IService + WorldSnapshotProvider");
         registry.Register<IDungeonService>(_dungeonService, priority: 100);
         registry.Register<IService>(_dungeonService, priority: 100);
-        _logger?.LogDebug("Registered IDungeonService and WingedBean.Contracts.Gameplay.IService");
+        registry.Register<IWorldSnapshotProvider>(_dungeonService, priority: 100);
+        _logger?.LogDebug("Registered IDungeonService, Gameplay.IService and IWorldSnapshotProvider");
         Console.WriteLine("DEBUG: DungeonGamePlugin.OnActivateAsync COMPLETE");
 
         await Task.CompletedTask;

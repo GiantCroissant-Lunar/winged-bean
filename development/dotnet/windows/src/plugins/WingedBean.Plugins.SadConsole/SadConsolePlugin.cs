@@ -7,6 +7,7 @@ using ConsoleDungeon.Contracts;
 using Microsoft.Extensions.Logging;
 using Plate.CrossMilo.Contracts;
 using Plate.PluginManoi.Contracts;
+using WingedBean.Contracts.Gameplay;
 // Type alias for UI App service
 using IUIAppService = Plate.CrossMilo.Contracts.UI.App.IService;
 using WingedBeanGameplay = WingedBean.Contracts.Gameplay.IService;
@@ -31,10 +32,12 @@ public class SadConsolePlugin : IPlugin
         // Resolve gameplay services (optional)
         IDungeonService? dungeon = null;
         WingedBeanGameplay? gameplay = null;
+        IWorldSnapshotProvider? provider = null;
         try { dungeon = registry.Get<IDungeonService>(); } catch { }
         try { gameplay = registry.Get<WingedBeanGameplay>(); } catch { }
+        try { provider = registry.Get<IWorldSnapshotProvider>(); } catch { }
 
-        _appInstance = new SadConsoleApp(logger, dungeon, gameplay);
+        _appInstance = new SadConsoleApp(logger, dungeon, gameplay, provider);
 
         // Register in the registry (required for plugin system)
         registry.Register<IUIAppService>(_appInstance, priority: 100);

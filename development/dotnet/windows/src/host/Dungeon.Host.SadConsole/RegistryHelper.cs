@@ -60,6 +60,10 @@ public static class RegistryHelper
                 registry.Register((WingedBean.Contracts.Gameplay.IQuestService)instance, priority);
                 return;
 
+            case "WingedBean.Contracts.Gameplay.IWorldSnapshotProvider":
+                registry.Register((WingedBean.Contracts.Gameplay.IWorldSnapshotProvider)instance, priority);
+                return;
+
             // Game-specific services removed for desktop host
             // case "ConsoleDungeon.Contracts.IDungeonService":
             // case "Plate.CrossMilo.Contracts.Game.Dungeon.IService":  // Legacy

@@ -2,6 +2,7 @@ using Plate.CrossMilo.Contracts;
 using Plate.PluginManoi.Contracts;
 using ConsoleDungeon.Contracts;
 using WingedBeanGameplay = WingedBean.Contracts.Gameplay.IService;
+using WingedBean.Contracts.Gameplay;
 
 namespace WingedBean.Plugins.TerminalUI;
 
@@ -21,9 +22,11 @@ public class TerminalUIPlugin : IPlugin
         // Create the terminal UI service instance
         IDungeonService? dungeon = null;
         WingedBeanGameplay? gameplay = null;
+        IWorldSnapshotProvider? provider = null;
         try { dungeon = registry.Get<IDungeonService>(); } catch { }
         try { gameplay = registry.Get<WingedBeanGameplay>(); } catch { }
-        _serviceInstance = new TerminalGuiService(dungeon, gameplay);
+        try { provider = registry.Get<IWorldSnapshotProvider>(); } catch { }
+        _serviceInstance = new TerminalGuiService(dungeon, gameplay, provider);
 
         // Register the service directly with the registry (priority 100 from Plugin attribute)
         registry.Register<ITerminalUIService>(_serviceInstance, priority: 100);

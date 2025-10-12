@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
+using WingedBean.Contracts.Gameplay;
 using Console = SadConsole.Console;
 using WingedBeanGameplay = WingedBean.Contracts.Gameplay.IService;
 
@@ -20,6 +21,7 @@ public class DungeonGameScreen : ScreenObject
     private readonly ILogger? _logger;
     private readonly IDungeonService? _dungeon;
     private readonly WingedBeanGameplay? _gameplay;
+    private readonly IWorldSnapshotProvider? _worldProvider;
 
     private IReadOnlyList<EntitySnapshot> _entities = Array.Empty<EntitySnapshot>();
     private PlayerStats _playerStats = new PlayerStats(0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
@@ -28,12 +30,18 @@ public class DungeonGameScreen : ScreenObject
     private IDisposable? _entitiesSub;
     private IDisposable? _statsSub;
     private IDisposable? _stateSub;
+    private IDisposable? _worldSub;
 
-    public DungeonGameScreen(int width, int height, ILogger? logger = null, IDungeonService? dungeon = null, WingedBeanGameplay? gameplay = null)
+    // UI-agnostic snapshot cache
+    private IReadOnlyList<EntityView>? _viewEntities;
+    private PlayerHud _hud = new PlayerHud();
+
+    public DungeonGameScreen(int width, int height, ILogger? logger = null, IDungeonService? dungeon = null, WingedBeanGameplay? gameplay = null, IWorldSnapshotProvider? worldProvider = null)
     {
         _logger = logger;
         _dungeon = dungeon;
         _gameplay = gameplay;
+        _worldProvider = worldProvider;
 
         // Create main game console
         _mainConsole = new Console(width, height - 3)
@@ -62,6 +70,18 @@ public class DungeonGameScreen : ScreenObject
         catch { /* ignore */ }
 
         // Subscriptions
+        if (_worldProvider != null)
+        {
+            _worldSub = Subscribe(_worldProvider.WorldObservable, ws =>
+            {
+                _viewEntities = ws.Entities;
+                _hud = ws.Hud;
+                _playerStats = new PlayerStats(_hud.HP, _hud.MaxHP, 0, 0, _hud.Level, _hud.XP, 0, 0, 0, 0);
+                RedrawWorld();
+                DrawStatusBar();
+            });
+        }
+
         if (_dungeon != null)
         {
             _entitiesSub = Subscribe(_dungeon.EntitiesObservable, list =>
@@ -179,6 +199,19 @@ public class DungeonGameScreen : ScreenObject
     private void RedrawWorld()
     {
         _mainConsole.Clear();
+        if (_viewEntities is { Count: > 0 })
+        {
+            foreach (var e in _viewEntities)
+            {
+                var fg = ToColor(e.Foreground);
+                var bg = ToColor(e.Background);
+                var x = Math.Clamp(e.X, 0, _mainConsole.Width - 1);
+                var y = Math.Clamp(e.Y, 0, _mainConsole.Height - 1);
+                _mainConsole.Print(x, y, e.Glyph.ToString(), fg, bg);
+            }
+            return;
+        }
+
         foreach (var e in _entities)
         {
             var fg = ToColor(e.ForegroundColor);

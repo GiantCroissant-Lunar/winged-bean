@@ -18,7 +18,7 @@ namespace WingedBean.Plugins.DungeonGame;
 /// with reactive patterns and multi-world support. Wraps the core DungeonGame
 /// class and exposes observables for game state.
 /// </summary>
-public class DungeonGameService : IDungeonService, WingedBean.Contracts.Gameplay.IService, IDisposable
+public class DungeonGameService : IDungeonService, WingedBean.Contracts.Gameplay.IService, IWorldSnapshotProvider, IDisposable
 {
     private readonly IRegistry _registry;
     private ArchECSService? _ecs;
@@ -27,6 +27,7 @@ public class DungeonGameService : IDungeonService, WingedBean.Contracts.Gameplay
     private readonly BehaviorSubject<GameState> _gameStateSubject;
     private readonly BehaviorSubject<IReadOnlyList<EntitySnapshot>> _entitiesSubject;
     private readonly BehaviorSubject<PlayerStats> _playerStatsSubject;
+    private readonly BehaviorSubject<WorldSnapshot> _worldSubject;
 
     public event EventHandler<GameMode>? ModeChanged;
 
@@ -40,6 +41,7 @@ public class DungeonGameService : IDungeonService, WingedBean.Contracts.Gameplay
         _gameStateSubject = new BehaviorSubject<GameState>(GameState.NotStarted);
         _entitiesSubject = new BehaviorSubject<IReadOnlyList<EntitySnapshot>>(Array.Empty<EntitySnapshot>());
         _playerStatsSubject = new BehaviorSubject<PlayerStats>(new PlayerStats(0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
+        _worldSubject = new BehaviorSubject<WorldSnapshot>(new WorldSnapshot());
     }
 
     public void Initialize()
@@ -188,6 +190,7 @@ public class DungeonGameService : IDungeonService, WingedBean.Contracts.Gameplay
         }
         _entitiesSubject.OnNext(snapshots);
 
+        PlayerStats? ps = null;
         foreach (var entity in world.CreateQuery<Player, Stats>())
         {
             var stats = world.GetComponent<Stats>(entity);
@@ -204,9 +207,52 @@ public class DungeonGameService : IDungeonService, WingedBean.Contracts.Gameplay
                 stats.Defense
             );
             _playerStatsSubject.OnNext(playerStats);
+            ps = playerStats;
             break;
         }
+
+        // Publish UI-agnostic world snapshot
+        PublishWorldSnapshot(ps ?? _playerStatsSubject.Value, snapshots);
     }
+
+    private void PublishWorldSnapshot(PlayerStats stats, IReadOnlyList<EntitySnapshot> entities)
+    {
+        var views = new List<EntityView>(entities.Count);
+        foreach (var e in entities)
+        {
+            views.Add(new EntityView
+            {
+                X = e.Position.X,
+                Y = e.Position.Y,
+                Z = e.Position.Z,
+                Glyph = e.Symbol,
+                Foreground = e.ForegroundColor,
+                Background = e.BackgroundColor,
+                Layer = e.RenderLayer
+            });
+        }
+
+        var hud = new PlayerHud
+        {
+            HP = stats.CurrentHP,
+            MaxHP = stats.MaxHP,
+            Level = stats.Level,
+            XP = stats.Experience,
+            MaxXP = 0
+        };
+
+        var ws = new WorldSnapshot
+        {
+            Entities = views,
+            Hud = hud,
+            Floor = views.Count > 0 ? views[0].Z : 0
+        };
+        _worldSubject.OnNext(ws);
+    }
+
+    // IWorldSnapshotProvider
+    public IObservable<WorldSnapshot> WorldObservable => _worldSubject;
+    public WorldSnapshot CurrentWorld => _worldSubject.Value;
 
     private void HandleModeChanged(object? sender, GameMode mode)
     {
