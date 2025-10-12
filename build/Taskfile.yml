@@ -8,6 +8,9 @@ includes:
   console:
     taskfile: ../development/dotnet/console/Taskfile.yml
     dir: ../development/dotnet/console
+  windows:
+    taskfile: ../development/dotnet/windows/Taskfile.yml
+    dir: ../development/dotnet/windows
   framework:
     taskfile: ../development/dotnet/framework/Taskfile.yml
     dir: ../development/dotnet/framework
@@ -84,26 +87,47 @@ tasks:
   init-dirs:
     desc: Initialize build artifact directories
     cmds:
-      - mkdir -p {{.ARTIFACT_DIR}}/dotnet/{bin,packages,recordings,logs}
+      - mkdir -p {{.ARTIFACT_DIR}}/dotnet/console/bin
+      - mkdir -p {{.ARTIFACT_DIR}}/dotnet/desktop/bin
+      - mkdir -p {{.ARTIFACT_DIR}}/dotnet/packages
+      - mkdir -p {{.ARTIFACT_DIR}}/dotnet/recordings
+      - mkdir -p {{.ARTIFACT_DIR}}/dotnet/logs
       - mkdir -p {{.ARTIFACT_DIR}}/web/{dist,recordings,logs,test-reports,test-results}
       - mkdir -p {{.ARTIFACT_DIR}}/pty/{dist,logs}
       - mkdir -p {{.ARTIFACT_DIR}}/_logs
-      - echo "✅ Build directories initialized (added packages/ for RFC-0041)"
+      - echo "✅ Build directories initialized (console + desktop + packages)"
 
   build-dotnet:
-    desc: "Build .NET projects (host + plugins)"
+    desc: "Build .NET projects (console + desktop hosts + plugins)"
     deps: [init-dirs]
     cmds:
       - |
         set -euo pipefail
-        # Build ConsoleDungeon.Host to get plugins copied via MSBuild targets
-        pushd ../development/dotnet/console/src/host/ConsoleDungeon.Host >/dev/null
+        BUILD_ROOT="$(pwd)"
+        echo "Building Console version (Terminal.Gui)..."
+        # Build Dungeon.Host.Console to get plugins copied via MSBuild targets
+        pushd ../development/dotnet/console/src/host/Dungeon.Host.Console >/dev/null
         dotnet build -c Debug
-        SRC_BIN="$(pwd)/bin/Debug/net8.0"
+        CONSOLE_BIN="$(pwd)/bin/Debug/net8.0"
         popd >/dev/null
-        # Copy to artifacts bin
-        rm -rf _artifacts/{{.VERSION}}/dotnet/bin/*
-        cp -r "$SRC_BIN"/* _artifacts/{{.VERSION}}/dotnet/bin/
+        # Copy console to artifacts
+        mkdir -p "$BUILD_ROOT/_artifacts/{{.VERSION}}/dotnet/console/bin"
+        rm -rf "$BUILD_ROOT/_artifacts/{{.VERSION}}/dotnet/console/bin"/*
+        cp -r "$CONSOLE_BIN"/* "$BUILD_ROOT/_artifacts/{{.VERSION}}/dotnet/console/bin/"
+        echo "✅ Console version built and copied"
+
+        echo "Building Desktop version (SadConsole)..."
+        # Build Dungeon.Host.SadConsole
+        pushd ../development/dotnet/windows/src/host/Dungeon.Host.SadConsole >/dev/null
+        dotnet build -c Debug
+        DESKTOP_BIN="$(pwd)/bin/Debug/net8.0"
+        popd >/dev/null
+        # Copy desktop to artifacts
+        mkdir -p "$BUILD_ROOT/_artifacts/{{.VERSION}}/dotnet/desktop/bin"
+        rm -rf "$BUILD_ROOT/_artifacts/{{.VERSION}}/dotnet/desktop/bin"/*
+        cp -r "$DESKTOP_BIN"/* "$BUILD_ROOT/_artifacts/{{.VERSION}}/dotnet/desktop/bin/"
+        echo "✅ Desktop version built and copied"
+        echo "✅ Both versions available in $BUILD_ROOT/_artifacts/{{.VERSION}}/dotnet/"
 
   build-web:
     desc: "Build web projects"
@@ -156,14 +180,23 @@ tasks:
         VER_DIR="$ART_ROOT/$VER"
         LATEST_DIR="$ART_ROOT/latest"
         # Create dirs
-        mkdir -p "$VER_DIR/dotnet/bin" "$VER_DIR/web/dist" "$VER_DIR/pty/dist" "$VER_DIR/_logs"
-        # Copy ConsoleDungeon.Host Debug bin
-        SRC_BIN="../development/dotnet/console/src/host/ConsoleDungeon.Host/bin/Debug/net8.0"
-        if [ ! -d "$SRC_BIN" ]; then
-          echo "Building ConsoleDungeon.Host..."
-          (cd ../development/dotnet/console/src/host/ConsoleDungeon.Host && dotnet build -c Debug)
+        mkdir -p "$VER_DIR/dotnet/console/bin" "$VER_DIR/dotnet/desktop/bin" "$VER_DIR/web/dist" "$VER_DIR/pty/dist" "$VER_DIR/_logs"
+        # Copy Console version Debug bin
+        CONSOLE_BIN="../development/dotnet/console/src/host/Dungeon.Host.Console/bin/Debug/net8.0"
+        if [ ! -d "$CONSOLE_BIN" ]; then
+          echo "Building Dungeon.Host.Console..."
+          (cd ../development/dotnet/console/src/host/Dungeon.Host.Console && dotnet build -c Debug)
         fi
-        cp -R "$SRC_BIN"/* "$VER_DIR/dotnet/bin/"
+        cp -R "$CONSOLE_BIN"/* "$VER_DIR/dotnet/console/bin/"
+        echo "✅ Console version synced"
+        # Copy Desktop version Debug bin
+        DESKTOP_BIN="../development/dotnet/windows/src/host/Dungeon.Host.SadConsole/bin/Debug/net8.0"
+        if [ ! -d "$DESKTOP_BIN" ]; then
+          echo "Building Dungeon.Host.SadConsole..."
+          (cd ../development/dotnet/windows/src/host/Dungeon.Host.SadConsole && dotnet build -c Debug)
+        fi
+        cp -R "$DESKTOP_BIN"/* "$VER_DIR/dotnet/desktop/bin/"
+        echo "✅ Desktop version synced"
         # Copy docs dist (build if missing)
         WEB_DIST_SRC="../development/nodejs/sites/docs/dist"
         if [ ! -d "$WEB_DIST_SRC" ]; then
@@ -177,7 +210,7 @@ tasks:
         (cd "$VER_DIR/pty/dist" && npm ci --omit=dev >/dev/null)
         # Update latest
         rm -rf "$LATEST_DIR" && cp -R "$VER_DIR" "$LATEST_DIR"
-        echo "✅ Artifacts synced to $VER_DIR and latest"
+        echo "✅ Artifacts synced to $VER_DIR and latest (console + desktop)"
 
   pm2:stop-artifacts:
     desc: "Stop PM2 services for web/pty/console artifacts"
@@ -198,10 +231,10 @@ tasks:
         ROOT="$PWD/_artifacts/latest"
         # Web (static) on 4321
         pm2 start http-server --name web-artifacts --cwd "$ROOT/web/dist" -- -p 4321 -c-1
-        # PTY service (ws 4041) with BIN_DIR pointing to dotnet bin
-        PORT=4041 BIN_DIR="$ROOT/dotnet/bin" pm2 start server.js --name pty-artifacts --cwd "$ROOT/pty/dist"
+        # PTY service (ws 4041) with BIN_DIR pointing to console dotnet bin
+        PORT=4041 BIN_DIR="$ROOT/dotnet/console/bin" pm2 start server.js --name pty-artifacts --cwd "$ROOT/pty/dist"
         # Console host headless with ws 4042 to avoid conflict
-        TERM=xterm-256color DUNGEON_HEADLESS=1 DUNGEON_WS_PORT=4042 pm2 start ./ConsoleDungeon.Host --name console-dungeon --cwd "$ROOT/dotnet/bin" --interpreter none
+        TERM=xterm-256color DUNGEON_HEADLESS=1 DUNGEON_WS_PORT=4042 pm2 start ./Dungeon.Host.Console --name console-dungeon --cwd "$ROOT/dotnet/console/bin" --interpreter none
         pm2 save || true
         echo "✅ PM2 services started: web(4321), pty(4041), console(ws4042)"
 

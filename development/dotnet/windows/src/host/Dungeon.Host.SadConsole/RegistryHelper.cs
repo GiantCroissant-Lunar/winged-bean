@@ -1,0 +1,114 @@
+using System;
+using System.Linq;
+using HostLand.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
+using Plate.CrossMilo.Contracts;
+using Plate.PluginManoi.Contracts;
+using Plate.PluginManoi.Registry;
+// Type aliases for the new IService pattern
+using ITerminalApp = Plate.CrossMilo.Contracts.Terminal.ITerminalApp;
+using IUIApp = Plate.CrossMilo.Contracts.UI.App.IService;
+using IWingedBeanApp = Plate.CrossMilo.Contracts.Hosting.App.IService;
+
+namespace Dungeon.Host.SadConsole;
+
+/// <summary>
+/// Helper class for type-safe registry operations without reflection.
+/// Provides manual dispatch for known contract types (RFC-0038 Phase 2).
+/// This will be replaced by source generators in future phases.
+/// </summary>
+public static class RegistryHelper
+{
+    /// <summary>
+    /// Registers an instance with the registry for a given contract type.
+    /// Uses type-safe dispatch for known contracts, falls back to reflection for unknown types.
+    /// </summary>
+    /// <param name="registry">The registry to register with.</param>
+    /// <param name="contractType">The contract interface type.</param>
+    /// <param name="instance">The implementation instance.</param>
+    /// <param name="priority">Registration priority.</param>
+    public static void RegisterDynamic(
+        this IRegistry registry,
+        Type contractType,
+        object instance,
+        int priority)
+    {
+        // Fast path: Known contract types (no reflection)
+        // All contracts have been migrated to Plate.CrossMilo.Contracts.*
+        switch (contractType.FullName)
+        {
+            case "Plate.CrossMilo.Contracts.Terminal.ITerminalApp":
+            case "Plate.CrossMilo.Contracts.TerminalUI.ITerminalApp":  // Legacy
+            case "WingedBean.Contracts.Terminal.IService":  // Legacy
+            case "WingedBean.Contracts.Terminal.ITerminalApp":  // Legacy
+                registry.Register((ITerminalApp)instance, priority);
+                return;
+
+            // Game-specific services removed for desktop host
+            // case "ConsoleDungeon.Contracts.IDungeonService":
+            // case "Plate.CrossMilo.Contracts.Game.Dungeon.IService":  // Legacy
+            // case "WingedBean.Contracts.Game.IDungeonGameService":  // Legacy
+            //     registry.Register((IDungeonService)instance, priority);
+            //     return;
+
+            // RenderService removed - no longer supported
+            // case "Plate.CrossMilo.Contracts.Game.Render.IService":
+            // case "WingedBean.Contracts.Game.IRenderService":  // Legacy
+            //     registry.Register((IRenderService)instance, priority);
+            //     return;
+
+            // ECS service removed for desktop host
+            // case "WingedBean.Plugins.ArchECS.ArchECSService":
+            // case "Plate.CrossMilo.Contracts.ECS.Services.IService":  // Legacy - map to ArchECSService
+            // case "WingedBean.Contracts.ECS.IECSService":  // Legacy
+            //     registry.Register((ArchECSService)instance, priority);
+            //     return;
+
+            case "Plate.CrossMilo.Contracts.UI.App.IService":
+            case "WingedBean.Contracts.UI.IService":  // Legacy
+            case "WingedBean.Contracts.UI.IUIApp":  // Legacy
+                registry.Register((IUIApp)instance, priority);
+                return;
+
+            case "Plate.CrossMilo.Contracts.Hosting.App.IService":
+            case "WingedBean.Contracts.Hosting.IWingedBeanApp":  // Legacy
+                registry.Register((IWingedBeanApp)instance, priority);
+                return;
+
+            case "HostLand.Abstractions.IHost":
+            case "WingedBean.Hosting.Abstractions.IWingedBeanHost":  // Legacy
+            case "Plate.CrossMilo.Contracts.Hosting.Host.IService":  // Legacy
+            case "WingedBean.Contracts.Hosting.IWingedBeanHost":  // Legacy
+                registry.Register((IHost)instance, priority);
+                return;
+
+            // Note: Scene and Input contracts are not referenced by host
+            // They will be handled by reflection fallback if needed
+
+            default:
+                // Slow path: Unknown type - use reflection (backward compatibility)
+                RegisterViaReflection(registry, contractType, instance, priority);
+                return;
+        }
+    }
+
+    private static void RegisterViaReflection(
+        IRegistry registry,
+        Type contractType,
+        object instance,
+        int priority)
+    {
+        // Fallback to reflection for types not in the switch above
+        var registerMethod = typeof(IRegistry).GetMethods()
+            .Where(m => m.Name == "Register" && m.IsGenericMethod)
+            .Where(m => m.GetParameters().Length == 2)
+            .Where(m => m.GetParameters()[0].ParameterType.IsGenericParameter)
+            .FirstOrDefault();
+
+        if (registerMethod != null)
+        {
+            var genericMethod = registerMethod.MakeGenericMethod(contractType);
+            genericMethod.Invoke(registry, new object[] { instance, priority });
+        }
+    }
+}

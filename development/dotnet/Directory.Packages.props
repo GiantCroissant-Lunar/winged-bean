@@ -39,6 +39,13 @@
   <ItemGroup Label="Terminal and UI">
     <!-- Default to v2.0.0 for new projects, but allow per-project overrides -->
     <PackageVersion Include="Terminal.Gui" Version="2.0.0" />
+
+    <!-- SadConsole for desktop rendering with FNA host (better macOS compatibility) -->
+    <PackageVersion Include="SadConsole" Version="10.0.3" />
+    <PackageVersion Include="SadConsole.Host.FNA" Version="10.0.3" />
+    <PackageVersion Include="FNA" Version="23.10.0" />
+    <PackageVersion Include="SadConsole.Host.MonoGame" Version="10.0.3" />
+    <PackageVersion Include="MonoGame.Framework.DesktopGL" Version="3.8.1.303" />
   </ItemGroup>
 
   <ItemGroup Label="Networking">

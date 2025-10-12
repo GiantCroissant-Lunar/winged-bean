@@ -1,0 +1,13 @@
+{
+  "version": "1.0",
+  "plugins": [
+    {
+      "id": "winged-bean.plugins.sadconsole",
+      "name": "SadConsole Renderer",
+      "path": "plugins/WingedBean.Plugins.SadConsole.dll",
+      "loadStrategy": "Eager",
+      "priority": 100,
+      "enabled": true
+    }
+  ]
+}

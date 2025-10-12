@@ -21,7 +21,7 @@ tasks:
   run:
     desc: "Run ConsoleDungeon game"
     cmds:
-      - dotnet run --project src/host/ConsoleDungeon.Host/ConsoleDungeon.Host.csproj
+      - dotnet run --project src/host/Dungeon.Host.Console/Dungeon.Host.Console.csproj
 
   clean:
     desc: "Clean ConsoleDungeon build artifacts"
