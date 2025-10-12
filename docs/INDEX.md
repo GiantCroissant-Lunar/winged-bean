@@ -139,15 +139,75 @@
 
 ---
 
-### 📦 [Handover](./handover/)
-**Purpose**: Project handover and knowledge transfer
+### 📦 [Handovers](./handovers/)
+**Purpose**: Session handover documents and knowledge transfer
 
 **What belongs here**:
+- Session-to-session handover documents
 - Context for new team members
 - Project state snapshots
 - Knowledge transfer documents
 
 **Lifecycle**: Created as needed, archived when complete
+
+**Status**: 11 handover documents organized
+
+---
+
+### 📊 [Status Reports](./status-reports/)
+**Purpose**: Project status updates and analysis reports
+
+**What belongs here**:
+- Status updates and summaries
+- Analysis and investigation reports
+- Fix summaries and problem reports
+- E2E test results
+
+**Lifecycle**: Time-based archival (keep recent, archive older)
+
+**Status**: 8 status reports organized
+
+---
+
+### 🏗️ [Build System](./build-system/)
+**Purpose**: Build system documentation and reports
+
+**What belongs here**:
+- Build status reports
+- Build fix summaries
+- Build process documentation
+
+**Lifecycle**: Maintained (updated as needed)
+
+**Status**: 4 build-related documents organized
+
+---
+
+### 🔊 [Audio System](./audio-system/)
+**Purpose**: Audio system implementation documentation
+
+**What belongs here**:
+- Audio plugin documentation
+- Audio setup and configuration
+- Audio test reports
+
+**Lifecycle**: Maintained (updated as needed)
+
+**Status**: 4 audio-related documents organized
+
+---
+
+### 🎨 [UI System](./ui-system/)
+**Purpose**: UI implementation documentation
+
+**What belongs here**:
+- Menu bar implementation
+- UI components documentation
+- UI troubleshooting guides
+
+**Lifecycle**: Maintained (updated as needed)
+
+**Status**: 2 UI-related documents organized
 
 ---
 
