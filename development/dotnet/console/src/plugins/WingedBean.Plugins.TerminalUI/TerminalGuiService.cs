@@ -2,6 +2,8 @@ using System.Collections.Concurrent;
 using Plate.CrossMilo.Contracts.Terminal;
 using Plate.PluginManoi.Contracts;
 using Terminal.Gui;
+using ConsoleDungeon.Contracts;
+using WingedBeanGameplay = WingedBean.Contracts.Gameplay.IService;
 
 namespace WingedBean.Plugins.TerminalUI;
 
@@ -19,10 +21,19 @@ public class TerminalGuiService : ITerminalUIService
     private bool _initialized = false;
     private Window? _mainWindow;
     private System.Timers.Timer? _timer;
+    private System.Timers.Timer? _gameTimer;
     private TextView? _logView;
     private readonly ConcurrentQueue<string> _logMessages = new();
     private const int MaxLogMessages = 100;
     private bool _headlessMode = false;
+    private readonly IDungeonService? _dungeon;
+    private readonly WingedBeanGameplay? _gameplay;
+
+    public TerminalGuiService(IDungeonService? dungeon = null, WingedBeanGameplay? gameplay = null)
+    {
+        _dungeon = dungeon;
+        _gameplay = gameplay;
+    }
 
     /// <summary>
     /// Initialize the terminal UI system.
@@ -168,6 +179,26 @@ public class TerminalGuiService : ITerminalUIService
                 LogMessage("INFO", "Recording stopped");
                 e.Handled = true;
             }
+            else if (e.KeyCode == KeyCode.CursorUp)
+            {
+                _dungeon?.HandleInput(new GameInput(InputType.MoveUp));
+                e.Handled = true;
+            }
+            else if (e.KeyCode == KeyCode.CursorDown)
+            {
+                _dungeon?.HandleInput(new GameInput(InputType.MoveDown));
+                e.Handled = true;
+            }
+            else if (e.KeyCode == KeyCode.CursorLeft)
+            {
+                _dungeon?.HandleInput(new GameInput(InputType.MoveLeft));
+                e.Handled = true;
+            }
+            else if (e.KeyCode == KeyCode.CursorRight)
+            {
+                _dungeon?.HandleInput(new GameInput(InputType.MoveRight));
+                e.Handled = true;
+            }
         };
 
         // Add all controls to window
@@ -196,6 +227,47 @@ public class TerminalGuiService : ITerminalUIService
         _timer = new System.Timers.Timer(1000);
         _timer.Elapsed += (sender, e) => UpdateTime();
         _timer.Start();
+
+        // Start gameplay (either new gameplay IService or legacy dungeon service)
+        try { _ = _gameplay?.StartAsync(); } catch { }
+        try { _dungeon?.Initialize(); } catch { }
+
+        // Subscribe to snapshots to reflect basic counters in log
+        if (_dungeon != null)
+        {
+            try
+            {
+                _ = _dungeon.EntitiesObservable.Subscribe(list =>
+                {
+                    LogMessage("DEBUG", $"Entities: {list?.Count ?? 0}");
+                });
+                _ = _dungeon.GameStateObservable.Subscribe(state =>
+                {
+                    LogMessage("INFO", $"State: {state}");
+                });
+            }
+            catch { }
+        }
+
+        // Game tick at ~30 FPS
+        _gameTimer = new System.Timers.Timer(33);
+        _gameTimer.Elapsed += (s, e) =>
+        {
+            try
+            {
+                if (_gameplay != null)
+                {
+                    _ = _gameplay.UpdateAsync(TimeSpan.FromMilliseconds(33));
+                }
+                else
+                {
+                    _dungeon?.Update(0.033f);
+                }
+                Application.Wakeup();
+            }
+            catch { }
+        };
+        _gameTimer.Start();
     }
 
     /// <summary>
