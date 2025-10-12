@@ -123,13 +123,70 @@ Organized 2 files:
 - Created `/development/dotnet/console/docs/README.md`
 - Updated `/development/nodejs/tests/README.md`
 
+## Deep Organization (Phase 3)
+
+### `/development/dotnet/console/docs/` Subdirectory
+Organized remaining scattered files in docs root:
+- Moved to `design/` - Plugin design docs (3 files)
+  - PLUGIN-LOADING-FLOW-WITH-RESOURCE-SERVICE.md
+  - PLUGIN-LOADING-FLOWCHART.md
+  - PLUGIN-MANIFEST-NUGET-DEPENDENCIES.md
+- Moved to `rfc/` - RFC completion docs (1 file)
+  - RFC-0039-IMPLEMENTATION-COMPLETE.md
+
+### `/development/dotnet/framework/` Directory
+Organized RFC documentation:
+- Created `docs/rfc/` - RFC-0041 documentation (3 files)
+  - RFC-0041-COMPLETE.md
+  - RFC-0041-FINAL-STATUS.md
+  - RFC-0041-IMPLEMENTATION-STATUS.md
+
+### `/planning/` Directory
+Organized status documentation:
+- Created `docs/status/` - Migration and restoration docs (2 files)
+  - PYTHON_MIGRATION_COMPLETE.md
+  - RESTORATION_SUMMARY.md
+
+### `/development/dotnet/console/tests/e2e/` Directory
+Organized test documentation:
+- Created `docs/` - E2E test guides (3 files)
+  - README-E2E-TESTS.md
+  - README-INTERACTIVE-TESTS.md
+  - README-ROBUST-TESTING.md
+
+### Documentation Added (Phase 3)
+- Created `/development/dotnet/framework/docs/README.md`
+- Created `/planning/docs/README.md`
+- Created `/development/dotnet/console/tests/e2e/docs/README.md`
+- Updated `/development/dotnet/console/docs/README.md`
+
+## Final State
+
+### Organized Documentation Directories
+- `/docs/` - Project-level documentation
+- `/build/docs/` - Build system documentation
+- `/development/dotnet/console/docs/` - Console app documentation
+- `/development/dotnet/framework/docs/` - Framework documentation
+- `/development/dotnet/console/tests/e2e/docs/` - E2E test documentation
+- `/planning/docs/` - Planning and migration documentation
+
+### Root-Level Markdown Files (Minimal)
+- Project root: 3 files (README.md, AGENTS.md, CLAUDE.md)
+- Build root: 2 files (README.md, AGENTS.md)
+- Console root: 2 files (README.md, README-PM2.md)
+- Framework root: 0 files
+- Planning root: 1 file (README.md)
+- NodeJS root: 1 file (AGENTS.md)
+
+All directories now maintain clean roots with only essential README and configuration files, while detailed documentation is properly organized in `/docs/` subdirectories.
+
 ## Next Steps
 
 1. Update any scripts or tools that reference old file paths
 2. Add archived/superseded documents to `/docs/archive/`
 3. Consider creating a docs linting tool to enforce organization
 4. Set up automated archival for old status reports (>90 days)
-5. Review other development subdirectories for scattered docs
+5. Create cross-reference index for related documentation across directories
 
 ## Verification
 

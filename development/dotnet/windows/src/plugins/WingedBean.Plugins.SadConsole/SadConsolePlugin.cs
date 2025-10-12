@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ConsoleDungeon.Contracts;
 using Microsoft.Extensions.Logging;
 using Plate.CrossMilo.Contracts;
 using Plate.PluginManoi.Contracts;
 // Type alias for UI App service
 using IUIAppService = Plate.CrossMilo.Contracts.UI.App.IService;
+using WingedBeanGameplay = WingedBean.Contracts.Gameplay.IService;
 
 namespace WingedBean.Plugins.SadConsole;
 
@@ -26,7 +28,13 @@ public class SadConsolePlugin : IPlugin
     {
         // Create SadConsole app instance
         var logger = registry.GetAll<ILogger<SadConsoleApp>>().FirstOrDefault();
-        _appInstance = new SadConsoleApp(logger);
+        // Resolve gameplay services (optional)
+        IDungeonService? dungeon = null;
+        WingedBeanGameplay? gameplay = null;
+        try { dungeon = registry.Get<IDungeonService>(); } catch { }
+        try { gameplay = registry.Get<WingedBeanGameplay>(); } catch { }
+
+        _appInstance = new SadConsoleApp(logger, dungeon, gameplay);
 
         // Register in the registry (required for plugin system)
         registry.Register<IUIAppService>(_appInstance, priority: 100);

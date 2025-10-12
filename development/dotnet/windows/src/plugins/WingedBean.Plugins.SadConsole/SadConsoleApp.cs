@@ -1,14 +1,15 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using ConsoleDungeon.Contracts;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Plate.CrossMilo.Contracts.UI.App;
 using SadConsole;
 using SadConsole.Configuration;
-
 // Type alias for UI App service
 using IUIAppService = Plate.CrossMilo.Contracts.UI.App.IService;
+using WingedBeanGameplay = WingedBean.Contracts.Gameplay.IService;
 
 namespace WingedBean.Plugins.SadConsole;
 
@@ -23,15 +24,19 @@ public class SadConsoleApp : IUIAppService
     private DungeonGameScreen? _gameScreen;
     private CancellationTokenSource? _runCts;
     private Plate.CrossMilo.Contracts.Hosting.App.AppState _state = Plate.CrossMilo.Contracts.Hosting.App.AppState.NotStarted;
+    private readonly IDungeonService? _dungeon;
+    private readonly WingedBeanGameplay? _gameplay;
 
     public string Name => "SadConsole UI";
     public Plate.CrossMilo.Contracts.Hosting.App.AppState State => _state;
     public event EventHandler<Plate.CrossMilo.Contracts.Hosting.App.AppStateChangedEventArgs>? StateChanged;
     public event EventHandler<UIEventArgs>? UIEvent;
 
-    public SadConsoleApp(ILogger<SadConsoleApp>? logger = null)
+    public SadConsoleApp(ILogger<SadConsoleApp>? logger = null, IDungeonService? dungeon = null, WingedBeanGameplay? gameplay = null)
     {
         _logger = logger;
+        _dungeon = dungeon;
+        _gameplay = gameplay;
     }
 
     public void RunGame()
@@ -73,7 +78,7 @@ public class SadConsoleApp : IUIAppService
         _logger?.LogInformation("SadConsole game started...");
 
         // Create main game screen
-        _gameScreen = new DungeonGameScreen(120, 40, _logger);
+        _gameScreen = new DungeonGameScreen(120, 40, _logger, _dungeon, _gameplay);
         GameHost.Instance.Screen = _gameScreen;
 
         _logger?.LogInformation("Game screen created");

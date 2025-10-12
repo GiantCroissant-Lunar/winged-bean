@@ -70,7 +70,6 @@ public class PluginLoaderHostedService : IHostedService
             _registry.Register<IRegistry>(_registry);
             _registry.Register<IPluginLoader>(_pluginLoader);
             _logger.LogInformation("✓ Foundation services initialized");
-
             // Step 2: Discover and load plugins
             _logger.LogInformation("[2/3] Loading plugins...");
             var exeDirectory = Path.GetDirectoryName(typeof(PluginLoaderHostedService).Assembly.Location) ?? Environment.CurrentDirectory;
@@ -82,7 +81,7 @@ public class PluginLoaderHostedService : IHostedService
             // Load manifest-based plugins
             if (Directory.Exists(pluginsDir))
             {
-                var manifestPaths = Directory.GetFiles(pluginsDir, ".plugin.json", SearchOption.AllDirectories);
+                var manifestPaths = Directory.GetFiles(pluginsDir, "*.plugin.json", SearchOption.AllDirectories);
                 foreach (var manifestPath in manifestPaths)
                 {
                     try

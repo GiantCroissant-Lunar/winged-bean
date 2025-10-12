@@ -11,7 +11,6 @@ using IUIApp = Plate.CrossMilo.Contracts.UI.App.IService;
 using IWingedBeanApp = Plate.CrossMilo.Contracts.Hosting.App.IService;
 
 namespace Dungeon.Host.SadConsole;
-
 /// <summary>
 /// Helper class for type-safe registry operations without reflection.
 /// Provides manual dispatch for known contract types (RFC-0038 Phase 2).
@@ -42,6 +41,23 @@ public static class RegistryHelper
             case "WingedBean.Contracts.Terminal.IService":  // Legacy
             case "WingedBean.Contracts.Terminal.ITerminalApp":  // Legacy
                 registry.Register((ITerminalApp)instance, priority);
+                return;
+
+            // WingedBean gameplay contracts
+            case "WingedBean.Contracts.Gameplay.IService":
+                registry.Register((WingedBean.Contracts.Gameplay.IService)instance, priority);
+                return;
+
+            case "WingedBean.Contracts.Gameplay.IInventoryService":
+                registry.Register((WingedBean.Contracts.Gameplay.IInventoryService)instance, priority);
+                return;
+
+            case "WingedBean.Contracts.Gameplay.ICombatService":
+                registry.Register((WingedBean.Contracts.Gameplay.ICombatService)instance, priority);
+                return;
+
+            case "WingedBean.Contracts.Gameplay.IQuestService":
+                registry.Register((WingedBean.Contracts.Gameplay.IQuestService)instance, priority);
                 return;
 
             // Game-specific services removed for desktop host

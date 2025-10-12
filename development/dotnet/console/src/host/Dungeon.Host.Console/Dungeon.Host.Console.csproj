@@ -16,6 +16,11 @@
     <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Terminal/CrossMilo.Contracts.Terminal.csproj" />
     <!-- Game-specific contracts -->
     <ProjectReference Include="../../game/ConsoleDungeon.Contracts/ConsoleDungeon.Contracts.csproj" />
+    <!-- Gameplay contracts (winged-bean local): compile-time only -->
+    <ProjectReference Include="../../framework/src/WingedBean.Contracts.Gameplay/WingedBean.Contracts.Gameplay.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
     <!-- ArchECS plugin for service registration -->
     <ProjectReference Include="../../plugins/WingedBean.Plugins.ArchECS/WingedBean.Plugins.ArchECS.csproj" />
     <!-- Additional shared contracts for plugins (RFC-0037) -->

@@ -21,6 +21,12 @@
       <ExcludeAssets>runtime</ExcludeAssets>
     </ProjectReference>
 
+    <!-- Gameplay contracts (winged-bean local): compile-time only -->
+    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Gameplay/WingedBean.Contracts.Gameplay.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
+
     <!-- Plugin-specific contracts: Normal reference (loaded in plugin ALC) -->
     <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Terminal/CrossMilo.Contracts.Terminal.csproj" />
 

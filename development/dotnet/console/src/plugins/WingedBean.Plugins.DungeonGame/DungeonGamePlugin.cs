@@ -2,6 +2,7 @@ using ConsoleDungeon.Contracts;
 using Microsoft.Extensions.Logging;
 using Plate.CrossMilo.Contracts;
 using Plate.PluginManoi.Contracts;
+using WingedBean.Contracts.Gameplay;
 
 namespace WingedBean.Plugins.DungeonGame;
 
@@ -11,7 +12,7 @@ namespace WingedBean.Plugins.DungeonGame;
 /// </summary>
 [Plugin(
     Name = "DungeonGameService",
-    Provides = new[] { typeof(IDungeonService) },
+    Provides = new[] { typeof(IDungeonService), typeof(IService) },
     Priority = 100
 )]
 public class DungeonGamePlugin : IPlugin
@@ -61,9 +62,10 @@ public class DungeonGamePlugin : IPlugin
         Console.WriteLine("DEBUG: Creating DungeonGameService");
         _dungeonService = new DungeonGameService(registry);
         _logger?.LogDebug("Created DungeonGameService instance");
-        Console.WriteLine("DEBUG: Registering IDungeonService");
+        Console.WriteLine("DEBUG: Registering IDungeonService + Gameplay IService");
         registry.Register<IDungeonService>(_dungeonService, priority: 100);
-        _logger?.LogDebug("Registered IDungeonService");
+        registry.Register<IService>(_dungeonService, priority: 100);
+        _logger?.LogDebug("Registered IDungeonService and WingedBean.Contracts.Gameplay.IService");
         Console.WriteLine("DEBUG: DungeonGamePlugin.OnActivateAsync COMPLETE");
 
         await Task.CompletedTask;

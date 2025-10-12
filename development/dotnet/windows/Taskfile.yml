@@ -6,6 +6,8 @@ tasks:
     cmds:
       - echo "Building SadConsole plugin..."
       - dotnet build src/plugins/WingedBean.Plugins.SadConsole/WingedBean.Plugins.SadConsole.csproj
+      - echo "Building DungeonGame gameplay plugin..."
+      - dotnet build ../console/src/plugins/WingedBean.Plugins.DungeonGame/WingedBean.Plugins.DungeonGame.csproj
       - echo "Building Dungeon.Host.SadConsole..."
       - dotnet build src/host/Dungeon.Host.SadConsole/Dungeon.Host.SadConsole.csproj
 

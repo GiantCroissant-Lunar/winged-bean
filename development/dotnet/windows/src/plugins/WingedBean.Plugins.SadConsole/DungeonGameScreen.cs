@@ -1,9 +1,12 @@
 using System;
+using System.Collections.Generic;
+using ConsoleDungeon.Contracts;
 using Microsoft.Extensions.Logging;
 using SadConsole;
 using SadConsole.Input;
 using SadRogue.Primitives;
 using Console = SadConsole.Console;
+using WingedBeanGameplay = WingedBean.Contracts.Gameplay.IService;
 
 namespace WingedBean.Plugins.SadConsole;
 
@@ -15,10 +18,22 @@ public class DungeonGameScreen : ScreenObject
     private readonly Console _mainConsole;
     private readonly Console _statusBar;
     private readonly ILogger? _logger;
+    private readonly IDungeonService? _dungeon;
+    private readonly WingedBeanGameplay? _gameplay;
 
-    public DungeonGameScreen(int width, int height, ILogger? logger = null)
+    private IReadOnlyList<EntitySnapshot> _entities = Array.Empty<EntitySnapshot>();
+    private PlayerStats _playerStats = new PlayerStats(0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
+    private GameState _gameState = GameState.NotStarted;
+
+    private IDisposable? _entitiesSub;
+    private IDisposable? _statsSub;
+    private IDisposable? _stateSub;
+
+    public DungeonGameScreen(int width, int height, ILogger? logger = null, IDungeonService? dungeon = null, WingedBeanGameplay? gameplay = null)
     {
         _logger = logger;
+        _dungeon = dungeon;
+        _gameplay = gameplay;
 
         // Create main game console
         _mainConsole = new Console(width, height - 3)
@@ -34,7 +49,42 @@ public class DungeonGameScreen : ScreenObject
         };
         Children.Add(_statusBar);
 
-        // Initialize
+        // Initialize gameplay if available
+        try
+        {
+            _dungeon?.Initialize();
+        }
+        catch { /* ignore */ }
+        try
+        {
+            _ = _gameplay?.StartAsync();
+        }
+        catch { /* ignore */ }
+
+        // Subscriptions
+        if (_dungeon != null)
+        {
+            _entitiesSub = Subscribe(_dungeon.EntitiesObservable, list =>
+            {
+                _entities = list ?? Array.Empty<EntitySnapshot>();
+                RedrawWorld();
+            });
+            _statsSub = Subscribe(_dungeon.PlayerStatsObservable, stats =>
+            {
+                _playerStats = stats;
+                DrawStatusBar();
+            });
+            _stateSub = Subscribe(_dungeon.GameStateObservable, s =>
+            {
+                _gameState = s;
+                DrawStatusBar();
+            });
+            // Initialize local snapshots
+            _playerStats = _dungeon.CurrentPlayerStats;
+            _gameState = _dungeon.CurrentState;
+        }
+
+        // Initial draw
         DrawWelcomeScreen();
         DrawStatusBar();
 
@@ -66,10 +116,11 @@ public class DungeonGameScreen : ScreenObject
     {
         _statusBar.Clear();
         _statusBar.DrawLine(new Point(0, 0), new Point(_statusBar.Width - 1, 0), '═', Color.Gray);
-        _statusBar.Print(2, 1, "HP: 100/100", Color.Green);
-        _statusBar.Print(20, 1, "Level: 1", Color.Yellow);
-        _statusBar.Print(35, 1, "XP: 0/100", Color.Cyan);
-        _statusBar.Print(50, 1, "Backend: SadConsole", Color.Magenta);
+        _statusBar.Print(2, 1, $"HP: {_playerStats.CurrentHP}/{_playerStats.MaxHP}", Color.Green);
+        _statusBar.Print(20, 1, $"Level: {_playerStats.Level}", Color.Yellow);
+        _statusBar.Print(35, 1, $"XP: {_playerStats.Experience}/?", Color.Cyan);
+        _statusBar.Print(55, 1, $"State: {_gameState}", Color.White);
+        _statusBar.Print(78, 1, "Backend: SadConsole", Color.Magenta);
     }
 
     public override bool ProcessKeyboard(Keyboard keyboard)
@@ -86,24 +137,93 @@ public class DungeonGameScreen : ScreenObject
         if (keyboard.IsKeyPressed(Keys.Up))
         {
             _logger?.LogDebug("UP pressed");
-            // TODO: Move player up
+            _dungeon?.HandleInput(new GameInput(InputType.MoveUp));
         }
         else if (keyboard.IsKeyPressed(Keys.Down))
         {
             _logger?.LogDebug("DOWN pressed");
-            // TODO: Move player down
+            _dungeon?.HandleInput(new GameInput(InputType.MoveDown));
         }
         else if (keyboard.IsKeyPressed(Keys.Left))
         {
             _logger?.LogDebug("LEFT pressed");
-            // TODO: Move player left
+            _dungeon?.HandleInput(new GameInput(InputType.MoveLeft));
         }
         else if (keyboard.IsKeyPressed(Keys.Right))
         {
             _logger?.LogDebug("RIGHT pressed");
-            // TODO: Move player right
+            _dungeon?.HandleInput(new GameInput(InputType.MoveRight));
         }
 
         return base.ProcessKeyboard(keyboard);
+    }
+
+    public override void Update(TimeSpan delta)
+    {
+        base.Update(delta);
+        try
+        {
+            if (_gameplay != null)
+            {
+                _ = _gameplay.UpdateAsync(delta);
+            }
+            else
+            {
+                // fallback to dungeon service tick
+                _dungeon?.Update((float)delta.TotalSeconds);
+            }
+        }
+        catch { /* ignore update errors to keep UI responsive */ }
+    }
+
+    private void RedrawWorld()
+    {
+        _mainConsole.Clear();
+        foreach (var e in _entities)
+        {
+            var fg = ToColor(e.ForegroundColor);
+            var bg = ToColor(e.BackgroundColor);
+            // Clamp within console bounds
+            var x = Math.Clamp(e.Position.X, 0, _mainConsole.Width - 1);
+            var y = Math.Clamp(e.Position.Y, 0, _mainConsole.Height - 1);
+            _mainConsole.Print(x, y, e.Symbol.ToString(), fg, bg);
+        }
+    }
+
+    private static Color ToColor(ConsoleColor c) => c switch
+    {
+        ConsoleColor.Black => Color.Black,
+        ConsoleColor.DarkBlue => Color.DarkBlue,
+        ConsoleColor.DarkGreen => Color.DarkGreen,
+        ConsoleColor.DarkCyan => Color.DarkCyan,
+        ConsoleColor.DarkRed => Color.DarkRed,
+        ConsoleColor.DarkMagenta => Color.DarkMagenta,
+        ConsoleColor.DarkYellow => Color.DarkYellow,
+        ConsoleColor.Gray => Color.Gray,
+        ConsoleColor.DarkGray => Color.DarkGray,
+        ConsoleColor.Blue => Color.Blue,
+        ConsoleColor.Green => Color.Green,
+        ConsoleColor.Cyan => Color.Cyan,
+        ConsoleColor.Red => Color.Red,
+        ConsoleColor.Magenta => Color.Magenta,
+        ConsoleColor.Yellow => Color.Yellow,
+        ConsoleColor.White => Color.White,
+        _ => Color.White
+    };
+
+    private static IDisposable Subscribe<T>(IObservable<T> source, Action<T> onNext)
+        => source.Subscribe(new Observer<T>(onNext));
+
+    private sealed class Observer<T> : IObserver<T>
+    {
+        private readonly Action<T> _onNext;
+        public Observer(Action<T> onNext)
+        {
+            _onNext = onNext;
+        }
+
+        public void OnCompleted() { }
+        public void OnError(Exception error) { }
+        public void OnNext(T value) => _onNext(value);
     }
 }

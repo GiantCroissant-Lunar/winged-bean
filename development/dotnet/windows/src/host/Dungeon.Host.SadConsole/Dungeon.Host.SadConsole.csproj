@@ -38,6 +38,13 @@
     <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.UI/CrossMilo.Contracts.UI.csproj" />
     <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Terminal/CrossMilo.Contracts.Terminal.csproj" />
     <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Resource/CrossMilo.Contracts.Resource.csproj" />
+    <!-- Gameplay contracts (winged-bean local): compile-time only -->
+    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Gameplay/WingedBean.Contracts.Gameplay.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
+    <!-- Game-specific contracts: ensure present in Default ALC -->
+    <ProjectReference Include="../../../../console/src/game/ConsoleDungeon.Contracts/ConsoleDungeon.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -58,6 +65,8 @@
     <ItemGroup>
       <!-- SadConsole Plugin -->
       <PluginFiles Include="../../plugins/WingedBean.Plugins.SadConsole/bin/$(Configuration)/net8.0/**/*.*" />
+      <!-- Dungeon Game Plugin (from console tree) -->
+      <PluginFiles Include="../../../../console/src/plugins/WingedBean.Plugins.DungeonGame/bin/$(Configuration)/net8.0/**/*.*" />
     </ItemGroup>
 
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(OutputPath)plugins/%(RecursiveDir)" SkipUnchangedFiles="true" />

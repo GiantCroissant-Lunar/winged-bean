@@ -465,3 +465,32 @@ tasks:
     dir: ../development/nodejs
     cmds:
       - pnpm exec playwright test verify-dungeon-gameplay.spec.js --reporter=list
+
+  # ===============================================
+  # BuildArcane integration (always use centralized build)
+  # ===============================================
+  arcane:ci:
+    desc: "Run centralized BuildArcane CI (clean→restore→compile→test→pack/publish as configured)"
+    dir: ..
+    cmds:
+      - |
+        if ! command -v dotnet >/dev/null 2>&1; then
+          echo "dotnet SDK not found in PATH" >&2; exit 1; fi
+      - |
+        if ! dotnet tool list | grep -q "lunar-build"; then
+          echo "NOTE: 'lunar-build' dotnet tool not found. Install BuildArcane runner per plate-projects/build-arcane/README.md";
+          echo "Example: dotnet tool install GiantCroissant.Plate.BuildArcane.Build.Runner";
+        fi
+      - dotnet lunar-build ci --config build-config.json
+
+  arcane:compile:
+    desc: "Build via BuildArcane only (no tests)"
+    dir: ..
+    cmds:
+      - dotnet lunar-build compile --config build-config.json
+
+  arcane:test:
+    desc: "Run tests via BuildArcane (uses build-config.json)"
+    dir: ..
+    cmds:
+      - dotnet lunar-build test --config build-config.json

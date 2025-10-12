@@ -1,20 +1,24 @@
 using System;
 using System.Collections.Generic;
 using System.Reactive.Subjects;
+using System.Threading;
+using System.Threading.Tasks;
 using ConsoleDungeon.Contracts;
 using Plate.CrossMilo.Contracts;
 using Plate.PluginManoi.Contracts;
 using WingedBean.Plugins.ArchECS;
 using WingedBean.Plugins.ArchECS.Internal;
 using WingedBean.Plugins.DungeonGame.Components;
+using WingedBean.Contracts.Gameplay;
 
 namespace WingedBean.Plugins.DungeonGame;
 
 /// <summary>
-/// Implementation of IDungeonService with reactive patterns and multi-world support.
-/// Wraps the core DungeonGame class and exposes observables for game state.
+/// Implementation of IDungeonService and WingedBean.Contracts.Gameplay.IService
+/// with reactive patterns and multi-world support. Wraps the core DungeonGame
+/// class and exposes observables for game state.
 /// </summary>
-public class DungeonGameService : IDungeonService, IDisposable
+public class DungeonGameService : IDungeonService, WingedBean.Contracts.Gameplay.IService, IDisposable
 {
     private readonly IRegistry _registry;
     private ArchECSService? _ecs;
@@ -75,6 +79,26 @@ public class DungeonGameService : IDungeonService, IDisposable
         _entitiesSubject.OnCompleted();
         _playerStatsSubject.OnCompleted();
         _ecs.ModeChanged -= HandleModeChanged;
+    }
+
+    // WingedBean.Contracts.Gameplay.IService implementation (async wrappers)
+    public Task StartAsync(CancellationToken cancellationToken = default)
+    {
+        Initialize();
+        return Task.CompletedTask;
+    }
+
+    public Task UpdateAsync(TimeSpan delta, CancellationToken cancellationToken = default)
+    {
+        // Current game ignores delta parameter internally
+        Update((float)delta.TotalSeconds);
+        return Task.CompletedTask;
+    }
+
+    public Task StopAsync(CancellationToken cancellationToken = default)
+    {
+        Shutdown();
+        return Task.CompletedTask;
     }
 
     public void HandleInput(GameInput input)

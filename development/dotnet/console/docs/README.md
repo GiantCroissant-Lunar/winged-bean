@@ -17,7 +17,10 @@ Implementation checklists and tracking:
 - `INTEGRATION-CHECKLIST.md` - Integration checklist
 
 ### `/design/`
-Design documents and technical specifications
+Design documents and technical specifications:
+- Plugin loading flow with resource service
+- Plugin loading flowchart
+- Plugin manifest NuGet dependencies
 
 ### `/handovers/`
 Session handover documents tracking implementation progress:
@@ -36,7 +39,7 @@ Project phase completion reports:
 
 ### `/rfc/`
 RFC implementation documentation:
-- `RFC0039-IMPLEMENTATION-COMPLETE.md` - RFC-0039 completion
+- `RFC-0039-IMPLEMENTATION-COMPLETE.md` - RFC-0039 completion
 - `RFC0040-IMPLEMENTATION-COMPLETE.md` - RFC-0040 completion
 - `SUMMARY-RFC0040-IMPLEMENTATION.md` - RFC-0040 summary
 
