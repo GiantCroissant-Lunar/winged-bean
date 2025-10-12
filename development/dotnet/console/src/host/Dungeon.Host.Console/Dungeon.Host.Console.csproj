@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>ConsoleDungeon.Host</RootNamespace>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Reference foundation services for dynamic plugin loading -->
+    <ProjectReference Include="../../../../../../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Registry/PluginManoi.Registry.csproj" />
+    <ProjectReference Include="../../../../../../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Loader/PluginManoi.Loader.csproj" />
+    <ProjectReference Include="../../../../../../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Loader.AssemblyContext/PluginManoi.Loader.AssemblyContext.csproj" />
+    <!-- Contracts for Terminal apps -->
+    <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Terminal/CrossMilo.Contracts.Terminal.csproj" />
+    <!-- Game-specific contracts -->
+    <ProjectReference Include="../../game/ConsoleDungeon.Contracts/ConsoleDungeon.Contracts.csproj" />
+    <!-- ArchECS plugin for service registration -->
+    <ProjectReference Include="../../plugins/WingedBean.Plugins.ArchECS/WingedBean.Plugins.ArchECS.csproj" />
+    <!-- Additional shared contracts for plugins (RFC-0037) -->
+    <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Scene/CrossMilo.Contracts.Scene.csproj" />
+    <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Input/CrossMilo.Contracts.Input.csproj" />
+    <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Audio/CrossMilo.Contracts.Audio.csproj" />
+    <!-- Resource contracts for NuGet loading -->
+    <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Resource/CrossMilo.Contracts.Resource.csproj" />
+    <!-- New plugin system + ALC loader for hybrid discovery -->
+    <ProjectReference Include="../../../../../../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Core/PluginManoi.Core.csproj" />
+    <ProjectReference Include="../../../../../../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Loader/PluginManoi.Loader.csproj" />
+    <ProjectReference Include="../../../../../../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Loader.AssemblyContext/PluginManoi.Loader.AssemblyContext.csproj" />
+    <!-- HostLand packages for hosting -->
+    <ProjectReference Include="../../../../../../../../plate-projects/host-land/dotnet/framework/src/HostLand.Console/HostLand.Console.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="plugins.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <Import Project="build/copy-plugins.targets" />
+
+  <ItemGroup>
+    <PackageReference Include="Scrutor" />
+  </ItemGroup>
+
+</Project>

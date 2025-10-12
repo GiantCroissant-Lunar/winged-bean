@@ -1,0 +1,384 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Plate.PluginManoi.Contracts;
+
+namespace ConsoleDungeon.Host;
+
+/// <summary>
+/// Provides HTTP endpoints for E2E testing that allow tests to query
+/// actual system state instead of relying on log pattern matching.
+/// Only enabled in testing mode for security.
+/// </summary>
+public class TestingEndpoints : IDisposable
+{
+    private readonly ILogger<TestingEndpoints> _logger;
+    private readonly IRegistry _registry;
+    private readonly PluginLoaderHostedService _pluginLoader;
+    private readonly HttpListener? _listener;
+    private readonly CancellationTokenSource _cts = new();
+    private readonly Stopwatch _uptime = Stopwatch.StartNew();
+    private readonly bool _enabled;
+
+    public TestingEndpoints(
+        ILogger<TestingEndpoints> logger,
+        IRegistry registry,
+        PluginLoaderHostedService pluginLoader)
+    {
+        _logger = logger;
+        _registry = registry;
+        _pluginLoader = pluginLoader;
+
+        // Only enable in testing mode
+        var enableHealthCheck = Environment.GetEnvironmentVariable("DUNGEON_EnableHealthCheck") == "true";
+        var enableBehavior = Environment.GetEnvironmentVariable("DUNGEON_EnableBehaviorEndpoints") == "true";
+        _enabled = enableHealthCheck || enableBehavior;
+
+        if (!_enabled)
+        {
+            _logger.LogDebug("Testing endpoints disabled (not in testing mode)");
+            return;
+        }
+
+        // Parse port from environment
+        var portStr = Environment.GetEnvironmentVariable("DUNGEON_HealthCheckPort")
+                   ?? Environment.GetEnvironmentVariable("DUNGEON_BehaviorPort")
+                   ?? "5555";
+
+        if (!int.TryParse(portStr, out var port))
+        {
+            port = 5555;
+        }
+
+        // Start HTTP listener
+        try
+        {
+            _listener = new HttpListener();
+            _listener.Prefixes.Add($"http://localhost:{port}/");
+            _listener.Start();
+            _logger.LogInformation("Testing endpoints listening on http://localhost:{Port}", port);
+            _logger.LogInformation("Health check endpoint ready");
+
+            // Start handling requests
+            Task.Run(() => HandleRequestsAsync(_cts.Token));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to start testing endpoints");
+        }
+    }
+
+    private async Task HandleRequestsAsync(CancellationToken cancellationToken)
+    {
+        if (_listener == null) return;
+
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            try
+            {
+                var context = await _listener.GetContextAsync();
+                _ = Task.Run(() => HandleRequestAsync(context, cancellationToken), cancellationToken);
+            }
+            catch (HttpListenerException) when (cancellationToken.IsCancellationRequested)
+            {
+                break;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in request handling loop");
+            }
+        }
+    }
+
+    private async Task HandleRequestAsync(HttpListenerContext context, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var path = context.Request.Url?.AbsolutePath ?? "/";
+            _logger.LogDebug("Handling request: {Method} {Path}", context.Request.HttpMethod, path);
+
+            object? response = path switch
+            {
+                "/health" => GetHealthStatus(),
+                "/health/plugins" => GetPluginHealth(),
+                "/health/services" => GetServiceHealth(),
+                var p when p.StartsWith("/behavior/") => await HandleBehaviorRequestAsync(p, context),
+                _ => new { error = "Not found", path }
+            };
+
+            await SendJsonResponse(context, response);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error handling request");
+            await SendJsonResponse(context, new { error = ex.Message }, HttpStatusCode.InternalServerError);
+        }
+    }
+
+    private object GetHealthStatus()
+    {
+        var registeredServices = new List<string>();
+
+        // Try to enumerate registered services
+        try
+        {
+            // This is a simplified version - actual implementation depends on IRegistry API
+            registeredServices.Add("IRegistry");
+
+            // Check for common services
+            if (TryGetService<ITerminalApp>(out _))
+                registeredServices.Add("ITerminalApp");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Error enumerating services");
+        }
+
+        return new
+        {
+            Status = "Healthy",
+            PluginsLoaded = _pluginLoader.LoadedPluginCount,
+            RegisteredServices = registeredServices,
+            UptimeSeconds = _uptime.Elapsed.TotalSeconds,
+            CriticalErrors = new List<string>()
+        };
+    }
+
+    private object GetPluginHealth()
+    {
+        var plugins = _pluginLoader.GetLoadedPlugins()
+            .Select(p => new
+            {
+                Id = p.Id,
+                Status = p.LoadedSuccessfully ? "Healthy" : "Unhealthy",
+                LoadedSuccessfully = p.LoadedSuccessfully,
+                Errors = p.Errors.Select(e => new
+                {
+                    Message = e.Message,
+                    Severity = e.IsCritical ? "Critical" : "Warning"
+                }).ToList()
+            })
+            .ToList();
+
+        return new { Plugins = plugins };
+    }
+
+    private object GetServiceHealth()
+    {
+        var services = new List<object>();
+
+        // Check IRegistry
+        services.Add(new
+        {
+            InterfaceName = "IRegistry",
+            IsCallable = true,
+            InstanceExists = _registry != null,
+            HealthCheckPassed = (bool?)true
+        });
+
+        // Check ITerminalApp
+        var terminalAppCallable = TryGetService<ITerminalApp>(out var terminalApp);
+        services.Add(new
+        {
+            InterfaceName = "ITerminalApp",
+            IsCallable = terminalAppCallable,
+            InstanceExists = terminalApp != null,
+            HealthCheckPassed = (bool?)terminalAppCallable
+        });
+
+        return new { Services = services };
+    }
+
+    private async Task<object> HandleBehaviorRequestAsync(string path, HttpListenerContext context)
+    {
+        // Behavior endpoints for testing actual plugin functionality
+        var segments = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+        if (segments.Length < 3)
+        {
+            return new { error = "Invalid behavior path", path };
+        }
+
+        var category = segments[1]; // e.g., "resource", "ecs", "config"
+        var action = segments[2];   // e.g., "load", "create-entity"
+
+        return category switch
+        {
+            "resource" => await HandleResourceBehaviorAsync(action, context),
+            "ecs" => await HandleECSBehaviorAsync(action, context),
+            "config" => await HandleConfigBehaviorAsync(action, context),
+            "state" => await HandleStateBehaviorAsync(action, context),
+            "integration" => await HandleIntegrationBehaviorAsync(action, context),
+            "plugins" => HandlePluginsBehaviorAsync(action, context),
+            _ => new { error = "Unknown behavior category", category }
+        };
+    }
+
+    private async Task<object> HandleResourceBehaviorAsync(string action, HttpListenerContext context)
+    {
+        if (action == "load")
+        {
+            var path = context.Request.QueryString["path"];
+            if (string.IsNullOrEmpty(path))
+            {
+                return new { Success = false, error = "path parameter required" };
+            }
+
+            var stopwatch = Stopwatch.StartNew();
+            try
+            {
+                // Try to load resource via resource service
+                if (TryGetService<IResourceService>(out var resourceService))
+                {
+                    // Actual implementation would call resourceService.LoadAsync(path)
+                    // For now, simulate
+                    var content = await System.IO.File.ReadAllTextAsync(path);
+                    stopwatch.Stop();
+
+                    return new
+                    {
+                        Success = true,
+                        Content = content,
+                        LoadTimeMs = stopwatch.Elapsed.TotalMilliseconds
+                    };
+                }
+
+                return new { Success = false, error = "ResourceService not available" };
+            }
+            catch (Exception ex)
+            {
+                return new { Success = false, error = ex.Message };
+            }
+        }
+
+        return new { error = "Unknown resource action", action };
+    }
+
+    private async Task<object> HandleECSBehaviorAsync(string action, HttpListenerContext context)
+    {
+        // Placeholder for ECS behavior testing
+        return new { error = "ECS behavior testing not implemented", action };
+    }
+
+    private async Task<object> HandleConfigBehaviorAsync(string action, HttpListenerContext context)
+    {
+        if (action == "get")
+        {
+            var key = context.Request.QueryString["key"];
+            if (string.IsNullOrEmpty(key))
+            {
+                return new { Success = false, error = "key parameter required" };
+            }
+
+            // Placeholder - actual implementation would query config service
+            return new
+            {
+                Success = true,
+                Value = "test-value" // Mock value
+            };
+        }
+
+        return new { error = "Unknown config action", action };
+    }
+
+    private async Task<object> HandleStateBehaviorAsync(string action, HttpListenerContext context)
+    {
+        // Placeholder for state management testing
+        return new { error = "State behavior testing not implemented", action };
+    }
+
+    private async Task<object> HandleIntegrationBehaviorAsync(string action, HttpListenerContext context)
+    {
+        // Placeholder for plugin integration testing
+        return new { error = "Integration behavior testing not implemented", action };
+    }
+
+    private object HandlePluginsBehaviorAsync(string action, HttpListenerContext context)
+    {
+        if (action == "load-order")
+        {
+            var loadOrder = _pluginLoader.GetLoadedPlugins()
+                .Select(p => p.Id)
+                .ToList();
+
+            return new { LoadOrder = loadOrder };
+        }
+
+        return new { error = "Unknown plugins action", action };
+    }
+
+    private bool TryGetService<T>(out T? service) where T : class
+    {
+        try
+        {
+            service = _registry.Get<T>();
+            return service != null;
+        }
+        catch
+        {
+            service = null;
+            return false;
+        }
+    }
+
+    private async Task SendJsonResponse(HttpListenerContext context, object? data, HttpStatusCode statusCode = HttpStatusCode.OK)
+    {
+        context.Response.StatusCode = (int)statusCode;
+        context.Response.ContentType = "application/json";
+
+        var json = JsonSerializer.Serialize(data, new JsonSerializerOptions
+        {
+            WriteIndented = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        });
+
+        var buffer = Encoding.UTF8.GetBytes(json);
+        context.Response.ContentLength64 = buffer.Length;
+        await context.Response.OutputStream.WriteAsync(buffer);
+        context.Response.Close();
+    }
+
+    public void Dispose()
+    {
+        _cts.Cancel();
+        _listener?.Stop();
+        _listener?.Close();
+        _cts.Dispose();
+    }
+}
+
+// Extension classes to support testing (these would be added to PluginLoaderHostedService)
+public static class PluginLoaderTestExtensions
+{
+    public static int LoadedPluginCount => 0; // Placeholder
+
+    public static IEnumerable<PluginInfo> GetLoadedPlugins(this PluginLoaderHostedService loader)
+    {
+        // Placeholder - actual implementation would track loaded plugins
+        return Enumerable.Empty<PluginInfo>();
+    }
+}
+
+public record PluginInfo
+{
+    public string Id { get; init; } = "";
+    public bool LoadedSuccessfully { get; init; }
+    public List<PluginErrorInfo> Errors { get; init; } = new();
+}
+
+public record PluginErrorInfo
+{
+    public string Message { get; init; } = "";
+    public bool IsCritical { get; init; }
+}
+
+// Placeholder interfaces (these would be defined in actual plugin contracts)
+public interface IResourceService { }
+public interface ITerminalApp { }
