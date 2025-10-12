@@ -19,7 +19,7 @@ namespace WingedBean.Plugins.DungeonGame;
 public class DungeonGame
 {
     private readonly IRegistry _registry;
-    private readonly ArchECSService _ecs;
+    private ArchECSService _ecs = null!;
     private readonly IResourceService? _resourceService;
     private readonly ILogger<DungeonGame>? _logger;
     private readonly ResourceLoader? _resourceLoader;
@@ -32,7 +32,8 @@ public class DungeonGame
     public DungeonGame(IRegistry registry)
     {
         _registry = registry ?? throw new ArgumentNullException(nameof(registry));
-        _ecs = registry.Get<ArchECSService>();
+        // Note: Don't resolve ArchECSService here - it may not be registered yet
+        // It will be resolved in Initialize() when all plugins have activated
 
         // Try to get resource service (optional for backward compatibility)
         try
@@ -79,6 +80,9 @@ public class DungeonGame
     {
         if (_isInitialized)
             return;
+
+        // Resolve ArchECSService now that all plugins should be activated
+        _ecs = _registry.Get<ArchECSService>();
 
         _logger?.LogInformation("Initializing DungeonGame with ECS...");
 

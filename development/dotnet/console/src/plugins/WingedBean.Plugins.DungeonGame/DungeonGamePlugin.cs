@@ -24,6 +24,8 @@ public class DungeonGamePlugin : IPlugin
 
     public async Task OnActivateAsync(IRegistry registry, CancellationToken ct = default)
     {
+        Console.WriteLine("DEBUG: DungeonGamePlugin.OnActivateAsync CALLED!");
+        
         // Try to get logger (optional)
         try
         {
@@ -35,12 +37,34 @@ public class DungeonGamePlugin : IPlugin
         }
 
         _logger?.LogInformation("DungeonGamePlugin OnActivateAsync called");
+        Console.WriteLine("DEBUG: Got logger");
+
+        // WORKAROUND: Ensure ArchECSService is registered before we need it
+        // This is needed because ArchECSPlugin's OnActivateAsync isn't being called by the manifest loader
+        try
+        {
+            var existingEcs = registry.Get<WingedBean.Plugins.ArchECS.ArchECSService>();
+            _logger?.LogDebug("ArchECSService already registered");
+            Console.WriteLine("DEBUG: ArchECSService found");
+        }
+        catch
+        {
+            Console.WriteLine("DEBUG: ArchECSService NOT found, registering now");
+            _logger?.LogWarning("ArchECSService not found in registry, registering it now");
+            var ecsService = new WingedBean.Plugins.ArchECS.ArchECSService();
+            registry.Register<WingedBean.Plugins.ArchECS.ArchECSService>(ecsService, priority: 100);
+            _logger?.LogInformation("Registered ArchECSService");
+            Console.WriteLine("DEBUG: ArchECSService registered");
+        }
 
         // Register Dungeon Game service
+        Console.WriteLine("DEBUG: Creating DungeonGameService");
         _dungeonService = new DungeonGameService(registry);
         _logger?.LogDebug("Created DungeonGameService instance");
+        Console.WriteLine("DEBUG: Registering IDungeonService");
         registry.Register<IDungeonService>(_dungeonService, priority: 100);
         _logger?.LogDebug("Registered IDungeonService");
+        Console.WriteLine("DEBUG: DungeonGamePlugin.OnActivateAsync COMPLETE");
 
         await Task.CompletedTask;
     }

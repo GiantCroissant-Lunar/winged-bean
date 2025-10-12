@@ -8,14 +8,41 @@ Console implementation of WingedBean platform with Terminal.Gui v2 and xterm.js 
 - `src/ConsoleDungeon.Host/` - Bootstrap entry point
 - `tests/` - Test projects
 
-## Running
+## Building
+
+### Using Build-Arcane (Recommended)
+
+```bash
+# Restore tools
+dotnet tool restore
+
+# Build only
+dotnet lunar-build compile
+
+# Build and test
+dotnet lunar-build test
+
+# Full CI pipeline
+dotnet lunar-build ci
+```
+
+### Using Standard dotnet CLI
 
 ```bash
 # Build
 dotnet build Console.sln
 
-# Run
-dotnet run --project src/ConsoleDungeon.Host/ConsoleDungeon.Host.csproj
+# Test
+dotnet test Console.sln
+```
+
+See [BUILD_SYSTEM_MIGRATION.md](BUILD_SYSTEM_MIGRATION.md) for details.
+
+## Running
+
+```bash
+# Run the game
+dotnet run --project src/host/ConsoleDungeon.Host/ConsoleDungeon.Host.csproj
 ```
 
 The WebSocket server will start on port 4040. Connect from the Astro frontend's xterm.js terminal.

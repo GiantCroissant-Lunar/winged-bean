@@ -17,7 +17,7 @@ namespace WingedBean.Plugins.DungeonGame;
 public class DungeonGameService : IDungeonService, IDisposable
 {
     private readonly IRegistry _registry;
-    private readonly ArchECSService _ecs;
+    private ArchECSService? _ecs;
     private readonly DungeonGame _game;
 
     private readonly BehaviorSubject<GameState> _gameStateSubject;
@@ -29,10 +29,9 @@ public class DungeonGameService : IDungeonService, IDisposable
     public DungeonGameService(IRegistry registry)
     {
         _registry = registry ?? throw new ArgumentNullException(nameof(registry));
-        _ecs = _registry.Get<ArchECSService>();
+        // Note: Don't resolve ArchECSService here - it may not be registered yet
+        // It will be resolved in Initialize() when all plugins have activated
         _game = new DungeonGame(registry);
-
-        _ecs.ModeChanged += HandleModeChanged;
 
         _gameStateSubject = new BehaviorSubject<GameState>(GameState.NotStarted);
         _entitiesSubject = new BehaviorSubject<IReadOnlyList<EntitySnapshot>>(Array.Empty<EntitySnapshot>());
@@ -41,6 +40,22 @@ public class DungeonGameService : IDungeonService, IDisposable
 
     public void Initialize()
     {
+        // Resolve or create ArchECSService
+        // NOTE: Due to manifest-based plugin loading issues, ArchECSService might not be registered
+        // So we try to get it, and if that fails, we create and register it ourselves
+        try
+        {
+            _ecs = _registry.Get<ArchECSService>();
+        }
+        catch (ServiceNotFoundException)
+        {
+            // ArchECSService not in registry - create and register it
+            _ecs = new ArchECSService();
+            _registry.Register<ArchECSService>(_ecs, priority: 100);
+        }
+        
+        _ecs.ModeChanged += HandleModeChanged;
+        
         _game.Initialize();
         _ecs.SetMode(GameMode.Play);
         _gameStateSubject.OnNext(GameState.Running);

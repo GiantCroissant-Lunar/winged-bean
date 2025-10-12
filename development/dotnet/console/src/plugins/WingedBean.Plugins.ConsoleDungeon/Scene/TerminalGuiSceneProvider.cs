@@ -117,7 +117,15 @@ public class TerminalGuiSceneProvider : ISceneService
         {
             var term = Environment.GetEnvironmentVariable("TERM");
             var redirected = System.Console.IsInputRedirected || System.Console.IsOutputRedirected;
-            _headlessMode = string.IsNullOrEmpty(term) || redirected;
+            
+            // Allow forcing UI mode even if redirected (for debugging/testing)
+            var forceUI = Environment.GetEnvironmentVariable("FORCE_UI") == "1";
+            _headlessMode = !forceUI && (string.IsNullOrEmpty(term) || redirected);
+            
+            if (forceUI)
+            {
+                _logger?.LogInformation("FORCE_UI=1 detected: UI mode forced (overriding redirection detection)");
+            }
         }
         catch { _headlessMode = true; }
 

@@ -1,9 +1,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Plate.CrossMilo.Contracts.Terminal;
 using Plate.CrossMilo.Contracts.Recorder.Services;
+using Plate.CrossMilo.Contracts.Terminal;
 using Plate.PluginManoi.Core;
-using WingedBean.Host.Console;
+using Plate.PluginManoi.Loader;
+using Plate.PluginManoi.Loader.AssemblyContext;
 
 namespace WingedBean.Demo;
 
@@ -29,8 +30,9 @@ class Program
 
         try
         {
-            // Create plugin loader for Console profile
-            var pluginLoader = new AlcPluginLoader(loggerFactory.CreateLogger<AlcPluginLoader>());
+            // Create plugin loader using PluginManoi
+            var contextProvider = new AssemblyContextProvider(loggerFactory.CreateLogger<AssemblyContextProvider>());
+            var pluginLoader = new ActualPluginLoader(contextProvider, loggerFactory.CreateLogger<ActualPluginLoader>());
 
             // Get multiple plugin directories
             var currentDir = Path.GetDirectoryName(typeof(Program).Assembly.Location)!;

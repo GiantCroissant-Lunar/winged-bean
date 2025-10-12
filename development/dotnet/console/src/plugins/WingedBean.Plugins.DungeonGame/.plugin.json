@@ -17,5 +17,6 @@
     "comment": "RenderService removed - was framework-level service that didn't belong in game plugin"
   },
   "capabilities": [ "game-logic" ],
-  "loadStrategy": "eager"
+  "loadStrategy": "eager",
+  "priority": 150
 }

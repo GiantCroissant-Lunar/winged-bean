@@ -36,6 +36,6 @@
 
   "supportedProfiles": ["console", "unity", "godot"],
 
-  "loadStrategy": "lazy",
+  "loadStrategy": "eager",
   "priority": 100
 }

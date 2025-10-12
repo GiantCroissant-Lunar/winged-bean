@@ -236,3 +236,12 @@ pnpm test -- --verbose
 - [ ] Add load testing for WebSocket connections
 - [ ] Add mutation testing
 - [ ] Add contract tests for API boundaries
+
+## Test Documentation
+
+- `TEST-OUTPUT-STRATEGY.md` - Strategy for test output and reporting
+
+## Test Suites
+
+- `/e2e/` - End-to-end tests
+- `/integration/` - Integration tests (including RFC-0006 tests)

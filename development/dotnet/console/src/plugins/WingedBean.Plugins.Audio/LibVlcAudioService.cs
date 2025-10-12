@@ -2,16 +2,14 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using LibVLCSharp.Shared;
 using Microsoft.Extensions.Logging;
-using Plate.CrossMilo.Contracts.Audio.Services;
 using Plate.CrossMilo.Contracts.Audio;
-using Plate.PluginManoi.Contracts;
+using Plate.CrossMilo.Contracts.Audio.Services;
 
 namespace WingedBean.Plugins.Audio;
 
 /// <summary>
 /// Audio service implementation using LibVLC for console applications.
 /// </summary>
-[RealizeService(typeof(IService))]
 public sealed class LibVlcAudioService : IService, IDisposable
 {
     private readonly ILogger<LibVlcAudioService> _logger;
@@ -280,10 +278,10 @@ public sealed class LibVlcAudioService : IService, IDisposable
             _logger.LogInformation("========================================");
             _logger.LogInformation("Attempting to initialize LibVLC...");
             _logger.LogInformation("========================================");
-            
+
             Core.Initialize();
             _logger.LogInformation("LibVLC Core.Initialize() completed");
-            
+
             _libVlc = new LibVLC("--quiet");
             _logger.LogInformation("========================================");
             _logger.LogInformation("✓ LibVLC initialized successfully");

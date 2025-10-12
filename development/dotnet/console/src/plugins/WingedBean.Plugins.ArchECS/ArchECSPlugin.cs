@@ -7,6 +7,11 @@ namespace WingedBean.Plugins.ArchECS;
 /// Legacy plugin interface implementation for backward compatibility with the current host.
 /// This bridges the gap between the new IPluginActivator pattern and the old IPlugin pattern.
 /// </summary>
+[Plugin(
+    Name = "ArchECSService",
+    Provides = new[] { typeof(ArchECSService) },
+    Priority = 100
+)]
 public class ArchECSPlugin : IPlugin
 {
     private ArchECSService? _serviceInstance;
@@ -16,11 +21,15 @@ public class ArchECSPlugin : IPlugin
 
     public Task OnActivateAsync(IRegistry registry, CancellationToken ct = default)
     {
+        Console.WriteLine("DEBUG: ArchECSPlugin.OnActivateAsync called!");
+
         // Create the ECS service instance
         _serviceInstance = new ArchECSService();
+        Console.WriteLine("DEBUG: Created ArchECSService instance");
 
         // Register the service directly with the registry
         registry.Register<ArchECSService>(_serviceInstance, priority: 100);
+        Console.WriteLine("DEBUG: Registered ArchECSService in registry");
 
         return Task.CompletedTask;
     }
