@@ -17,6 +17,9 @@ public class ConsoleDungeonActivator : IPluginActivator
         var logger = hostServices.GetService<ILogger<ConsoleDungeonActivator>>();
         logger?.LogInformation("Registering ITerminalApp -> ConsoleDungeonAppRefactored (RFC-0020/0021)");
 
+        // Register GOAP services (managed planner dependencies)
+        services.AddGoap();
+
         services.AddSingleton<ITerminalApp, ConsoleDungeonAppRefactored>();
         return Task.CompletedTask;
     }
