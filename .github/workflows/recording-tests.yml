@@ -109,7 +109,7 @@ jobs:
           fi
 
       - name: Verify console recordings
-        working-directory: build/_artifacts/0.0.1-436/dotnet
+        working-directory: build/_artifacts/0.0.1-436/dotnet/console/bin
         run: |
           echo "Checking for recording files..."
           ls -lh recordings/ || echo "No recordings directory"
@@ -125,6 +125,7 @@ jobs:
               # Show first recording file content (metadata)
               echo "--- Sample recording metadata ---"
               find recordings -name "*.cast" -exec head -1 {} \; | head -1
+              find recordings -name "*.urf.jsonl" -exec head -3 {} \; | head -5
             else
               echo "⚠️ No recording files found"
             fi
@@ -138,7 +139,7 @@ jobs:
         with:
           name: console-recordings
           path: |
-            build/_artifacts/0.0.1-436/dotnet/recordings/
+            build/_artifacts/0.0.1-436/dotnet/console/bin/recordings/
             build/_artifacts/0.0.1-436/dotnet/console/bin/console-recording.log
           retention-days: 7
 
