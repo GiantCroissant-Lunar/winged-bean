@@ -37,6 +37,16 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Checkout plate-projects dependencies
+        run: |
+          cd ../../
+          echo "Cloning plate-projects dependencies..."
+          git clone https://github.com/GiantCroissant-Lunar/plugin-manoi.git plate-projects/plugin-manoi
+          git clone https://github.com/GiantCroissant-Lunar/cross-milo.git plate-projects/cross-milo
+          git clone https://github.com/GiantCroissant-Lunar/host-land.git plate-projects/host-land
+          echo "✅ Dependencies cloned"
+          ls -la plate-projects/
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
@@ -141,6 +151,16 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Checkout plate-projects dependencies
+        run: |
+          cd ../../
+          echo "Cloning plate-projects dependencies..."
+          git clone https://github.com/GiantCroissant-Lunar/plugin-manoi.git plate-projects/plugin-manoi
+          git clone https://github.com/GiantCroissant-Lunar/cross-milo.git plate-projects/cross-milo
+          git clone https://github.com/GiantCroissant-Lunar/host-land.git plate-projects/host-land
+          echo "✅ Dependencies cloned"
+          ls -la plate-projects/
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
@@ -156,23 +176,23 @@ jobs:
         run: |
           echo "Building desktop version..."
           pushd ../development/dotnet/windows/src/host/Dungeon.Host.SadConsole
-          dotnet build -c Debug || echo "Build warnings/errors ignored for CI"
+          dotnet build -c Debug
           DESKTOP_BIN="$(pwd)/bin/Debug/net8.0"
           popd
 
           # Copy to artifacts
           mkdir -p _artifacts/0.0.1-436/dotnet/desktop/bin
           cp -r ../development/dotnet/windows/src/host/Dungeon.Host.SadConsole/bin/Debug/net8.0/* \
-               _artifacts/0.0.1-436/dotnet/desktop/bin/ || true
+               _artifacts/0.0.1-436/dotnet/desktop/bin/
 
           # Copy correct SadConsole plugin manifest
           cp ../development/dotnet/windows/src/plugins/WingedBean.Plugins.SadConsole/WingedBean.Plugins.SadConsole.plugin.json \
-             _artifacts/0.0.1-436/dotnet/desktop/bin/plugins/ || true
+             _artifacts/0.0.1-436/dotnet/desktop/bin/plugins/
 
           # Copy Recorder.Snapshots plugin
           mkdir -p _artifacts/0.0.1-436/dotnet/desktop/bin/plugins
           cp ../development/dotnet/windows/src/plugins/WingedBean.Plugins.Recorder.Snapshots/bin/Debug/net8.0/WingedBean.Plugins.Recorder.Snapshots.dll \
-             _artifacts/0.0.1-436/dotnet/desktop/bin/plugins/ || true
+             _artifacts/0.0.1-436/dotnet/desktop/bin/plugins/
 
           echo "✅ Desktop version built and copied"
           ls -la _artifacts/0.0.1-436/dotnet/desktop/bin/
