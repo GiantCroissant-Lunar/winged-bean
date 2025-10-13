@@ -60,31 +60,29 @@ jobs:
       - name: Build console app and plugins
         working-directory: build
         run: |
+          # Build AsciinemaRecorder plugin FIRST so MSBuild target can copy it
+          echo "Building AsciinemaRecorder plugin..."
+          pushd ../development/dotnet/console/src/plugins/WingedBean.Plugins.AsciinemaRecorder
+          dotnet build -c Debug
+          popd
+
+          # Now build console host - MSBuild target will copy all plugins including AsciinemaRecorder
           echo "Building console version..."
           pushd ../development/dotnet/console/src/host/Dungeon.Host.Console
           dotnet build -c Debug
           CONSOLE_BIN="$(pwd)/bin/Debug/net8.0"
           popd
 
-          # Build AsciinemaRecorder plugin
-          echo "Building AsciinemaRecorder plugin..."
-          pushd ../development/dotnet/console/src/plugins/WingedBean.Plugins.AsciinemaRecorder
-          dotnet build -c Debug
-          popd
-
-          # Copy console host to artifacts
+          # Copy console host to artifacts (includes all plugins from MSBuild target)
           mkdir -p _artifacts/0.0.1-436/dotnet/console/bin
           cp -r ../development/dotnet/console/src/host/Dungeon.Host.Console/bin/Debug/net8.0/* \
                _artifacts/0.0.1-436/dotnet/console/bin/
 
-          # Copy AsciinemaRecorder plugin to plugins directory
-          mkdir -p _artifacts/0.0.1-436/dotnet/console/bin/plugins/WingedBean.Plugins.AsciinemaRecorder
-          cp -r ../development/dotnet/console/src/plugins/WingedBean.Plugins.AsciinemaRecorder/bin/Debug/net8.0/* \
-               _artifacts/0.0.1-436/dotnet/console/bin/plugins/WingedBean.Plugins.AsciinemaRecorder/
-
           echo "✅ Console version and plugins built and copied"
           echo "Checking plugin location:"
           ls -la _artifacts/0.0.1-436/dotnet/console/bin/plugins/
+          echo "Checking AsciinemaRecorder plugin contents:"
+          ls -la _artifacts/0.0.1-436/dotnet/console/bin/plugins/WingedBean.Plugins.AsciinemaRecorder/
 
       - name: Test console recording
         working-directory: build/_artifacts/0.0.1-436/dotnet/console/bin
