@@ -1,17 +1,24 @@
 {
   "projects": [
-    "development/dotnet/console/src/host/Dungeon.Host.Console/Dungeon.Host.Console.csproj",
-    "development/dotnet/windows/src/host/Dungeon.Host.SadConsole/Dungeon.Host.SadConsole.csproj",
-    "development/dotnet/windows/src/plugins/WingedBean.Plugins.SadConsole/WingedBean.Plugins.SadConsole.csproj",
-    "development/dotnet/console/src/plugins/WingedBean.Plugins.DungeonGame/WingedBean.Plugins.DungeonGame.csproj"
+    "development/dotnet/console/src/host/Dungeon.Host.Console/Dungeon.Host.Console.csproj"
   ],
-  "tests": { "enabled": false },
-  "pack": { "enable": false },
-  "report": { "coverage": false },
+  "tests": {
+    "enabled": true,
+    "coverage": true
+  },
+  "pack": {
+    "enable": false
+  },
   "publish": {
     "artifacts": [
-      "development/dotnet/console/src/host/Dungeon.Host.Console/Dungeon.Host.Console.csproj",
-      "development/dotnet/windows/src/host/Dungeon.Host.SadConsole/Dungeon.Host.SadConsole.csproj"
+      "development/dotnet/console/src/host/Dungeon.Host.Console/Dungeon.Host.Console.csproj"
     ]
+  },
+  "metrics": {
+    "enabled": true,
+    "exclude": ["obj", "bin", ".git", "node_modules", "_artifacts"]
+  },
+  "report": {
+    "coverage": true
   }
 }

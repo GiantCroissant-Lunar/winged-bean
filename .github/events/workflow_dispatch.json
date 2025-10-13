@@ -1,0 +1,20 @@
+{
+  "action": "workflow_dispatch",
+  "inputs": {
+    "record_duration": "5"
+  },
+  "ref": "refs/heads/main",
+  "repository": {
+    "name": "winged-bean",
+    "owner": {
+      "login": "apprenticegc",
+      "name": "ApprenticeGC"
+    },
+    "full_name": "apprenticegc/winged-bean",
+    "default_branch": "main"
+  },
+  "sender": {
+    "login": "apprenticegc",
+    "type": "User"
+  }
+}

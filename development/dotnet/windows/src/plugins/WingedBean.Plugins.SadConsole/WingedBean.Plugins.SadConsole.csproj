@@ -27,8 +27,7 @@
       <ExcludeAssets>runtime</ExcludeAssets>
     </ProjectReference>
     <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Gameplay/WingedBean.Contracts.Gameplay.csproj">
-      <Private>false</Private>
-      <ExcludeAssets>runtime</ExcludeAssets>
+      <Private>true</Private>
     </ProjectReference>
     <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Recorder/CrossMilo.Contracts.Recorder.csproj">
       <Private>false</Private>

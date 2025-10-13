@@ -1,14 +1,14 @@
 {
   "id": "winged-bean.plugins.recorder.snapshots",
-  "name": "Snapshot Recorder (WorldSnapshotProvider)",
-  "version": "1.0.0",
-  "description": "Records game state snapshots to JSONL format for replay",
+  "name": "URF Recorder for Desktop (WorldSnapshotProvider)",
+  "version": "2.0.0",
+  "description": "Records game state in Universal Recording Format (URF) with Asciinema export",
   "author": "WingedBean Team",
   "entryPoint": {
     "dotnet": "WingedBean.Plugins.Recorder.Snapshots.dll"
   },
   "loadStrategy": "Eager",
-  "priority": 90,
+  "priority": 110,
   "dependencies": {
     "plugins": [],
     "nuget": []
@@ -17,7 +17,7 @@
     "services": [
       {
         "interface": "Plate.CrossMilo.Contracts.Recorder.Services.IService",
-        "implementation": "WingedBean.Plugins.Recorder.Snapshots.SnapshotRecorderService",
+        "implementation": "WingedBean.Plugins.Recorder.Snapshots.URFRecorderService",
         "lifecycle": "singleton"
       }
     ]

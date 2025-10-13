@@ -23,6 +23,8 @@
     <PackageReference Include="ObservableCollections" />
     <PackageReference Include="Terminal.Gui" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="GoRogue" />
+    <PackageReference Include="TheSadRogue.Primitives" />
   </ItemGroup>
 
   <ItemGroup>

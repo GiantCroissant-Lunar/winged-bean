@@ -139,6 +139,9 @@ var host = HostLand.Console.Host.CreateConsoleBuilder(args)
             // Register plugin loader hosted service (runs before terminal app)
             services.AddHostedService<PluginLoaderHostedService>();
 
+            // Register recording control service for automated testing
+            services.AddHostedService<RecordingControlService>();
+
             // Register ITerminalApp factory that resolves from registry
             // Factory executes lazily when ITerminalApp is first requested
             services.AddSingleton<ITerminalApp>(sp =>
