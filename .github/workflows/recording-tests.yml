@@ -90,11 +90,12 @@ jobs:
           DURATION="${{ inputs.record_duration || '10' }}"
           echo "Testing console recording for ${DURATION} seconds..."
 
-          # Run recording test
+          # Run recording test with bot enabled
           ./Dungeon.Host.Console \
             --record=true \
             --record-duration=${DURATION} \
             --record-session=ci-console-test \
+            --bot-enabled=true \
             2>&1 | tee console-recording.log
 
           EXIT_CODE=${PIPESTATUS[0]}
@@ -121,6 +122,14 @@ jobs:
             if [ $RECORDING_COUNT -gt 0 ]; then
               echo "✅ Recording files created"
               find recordings -name "*.cast" -o -name "*.urf.jsonl" -exec ls -lh {} \;
+
+              # Validate recording has content (not just metadata)
+              FILE_SIZE=$(find recordings -name "*.cast" -exec wc -c {} \; | awk '{print $1}' | head -1)
+              if [ -n "$FILE_SIZE" ] && [ "$FILE_SIZE" -gt 500 ]; then
+                echo "✅ Recording has content (${FILE_SIZE} bytes)"
+              else
+                echo "⚠️ Recording seems empty (${FILE_SIZE} bytes, expected > 500)"
+              fi
 
               # Show first recording file content (metadata)
               echo "--- Sample recording metadata ---"
