@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.Extensions.Logging;
 
-namespace Dungeon.Host.Console;
+namespace WingedBean.Testing.Recorder;
 
 /// <summary>
 /// Handles formatted output generation for the recording test bot

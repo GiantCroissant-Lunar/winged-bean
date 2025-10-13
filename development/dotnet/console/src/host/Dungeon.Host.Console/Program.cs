@@ -20,6 +20,7 @@ using Plate.PluginManoi.Loader;
 using Plate.PluginManoi.Loader.AssemblyContext;
 using Plate.PluginManoi.Registry;
 using Scrutor;
+using WingedBean.Testing.Recorder;
 // Terminal and UI contracts now in Plate.CrossMilo.Contracts namespace
 using ITerminalApp = Plate.CrossMilo.Contracts.Terminal.ITerminalApp;
 using LegacyTerminalAppAdapter = Plate.CrossMilo.Contracts.Terminal.LegacyTerminalAppAdapter;

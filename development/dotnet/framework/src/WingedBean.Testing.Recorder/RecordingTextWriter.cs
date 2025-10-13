@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Plate.CrossMilo.Contracts.Recorder.Services;
 
-namespace Dungeon.Host.Console;
+namespace WingedBean.Testing.Recorder;
 
 /// <summary>
 /// TextWriter that intercepts console output and feeds it to the recorder

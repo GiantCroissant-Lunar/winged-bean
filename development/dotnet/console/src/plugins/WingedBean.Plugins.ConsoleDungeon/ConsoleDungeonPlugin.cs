@@ -20,9 +20,7 @@ public class ConsoleDungeonActivator : IPluginActivator
 
         // Register GOAP services (managed planner dependencies)
         services.AddGoap();
-
-        // Run a one-time GOAP demo plan to verify integration
-        GoapDemoRunner.RunOnce(logger);
+        services.AddWingedBeanGoap();
 
         services.AddSingleton<ITerminalApp, ConsoleDungeonAppRefactored>();
         return Task.CompletedTask;

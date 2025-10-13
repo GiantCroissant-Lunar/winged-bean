@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,7 +11,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using RulesEngine.Models;
 
-namespace Dungeon.Host.Console;
+namespace WingedBean.Testing.Recorder;
 
 /// <summary>
 /// Background service that generates synthetic terminal activity for recording tests
@@ -168,6 +169,25 @@ public class RecordingTestBotService : BackgroundService
     {
         try
         {
+            // First try embedded resource
+            var assembly = Assembly.GetExecutingAssembly();
+            var resourceName = "WingedBean.Testing.Recorder.recording-test-scenarios.json";
+
+            using var stream = assembly.GetManifestResourceStream(resourceName);
+            if (stream != null)
+            {
+                using var reader = new StreamReader(stream);
+                var json = reader.ReadToEnd();
+                var workflows = JsonSerializer.Deserialize<List<Workflow>>(json);
+
+                if (workflows != null && workflows.Count > 0)
+                {
+                    _logger.LogInformation("[Bot] Loaded {Count} workflow(s) from embedded resource", workflows.Count);
+                    return workflows;
+                }
+            }
+
+            // Fallback: try external file (for development/testing)
             var scenarioPath = System.IO.Path.Combine(AppContext.BaseDirectory, "recording-test-scenarios.json");
             if (System.IO.File.Exists(scenarioPath))
             {

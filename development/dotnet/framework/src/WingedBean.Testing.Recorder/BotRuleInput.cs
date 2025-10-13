@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Dungeon.Host.Console;
+namespace WingedBean.Testing.Recorder;
 
 /// <summary>
 /// Input context for bot rule evaluation

@@ -1,5 +1,6 @@
 using System;
 using Microsoft.Extensions.Logging;
+using Plate.Agent.Core;
 using Plate.Goap.Adapters;
 using Plate.Goap.Core;
 using Plate.Goap.Resolver;
@@ -8,7 +9,7 @@ namespace WingedBean.Gameplay.Goap;
 
 public static class GoapDemoRunner
 {
-    public static void RunOnce(ILogger? logger = null)
+    public static void RunOnce(Microsoft.Extensions.Logging.ILogger? logger = null)
     {
         try
         {
@@ -55,10 +56,18 @@ public static class GoapDemoRunner
             var result = resolver.StartResolve(runData).Complete();
             var chosen = (result.Actions != null && result.Actions.Length > 0) ? result.Actions[0] : null;
 
+            var actionName = "<none>";
+            if (chosen is IGoapAction ga)
+                actionName = ga.Config?.Name ?? ga.GetType().Name;
+            else if (chosen is IGoal gg)
+                actionName = gg.Config?.Name ?? gg.GetType().Name;
+            else if (chosen != null)
+                actionName = chosen.GetType().Name;
+
             if (logger != null)
-                logger.LogInformation("GOAP demo result: Chosen action = {Action}", chosen?.Config?.Name ?? "<none>");
+                logger.LogInformation("GOAP demo result: Chosen action = {Action}", actionName);
             else
-                Console.WriteLine($"GOAP demo result: Chosen action = {chosen?.Config?.Name ?? "<none>"}");
+                Console.WriteLine($"GOAP demo result: Chosen action = {actionName}");
         }
         catch (Exception ex)
         {
@@ -120,8 +129,8 @@ public static class GoapDemoRunner
         public bool ValidateConditions { get; } = false;
         public ICondition[] Conditions { get; } = Array.Empty<ICondition>();
         public IEffect[] Effects { get; } = Array.Empty<IEffect>();
-        public Plate.Agent.Core.ActionMoveMode MoveMode { get; } = Plate.Agent.Core.ActionMoveMode.PerformWhileMoving;
-        public Plate.Agent.Core.IActionProperties Properties { get; } = new FakeActionProperties();
+        public ActionMoveMode MoveMode { get; } = ActionMoveMode.PerformWhileMoving;
+        public IActionProperties Properties { get; } = new FakeActionProperties();
         public void Validate() { }
     }
 
@@ -145,7 +154,7 @@ public static class GoapDemoRunner
         public ICondition[] Conditions { get; }
         public IGoalConfig Config { get; private set; }
         public int Index { get; set; }
-        public float GetCost(Plate.Agent.Core.IActionReceiver agent, Plate.Agent.Core.IComponentReference references) => 0f;
+        public float GetCost(IActionReceiver agent, IComponentReference references) => 0f;
         public void SetConfig(IGoalConfig config) => Config = config;
     }
 
@@ -164,29 +173,29 @@ public static class GoapDemoRunner
         public ICondition[] Conditions { get; }
         public IActionConfig Config { get; private set; }
 
-        public Plate.Agent.Core.ActionMoveMode GetMoveMode(Plate.Agent.Core.IMonoAgent agent) => Plate.Agent.Core.ActionMoveMode.PerformWhileMoving;
+        public ActionMoveMode GetMoveMode(IMonoAgent agent) => ActionMoveMode.PerformWhileMoving;
         public float GetStoppingDistance() => 0f;
-        public bool IsInRange(Plate.Agent.Core.IMonoAgent agent, float distance, Plate.Agent.Core.IActionData data, Plate.Agent.Core.IComponentReference references) => true;
-        public Plate.Agent.Core.IActionData GetData() => new FakeActionData();
+        public bool IsInRange(IMonoAgent agent, float distance, IActionData data, IComponentReference references) => true;
+        public IActionData GetData() => new FakeActionData();
         public void Created() { }
-        public bool IsValid(Plate.Agent.Core.IActionReceiver agent, Plate.Agent.Core.IActionData data) => true;
-        public void Start(Plate.Agent.Core.IMonoAgent agent, Plate.Agent.Core.IActionData data) { }
-        public void BeforePerform(Plate.Agent.Core.IMonoAgent agent, Plate.Agent.Core.IActionData data) { }
-        public Plate.Agent.Core.IActionRunState? Perform(Plate.Agent.Core.IMonoAgent agent, Plate.Agent.Core.IActionData data, Plate.Agent.Core.IActionContext context) => null;
-        public void Stop(Plate.Agent.Core.IMonoAgent agent, Plate.Agent.Core.IActionData data) { }
-        public void Complete(Plate.Agent.Core.IMonoAgent agent, Plate.Agent.Core.IActionData data) { }
-        public bool IsExecutable(Plate.Agent.Core.IActionReceiver agent, bool conditionsMet) => true;
-        public float GetCost(Plate.Agent.Core.IActionReceiver agent, Plate.Agent.Core.IComponentReference references, Plate.Agent.Core.ITarget target) => 0f;
-        public bool IsEnabled(Plate.Agent.Core.IActionReceiver agent) => true;
-        public void Enable(Plate.Agent.Core.IActionReceiver receiver) { }
-        public void Disable(Plate.Agent.Core.IActionReceiver receiver, Plate.Agent.Core.IActionDisabler disabler) { }
+        public bool IsValid(IActionReceiver agent, IActionData data) => true;
+        public void Start(IMonoAgent agent, IActionData data) { }
+        public void BeforePerform(IMonoAgent agent, IActionData data) { }
+        public IActionRunState? Perform(IMonoAgent agent, IActionData data, IActionContext context) => null;
+        public void Stop(IMonoAgent agent, IActionData data) { }
+        public void Complete(IMonoAgent agent, IActionData data) { }
+        public bool IsExecutable(IActionReceiver agent, bool conditionsMet) => true;
+        public float GetCost(IActionReceiver agent, IComponentReference references, ITarget target) => 0f;
+        public bool IsEnabled(IActionReceiver agent) => true;
+        public void Enable(IActionReceiver receiver) { }
+        public void Disable(IActionReceiver receiver, IActionDisabler disabler) { }
         public void SetConfig(IActionConfig config) => Config = config;
     }
 
-    private class FakeActionData : Plate.Agent.Core.IActionData
+    private class FakeActionData : IActionData
     {
-        public Plate.Agent.Core.ITarget Target { get; set; } = default!;
+        public ITarget Target { get; set; } = default!;
     }
 
-    private class FakeActionProperties : Plate.Agent.Core.IActionProperties { }
+    private class FakeActionProperties : IActionProperties { }
 }

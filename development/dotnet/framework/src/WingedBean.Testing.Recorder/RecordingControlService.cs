@@ -11,7 +11,7 @@ using Plate.CrossMilo.Contracts;
 using Plate.CrossMilo.Contracts.Recorder.Services;
 using IRecorderService = Plate.CrossMilo.Contracts.Recorder.Services.IService;
 
-namespace Dungeon.Host.Console;
+namespace WingedBean.Testing.Recorder;
 
 /// <summary>
 /// Hosted service that controls recording based on command-line arguments

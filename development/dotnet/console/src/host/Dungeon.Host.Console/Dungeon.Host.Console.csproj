@@ -36,14 +36,11 @@
     <ProjectReference Include="../../../../../../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Loader.AssemblyContext/PluginManoi.Loader.AssemblyContext.csproj" />
     <!-- HostLand packages for hosting -->
     <ProjectReference Include="../../../../../../../../plate-projects/host-land/dotnet/framework/src/HostLand.Console/HostLand.Console.csproj" />
+    <ProjectReference Include="..\..\..\..\framework\src\WingedBean.Testing.Recorder\WingedBean.Testing.Recorder.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <None Update="plugins.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <EmbeddedResource Include="recording-test-scenarios.json" />
-    <None Update="recording-test-scenarios.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

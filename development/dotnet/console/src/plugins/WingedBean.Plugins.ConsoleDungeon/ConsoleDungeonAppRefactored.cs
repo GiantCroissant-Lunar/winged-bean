@@ -12,6 +12,7 @@ using Terminal.Gui;
 using WingedBean.Plugins.ConsoleDungeon.Input;
 using WingedBean.Plugins.ConsoleDungeon.Scene;
 using WingedBean.Plugins.TerminalUI;
+using WingedBean.Gameplay.Goap;
 // Type aliases for game types (to avoid ambiguity with Scene types)
 using GameEntitySnapshot = ConsoleDungeon.Contracts.EntitySnapshot;
 using GamePosition = ConsoleDungeon.Contracts.Position;
@@ -51,6 +52,8 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IRegistryAware, IDispos
     private System.Timers.Timer? _gameTimer;
     private bool _isRunning = false;
     private bool _disposed = false;
+    private bool _plannerDemoInvoked = false;
+    private readonly IGoapPlannerService? _planner;
 
     public event EventHandler<TerminalOutputEventArgs>? OutputReceived;
     public event EventHandler<TerminalExitEventArgs>? Exited;
@@ -67,12 +70,14 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IRegistryAware, IDispos
         ILogger<ConsoleDungeonAppRefactored> logger,
         IOptions<TerminalAppConfig> config,
         IDungeonService gameService,
-        IRegistry registry)
+        IRegistry registry,
+        IGoapPlannerService? planner = null)
     {
         _logger = logger;
         _config = config.Value;
         _gameService = gameService;
         _registry = registry;
+        _planner = planner;
     }
 
     // Parameterless constructor for plugin loader
@@ -251,6 +256,12 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IRegistryAware, IDispos
             {
                 _gameService.Update(0.0f);
                 Diag("Initial game update/render triggered");
+                // Trigger a one-time GOAP planner demo if available
+                if (!_plannerDemoInvoked)
+                {
+                    _plannerDemoInvoked = true;
+                    _planner?.PlanDemo(_logger);
+                }
             }
             catch (Exception ex)
             {

@@ -5,10 +5,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="../../../../../plate-projects/goap-ckpor/dotnet/framework/src/Plate.Goap.Adapters/Plate.Goap.Adapters.csproj" />
-    <ProjectReference Include="../../../../../plate-projects/goap-ckpor/dotnet/framework/src/Plate.Goap.Core/Plate.Goap.Core.csproj" />
-    <ProjectReference Include="../../../../../plate-projects/goap-ckpor/dotnet/framework/src/Plate.Goap.Resolver/Plate.Goap.Resolver.csproj" />
-    <ProjectReference Include="../../../../../plate-projects/goap-ckpor/dotnet/framework/src/Plate.Agent.Core/Plate.Agent.Core.csproj" />
-    <ProjectReference Include="../../../../../plate-projects/goap-ckpor/dotnet/framework/src/Plate.Agent.Runtime/Plate.Agent.Runtime.csproj" />
+    <ProjectReference Include="../../../../../../../plate-projects/goap-ckpor/dotnet/framework/src/Plate.Goap.Adapters/Plate.Goap.Adapters.csproj" />
+    <ProjectReference Include="../../../../../../../plate-projects/goap-ckpor/dotnet/framework/src/Plate.Goap.Core/Plate.Goap.Core.csproj" />
+    <ProjectReference Include="../../../../../../../plate-projects/goap-ckpor/dotnet/framework/src/Plate.Goap.Resolver/Plate.Goap.Resolver.csproj" />
+    <ProjectReference Include="../../../../../../../plate-projects/goap-ckpor/dotnet/framework/src/Plate.Agent.Core/Plate.Agent.Core.csproj" />
+    <ProjectReference Include="../../../../../../../plate-projects/goap-ckpor/dotnet/framework/src/Plate.Agent.Runtime/Plate.Agent.Runtime.csproj" />
   </ItemGroup>
 </Project>
