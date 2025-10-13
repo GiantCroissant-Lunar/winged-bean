@@ -142,6 +142,19 @@ var host = HostLand.Console.Host.CreateConsoleBuilder(args)
             // Register recording control service for automated testing
             services.AddHostedService<RecordingControlService>();
 
+            // Register recording test bot service (opt-in via --bot-enabled)
+            var botEnabled = config.GetValue<bool>("bot-enabled", false) ||
+                            (config["bot-enabled"]?.Equals("true", StringComparison.OrdinalIgnoreCase) ?? false);
+            if (botEnabled)
+            {
+                diagnosticLogger.LogInformation("Recording test bot enabled");
+                services.AddHostedService<RecordingTestBotService>();
+            }
+            else
+            {
+                diagnosticLogger.LogDebug("Recording test bot disabled (use --bot-enabled=true to enable)");
+            }
+
             // Register ITerminalApp factory that resolves from registry
             // Factory executes lazily when ITerminalApp is first requested
             services.AddSingleton<ITerminalApp>(sp =>

@@ -45,6 +45,9 @@
     <ProjectReference Include="../../../../../../../../plate-projects/goap-ckpor/dotnet/framework/src/Plate.Agent.Core/Plate.Agent.Core.csproj" />
     <ProjectReference Include="../../../../../../../../plate-projects/goap-ckpor/dotnet/framework/src/Plate.Agent.Runtime/Plate.Agent.Runtime.csproj" />
 
+    <!-- Shared gameplay GOAP wrapper -->
+    <ProjectReference Include="../../../../framework/src/WingedBean.Gameplay.Goap/WingedBean.Gameplay.Goap.csproj" />
+
     <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Scene/CrossMilo.Contracts.Scene.csproj">
       <Private>false</Private>
       <ExcludeAssets>runtime</ExcludeAssets>

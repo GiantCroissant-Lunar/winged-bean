@@ -1,0 +1,50 @@
+V |                      | ArgumentsFromParametersFile.OnBuildCreated (150)
+V |                      | HandleReSharperSurrogateArguments.OnBuildCreated (150)
+V |                      | InjectParameterValues.OnBuildCreated (100)
+V |                      | HandleShellCompletion.OnBuildCreated (75)
+V |                      | GenerateBuildServerConfigurations.OnBuildCreated (50)
+V |                      | InvokeBuildServerConfigurationGeneration.OnBuildCreated (45)
+V |                      | UpdateNotification.OnBuildCreated (10)
+V |                      | UnsetVisualStudioEnvironmentVariables.OnBuildCreated (0)
+V |                      | HandleVisualStudioDebugging.OnBuildCreated (0)
+V |                      | EventInvoker.OnBuildCreated (-3.4028235E+38)
+V |                      | HandlePlanRequests.OnBuildInitialized (10)
+V |                      | HandleHelpRequests.OnBuildInitialized (5)
+V |                      | Telemetry.OnBuildInitialized (0)
+V |                      | InjectNonParameterValues.OnBuildInitialized (-100)
+V |                      | EventInvoker.OnBuildInitialized (-3.4028235E+38)
+V | Clean                | EventInvoker.OnTargetRunning (-3.4028235E+38)
+W | Clean                | Exception was suppressed
+System.ArgumentException: An item with the same key has already been added. Key: vscode-merge-base
+   at System.Collections.Generic.Dictionary`2.TryInsert(TKey key, TValue value, InsertionBehavior behavior)
+   at System.Collections.Generic.Dictionary`2.Add(TKey key, TValue value)
+   at System.Linq.Enumerable.ToDictionary[TSource,TKey,TElement](IEnumerable`1 source, Func`2 keySelector, Func`2 elementSelector, IEqualityComparer`1 comparer)
+   at Nuke.Common.Git.GitRepository.GetRemoteNameAndBranch(AbsolutePath gitDirectory, String branch) in /_/source/Nuke.Build/VCS/GitRepository.cs:line 79
+   at Nuke.Common.Git.GitRepository.FromLocalDirectory(AbsolutePath directory) in /_/source/Nuke.Build/VCS/GitRepository.cs:line 56
+   at Nuke.Common.Tools.GitVersion.GitVersionAttribute.<GetValue>b__24_0() in /_/source/Nuke.Common/Tools/GitVersion/GitVersionAttribute.cs:line 43
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+I | Clean                | > /usr/local/share/dotnet/dotnet /Users/apprenticegc/.nuget/packages/giantcroissant.plate.buildarcane.build.runner/0.0.1-29/tools/net8.0/any/GitVersion.Tool/net8.0/any/gitversion.dll /nocache /nofetch
+V | Clean                | @ /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean
+V | Clean                | Telemetry.OnTargetSucceeded (0)
+V | Clean                | EventInvoker.OnTargetSucceeded (-3.4028235E+38)
+V | Restore              | EventInvoker.OnTargetRunning (-3.4028235E+38)
+I | Restore              | > /usr/local/share/dotnet/dotnet restore "/Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/Console.sln"
+V | Restore              | @ /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean
+D | Restore              | /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/Console.sln.metaproj : warning MSB4121: The project configuration for project "WingedBean.Plugins.Config.Tests" was not specified in the solution file for the solution configuration "Debug|Any CPU". [/Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/Console.sln]
+D | Restore              | /usr/local/share/dotnet/sdk/9.0.305/NuGet.targets(509,5): error MSB3202: The project file "/Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/tests/host/Dungeon.Host.Console.Tests/Dungeon.Host.Console.Tests.csproj" was not found. [/Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/Console.sln]
+E | Restore              | Target Restore has thrown an exception
+Nuke.Common.Tooling.ProcessException: Process 'dotnet' exited with code 1.
+   > /usr/local/share/dotnet/dotnet restore "/Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/Console.sln"
+   @ /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean
+Standard output:
+   /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/Console.sln.metaproj : warning MSB4121: The project configuration for project "WingedBean.Plugins.Config.Tests" was not specified in the solution file for the solution configuration "Debug|Any CPU". [/Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/Console.sln]
+   /usr/local/share/dotnet/sdk/9.0.305/NuGet.targets(509,5): error MSB3202: The project file "/Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/tests/host/Dungeon.Host.Console.Tests/Dungeon.Host.Console.Tests.csproj" was not found. [/Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/Console.sln]
+
+   at Nuke.Common.Tooling.ProcessExtensions.AssertZeroExitCode(IProcess process) in /_/source/Nuke.Tooling/ProcessExtensions.cs:line 39
+   at Plate.BuildArcane.Build.Runner.Components.IRestore.RunDotNet(String args, AbsolutePath workingDirectory) in /Users/apprenticegc/Work/lunar-horse/personal-work/plate-projects/build-arcane/dotnet/src/BuildArcane.Build.Runner/Components/IRestore.cs:line 49
+   at Plate.BuildArcane.Build.Runner.Components.IRestore.<get_Restore>b__4_1() in /Users/apprenticegc/Work/lunar-horse/personal-work/plate-projects/build-arcane/dotnet/src/BuildArcane.Build.Runner/Components/IRestore.cs:line 39
+   at Nuke.Common.Execution.BuildExecutor.<>c.<Execute>b__4_2(Action x) in /_/source/Nuke.Build/Execution/BuildExecutor.cs:line 119
+   at System.Collections.Generic.List`1.ForEach(Action`1 action)
+   at Nuke.Common.Execution.BuildExecutor.Execute(NukeBuild build, ExecutableTarget target, IReadOnlyCollection`1 previouslyExecutedTargets, Boolean failureMode) in /_/source/Nuke.Build/Execution/BuildExecutor.cs:line 119
+V | Restore              | EventInvoker.OnTargetFailed (-3.4028235E+38)

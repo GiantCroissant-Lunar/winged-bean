@@ -42,11 +42,16 @@
     <None Update="plugins.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <EmbeddedResource Include="recording-test-scenarios.json" />
+    <None Update="recording-test-scenarios.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <Import Project="build/copy-plugins.targets" />
 
   <ItemGroup>
+    <PackageReference Include="RulesEngine" />
     <PackageReference Include="Scrutor" />
   </ItemGroup>
 

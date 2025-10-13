@@ -38,6 +38,9 @@
       <ExcludeAssets>runtime</ExcludeAssets>
     </ProjectReference>
 
+    <!-- Shared gameplay GOAP wrapper -->
+    <ProjectReference Include="../../../../framework/src/WingedBean.Gameplay.Goap/WingedBean.Gameplay.Goap.csproj" />
+
     <!-- Plugin system -->
     <ProjectReference Include="../../../../../../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Contracts/PluginManoi.Contracts.csproj" />
     <ProjectReference Include="../../../../../../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Core/PluginManoi.Core.csproj" />

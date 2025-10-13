@@ -7,6 +7,7 @@ using ConsoleDungeon.Contracts;
 using Microsoft.Extensions.Logging;
 using Plate.CrossMilo.Contracts;
 using Plate.PluginManoi.Contracts;
+using WingedBean.Gameplay.Goap;
 // WingedBean.Contracts.Gameplay is OPTIONAL - not needed for desktop-only scenarios
 // using WingedBean.Contracts.Gameplay;
 // Type alias for UI App service
@@ -24,6 +25,7 @@ public class SadConsolePlugin : IPlugin
 {
     private SadConsoleApp? _appInstance;
     private IRegistry? _registry;
+    private bool _goapDemoRan;
 
     public string Id => "winged-bean.plugins.sadconsole";
     public string Version => "1.0.0";
@@ -40,6 +42,13 @@ public class SadConsolePlugin : IPlugin
         if (_appInstance == null)
         {
             _appInstance = new SadConsoleApp(logger, dungeon, null, null, recorder);
+        }
+
+        // Run a one-time GOAP demo plan to verify integration
+        if (!_goapDemoRan)
+        {
+            _goapDemoRan = true;
+            GoapDemoRunner.RunOnce(logger);
         }
 
         // Register in the registry (required for plugin system)
@@ -61,6 +70,13 @@ public class SadConsolePlugin : IPlugin
         try { dungeon = registry.Get<IDungeonService>(); } catch { }
         try { recorder = registry.Get<RecorderService>(); } catch { }
         _appInstance = new SadConsoleApp(logger, dungeon, null, null, recorder);
+
+        // Run a one-time GOAP demo plan to verify integration (guarded)
+        if (!_goapDemoRan)
+        {
+            _goapDemoRan = true;
+            GoapDemoRunner.RunOnce(logger);
+        }
 
         // IMPORTANT: Also register it directly for the old loader path
         registry.Register<IUIAppService>(_appInstance, priority: 100);

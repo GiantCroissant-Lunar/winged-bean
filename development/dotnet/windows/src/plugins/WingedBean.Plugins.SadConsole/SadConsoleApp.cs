@@ -9,8 +9,8 @@ using SadConsole;
 using SadConsole.Configuration;
 using WingedBean.Contracts.Gameplay;
 using IUIAppService = Plate.CrossMilo.Contracts.UI.App.IService;
-using WingedBeanGameplay = WingedBean.Contracts.Gameplay.IService;
 using RecorderService = Plate.CrossMilo.Contracts.Recorder.Services.IService;
+using WingedBeanGameplay = WingedBean.Contracts.Gameplay.IService;
 
 namespace WingedBean.Plugins.SadConsole;
 

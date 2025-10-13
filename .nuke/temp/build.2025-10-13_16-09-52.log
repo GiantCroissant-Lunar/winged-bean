@@ -1,0 +1,277 @@
+V |                      | ArgumentsFromParametersFile.OnBuildCreated (150)
+V |                      | HandleReSharperSurrogateArguments.OnBuildCreated (150)
+V |                      | InjectParameterValues.OnBuildCreated (100)
+V |                      | HandleShellCompletion.OnBuildCreated (75)
+V |                      | GenerateBuildServerConfigurations.OnBuildCreated (50)
+V |                      | InvokeBuildServerConfigurationGeneration.OnBuildCreated (45)
+V |                      | UpdateNotification.OnBuildCreated (10)
+V |                      | UnsetVisualStudioEnvironmentVariables.OnBuildCreated (0)
+V |                      | HandleVisualStudioDebugging.OnBuildCreated (0)
+V |                      | EventInvoker.OnBuildCreated (-3.4028235E+38)
+V |                      | HandlePlanRequests.OnBuildInitialized (10)
+V |                      | HandleHelpRequests.OnBuildInitialized (5)
+V |                      | Telemetry.OnBuildInitialized (0)
+V |                      | InjectNonParameterValues.OnBuildInitialized (-100)
+V |                      | EventInvoker.OnBuildInitialized (-3.4028235E+38)
+V | Clean                | EventInvoker.OnTargetRunning (-3.4028235E+38)
+W | Clean                | Exception was suppressed
+System.ArgumentException: An item with the same key has already been added. Key: vscode-merge-base
+   at System.Collections.Generic.Dictionary`2.TryInsert(TKey key, TValue value, InsertionBehavior behavior)
+   at System.Collections.Generic.Dictionary`2.Add(TKey key, TValue value)
+   at System.Linq.Enumerable.ToDictionary[TSource,TKey,TElement](IEnumerable`1 source, Func`2 keySelector, Func`2 elementSelector, IEqualityComparer`1 comparer)
+   at Nuke.Common.Git.GitRepository.GetRemoteNameAndBranch(AbsolutePath gitDirectory, String branch) in /_/source/Nuke.Build/VCS/GitRepository.cs:line 79
+   at Nuke.Common.Git.GitRepository.FromLocalDirectory(AbsolutePath directory) in /_/source/Nuke.Build/VCS/GitRepository.cs:line 56
+   at Nuke.Common.Tools.GitVersion.GitVersionAttribute.<GetValue>b__24_0() in /_/source/Nuke.Common/Tools/GitVersion/GitVersionAttribute.cs:line 43
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+I | Clean                | > /usr/local/share/dotnet/dotnet /Users/apprenticegc/.nuget/packages/giantcroissant.plate.buildarcane.build.runner/0.0.1-29/tools/net8.0/any/GitVersion.Tool/net8.0/any/gitversion.dll /nocache /nofetch
+V | Clean                | @ /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean
+V | Clean                | Telemetry.OnTargetSucceeded (0)
+V | Clean                | EventInvoker.OnTargetSucceeded (-3.4028235E+38)
+V | Restore              | EventInvoker.OnTargetRunning (-3.4028235E+38)
+I | Restore              | > /usr/local/share/dotnet/dotnet restore "/Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/src/host/Dungeon.Host.Console/Dungeon.Host.Console.csproj"
+V | Restore              | @ /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean
+D | Restore              |   Determining projects to restore...
+D | Restore              |   Skipping project "/Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/framework/src/WingedBean.SourceGenerators.Proxy/WingedBean.SourceGenerators.Proxy.csproj" because it was not found.
+D | Restore              |   Skipping project "/Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/framework/src/WingedBean.SourceGenerators.Proxy/WingedBean.SourceGenerators.Proxy.csproj" because it was not found.
+D | Restore              |   All projects are up-to-date for restore.
+V | Restore              | Telemetry.OnTargetSucceeded (0)
+V | Restore              | EventInvoker.OnTargetSucceeded (-3.4028235E+38)
+V | Compile              | EventInvoker.OnTargetRunning (-3.4028235E+38)
+I | Compile              | > /usr/local/share/dotnet/dotnet build "/Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/src/host/Dungeon.Host.Console/Dungeon.Host.Console.csproj" -c Release --no-restore
+V | Compile              | @ /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean
+D | Compile              |   WingedBean.Contracts.Gameplay -> /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/framework/src/WingedBean.Contracts.Gameplay/bin/Release/netstandard2.1/WingedBean.Contracts.Gameplay.dll
+D | Compile              |   PluginManoi.Loader.AssemblyContext -> /Users/apprenticegc/Work/lunar-horse/personal-work/plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Loader.AssemblyContext/bin/Release/net8.0/PluginManoi.Loader.AssemblyContext.dll
+D | Compile              |   HostLand.Abstractions -> /Users/apprenticegc/Work/lunar-horse/personal-work/plate-projects/host-land/dotnet/framework/src/HostLand.Abstractions/bin/Release/netstandard2.1/HostLand.Abstractions.dll
+D | Compile              |   ConsoleDungeon.Contracts -> /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/src/game/ConsoleDungeon.Contracts/bin/Release/net8.0/ConsoleDungeon.Contracts.dll
+D | Compile              |   HostLand.Core -> /Users/apprenticegc/Work/lunar-horse/personal-work/plate-projects/host-land/dotnet/framework/src/HostLand.Core/bin/Release/netstandard2.1/HostLand.Core.dll
+D | Compile              |   CrossMilo.Contracts -> /Users/apprenticegc/Work/lunar-horse/personal-work/plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts/bin/Release/netstandard2.1/CrossMilo.Contracts.dll
+D | Compile              |   HostLand.Console -> /Users/apprenticegc/Work/lunar-horse/personal-work/plate-projects/host-land/dotnet/framework/src/HostLand.Console/bin/Release/net8.0/HostLand.Console.dll
+D | Compile              |   CrossMilo.SourceGenerators.Proxy -> /Users/apprenticegc/Work/lunar-horse/personal-work/plate-projects/cross-milo/dotnet/framework/src/CrossMilo.SourceGenerators.Proxy/bin/Release/netstandard2.0/CrossMilo.SourceGenerators.Proxy.dll
+D | Compile              |   CrossMilo.Contracts.Scene -> /Users/apprenticegc/Work/lunar-horse/personal-work/plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Scene/bin/Release/netstandard2.1/CrossMilo.Contracts.Scene.dll
+D | Compile              |   PluginManoi.Contracts -> /Users/apprenticegc/Work/lunar-horse/personal-work/plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Contracts/bin/Release/netstandard2.1/PluginManoi.Contracts.dll
+D | Compile              |   CrossMilo.Contracts.Resource -> /Users/apprenticegc/Work/lunar-horse/personal-work/plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Resource/bin/Release/netstandard2.1/CrossMilo.Contracts.Resource.dll
+D | Compile              |   CrossMilo.Contracts.Input -> /Users/apprenticegc/Work/lunar-horse/personal-work/plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Input/bin/Release/netstandard2.1/CrossMilo.Contracts.Input.dll
+D | Compile              |   CrossMilo.Contracts.Audio -> /Users/apprenticegc/Work/lunar-horse/personal-work/plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Audio/bin/Release/netstandard2.1/CrossMilo.Contracts.Audio.dll
+D | Compile              |   PluginManoi.Core -> /Users/apprenticegc/Work/lunar-horse/personal-work/plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Core/bin/Release/net8.0/PluginManoi.Core.dll
+D | Compile              |   CrossMilo.Contracts.Hosting -> /Users/apprenticegc/Work/lunar-horse/personal-work/plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Hosting/bin/Release/netstandard2.1/CrossMilo.Contracts.Hosting.dll
+D | Compile              | /usr/local/share/dotnet/sdk/9.0.305/Microsoft.Common.CurrentVersion.targets(2189,5): warning MSB9008: The referenced project ../../../../framework/src/WingedBean.SourceGenerators.Proxy/WingedBean.SourceGenerators.Proxy.csproj does not exist. [/Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/src/plugins/WingedBean.Plugins.ArchECS/WingedBean.Plugins.ArchECS.csproj]
+D | Compile              |   CrossMilo.Contracts.Recorder -> /Users/apprenticegc/Work/lunar-horse/personal-work/plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Recorder/bin/Release/netstandard2.1/CrossMilo.Contracts.Recorder.dll
+D | Compile              |   PluginManoi.Loader -> /Users/apprenticegc/Work/lunar-horse/personal-work/plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Loader/bin/Release/net8.0/PluginManoi.Loader.dll
+D | Compile              |   CrossMilo.Contracts.UI -> /Users/apprenticegc/Work/lunar-horse/personal-work/plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.UI/bin/Release/netstandard2.1/CrossMilo.Contracts.UI.dll
+D | Compile              |   WingedBean.Plugins.ArchECS -> /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/src/plugins/WingedBean.Plugins.ArchECS/bin/Release/net8.0/WingedBean.Plugins.ArchECS.dll
+D | Compile              |   CrossMilo.Contracts.Terminal -> /Users/apprenticegc/Work/lunar-horse/personal-work/plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Terminal/bin/Release/netstandard2.1/CrossMilo.Contracts.Terminal.dll
+D | Compile              |   PluginManoi.Registry -> /Users/apprenticegc/Work/lunar-horse/personal-work/plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Registry/bin/Release/netstandard2.1/PluginManoi.Registry.dll
+D | Compile              |   Dungeon.Host.Console -> /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/src/host/Dungeon.Host.Console/bin/Release/net8.0/Dungeon.Host.Console.dll
+D | Compile              |   ========================================
+D | Compile              |   Copying plugin assemblies...
+D | Compile              |   ========================================
+D | Compile              |   Copied 43 plugin files to bin/Release/net8.0/plugins/
+D | Compile              |   Excluded Analytics and Diagnostics plugins (Google.Cloud.Firestore dependency)
+D | Compile              |
+D | Compile              | Build succeeded.
+D | Compile              |
+D | Compile              | /usr/local/share/dotnet/sdk/9.0.305/Microsoft.Common.CurrentVersion.targets(2189,5): warning MSB9008: The referenced project ../../../../framework/src/WingedBean.SourceGenerators.Proxy/WingedBean.SourceGenerators.Proxy.csproj does not exist. [/Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/src/plugins/WingedBean.Plugins.ArchECS/WingedBean.Plugins.ArchECS.csproj]
+D | Compile              |     1 Warning(s)
+D | Compile              |     0 Error(s)
+D | Compile              |
+D | Compile              | Time Elapsed 00:00:01.05
+I | Compile              | Recursively copying from /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/src/host/Dungeon.Host.Console/bin/Release to /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/_artifacts/0.0.1-436/build/Dungeon.Host.Console...
+V | Compile              | Telemetry.OnTargetSucceeded (0)
+V | Compile              | EventInvoker.OnTargetSucceeded (-3.4028235E+38)
+V | UnityBuild           | EventInvoker.OnTargetRunning (-3.4028235E+38)
+I | UnityBuild           | Unity build disabled (config.unity.enabled = false)
+V | UnityBuild           | Telemetry.OnTargetSucceeded (0)
+V | UnityBuild           | EventInvoker.OnTargetSucceeded (-3.4028235E+38)
+V | Metrics              | EventInvoker.OnTargetRunning (-3.4028235E+38)
+I | Metrics              | Running scc to collect code metrics...
+D | Metrics              | scc --format json --output /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/_temp/scc-output.json --no-cocomo --by-file --exclude-dir obj --exclude-dir bin --exclude-dir .git --exclude-dir node_modules --exclude-dir _artifacts /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean
+I | Metrics              | Code metrics collected: 785 files, 181797 lines, 3892 complexity
+I | Metrics              | Code metrics saved to: /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/_artifacts/0.0.1-436/metrics/code-metrics.json
+I | Metrics              | Summary report saved to: /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/_artifacts/0.0.1-436/metrics/summary.txt
+I | Metrics              |
+I | Metrics              | ═══════════════════════════════════════
+I | Metrics              | ║ Code Metrics
+I | Metrics              | ╬═════════════
+I | Metrics              |
+I | Metrics              | Language: Markdown
+I | Metrics              |   Files:           322
+I | Metrics              |   Lines:       115,502
+I | Metrics              |   Code:         89,389 (77.4%)
+I | Metrics              |   Comments:          0 (0.0%)
+I | Metrics              |   Blanks:       26,113 (22.6%)
+I | Metrics              |   Complexity:        0 (avg: 0.0 per file)
+I | Metrics              |
+I | Metrics              | Language: C#
+I | Metrics              |   Files:           191
+I | Metrics              |   Lines:        36,905
+I | Metrics              |   Code:         26,862 (72.8%)
+I | Metrics              |   Comments:      4,764 (12.9%)
+I | Metrics              |   Blanks:        5,279 (14.3%)
+I | Metrics              |   Complexity:    1,630 (avg: 8.5 per file)
+I | Metrics              |
+I | Metrics              | Language: JavaScript
+I | Metrics              |   Files:            36
+I | Metrics              |   Lines:         9,253
+I | Metrics              |   Code:          7,920 (85.6%)
+I | Metrics              |   Comments:        608 (6.6%)
+I | Metrics              |   Blanks:          725 (7.8%)
+I | Metrics              |   Complexity:    1,393 (avg: 38.7 per file)
+I | Metrics              |
+I | Metrics              | Language: Python
+I | Metrics              |   Files:            24
+I | Metrics              |   Lines:         4,069
+I | Metrics              |   Code:          2,909 (71.5%)
+I | Metrics              |   Comments:        610 (15.0%)
+I | Metrics              |   Blanks:          550 (13.5%)
+I | Metrics              |   Complexity:      494 (avg: 20.6 per file)
+I | Metrics              |
+I | Metrics              | Language: Shell
+I | Metrics              |   Files:            24
+I | Metrics              |   Lines:         3,182
+I | Metrics              |   Code:          2,244 (70.5%)
+I | Metrics              |   Comments:        393 (12.4%)
+I | Metrics              |   Blanks:          545 (17.1%)
+I | Metrics              |   Complexity:      224 (avg: 9.3 per file)
+I | Metrics              |
+I | Metrics              | Language: YAML
+I | Metrics              |   Files:            33
+I | Metrics              |   Lines:         2,701
+I | Metrics              |   Code:          2,173 (80.5%)
+I | Metrics              |   Comments:        225 (8.3%)
+I | Metrics              |   Blanks:          303 (11.2%)
+I | Metrics              |   Complexity:        0 (avg: 0.0 per file)
+I | Metrics              |
+I | Metrics              | Language: MSBuild
+I | Metrics              |   Files:            59
+I | Metrics              |   Lines:         2,699
+I | Metrics              |   Code:          2,284 (84.6%)
+I | Metrics              |   Comments:        121 (4.5%)
+I | Metrics              |   Blanks:          294 (10.9%)
+I | Metrics              |   Complexity:       13 (avg: 0.2 per file)
+I | Metrics              |
+I | Metrics              | Language: CSS
+I | Metrics              |   Files:             3
+I | Metrics              |   Lines:         2,413
+I | Metrics              |   Code:          2,381 (98.7%)
+I | Metrics              |   Comments:         22 (0.9%)
+I | Metrics              |   Blanks:           10 (0.4%)
+I | Metrics              |   Complexity:        0 (avg: 0.0 per file)
+I | Metrics              |
+I | Metrics              | Language: JSON
+I | Metrics              |   Files:            50
+I | Metrics              |   Lines:         1,956
+I | Metrics              |   Code:          1,884 (96.3%)
+I | Metrics              |   Comments:          0 (0.0%)
+I | Metrics              |   Blanks:           72 (3.7%)
+I | Metrics              |   Complexity:        0 (avg: 0.0 per file)
+I | Metrics              |
+I | Metrics              | Language: Plain Text
+I | Metrics              |   Files:             9
+I | Metrics              |   Lines:         1,093
+I | Metrics              |   Code:            839 (76.8%)
+I | Metrics              |   Comments:          0 (0.0%)
+I | Metrics              |   Blanks:          254 (23.2%)
+I | Metrics              |   Complexity:        0 (avg: 0.0 per file)
+I | Metrics              |
+I | Metrics              | Language: Astro
+I | Metrics              |   Files:             5
+I | Metrics              |   Lines:           630
+I | Metrics              |   Code:            511 (81.1%)
+I | Metrics              |   Comments:         45 (7.1%)
+I | Metrics              |   Blanks:           74 (11.7%)
+I | Metrics              |   Complexity:       46 (avg: 9.2 per file)
+I | Metrics              |
+I | Metrics              | Language: Powershell
+I | Metrics              |   Files:             9
+I | Metrics              |   Lines:           387
+I | Metrics              |   Code:            247 (63.8%)
+I | Metrics              |   Comments:        104 (26.9%)
+I | Metrics              |   Blanks:           36 (9.3%)
+I | Metrics              |   Complexity:       55 (avg: 6.1 per file)
+I | Metrics              |
+I | Metrics              | Language: Expect
+I | Metrics              |   Files:             4
+I | Metrics              |   Lines:           335
+I | Metrics              |   Code:            222 (66.3%)
+I | Metrics              |   Comments:         53 (15.8%)
+I | Metrics              |   Blanks:           60 (17.9%)
+I | Metrics              |   Complexity:        6 (avg: 1.5 per file)
+I | Metrics              |
+I | Metrics              | Language: TOML
+I | Metrics              |   Files:             4
+I | Metrics              |   Lines:           324
+I | Metrics              |   Code:            252 (77.8%)
+I | Metrics              |   Comments:         33 (10.2%)
+I | Metrics              |   Blanks:           39 (12.0%)
+I | Metrics              |   Complexity:        2 (avg: 0.5 per file)
+I | Metrics              |
+I | Metrics              | Language: Terraform
+I | Metrics              |   Files:             7
+I | Metrics              |   Lines:           206
+I | Metrics              |   Code:            179 (86.9%)
+I | Metrics              |   Comments:          0 (0.0%)
+I | Metrics              |   Blanks:           27 (13.1%)
+I | Metrics              |   Complexity:       19 (avg: 2.7 per file)
+I | Metrics              |
+I | Metrics              | Language: MDX
+I | Metrics              |   Files:             1
+I | Metrics              |   Lines:            62
+I | Metrics              |   Code:             46 (74.2%)
+I | Metrics              |   Comments:          0 (0.0%)
+I | Metrics              |   Blanks:           16 (25.8%)
+I | Metrics              |   Complexity:        0 (avg: 0.0 per file)
+I | Metrics              |
+I | Metrics              | Language: Dockerfile
+I | Metrics              |   Files:             1
+I | Metrics              |   Lines:            43
+I | Metrics              |   Code:             20 (46.5%)
+I | Metrics              |   Comments:         13 (30.2%)
+I | Metrics              |   Blanks:           10 (23.3%)
+I | Metrics              |   Complexity:        9 (avg: 9.0 per file)
+I | Metrics              |
+I | Metrics              | Language: License
+I | Metrics              |   Files:             1
+I | Metrics              |   Lines:            21
+I | Metrics              |   Code:             17 (81.0%)
+I | Metrics              |   Comments:          0 (0.0%)
+I | Metrics              |   Blanks:            4 (19.0%)
+I | Metrics              |   Complexity:        0 (avg: 0.0 per file)
+I | Metrics              |
+I | Metrics              | Language: TypeScript
+I | Metrics              |   Files:             1
+I | Metrics              |   Lines:             9
+I | Metrics              |   Code:              7 (77.8%)
+I | Metrics              |   Comments:          0 (0.0%)
+I | Metrics              |   Blanks:            2 (22.2%)
+I | Metrics              |   Complexity:        0 (avg: 0.0 per file)
+I | Metrics              |
+I | Metrics              | Language: Batch
+I | Metrics              |   Files:             1
+I | Metrics              |   Lines:             7
+I | Metrics              |   Code:              6 (85.7%)
+I | Metrics              |   Comments:          0 (0.0%)
+I | Metrics              |   Blanks:            1 (14.3%)
+I | Metrics              |   Complexity:        1 (avg: 1.0 per file)
+I | Metrics              |
+I | Metrics              | Summary:
+I | Metrics              |   Total Files:           785
+I | Metrics              |   Total Lines:       181,797
+I | Metrics              |   Total Code:        140,392 (77.2%)
+I | Metrics              |   Total Comments:      6,991 (3.8%)
+I | Metrics              |   Total Complexity:    3,892 (avg: 5.0 per file)
+I | Metrics              |
+V | Metrics              | Telemetry.OnTargetSucceeded (0)
+V | Metrics              | EventInvoker.OnTargetSucceeded (-3.4028235E+38)
+V | Test                 | EventInvoker.OnTargetRunning (-3.4028235E+38)
+I | Test                 | > /usr/local/share/dotnet/dotnet test "/Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/src/host/Dungeon.Host.Console/Dungeon.Host.Console.csproj" -c Release --no-build --logger trx --collect:"XPlat Code Coverage" --results-directory "/Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/_artifacts/0.0.1-436/test-results"
+V | Test                 | @ /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean
+V | Test                 | Telemetry.OnTargetSucceeded (0)
+V | Test                 | EventInvoker.OnTargetSucceeded (-3.4028235E+38)
+V |                      | EventInvoker.OnTargetSkipped (-3.4028235E+38)
+V | Publish              | EventInvoker.OnTargetRunning (-3.4028235E+38)
+I | Publish              | > /usr/local/share/dotnet/dotnet publish "/Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/development/dotnet/console/src/host/Dungeon.Host.Console/Dungeon.Host.Console.csproj" -c Release --no-build -o "/Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/_artifacts/0.0.1-436/publish/Dungeon.Host.Console"
+V | Publish              | @ /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean
+D | Publish              |   Dungeon.Host.Console -> /Users/apprenticegc/Work/lunar-horse/personal-work/yokan-projects/winged-bean/build/_artifacts/0.0.1-436/publish/Dungeon.Host.Console/
+V | Publish              | Telemetry.OnTargetSucceeded (0)
+V | Publish              | EventInvoker.OnTargetSucceeded (-3.4028235E+38)

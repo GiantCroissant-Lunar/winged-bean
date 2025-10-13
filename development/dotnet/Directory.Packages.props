@@ -3,15 +3,14 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
-
   <ItemGroup Label="Core Framework">
     <PackageVersion Include="Arch" Version="2.0.0" />
     <PackageVersion Include="MessagePipe" Version="1.8.1" />
     <PackageVersion Include="ObservableCollections" Version="3.1.0" />
     <PackageVersion Include="ReactiveUI" Version="20.1.1" />
+    <PackageVersion Include="RulesEngine" Version="5.1.0" />
     <PackageVersion Include="System.Reactive" Version="6.0.0" />
   </ItemGroup>
-
   <ItemGroup Label="Microsoft Extensions">
     <!-- Upgraded to 9.0.2 to match WingedBean.Hosting.* requirements (compatible with .NET 8.0) -->
     <PackageVersion Include="Microsoft.Extensions.Configuration" Version="9.0.2" />
@@ -27,7 +26,6 @@
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.2" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="9.0.2" />
   </ItemGroup>
-
   <ItemGroup Label="Roslyn and Source Generators">
     <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.10.0" />
@@ -35,11 +33,9 @@
     <PackageVersion Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.10.0" />
     <PackageVersion Include="PolySharp" Version="1.15.0" />
   </ItemGroup>
-
   <ItemGroup Label="Terminal and UI">
     <!-- Default to v2.0.0 for new projects, but allow per-project overrides -->
     <PackageVersion Include="Terminal.Gui" Version="2.0.0" />
-
     <!-- SadConsole for desktop rendering with FNA host (better macOS compatibility) -->
     <PackageVersion Include="SadConsole" Version="10.0.3" />
     <PackageVersion Include="SadConsole.Host.FNA" Version="10.0.3" />
@@ -47,28 +43,23 @@
     <PackageVersion Include="SadConsole.Host.MonoGame" Version="10.0.3" />
     <PackageVersion Include="MonoGame.Framework.DesktopGL" Version="3.8.1.303" />
   </ItemGroup>
-
   <ItemGroup Label="Game Libraries">
     <!-- GoRogue - Roguelike/2D game algorithms (FOV, pathfinding, map generation) -->
     <PackageVersion Include="GoRogue" Version="3.0.0-beta08" />
     <PackageVersion Include="TheSadRogue.Primitives" Version="1.6.0-rc3" />
   </ItemGroup>
-
   <ItemGroup Label="Networking">
     <PackageVersion Include="SuperSocket.WebSocket.Server" Version="2.0.0-beta.15" />
   </ItemGroup>
-
   <ItemGroup Label="Media (Conditional)">
     <PackageVersion Include="LibVLCSharp" Version="3.9.0" />
     <PackageVersion Include="VideoLAN.LibVLC.Mac" Version="3.0.21" />
     <PackageVersion Include="VideoLAN.LibVLC.Windows" Version="3.0.21" />
   </ItemGroup>
-
   <ItemGroup Label="Serialization">
     <!-- Upgraded to 9.0.2 to match Microsoft.Extensions.Configuration.Json 9.0.2 requirement -->
     <PackageVersion Include="System.Text.Json" Version="9.0.2" />
   </ItemGroup>
-
   <ItemGroup Label="NuGet Infrastructure">
     <PackageVersion Include="NuGet.Configuration" Version="6.11.1" />
     <PackageVersion Include="NuGet.Frameworks" Version="6.11.1" />
@@ -76,16 +67,13 @@
     <PackageVersion Include="NuGet.Protocol" Version="6.11.1" />
     <PackageVersion Include="NuGet.Versioning" Version="6.11.1" />
   </ItemGroup>
-
   <ItemGroup Label="DI Helpers">
     <PackageVersion Include="Scrutor" Version="4.2.2" />
   </ItemGroup>
-
   <ItemGroup Label="Resilience">
     <PackageVersion Include="Polly" Version="8.5.0" />
     <PackageVersion Include="Polly.Extensions" Version="8.5.0" />
   </ItemGroup>
-
   <ItemGroup Label="Testing">
     <PackageVersion Include="coverlet.collector" Version="6.0.2" />
     <PackageVersion Include="FluentAssertions" Version="6.12.1" />
@@ -93,23 +81,19 @@
     <PackageVersion Include="xunit" Version="2.9.0" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />
   </ItemGroup>
-
   <ItemGroup Label="Source Link and Debugging">
     <!-- SourceLink for GitHub - enables source debugging for NuGet consumers -->
     <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
   </ItemGroup>
-
   <ItemGroup Label="Analytics Providers">
     <!-- Firebase Analytics -->
     <PackageVersion Include="FirebaseAdmin" Version="3.0.0" />
     <PackageVersion Include="Google.Cloud.Firestore" Version="3.7.0" />
   </ItemGroup>
-
   <ItemGroup Label="Diagnostics Providers">
     <!-- Sentry -->
     <PackageVersion Include="Sentry" Version="4.12.0" />
     <PackageVersion Include="Sentry.Profiling" Version="4.12.0" />
-
     <!-- OpenTelemetry -->
     <PackageVersion Include="OpenTelemetry" Version="1.9.0" />
     <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.9.0" />
@@ -117,7 +101,6 @@
     <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.9.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.9.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.9.0" />
-
     <!-- Firebase Diagnostics (same as FirebaseAdmin above) -->
   </ItemGroup>
 </Project>
