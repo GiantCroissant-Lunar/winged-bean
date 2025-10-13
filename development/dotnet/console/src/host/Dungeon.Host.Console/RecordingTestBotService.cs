@@ -1,6 +1,10 @@
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using System.Reflection;
+using System.Linq;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -20,6 +24,7 @@ public class RecordingTestBotService : BackgroundService
     private readonly RulesEngine.RulesEngine _rulesEngine;
     private readonly Stopwatch _stopwatch = new();
     private int _eventCount = 0;
+    private readonly Random _random = new();
 
     public RecordingTestBotService(
         IConfiguration configuration,
@@ -30,7 +35,7 @@ public class RecordingTestBotService : BackgroundService
         _logger = logger;
         _outputWriter = new BotOutputWriter(outputWriterLogger);
 
-        // Load rules from embedded JSON
+        // Load rules from file or use fallback
         var workflows = LoadRuleWorkflows();
         _rulesEngine = new RulesEngine.RulesEngine(workflows.ToArray(), null);
     }
@@ -89,9 +94,11 @@ public class RecordingTestBotService : BackgroundService
 
             foreach (var result in results)
             {
-                if (result.IsSuccess && result.Rule.Actions?.OnSuccess != null)
+                if (result.IsSuccess)
                 {
-                    await ExecuteActionAsync(result.Rule.Actions.OnSuccess, input, ct);
+                    // Extract action from rule metadata or use rule name
+                    var actionType = result.Rule.RuleName;
+                    ExecuteSimpleAction(actionType, input);
                 }
             }
         }
@@ -101,136 +108,70 @@ public class RecordingTestBotService : BackgroundService
         }
     }
 
-    private Task ExecuteActionAsync(
-        RuleActions.ActionInfo actionInfo,
-        BotRuleInput input,
-        CancellationToken ct)
+    private void ExecuteSimpleAction(string actionType, BotRuleInput input)
     {
         try
         {
-            var context = actionInfo.Context;
-            if (context == null) return Task.CompletedTask;
-
-            // Parse context as JSON to get action parameters
-            var contextJson = context.ToString() ?? "{}";
-            var actionParams = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(contextJson);
-
-            if (actionParams == null) return Task.CompletedTask;
-
-            var actionType = actionParams.GetValueOrDefault("Type").GetString() ?? actionInfo.Name;
-
             switch (actionType)
             {
-                case "Banner":
-                    ExecuteBannerAction(actionParams, input);
+                case "InitialBanner":
+                    _outputWriter.WriteBanner("Recording Test Session", input.SessionId);
+                    _eventCount++;
                     break;
 
-                case "GameEvent":
-                    ExecuteGameEventAction(actionParams, input);
+                case "PlayerSpawn":
+                    _outputWriter.WriteGameEvent("Spawn", "Player spawns at (5,5)");
+                    _eventCount++;
                     break;
 
-                case "Summary":
-                    ExecuteSummaryAction(actionParams, input);
+                case "PlayerMovement":
+                    var directions = new[] { "north", "south", "east", "west" };
+                    var direction = directions[_random.Next(directions.Length)];
+                    _outputWriter.WritePlayerMove(direction);
+                    _eventCount++;
+                    break;
+
+                case "EnemyEncounter":
+                    _outputWriter.WriteGameEvent("Enemy", "Enemy detected: Goblin (HP: 20)");
+                    _eventCount++;
+                    break;
+
+                case "CombatEvents":
+                    var damage = _random.Next(5, 15);
+                    _outputWriter.WriteCombatEvent("Player", "Goblin", damage);
+                    _eventCount++;
+                    break;
+
+                case "FinalSummary":
+                    var stats = new Dictionary<string, object>
+                    {
+                        ["Duration"] = $"{input.ElapsedSeconds:F2}s",
+                        ["Events"] = _eventCount,
+                        ["Status"] = "SUCCESS"
+                    };
+                    _outputWriter.WriteSummary("Test session complete", stats);
+                    _eventCount++;
                     break;
 
                 default:
-                    _logger.LogWarning("[Bot] Unknown action type: {ActionType}", actionType);
+                    _logger.LogDebug("[Bot] Unknown action: {ActionType}", actionType);
                     break;
             }
-
-            _eventCount++;
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "[Bot] Action execution failed: {ActionName}", actionInfo.Name);
+            _logger.LogWarning(ex, "[Bot] Action execution failed: {ActionType}", actionType);
         }
-
-        return Task.CompletedTask;
-    }
-
-    private void ExecuteBannerAction(Dictionary<string, JsonElement> parameters, BotRuleInput input)
-    {
-        var title = parameters.GetValueOrDefault("Title").GetString() ?? "Test Session";
-        var sessionId = parameters.GetValueOrDefault("SessionId").GetString();
-
-        // Replace {{SessionId}} token
-        if (sessionId != null && sessionId.Contains("{{SessionId}}"))
-        {
-            sessionId = input.SessionId;
-        }
-
-        _outputWriter.WriteBanner(title, sessionId);
-    }
-
-    private void ExecuteGameEventAction(Dictionary<string, JsonElement> parameters, BotRuleInput input)
-    {
-        var eventType = parameters.GetValueOrDefault("EventType").GetString() ?? "Event";
-        var message = parameters.GetValueOrDefault("Message").GetString() ?? "Unknown event";
-
-        // Handle different event types with varied output
-        switch (eventType)
-        {
-            case "PlayerMove":
-                var directions = new[] { "north", "south", "east", "west" };
-                var direction = directions[Random.Shared.Next(directions.Length)];
-                _outputWriter.WritePlayerMove(direction);
-                break;
-
-            case "Combat":
-                var damage = Random.Shared.Next(5, 15);
-                _outputWriter.WriteCombatEvent("Player", "Enemy", damage);
-                break;
-
-            default:
-                _outputWriter.WriteGameEvent(eventType, message);
-                break;
-        }
-    }
-
-    private void ExecuteSummaryAction(Dictionary<string, JsonElement> parameters, BotRuleInput input)
-    {
-        var message = parameters.GetValueOrDefault("Message").GetString() ?? "Session Complete";
-
-        var stats = new Dictionary<string, object>
-        {
-            ["Duration"] = $"{input.ElapsedSeconds:F2}s",
-            ["Events"] = _eventCount,
-            ["Status"] = "SUCCESS"
-        };
-
-        _outputWriter.WriteSummary(message, stats);
     }
 
     private List<Workflow> LoadRuleWorkflows()
     {
         try
         {
-            // Try to load from embedded resource
-            var assembly = Assembly.GetExecutingAssembly();
-            var resourceName = "Dungeon.Host.Console.recording-test-scenarios.json";
-
-            using var stream = assembly.GetManifestResourceStream(resourceName);
-
-            if (stream != null)
+            var scenarioPath = System.IO.Path.Combine(AppContext.BaseDirectory, "recording-test-scenarios.json");
+            if (System.IO.File.Exists(scenarioPath))
             {
-                using var reader = new StreamReader(stream);
-                var json = reader.ReadToEnd();
-                var workflows = JsonSerializer.Deserialize<List<Workflow>>(json);
-
-                if (workflows != null && workflows.Count > 0)
-                {
-                    _logger.LogInformation("[Bot] Loaded {Count} workflow(s) from embedded resource", workflows.Count);
-                    return workflows;
-                }
-            }
-
-            _logger.LogWarning("[Bot] Embedded resource not found, trying file...");
-
-            // Fallback: try to load from file
-            var scenarioPath = Path.Combine(AppContext.BaseDirectory, "recording-test-scenarios.json");
-            if (File.Exists(scenarioPath))
-            {
-                var json = File.ReadAllText(scenarioPath);
+                var json = System.IO.File.ReadAllText(scenarioPath);
                 var workflows = JsonSerializer.Deserialize<List<Workflow>>(json);
 
                 if (workflows != null && workflows.Count > 0)
@@ -257,46 +198,38 @@ public class RecordingTestBotService : BackgroundService
         {
             new Workflow
             {
-                WorkflowName = "FallbackTest",
+                WorkflowName = "BasicRecordingTest",
                 Rules = new List<Rule>
                 {
                     new Rule
                     {
-                        RuleName = "FallbackBanner",
-                        Expression = "input1.ElapsedSeconds < 0.5",
-                        SuccessEvent = "10",
-                        Actions = new RuleActions
-                        {
-                            OnSuccess = new RuleActions.ActionInfo
-                            {
-                                Name = "PrintBanner",
-                                Context = JsonSerializer.Serialize(new
-                                {
-                                    Type = "Banner",
-                                    Title = "Recording Test (Fallback)",
-                                    SessionId = "{{SessionId}}"
-                                })
-                            }
-                        }
+                        RuleName = "InitialBanner",
+                        Expression = "input1.ElapsedSeconds < 0.5"
                     },
                     new Rule
                     {
-                        RuleName = "FallbackEvents",
-                        Expression = "input1.ElapsedSeconds >= 1 && (input1.ElapsedSeconds % 2) < 0.2",
-                        SuccessEvent = "20",
-                        Actions = new RuleActions
-                        {
-                            OnSuccess = new RuleActions.ActionInfo
-                            {
-                                Name = "PrintGameEvent",
-                                Context = JsonSerializer.Serialize(new
-                                {
-                                    Type = "GameEvent",
-                                    EventType = "GameEvent",
-                                    Message = "Test event"
-                                })
-                            }
-                        }
+                        RuleName = "PlayerSpawn",
+                        Expression = "input1.ElapsedSeconds >= 1 && input1.ElapsedSeconds < 1.5"
+                    },
+                    new Rule
+                    {
+                        RuleName = "PlayerMovement",
+                        Expression = "input1.ElapsedSeconds >= 2 && input1.ElapsedSeconds < 8 && (input1.ElapsedSeconds % 1) < 0.1"
+                    },
+                    new Rule
+                    {
+                        RuleName = "EnemyEncounter",
+                        Expression = "input1.ElapsedSeconds >= 3 && input1.ElapsedSeconds < 3.5"
+                    },
+                    new Rule
+                    {
+                        RuleName = "CombatEvents",
+                        Expression = "input1.ElapsedSeconds >= 4 && input1.ElapsedSeconds < 7 && (input1.ElapsedSeconds % 0.8) < 0.1"
+                    },
+                    new Rule
+                    {
+                        RuleName = "FinalSummary",
+                        Expression = "input1.ElapsedSeconds >= 9"
                     }
                 }
             }

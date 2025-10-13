@@ -5,91 +5,32 @@
       {
         "RuleName": "InitialBanner",
         "Expression": "input1.ElapsedSeconds < 0.5",
-        "SuccessEvent": "10",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "PrintBanner",
-            "Context": {
-              "Type": "Banner",
-              "Title": "Recording Test Session",
-              "SessionId": "{{SessionId}}"
-            }
-          }
-        }
+        "SuccessEvent": "10"
       },
       {
         "RuleName": "PlayerSpawn",
         "Expression": "input1.ElapsedSeconds >= 1 && input1.ElapsedSeconds < 1.5",
-        "SuccessEvent": "20",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "PrintGameEvent",
-            "Context": {
-              "Type": "GameEvent",
-              "EventType": "PlayerSpawn",
-              "Message": "Player spawns at (5,5)"
-            }
-          }
-        }
+        "SuccessEvent": "20"
       },
       {
         "RuleName": "PlayerMovement",
         "Expression": "input1.ElapsedSeconds >= 2 && input1.ElapsedSeconds < 8 && (input1.ElapsedSeconds % 1) < 0.1",
-        "SuccessEvent": "30",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "PrintGameEvent",
-            "Context": {
-              "Type": "GameEvent",
-              "EventType": "PlayerMove",
-              "Message": "Player moves"
-            }
-          }
-        }
+        "SuccessEvent": "30"
       },
       {
         "RuleName": "EnemyEncounter",
         "Expression": "input1.ElapsedSeconds >= 3 && input1.ElapsedSeconds < 3.5",
-        "SuccessEvent": "40",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "PrintGameEvent",
-            "Context": {
-              "Type": "GameEvent",
-              "EventType": "EnemySpawn",
-              "Message": "Enemy detected: Goblin (HP: 20)"
-            }
-          }
-        }
+        "SuccessEvent": "40"
       },
       {
         "RuleName": "CombatEvents",
         "Expression": "input1.ElapsedSeconds >= 4 && input1.ElapsedSeconds < 7 && (input1.ElapsedSeconds % 0.8) < 0.1",
-        "SuccessEvent": "50",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "PrintGameEvent",
-            "Context": {
-              "Type": "GameEvent",
-              "EventType": "Combat",
-              "Message": "Combat action"
-            }
-          }
-        }
+        "SuccessEvent": "50"
       },
       {
         "RuleName": "FinalSummary",
         "Expression": "input1.ElapsedSeconds >= 9",
-        "SuccessEvent": "60",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "PrintSummary",
-            "Context": {
-              "Type": "Summary",
-              "Message": "Test session complete"
-            }
-          }
-        }
+        "SuccessEvent": "60"
       }
     ]
   }

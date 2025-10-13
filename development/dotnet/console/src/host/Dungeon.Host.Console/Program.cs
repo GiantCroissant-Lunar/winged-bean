@@ -143,8 +143,8 @@ var host = HostLand.Console.Host.CreateConsoleBuilder(args)
             services.AddHostedService<RecordingControlService>();
 
             // Register recording test bot service (opt-in via --bot-enabled)
-            var botEnabled = config.GetValue<bool>("bot-enabled", false) ||
-                            (config["bot-enabled"]?.Equals("true", StringComparison.OrdinalIgnoreCase) ?? false);
+            var botEnabled = configuration.GetValue<bool>("bot-enabled", false) ||
+                            (configuration["bot-enabled"]?.Equals("true", StringComparison.OrdinalIgnoreCase) ?? false);
             if (botEnabled)
             {
                 diagnosticLogger.LogInformation("Recording test bot enabled");

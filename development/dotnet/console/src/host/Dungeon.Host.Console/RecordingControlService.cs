@@ -118,8 +118,19 @@ public class RecordingControlService : BackgroundService
             await recorderService.StartRecordingAsync(sessionId, metadata, stoppingToken);
             _logger.LogInformation("✓ Recording started: {SessionId}", sessionId);
 
+            // Hook console output to recorder
+            var originalOut = System.Console.Out;
+            var recordingWriter = new RecordingTextWriter(originalOut, recorderService, sessionId);
+            System.Console.SetOut(recordingWriter);
+            _logger.LogInformation("✓ Console output hooked to recorder");
+
             // Record for specified duration
             await Task.Delay(TimeSpan.FromSeconds(recordDuration), stoppingToken);
+
+            // Restore original console output
+            System.Console.Out.Flush();
+            System.Console.SetOut(originalOut);
+            _logger.LogInformation("✓ Console output restored");
 
             // Stop recording
             var recordingPath = await recorderService.StopRecordingAsync(sessionId, stoppingToken);
