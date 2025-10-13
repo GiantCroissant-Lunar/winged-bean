@@ -68,19 +68,23 @@ wss.on("connection", (ws) => {
 
   // Spawn .NET application via shell with exec to ensure proper runtime initialization
   // Direct spawning of dotnet with DLL path fails in PTY without shell context
+  const initialCols = 80;
+  const initialRows = 24;
+  const ptyEnv = {
+    ...process.env,
+    TERM: "xterm-256color",
+    COLORTERM: "truecolor",
+    LANG: process.env.LANG || "en_US.UTF-8",
+    LC_ALL: process.env.LC_ALL || "en_US.UTF-8",
+  };
   const ptyProcess = pty.spawn("sh", ["-c", `cd "${BIN_DIR}" && exec dotnet ./${DOTNET_DLL}`, "sh"], {
     name: "xterm-256color",
-    cols: 80,
-    rows: 24,
-    env: {
-      ...process.env,
-      // Try different TERM settings for Terminal.Gui compatibility
-      TERM: "xterm-256color",
-      COLORTERM: "truecolor",
-      LANG: process.env.LANG || "en_US.UTF-8",
-      LC_ALL: process.env.LC_ALL || "en_US.UTF-8",
-    },
+    cols: initialCols,
+    rows: initialRows,
+    env: ptyEnv,
   });
+  let currentCols = initialCols;
+  let currentRows = initialRows;
 
   console.log(`PTY process spawned with PID: ${ptyProcess.pid}`);
 
@@ -108,7 +112,15 @@ wss.on("connection", (ws) => {
 
     // Check for recording control sequences (OSC 1337)
     if (dataStr.includes('\x1b]1337;StartRecording\x07')) {
-      const filename = recordingManager.startRecording();
+      const meta = {
+        width: currentCols,
+        height: currentRows,
+        env: { TERM: ptyEnv.TERM, COLORTERM: ptyEnv.COLORTERM, LANG: ptyEnv.LANG },
+        command: `dotnet ${DOTNET_DLL}`,
+        cwd: BIN_DIR,
+        title: `Console App Session`,
+      };
+      const filename = recordingManager.startRecording(meta);
       if (filename) {
         const msg = `\r\n🔴 Recording started: ${filename}\r\n`;
         if (ws.readyState === WebSocket.OPEN) {
@@ -177,6 +189,11 @@ wss.on("connection", (ws) => {
           const rows = Math.max(5, Math.min(120, data.rows | 0));
           console.log(`Resize request: ${cols}x${rows}`);
           ptyProcess.resize(cols, rows);
+          currentCols = cols;
+          currentRows = rows;
+          if (recordingManager.isRecording()) {
+            recordingManager.setSize(cols, rows);
+          }
         } catch (e) {
           console.warn("Resize failed:", e?.message || e);
         }

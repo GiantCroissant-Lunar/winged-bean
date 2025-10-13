@@ -13,6 +13,8 @@ class RecordingManager {
     this.outputDir = outputDir;
     this.currentRecording = null;
     this.recordingCount = 0;
+    this.currentCols = 80;
+    this.currentRows = 24;
 
     // Ensure output directory exists
     if (!fs.existsSync(outputDir)) {
@@ -22,9 +24,10 @@ class RecordingManager {
 
   /**
    * Start a new recording session
-   * @returns {string} Filename of the recording
+   * @param {Object} metadata optional { width, height, env, command, cwd, title }
+   * @returns {string|null} Filename of the recording
    */
-  startRecording() {
+  startRecording(metadata = {}) {
     if (this.currentRecording) {
       console.log('Recording already in progress');
       return null;
@@ -44,13 +47,18 @@ class RecordingManager {
     };
 
     // Write asciinema v2 header
+    this.currentCols = Math.max(1, metadata.width | 0 || this.currentCols);
+    this.currentRows = Math.max(1, metadata.height | 0 || this.currentRows);
     const header = {
       version: 2,
-      width: 80,
-      height: 24,
+      width: this.currentCols,
+      height: this.currentRows,
       timestamp: Math.floor(Date.now() / 1000),
-      title: `Terminal.Gui PTY Session ${this.recordingCount}`,
+      title: metadata.title || `Terminal.Gui PTY Session ${this.recordingCount}`,
     };
+    if (metadata.env && typeof metadata.env === 'object') header.env = metadata.env;
+    if (metadata.command) header.command = metadata.command;
+    if (metadata.cwd) header.cwd = metadata.cwd;
     this.currentRecording.stream.write(JSON.stringify(header) + '\n');
 
     console.log(`[RecordingManager] Recording started: ${filename}`);
@@ -70,6 +78,27 @@ class RecordingManager {
 
     this.currentRecording.stream.write(JSON.stringify(event) + '\n');
     this.currentRecording.frameCount++;
+  }
+
+  /**
+   * Emit a resize event and update current size
+   * @param {number} cols
+   * @param {number} rows
+   */
+  setSize(cols, rows) {
+    if (!this.currentRecording) {
+      this.currentCols = cols | 0;
+      this.currentRows = rows | 0;
+      return;
+    }
+    const c = Math.max(1, cols | 0);
+    const r = Math.max(1, rows | 0);
+    this.currentCols = c;
+    this.currentRows = r;
+    const timestamp = (Date.now() - this.currentRecording.startTime) / 1000;
+    // Asciinema v2 resize event: [t, 'r', [cols, rows]]
+    const event = [timestamp, 'r', [c, r]];
+    this.currentRecording.stream.write(JSON.stringify(event) + '\n');
   }
 
   /**

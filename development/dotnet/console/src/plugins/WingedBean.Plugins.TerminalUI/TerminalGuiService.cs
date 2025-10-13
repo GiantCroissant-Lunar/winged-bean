@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Text;
 using Plate.CrossMilo.Contracts.Terminal;
 using Plate.PluginManoi.Contracts;
 using Terminal.Gui;
@@ -24,6 +25,7 @@ public class TerminalGuiService : ITerminalUIService
     private System.Timers.Timer? _timer;
     private System.Timers.Timer? _gameTimer;
     private TextView? _logView;
+    private TextView? _worldView;
     private readonly ConcurrentQueue<string> _logMessages = new();
     private const int MaxLogMessages = 100;
     private bool _headlessMode = false;
@@ -142,6 +144,16 @@ public class TerminalGuiService : ITerminalUIService
         {
             X = 1,
             Y = 14,
+            Width = Dim.Percent(50) - 2,
+            Height = Dim.Fill() - 1,
+            ReadOnly = true,
+            WordWrap = false
+        };
+
+        _worldView = new TextView
+        {
+            X = Pos.Percent(50) + 1,
+            Y = 14,
             Width = Dim.Fill() - 1,
             Height = Dim.Fill() - 1,
             ReadOnly = true,
@@ -206,7 +218,7 @@ public class TerminalGuiService : ITerminalUIService
         };
 
         // Add all controls to window
-        _mainWindow.Add(titleLabel, infoLabel, architectureLabel, timeLabel, button, textField, statusLabel, logLabel, _logView);
+        _mainWindow.Add(titleLabel, infoLabel, architectureLabel, timeLabel, button, textField, statusLabel, logLabel, _logView, _worldView);
 
         // Create menu bar
         var menu = new MenuBar();
@@ -260,6 +272,7 @@ public class TerminalGuiService : ITerminalUIService
                 _worldSub = _worldProvider.WorldObservable.Subscribe(ws =>
                 {
                     LogMessage("DEBUG", $"World entities: {ws.Entities?.Count ?? 0}");
+                    RenderWorld(ws);
                 });
             }
             catch { }
@@ -344,10 +357,56 @@ public class TerminalGuiService : ITerminalUIService
             // Cleanup
             _timer?.Stop();
             _timer?.Dispose();
+            _worldSub?.Dispose();
             _mainWindow?.Dispose();
             Application.Shutdown();
             _initialized = false;
         }
+    }
+
+    private void RenderWorld(WorldSnapshot ws)
+    {
+        if (_headlessMode || _worldView == null)
+            return;
+
+        Application.Invoke(() =>
+        {
+            try
+            {
+                // Determine viewport
+                int width = Math.Max(20, _worldView.Bounds.Width);
+                int height = Math.Max(10, _worldView.Bounds.Height - 2);
+
+                // Prepare buffer
+                var buffer = new char[height, width];
+                for (int y = 0; y < height; y++)
+                    for (int x = 0; x < width; x++)
+                        buffer[y, x] = ' ';
+
+                // Plot entities
+                var entities = ws.Entities ?? Array.Empty<EntityView>();
+                foreach (var e in entities)
+                {
+                    int x = Math.Clamp(e.X, 0, width - 1);
+                    int y = Math.Clamp(e.Y, 0, height - 1);
+                    buffer[y, x] = e.Glyph == '\0' ? '.' : e.Glyph;
+                }
+
+                // Compose text
+                var sb = new StringBuilder();
+                for (int y = 0; y < height; y++)
+                {
+                    var line = new char[width];
+                    for (int x = 0; x < width; x++) line[x] = buffer[y, x];
+                    sb.AppendLine(new string(line));
+                }
+
+                var hud = ws.Hud ?? new PlayerHud();
+                var hudLine = $"HP {hud.HP}/{hud.MaxHP}  Lv {hud.Level}  XP {hud.XP}/{hud.MaxXP}  Floor {ws.Floor}";
+                _worldView.Text = hudLine + "\n" + sb.ToString();
+            }
+            catch { }
+        });
     }
 
     /// <summary>

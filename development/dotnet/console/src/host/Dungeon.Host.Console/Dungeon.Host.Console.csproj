@@ -17,7 +17,7 @@
     <!-- Game-specific contracts -->
     <ProjectReference Include="../../game/ConsoleDungeon.Contracts/ConsoleDungeon.Contracts.csproj" />
     <!-- Gameplay contracts (winged-bean local): compile-time only -->
-    <ProjectReference Include="../../framework/src/WingedBean.Contracts.Gameplay/WingedBean.Contracts.Gameplay.csproj">
+    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Gameplay/WingedBean.Contracts.Gameplay.csproj">
       <Private>false</Private>
       <ExcludeAssets>runtime</ExcludeAssets>
     </ProjectReference>

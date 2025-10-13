@@ -58,6 +58,10 @@ public static class RegistryHelper
                 registry.Register((WingedBean.Contracts.Gameplay.IWorldSnapshotProvider)instance, priority);
                 return;
 
+            case "Plate.CrossMilo.Contracts.Recorder.Services.IService":
+                registry.Register((Plate.CrossMilo.Contracts.Recorder.Services.IService)instance, priority);
+                return;
+
             case "ConsoleDungeon.Contracts.IDungeonService":
             case "Plate.CrossMilo.Contracts.Game.Dungeon.IService":  // Legacy
             case "WingedBean.Contracts.Game.IDungeonGameService":  // Legacy

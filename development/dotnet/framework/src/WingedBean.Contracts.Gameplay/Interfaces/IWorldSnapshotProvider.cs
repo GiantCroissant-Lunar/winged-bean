@@ -21,9 +21,9 @@ public interface IWorldSnapshotProvider
 /// </summary>
 public sealed class WorldSnapshot
 {
-    public IReadOnlyList<EntityView> Entities { get; init; } = Array.Empty<EntityView>();
-    public PlayerHud Hud { get; init; } = new PlayerHud();
-    public int Floor { get; init; }
+    public IReadOnlyList<EntityView> Entities { get; set; } = Array.Empty<EntityView>();
+    public PlayerHud Hud { get; set; } = new PlayerHud();
+    public int Floor { get; set; }
 }
 
 /// <summary>
@@ -31,13 +31,13 @@ public sealed class WorldSnapshot
 /// </summary>
 public sealed class EntityView
 {
-    public int X { get; init; }
-    public int Y { get; init; }
-    public int Z { get; init; }
-    public char Glyph { get; init; }
-    public ConsoleColor Foreground { get; init; }
-    public ConsoleColor Background { get; init; }
-    public int Layer { get; init; }
+    public int X { get; set; }
+    public int Y { get; set; }
+    public int Z { get; set; }
+    public char Glyph { get; set; }
+    public ConsoleColor Foreground { get; set; }
+    public ConsoleColor Background { get; set; }
+    public int Layer { get; set; }
 }
 
 /// <summary>
@@ -45,9 +45,9 @@ public sealed class EntityView
 /// </summary>
 public sealed class PlayerHud
 {
-    public int HP { get; init; }
-    public int MaxHP { get; init; }
-    public int Level { get; init; }
-    public int XP { get; init; }
-    public int MaxXP { get; init; }
+    public int HP { get; set; }
+    public int MaxHP { get; set; }
+    public int Level { get; set; }
+    public int XP { get; set; }
+    public int MaxXP { get; set; }
 }

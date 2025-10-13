@@ -1,0 +1,12 @@
+{
+  "id": "winged-bean.plugins.sadconsole",
+  "name": "SadConsole Renderer",
+  "version": "1.0.0",
+  "entryPoint": {
+    "dotnet": "WingedBean.Plugins.SadConsole.dll"
+  },
+  "loadStrategy": "Eager",
+  "dependencies": {
+    "nuget": []
+  }
+}
