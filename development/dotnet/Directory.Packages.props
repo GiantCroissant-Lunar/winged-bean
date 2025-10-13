@@ -51,7 +51,7 @@
   <ItemGroup Label="Game Libraries">
     <!-- GoRogue - Roguelike/2D game algorithms (FOV, pathfinding, map generation) -->
     <PackageVersion Include="GoRogue" Version="3.0.0-beta08" />
-    <PackageVersion Include="TheSadRogue.Primitives" Version="1.6.0-beta02" />
+    <PackageVersion Include="TheSadRogue.Primitives" Version="1.6.0-rc3" />
   </ItemGroup>
 
   <ItemGroup Label="Networking">
