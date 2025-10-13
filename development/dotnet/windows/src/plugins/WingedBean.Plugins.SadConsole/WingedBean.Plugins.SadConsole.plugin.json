@@ -2,11 +2,27 @@
   "id": "winged-bean.plugins.sadconsole",
   "name": "SadConsole Renderer",
   "version": "1.0.0",
+  "description": "Desktop UI renderer using SadConsole library",
+  "author": "WingedBean Team",
   "entryPoint": {
     "dotnet": "WingedBean.Plugins.SadConsole.dll"
   },
   "loadStrategy": "Eager",
+  "priority": 100,
   "dependencies": {
+    "plugins": [],
     "nuget": []
+  },
+  "exports": {
+    "services": [
+      {
+        "interface": "Plate.CrossMilo.Contracts.UI.App.IService",
+        "implementation": "WingedBean.Plugins.SadConsole.SadConsoleApp",
+        "lifecycle": "singleton"
+      }
+    ]
+  },
+  "compatibility": {
+    "minHostVersion": "1.0.0"
   }
 }

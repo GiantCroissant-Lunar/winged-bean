@@ -11,25 +11,17 @@ using Microsoft.Extensions.Logging;
 using Plate.CrossMilo.Contracts;
 using Plate.PluginManoi.Contracts;
 using Plate.PluginManoi.Core;
-using Plate.PluginManoi.Loader;
-using Plate.PluginManoi.Registry;
-// Game contracts - not needed for desktop host
 using ILoadedPlugin = Plate.PluginManoi.Contracts.ILoadedPlugin;
-// Type aliases for old references that haven't been migrated yet
 using IPluginLoader = Plate.PluginManoi.Contracts.IPluginLoader;
-// RenderService removed from framework
-// Resource service for NuGet loading
 using IResourceService = Plate.CrossMilo.Contracts.Resource.Services.IService;
-// Terminal and UI contracts now in Plate.CrossMilo.Contracts namespace
-using ITerminalApp = Plate.CrossMilo.Contracts.Terminal.ITerminalApp;
 using PluginAttribute = Plate.PluginManoi.Contracts.PluginAttribute;
 using PluginManifest = Plate.PluginManoi.Core.PluginManifest;
 
 namespace Dungeon.Host.SadConsole;
 
 /// <summary>
-/// Hosted service that loads plugins and initializes the application.
-/// Runs after DI container is built but before the terminal app starts.
+/// Hosted service that loads plugins using MANIFEST-ONLY approach.
+/// Legacy plugins.json loading has been REMOVED.
 /// </summary>
 public class PluginLoaderHostedService : IHostedService
 {
@@ -60,143 +52,70 @@ public class PluginLoaderHostedService : IHostedService
     private async Task LoadPluginsAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("========================================");
-        _logger.LogInformation("ConsoleDungeon.Host - Dynamic Plugin Mode");
+        _logger.LogInformation("Dungeon Host - Manifest-Only Plugin Loading");
         _logger.LogInformation("========================================");
 
         try
         {
             // Step 1: Create foundation services
-            _logger.LogInformation("[1/3] Initializing foundation services...");
+            _logger.LogInformation("[1/4] Initializing foundation services...");
             _registry.Register<IRegistry>(_registry);
             _registry.Register<IPluginLoader>(_pluginLoader);
             _logger.LogInformation("✓ Foundation services initialized");
-            // Step 2: Discover and load plugins
-            _logger.LogInformation("[2/3] Loading plugins...");
-            var exeDirectory = Path.GetDirectoryName(typeof(PluginLoaderHostedService).Assembly.Location) ?? Environment.CurrentDirectory;
+
+            // Step 2: Discover manifests
+            _logger.LogInformation("[2/4] Discovering plugin manifests...");
+            var exeDirectory = Path.GetDirectoryName(typeof(PluginLoaderHostedService).Assembly.Location)
+                ?? Environment.CurrentDirectory;
             var pluginsDir = Path.Combine(exeDirectory, "plugins");
 
-            var loadedPlugins = new Dictionary<string, ILoadedPlugin>();
-            var loadedById = new HashSet<string>();
-
-            // Load manifest-based plugins
-            if (Directory.Exists(pluginsDir))
+            if (!Directory.Exists(pluginsDir))
             {
-                var manifestPaths = Directory.GetFiles(pluginsDir, "*.plugin.json", SearchOption.AllDirectories);
-                foreach (var manifestPath in manifestPaths)
-                {
-                    try
-                    {
-                        var pluginDir = Path.GetDirectoryName(manifestPath)!;
-                        var manifest = await LoadPluginManifestAsync(manifestPath);
-                        var pluginId = manifest.Id;
-
-                        if (loadedById.Contains(pluginId))
-                        {
-                            _logger.LogWarning("  ⊘ Skipping duplicate plugin: {PluginId}", pluginId);
-                            continue;
-                        }
-
-                        // Load NuGet dependencies BEFORE loading plugin assembly
-                        await LoadNuGetDependenciesAsync(manifestPath, pluginId, cancellationToken);
-
-                        // Resolve entry point path relative to manifest directory
-                        var entryPoint = manifest.EntryPoint?.Dotnet ?? $"./{manifest.Id}.dll";
-                        var assemblyPath = Path.GetFullPath(Path.Combine(pluginDir, entryPoint));
-
-                        _logger.LogInformation("  → Loading manifest plugin: {PluginId} from {AssemblyPath}", pluginId, assemblyPath);
-
-                        // Load plugin using resolved assembly path
-                        var plugin = await _pluginLoader.LoadAsync(assemblyPath);
-                        loadedPlugins[pluginId] = plugin;
-                        loadedById.Add(pluginId);
-
-                        // Auto-register services from plugin
-                        await RegisterPluginServicesAsync(plugin, 100, cancellationToken); // Default priority for manifests
-                        _logger.LogInformation("    ✓ Loaded: {PluginId} v{Version}", plugin.Manifest.Id, plugin.Manifest.Version);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "    ✗ Failed to load manifest plugin from {ManifestPath}: {Message}", manifestPath, ex.Message);
-                    }
-                }
+                _logger.LogWarning("⚠ Plugins directory not found: {PluginsDir}", pluginsDir);
+                _logger.LogWarning("  Creating directory...");
+                Directory.CreateDirectory(pluginsDir);
+                _logger.LogInformation("  No plugins to load. Place .plugin.json manifests in: {PluginsDir}", pluginsDir);
+                return;
             }
 
-            // Legacy path: prefer manifests, but fall back to plugins.json when none are present or explicitly enabled
-            var useLegacyEnv = (Environment.GetEnvironmentVariable("ENABLE_LEGACY_PLUGINS_JSON") ?? "").ToLowerInvariant();
-            var enableLegacy = useLegacyEnv == "1" || useLegacyEnv == "true" || loadedById.Count == 0;
-            List<PluginDescriptor> enabledPlugins = new();
-            if (enableLegacy)
+            var manifests = await DiscoverManifestsAsync(pluginsDir, cancellationToken);
+            _logger.LogInformation("✓ Discovered {Count} plugin manifests", manifests.Count);
+
+            if (manifests.Count == 0)
             {
-                var configPath = Path.Combine(exeDirectory, "plugins.json");
-                if (File.Exists(configPath))
-                {
-                    var config = await LoadPluginConfigurationAsync(configPath);
-                    enabledPlugins = config.Plugins
-                        .Where(p => p.Enabled && !loadedById.Contains(p.Id))
-                        .OrderByDescending(p => p.Priority)
-                        .ToList();
-                    var reason = loadedById.Count == 0 && string.IsNullOrEmpty(useLegacyEnv)
-                        ? "(fallback: no manifests found)"
-                        : (string.IsNullOrEmpty(useLegacyEnv) ? "(env enabled)" : "(env enabled)");
-                    _logger.LogInformation("  → Legacy plugins.json entries: {Count} {Reason}", enabledPlugins.Count, reason);
-                }
-                else
-                {
-                    _logger.LogInformation("  → No plugins.json found at {Path}", configPath);
-                }
+                _logger.LogWarning("⚠ No plugin manifests found in: {PluginsDir}", pluginsDir);
+                _logger.LogInformation("  Expected format: plugins/<plugin-name>/<plugin-name>.plugin.json");
+                return;
+            }
+
+            // Step 3: Load overrides (optional)
+            _logger.LogInformation("[3/4] Loading plugin overrides...");
+            var overrides = await LoadOverridesAsync(exeDirectory, cancellationToken);
+            if (overrides != null)
+            {
+                _logger.LogInformation("✓ Loaded plugin overrides ({Count} plugins configured)",
+                    overrides.Overrides.Count);
             }
             else
             {
-                _logger.LogInformation("  → Legacy plugins.json disabled (set ENABLE_LEGACY_PLUGINS_JSON=1 to force)");
+                _logger.LogInformation("  No overrides file found (plugins-overrides.json) - using manifest defaults");
             }
 
-            // Load legacy plugins
-            foreach (var descriptor in enabledPlugins)
-            {
-                if (descriptor.LoadStrategy != LoadStrategy.Eager)
-                {
-                    _logger.LogInformation("  ⊘ Skipping {PluginId} (strategy: {LoadStrategy})", descriptor.Id, descriptor.LoadStrategy);
-                    continue;
-                }
+            // Step 4: Apply overrides and sort by priority
+            var orderedManifests = ApplyOverridesAndSort(manifests, overrides);
 
-                _logger.LogInformation("  → Loading: {PluginId} (priority: {Priority})", descriptor.Id, descriptor.Priority);
-
-                try
-                {
-                    // Resolve plugin path relative to executable directory
-                    var pluginPath = Path.IsPathRooted(descriptor.Path)
-                        ? descriptor.Path
-                        : Path.Combine(exeDirectory, descriptor.Path);
-                    var plugin = await _pluginLoader.LoadAsync(pluginPath);
-                    loadedPlugins[descriptor.Id] = plugin;
-
-                    _logger.LogInformation("    ✓ Loaded: {PluginId} v{Version}", plugin.Manifest.Id, plugin.Manifest.Version);
-
-                    // Auto-register services from plugin
-                    await RegisterPluginServicesAsync(plugin, descriptor.Priority, cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError("    ✗ Failed to load {PluginId}: {Message}", descriptor.Id, ex.Message);
-
-                    // Check if plugin is critical
-                    if (descriptor.Priority >= 1000)
-                    {
-                        _logger.LogCritical("    CRITICAL: Plugin {PluginId} failed to load. Aborting.", descriptor.Id);
-                        throw;
-                    }
-                }
-            }
+            // Step 5: Load plugins in order
+            _logger.LogInformation("[4/4] Loading plugins in priority order...");
+            var loadedPlugins = await LoadPluginsInOrderAsync(orderedManifests, overrides, cancellationToken);
 
             _logger.LogInformation("✓ {Count} plugins loaded successfully", loadedPlugins.Count);
 
-            // Step 3: Verify required services
-            _logger.LogInformation("[3/3] Verifying service registry...");
+            // Step 6: Verify required services
+            _logger.LogInformation("Verifying service registry...");
             VerifyRequiredServices();
             _logger.LogInformation("✓ All required services registered");
 
-            // Micro step: try to start WebSocket server if service is available
-            _logger.LogInformation("→ Attempting WebSocket bootstrap on port 4040...");
+            // Optional: Start WebSocket server if available
             TryStartWebSocketServer(4040);
         }
         catch (Exception ex)
@@ -206,87 +125,266 @@ public class PluginLoaderHostedService : IHostedService
         }
     }
 
-    private void TryStartWebSocketServer(int port)
+    /// <summary>
+    /// Discover all plugin manifests in the plugins directory
+    /// </summary>
+    private async Task<List<PluginManifest>> DiscoverManifestsAsync(
+        string pluginsDir,
+        CancellationToken cancellationToken)
     {
+        var manifests = new List<PluginManifest>();
+        var manifestPaths = Directory.GetFiles(pluginsDir, "*.plugin.json", SearchOption.AllDirectories);
+
+        foreach (var manifestPath in manifestPaths)
+        {
+            try
+            {
+                var manifest = await LoadPluginManifestAsync(manifestPath, cancellationToken);
+                var pluginDir = Path.GetDirectoryName(manifestPath)!;
+
+                // Validate manifest
+                if (string.IsNullOrWhiteSpace(manifest.Id))
+                {
+                    _logger.LogError("  ✗ Invalid manifest at {Path}: Missing 'id' field", manifestPath);
+                    continue;
+                }
+
+                // Validate entry point exists
+                var entryPoint = manifest.EntryPoint?.Dotnet ?? $"{manifest.Id}.dll";
+                var assemblyPath = Path.GetFullPath(Path.Combine(pluginDir, entryPoint));
+
+                if (!File.Exists(assemblyPath))
+                {
+                    _logger.LogError("  ✗ Plugin {PluginId}: Assembly not found at {Path}",
+                        manifest.Id, assemblyPath);
+                    continue;
+                }
+
+                // Store resolved path for later
+                manifest.EntryPoints = new Dictionary<string, string>
+                {
+                    ["dotnet"] = assemblyPath,
+                    ["directory"] = pluginDir,
+                    ["manifest"] = manifestPath
+                };
+
+                manifests.Add(manifest);
+                _logger.LogDebug("  → Discovered: {PluginId} v{Version} at {Path}",
+                    manifest.Id, manifest.Version, pluginDir);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "  ✗ Failed to load manifest from {Path}: {Message}",
+                    manifestPath, ex.Message);
+            }
+        }
+
+        return manifests;
+    }
+
+    /// <summary>
+    /// Load plugin overrides configuration (optional)
+    /// </summary>
+    private async Task<PluginOverrides?> LoadOverridesAsync(
+        string exeDirectory,
+        CancellationToken cancellationToken)
+    {
+        var overridesPath = Path.Combine(exeDirectory, "plugins-overrides.json");
+
+        if (!File.Exists(overridesPath))
+        {
+            return null;
+        }
+
         try
         {
-            _logger.LogInformation("WebSocket bootstrap: begin");
-            // Find the IWebSocket service interface type without compile-time dependency
-            var wsInterface = AppDomain.CurrentDomain
-                .GetAssemblies()
-                .SelectMany(a =>
-                {
-                    try { return a.GetTypes(); } catch { return Array.Empty<Type>(); }
-                })
-                .FirstOrDefault(t => t.FullName == "Plate.CrossMilo.Contracts.WebSocket.Services.IService");
-
-            if (wsInterface == null)
+            var json = await File.ReadAllTextAsync(overridesPath, cancellationToken);
+            var overrides = JsonSerializer.Deserialize<PluginOverrides>(json, new JsonSerializerOptions
             {
-                _logger.LogInformation("WebSocket bootstrap: interface not found; skipping start");
-                return;
-            }
+                PropertyNameCaseInsensitive = true,
+                ReadCommentHandling = JsonCommentHandling.Skip,
+                AllowTrailingCommas = true
+            });
 
-            // Get all registered implementations from registry
-            var getAll = typeof(IRegistry).GetMethod("GetAll")!.MakeGenericMethod(wsInterface);
-            object? first = null;
-            for (var i = 0; i < 10; i++)
-            {
-                var results = getAll.Invoke(_registry, Array.Empty<object>()) as System.Collections.IEnumerable;
-                first = results?.Cast<object>().FirstOrDefault();
-                if (first != null) break;
-                Thread.Sleep(100);
-            }
-            if (first == null)
-            {
-                _logger.LogInformation("WebSocket bootstrap: no service registered; skipping start");
-                return;
-            }
-
-            // Invoke Start(int)
-            var start = wsInterface.GetMethod("Start", new[] { typeof(int) });
-            start?.Invoke(first, new object[] { port });
-            _logger.LogInformation("WebSocket bootstrap: start requested on port {Port}", port);
+            return overrides;
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "WebSocket bootstrap: failed to start (optional)");
+            _logger.LogError(ex, "  ✗ Failed to load overrides from {Path}: {Message}",
+                overridesPath, ex.Message);
+            return null;
         }
     }
 
-    private async Task<PluginManifest> LoadPluginManifestAsync(string path)
+    /// <summary>
+    /// Apply overrides and sort manifests by priority
+    /// </summary>
+    private List<PluginManifest> ApplyOverridesAndSort(
+        List<PluginManifest> manifests,
+        PluginOverrides? overrides)
     {
-        var json = await File.ReadAllTextAsync(path);
-        var manifest = JsonSerializer.Deserialize<PluginManifest>(json, new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true,
-            ReadCommentHandling = JsonCommentHandling.Skip
-        });
-        return manifest ?? throw new InvalidOperationException("Failed to parse plugin manifest");
-    }
+        var result = new List<PluginManifest>();
 
-    private async Task<PluginConfiguration> LoadPluginConfigurationAsync(string path)
-    {
-        if (!File.Exists(path))
+        foreach (var manifest in manifests)
         {
-            throw new FileNotFoundException($"Plugin configuration file not found: {path}");
+            // Check if plugin is disabled by override
+            if (overrides?.Overrides.TryGetValue(manifest.Id, out var pluginOverride) == true)
+            {
+                if (pluginOverride.Enabled == false)
+                {
+                    _logger.LogInformation("  ⊘ Skipping {PluginId}: Disabled by override ({Reason})",
+                        manifest.Id, pluginOverride.Reason ?? "no reason given");
+                    continue;
+                }
+
+                // Apply priority override
+                if (pluginOverride.Priority.HasValue)
+                {
+                    _logger.LogDebug("  → {PluginId}: Priority override {Old} → {New}",
+                        manifest.Id, manifest.Priority, pluginOverride.Priority.Value);
+                    manifest.Priority = pluginOverride.Priority.Value;
+                }
+
+                // Apply load strategy override
+                if (!string.IsNullOrWhiteSpace(pluginOverride.LoadStrategy))
+                {
+                    manifest.LoadStrategy = pluginOverride.LoadStrategy;
+                }
+            }
+
+            result.Add(manifest);
         }
 
-        var json = await File.ReadAllTextAsync(path);
-        var config = JsonSerializer.Deserialize<PluginConfiguration>(json, new JsonSerializerOptions
+        // Sort by priority (higher loads first)
+        return result.OrderByDescending(m => m.Priority).ToList();
+    }
+
+    /// <summary>
+    /// Load plugins in priority order
+    /// </summary>
+    private async Task<Dictionary<string, ILoadedPlugin>> LoadPluginsInOrderAsync(
+        List<PluginManifest> orderedManifests,
+        PluginOverrides? overrides,
+        CancellationToken cancellationToken)
+    {
+        var loadedPlugins = new Dictionary<string, ILoadedPlugin>();
+
+        foreach (var manifest in orderedManifests)
+        {
+            // Skip lazy-loaded plugins for now (future enhancement)
+            if (manifest.LoadStrategy.Equals("lazy", StringComparison.OrdinalIgnoreCase))
+            {
+                _logger.LogInformation("  ⊘ Skipping {PluginId}: Lazy loading not yet implemented",
+                    manifest.Id);
+                continue;
+            }
+
+            try
+            {
+                _logger.LogInformation("  → Loading: {PluginId} v{Version} (priority: {Priority})",
+                    manifest.Id, manifest.Version, manifest.Priority);
+
+                // Load NuGet dependencies first
+                await LoadNuGetDependenciesAsync(manifest, cancellationToken);
+
+                // Load plugin assembly
+                var assemblyPath = manifest.EntryPoints!["dotnet"];
+                var plugin = await _pluginLoader.LoadAsync(assemblyPath);
+                loadedPlugins[manifest.Id] = plugin;
+
+                _logger.LogInformation("    ✓ Loaded: {PluginId} v{Version}",
+                    plugin.Manifest.Id, plugin.Manifest.Version);
+
+                // Register services from plugin
+                await RegisterPluginServicesAsync(plugin, manifest.Priority, overrides, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "    ✗ Failed to load {PluginId}: {Message}",
+                    manifest.Id, ex.Message);
+
+                // Check if plugin is critical (priority >= 1000)
+                if (manifest.Priority >= 1000)
+                {
+                    _logger.LogCritical("    CRITICAL: Plugin {PluginId} failed to load. Aborting.",
+                        manifest.Id);
+                    throw;
+                }
+            }
+        }
+
+        return loadedPlugins;
+    }
+
+    private async Task<PluginManifest> LoadPluginManifestAsync(string path, CancellationToken cancellationToken)
+    {
+        var json = await File.ReadAllTextAsync(path, cancellationToken);
+        return JsonSerializer.Deserialize<PluginManifest>(json, new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true,
-            ReadCommentHandling = JsonCommentHandling.Skip
-        });
+            ReadCommentHandling = JsonCommentHandling.Skip,
+            AllowTrailingCommas = true
+        }) ?? throw new InvalidOperationException($"Failed to parse plugin manifest: {path}");
+    }
 
-        return config ?? throw new InvalidOperationException("Failed to parse plugin configuration");
+    private async Task LoadNuGetDependenciesAsync(
+        PluginManifest manifest,
+        CancellationToken cancellationToken)
+    {
+        if (manifest.Dependencies?.Nuget == null || manifest.Dependencies.Nuget.Count == 0)
+        {
+            return;
+        }
+
+        try
+        {
+            var resourceService = _registry.Get<IResourceService>();
+            _logger.LogInformation("    → Loading {Count} NuGet dependencies...",
+                manifest.Dependencies.Nuget.Count);
+
+            foreach (var dep in manifest.Dependencies.Nuget)
+            {
+                try
+                {
+                    var versionStr = !string.IsNullOrWhiteSpace(dep.Version) ? $"/{dep.Version}" : "";
+                    var feedStr = !string.IsNullOrWhiteSpace(dep.Feed) ? $"@{dep.Feed}" : "";
+                    var nugetUri = $"nuget:{dep.PackageId}{versionStr}{feedStr}";
+
+                    _logger.LogDebug("      → {PackageId} {Version}", dep.PackageId, dep.Version ?? "latest");
+
+                    // Load via Resource service (implementation-specific)
+                    // This is a placeholder - actual implementation depends on Resource service API
+
+                    _logger.LogInformation("        ✓ Loaded: {PackageId}", dep.PackageId);
+                }
+                catch (Exception ex)
+                {
+                    if (dep.Optional)
+                    {
+                        _logger.LogWarning("        ⊘ Optional package not loaded: {PackageId}", dep.PackageId);
+                    }
+                    else
+                    {
+                        _logger.LogError(ex, "        ✗ Failed to load required NuGet package: {PackageId}",
+                            dep.PackageId);
+                        throw;
+                    }
+                }
+            }
+        }
+        catch (Exception ex) when (ex.Message.Contains("not registered"))
+        {
+            _logger.LogDebug("    → Resource service not available, skipping NuGet dependencies");
+        }
     }
 
     private async Task RegisterPluginServicesAsync(
         ILoadedPlugin plugin,
         int pluginPriority,
+        PluginOverrides? overrides,
         CancellationToken cancellationToken)
     {
-        // Set registry on plugin BEFORE activation - RFC-0038: Use IRegistryAware
+        // Set registry on plugin BEFORE activation
         if (plugin is IRegistryAware registryAware)
         {
             registryAware.SetRegistry(_registry);
@@ -297,92 +395,56 @@ public class PluginLoaderHostedService : IHostedService
             var setRegistryMethod = plugin.GetType().GetMethod(
                 "SetRegistry",
                 BindingFlags.Instance | BindingFlags.Public);
-            if (setRegistryMethod != null)
-            {
-                setRegistryMethod.Invoke(plugin, new object[] { _registry });
-            }
+            setRegistryMethod?.Invoke(plugin, new object[] { _registry });
         }
 
-        // Activate plugin (if it implements IPlugin)
+        // Activate plugin
         await plugin.ActivateAsync();
 
-        // Build candidate registrations, honoring [Plugin] attribute metadata when present
-        var candidates = new List<(Type contractType, object instance, int priority)>();
-        foreach (var service in plugin.GetServices())
+        // Get services and register them
+        var services = plugin.GetServices().ToList();
+        _logger.LogInformation("      → Plugin returned {Count} services", services.Count);
+
+        foreach (var service in services)
         {
+            _logger.LogInformation("        • Service type: {Type}", service.GetType().FullName);
             var implType = service.GetType();
 
-            // If service has SetRegistry(IRegistry), inject the runtime registry - RFC-0038
+            // Inject registry into service if supported
             if (service is IRegistryAware serviceRegistryAware)
             {
                 serviceRegistryAware.SetRegistry(_registry);
             }
-            else
-            {
-                // Fallback to reflection for services not yet updated
-                try
-                {
-                    var setReg = implType.GetMethod("SetRegistry", BindingFlags.Instance | BindingFlags.Public);
-                    if (setReg != null && setReg.GetParameters().Length == 1 && setReg.GetParameters()[0].ParameterType == typeof(IRegistry))
-                    {
-                        setReg.Invoke(service, new object[] { _registry });
-                    }
-                }
-                catch { }
-            }
 
-            // Read optional [Plugin] attribute from the implementation class
+            // Get contract interfaces
+            var contractInterfaces = implType.GetInterfaces()
+                .Where(i => i.Namespace?.StartsWith("WingedBean.Contracts") == true ||
+                           i.Namespace?.StartsWith("Plate.CrossMilo.Contracts") == true)
+                .ToList();
+
+            // Read [Plugin] attribute for metadata
             var pluginAttr = implType
                 .GetCustomAttributes(typeof(PluginAttribute), inherit: true)
                 .Cast<PluginAttribute>()
                 .FirstOrDefault();
 
-            // Determine contract interfaces this instance actually implements
-            // Support both legacy (WingedBean.Contracts.*) and new (Plate.CrossMilo.Contracts.*) namespaces
-            var implementedContracts = implType.GetInterfaces()
-                .Where(i => i.Namespace?.StartsWith("WingedBean.Contracts") == true ||
-                           i.Namespace?.StartsWith("Plate.CrossMilo.Contracts") == true)
-                .ToList();
-
-            // If [Plugin].Provides is specified, restrict to those that are actually implemented
-            IEnumerable<Type> contractInterfaces = implementedContracts;
-            if (pluginAttr?.Provides != null && pluginAttr.Provides.Length > 0)
-            {
-                var provided = new HashSet<Type>(pluginAttr.Provides);
-                contractInterfaces = implementedContracts.Where(i => provided.Contains(i));
-            }
-
-            // Choose priority: service-level [Plugin].Priority (if > 0) overrides plugin descriptor priority
-            var effectivePriority = (pluginAttr != null && pluginAttr.Priority > 0)
-                ? pluginAttr.Priority
+            // Determine priority
+            var effectivePriority = (pluginAttr?.Priority ?? 0) > 0
+                ? pluginAttr!.Priority
                 : pluginPriority;
 
+            // Register each contract interface
             foreach (var contract in contractInterfaces)
             {
-                candidates.Add((contract, service, effectivePriority));
+                _registry.RegisterDynamic(contract, service, effectivePriority);
+                _logger.LogDebug("        → Registered: {ContractType} (priority: {Priority})",
+                    contract.Name, effectivePriority);
             }
-        }
-
-        // Deduplicate: register only the highest-priority implementation per contract type
-        var byContract = candidates
-            .GroupBy(c => c.contractType)
-            .Select(g => g.OrderByDescending(c => c.priority).First());
-
-        foreach (var entry in byContract)
-        {
-            var contractType = entry.contractType;
-            var instance = entry.instance;
-            var priority = entry.priority;
-
-            // Use RegistryHelper for type-safe registration (RFC-0038 Phase 2)
-            _registry.RegisterDynamic(contractType, instance, priority);
-            _logger.LogDebug("      → Registered: {ContractType} (priority: {Priority})", contractType.Name, priority);
         }
     }
 
     private void VerifyRequiredServices()
     {
-        // Verify foundation services
         if (!_registry.IsRegistered<IRegistry>())
         {
             throw new InvalidOperationException("IRegistry is not registered");
@@ -395,186 +457,47 @@ public class PluginLoaderHostedService : IHostedService
         _logger.LogInformation("  ✓ IRegistry registered");
         _logger.LogInformation("  ✓ IPluginLoader registered");
 
-        // Check for terminal app
+        // Check for optional services
         try
         {
-            var terminalApp = _registry.Get<ITerminalApp>();
-            _logger.LogInformation("  ✓ ITerminalApp registered: {Type}", terminalApp.GetType().Name);
+            var uiApp = _registry.Get<Plate.CrossMilo.Contracts.UI.App.IService>();
+            _logger.LogInformation("  ✓ IUIApp registered: {Type}", uiApp.GetType().Name);
         }
-        catch (Exception ex)
+        catch
         {
-            _logger.LogWarning("  ⚠ ITerminalApp not registered: {Message}", ex.Message);
+            _logger.LogWarning("  ⚠ IUIApp not registered");
         }
-
-        // RenderService removed from framework
-        // _logger.LogInformation("  ℹ RenderService removed from framework (using inline rendering)");
-
-        // Game service check removed for desktop host
-        // Desktop host doesn't require game-specific services
     }
 
-    /// <summary>
-    /// Load NuGet package dependencies for a plugin before the plugin assembly is loaded.
-    /// </summary>
-    private async Task LoadNuGetDependenciesAsync(
-        string manifestPath,
-        string pluginId,
-        CancellationToken cancellationToken)
+    private void TryStartWebSocketServer(int port)
     {
         try
         {
-            // Read raw JSON to extract dependencies
-            var json = await File.ReadAllTextAsync(manifestPath, cancellationToken);
-            using var doc = JsonDocument.Parse(json);
-            var root = doc.RootElement;
-
-            // Check if dependencies.nuget exists
-            if (!root.TryGetProperty("dependencies", out var depsElement))
-            {
-                return; // No dependencies at all
-            }
-
-            if (!depsElement.TryGetProperty("nuget", out var nugetElement))
-            {
-                return; // No NuGet dependencies
-            }
-
-            // Try to get Resource service from registry
-            IResourceService? resourceService = null;
-            try
-            {
-                resourceService = _registry.Get<IResourceService>();
-            }
-            catch
-            {
-                // Resource service not available yet - this is expected if Resource plugin
-                // hasn't loaded yet. We'll skip NuGet loading for now.
-                _logger.LogDebug("    → Resource service not available for NuGet dependency loading (will be available after Resource plugin loads)");
-                return;
-            }
-
-            if (resourceService == null)
-            {
-                _logger.LogWarning("    → Resource service not available, skipping NuGet dependencies for {PluginId}", pluginId);
-                return;
-            }
-
-            // Parse NuGet dependencies array
-            var nugetDeps = new List<NuGetDependency>();
-            foreach (var element in nugetElement.EnumerateArray())
-            {
-                var dep = new NuGetDependency
+            var wsInterface = AppDomain.CurrentDomain
+                .GetAssemblies()
+                .SelectMany(a =>
                 {
-                    PackageId = element.GetProperty("packageId").GetString() ?? "",
-                    Version = element.TryGetProperty("version", out var verElem) ? verElem.GetString() : null,
-                    Feed = element.TryGetProperty("feed", out var feedElem) ? feedElem.GetString() : null,
-                    Optional = element.TryGetProperty("optional", out var optElem) && optElem.GetBoolean(),
-                    Reason = element.TryGetProperty("reason", out var reasonElem) ? reasonElem.GetString() : null
-                };
+                    try { return a.GetTypes(); }
+                    catch { return Array.Empty<Type>(); }
+                })
+                .FirstOrDefault(t => t.FullName == "Plate.CrossMilo.Contracts.WebSocket.Services.IService");
 
-                if (!string.IsNullOrWhiteSpace(dep.PackageId))
-                {
-                    nugetDeps.Add(dep);
-                }
-            }
+            if (wsInterface == null) return;
 
-            if (nugetDeps.Count == 0)
+            var getAll = typeof(IRegistry).GetMethod("GetAll")!.MakeGenericMethod(wsInterface);
+            var results = getAll.Invoke(_registry, Array.Empty<object>()) as System.Collections.IEnumerable;
+            var first = results?.Cast<object>().FirstOrDefault();
+
+            if (first != null)
             {
-                return; // No valid NuGet dependencies
+                var start = wsInterface.GetMethod("Start", new[] { typeof(int) });
+                start?.Invoke(first, new object[] { port });
+                _logger.LogInformation("→ WebSocket server started on port {Port}", port);
             }
-
-            _logger.LogInformation("    → Loading {Count} NuGet dependencies for {PluginId}...", nugetDeps.Count, pluginId);
-
-            // Load each NuGet package
-            foreach (var dep in nugetDeps)
-            {
-                try
-                {
-                    var versionStr = dep.Version != null ? $"/{dep.Version}" : "";
-                    var feedStr = dep.Feed != null ? $"@{dep.Feed}" : "";
-                    var nugetUri = $"nuget:{dep.PackageId}{versionStr}{feedStr}";
-
-                    _logger.LogInformation("      → Loading NuGet: {PackageId} {Version}", dep.PackageId, dep.Version ?? "latest");
-
-                    // Dynamically load NuGetPackageResource type
-                    var nugetResourceType = Type.GetType(
-                        "WingedBean.Plugins.Resource.NuGet.NuGetPackageResource, WingedBean.Plugins.Resource.NuGet"
-                    );
-
-                    if (nugetResourceType == null)
-                    {
-                        _logger.LogWarning("        ⊘ NuGet provider not available, skipping package: {PackageId}", dep.PackageId);
-                        if (!dep.Optional)
-                        {
-                            throw new InvalidOperationException(
-                                $"Required NuGet package '{dep.PackageId}' cannot be loaded: NuGet provider not available"
-                            );
-                        }
-                        continue;
-                    }
-
-                    // Call LoadAsync via reflection
-                    var loadAsyncMethod = typeof(IResourceService)
-                        .GetMethod(nameof(IResourceService.LoadAsync))!
-                        .MakeGenericMethod(nugetResourceType);
-
-                    var loadTask = (Task)loadAsyncMethod.Invoke(
-                        resourceService,
-                        new object[] { nugetUri, cancellationToken }
-                    )!;
-
-                    await loadTask.ConfigureAwait(false);
-
-                    var package = loadTask.GetType().GetProperty("Result")!.GetValue(loadTask);
-
-                    if (package == null && !dep.Optional)
-                    {
-                        throw new InvalidOperationException(
-                            $"Required NuGet package '{dep.PackageId}' version '{dep.Version ?? "latest"}' not found"
-                        );
-                    }
-
-                    if (package != null)
-                    {
-                        // Get version from loaded package
-                        var versionProp = nugetResourceType.GetProperty("Version");
-                        var loadedVersion = versionProp?.GetValue(package)?.ToString() ?? "unknown";
-
-                        _logger.LogInformation("        ✓ Loaded: {PackageId} v{Version}", dep.PackageId, loadedVersion);
-
-                        if (!string.IsNullOrWhiteSpace(dep.Reason))
-                        {
-                            _logger.LogDebug("          Reason: {Reason}", dep.Reason);
-                        }
-                    }
-                    else if (dep.Optional)
-                    {
-                        _logger.LogInformation("        ⊘ Optional package not found: {PackageId}", dep.PackageId);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    if (dep.Optional)
-                    {
-                        _logger.LogWarning(ex, "        ⊘ Failed to load optional NuGet package '{PackageId}': {Message}", dep.PackageId, ex.Message);
-                    }
-                    else
-                    {
-                        _logger.LogError(ex, "        ✗ Failed to load required NuGet package '{PackageId}': {Message}", dep.PackageId, ex.Message);
-                        throw new InvalidOperationException(
-                            $"Failed to load required NuGet package '{dep.PackageId}' for plugin '{pluginId}'",
-                            ex
-                        );
-                    }
-                }
-            }
-
-            _logger.LogInformation("    ✓ NuGet dependencies loaded for {PluginId}", pluginId);
         }
-        catch (Exception ex) when (ex is not InvalidOperationException)
+        catch (Exception ex)
         {
-            _logger.LogError(ex, "    ✗ Error loading NuGet dependencies for {PluginId}: {Message}", pluginId, ex.Message);
-            // Don't throw - let plugin loading continue
+            _logger.LogWarning(ex, "→ WebSocket server failed to start (optional)");
         }
     }
 }

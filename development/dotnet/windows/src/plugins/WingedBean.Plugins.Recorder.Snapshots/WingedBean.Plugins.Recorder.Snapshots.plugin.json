@@ -1,0 +1,28 @@
+{
+  "id": "winged-bean.plugins.recorder.snapshots",
+  "name": "Snapshot Recorder (WorldSnapshotProvider)",
+  "version": "1.0.0",
+  "description": "Records game state snapshots to JSONL format for replay",
+  "author": "WingedBean Team",
+  "entryPoint": {
+    "dotnet": "WingedBean.Plugins.Recorder.Snapshots.dll"
+  },
+  "loadStrategy": "Eager",
+  "priority": 90,
+  "dependencies": {
+    "plugins": [],
+    "nuget": []
+  },
+  "exports": {
+    "services": [
+      {
+        "interface": "Plate.CrossMilo.Contracts.Recorder.Services.IService",
+        "implementation": "WingedBean.Plugins.Recorder.Snapshots.SnapshotRecorderService",
+        "lifecycle": "singleton"
+      }
+    ]
+  },
+  "compatibility": {
+    "minHostVersion": "1.0.0"
+  }
+}

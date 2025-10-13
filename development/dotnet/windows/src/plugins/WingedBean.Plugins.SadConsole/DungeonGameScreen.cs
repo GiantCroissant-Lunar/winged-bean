@@ -7,6 +7,8 @@ using SadConsole.Input;
 using SadRogue.Primitives;
 using WingedBean.Contracts.Gameplay;
 using Console = SadConsole.Console;
+using RecorderMetadata = Plate.CrossMilo.Contracts.Recorder.Services.SessionMetadata;
+using RecorderService = Plate.CrossMilo.Contracts.Recorder.Services.IService;
 using WingedBeanGameplay = WingedBean.Contracts.Gameplay.IService;
 
 namespace WingedBean.Plugins.SadConsole;
@@ -22,6 +24,8 @@ public class DungeonGameScreen : ScreenObject
     private readonly IDungeonService? _dungeon;
     private readonly WingedBeanGameplay? _gameplay;
     private readonly IWorldSnapshotProvider? _worldProvider;
+    private readonly RecorderService? _recorder;
+    private string? _recSessionId;
 
     private IReadOnlyList<EntitySnapshot> _entities = Array.Empty<EntitySnapshot>();
     private PlayerStats _playerStats = new PlayerStats(0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
@@ -36,12 +40,13 @@ public class DungeonGameScreen : ScreenObject
     private IReadOnlyList<EntityView>? _viewEntities;
     private PlayerHud _hud = new PlayerHud();
 
-    public DungeonGameScreen(int width, int height, ILogger? logger = null, IDungeonService? dungeon = null, WingedBeanGameplay? gameplay = null, IWorldSnapshotProvider? worldProvider = null)
+    public DungeonGameScreen(int width, int height, ILogger? logger = null, IDungeonService? dungeon = null, WingedBeanGameplay? gameplay = null, IWorldSnapshotProvider? worldProvider = null, RecorderService? recorder = null)
     {
         _logger = logger;
         _dungeon = dungeon;
         _gameplay = gameplay;
         _worldProvider = worldProvider;
+        _recorder = recorder;
 
         // Create main game console
         _mainConsole = new Console(width, height - 3)
@@ -175,6 +180,21 @@ public class DungeonGameScreen : ScreenObject
             _dungeon?.HandleInput(new GameInput(InputType.MoveRight));
         }
 
+        // Recorder controls
+        if (_recorder != null)
+        {
+            if (keyboard.IsKeyPressed(Keys.F9))
+            {
+                TryStartRecording();
+                return true;
+            }
+            if (keyboard.IsKeyPressed(Keys.F10))
+            {
+                TryStopRecording();
+                return true;
+            }
+        }
+
         return base.ProcessKeyboard(keyboard);
     }
 
@@ -223,6 +243,48 @@ public class DungeonGameScreen : ScreenObject
         }
     }
 
+    private void TryStartRecording()
+    {
+        if (_recorder == null) return;
+        if (!string.IsNullOrEmpty(_recSessionId)) return;
+        try
+        {
+            _recSessionId = $"sadconsole-{DateTimeOffset.Now:yyyyMMdd-HHmmss}";
+            var meta = new RecorderMetadata
+            {
+                Width = _mainConsole.Width,
+                Height = _mainConsole.Height + _statusBar.Height,
+                Title = "SadConsole Session",
+                Command = "SadConsole",
+                WorkingDirectory = Environment.CurrentDirectory
+            };
+            _ = _recorder.StartRecordingAsync(_recSessionId, meta);
+            _logger?.LogInformation("Recording started: {Session}", _recSessionId);
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogWarning(ex, "Failed to start recording");
+            _recSessionId = null;
+        }
+    }
+
+    private void TryStopRecording()
+    {
+        if (_recorder == null) return;
+        if (string.IsNullOrEmpty(_recSessionId)) return;
+        try
+        {
+            var sid = _recSessionId;
+            _recSessionId = null;
+            var path = _recorder.StopRecordingAsync(sid!).GetAwaiter().GetResult();
+            _logger?.LogInformation("Recording stopped: {Path}", path);
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogWarning(ex, "Failed to stop recording");
+        }
+    }
+
     private static Color ToColor(ConsoleColor c) => c switch
     {
         ConsoleColor.Black => Color.Black,
@@ -231,7 +293,7 @@ public class DungeonGameScreen : ScreenObject
         ConsoleColor.DarkCyan => Color.DarkCyan,
         ConsoleColor.DarkRed => Color.DarkRed,
         ConsoleColor.DarkMagenta => Color.DarkMagenta,
-        ConsoleColor.DarkYellow => Color.DarkYellow,
+        ConsoleColor.DarkYellow => new Color(128, 128, 0),
         ConsoleColor.Gray => Color.Gray,
         ConsoleColor.DarkGray => Color.DarkGray,
         ConsoleColor.Blue => Color.Blue,

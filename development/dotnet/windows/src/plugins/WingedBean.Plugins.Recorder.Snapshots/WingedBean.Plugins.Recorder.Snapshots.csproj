@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../../../../../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Contracts/PluginManoi.Contracts.csproj" />
+    <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Recorder/CrossMilo.Contracts.Recorder.csproj" />
+    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Gameplay/WingedBean.Contracts.Gameplay.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="System.Reactive" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="WingedBean.Plugins.Recorder.Snapshots.plugin.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>

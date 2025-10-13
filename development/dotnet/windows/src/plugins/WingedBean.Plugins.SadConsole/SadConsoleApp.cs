@@ -7,9 +7,11 @@ using Microsoft.Extensions.Logging;
 using Plate.CrossMilo.Contracts.UI.App;
 using SadConsole;
 using SadConsole.Configuration;
-using WingedBean.Contracts.Gameplay;
+// WingedBean.Contracts.Gameplay is OPTIONAL - not needed for desktop-only
+// using WingedBean.Contracts.Gameplay;
 using IUIAppService = Plate.CrossMilo.Contracts.UI.App.IService;
-using WingedBeanGameplay = WingedBean.Contracts.Gameplay.IService;
+// using WingedBeanGameplay = WingedBean.Contracts.Gameplay.IService;
+using RecorderService = Plate.CrossMilo.Contracts.Recorder.Services.IService;
 
 namespace WingedBean.Plugins.SadConsole;
 
@@ -25,20 +27,22 @@ public class SadConsoleApp : IUIAppService
     private CancellationTokenSource? _runCts;
     private Plate.CrossMilo.Contracts.Hosting.App.AppState _state = Plate.CrossMilo.Contracts.Hosting.App.AppState.NotStarted;
     private readonly IDungeonService? _dungeon;
-    private readonly WingedBeanGameplay? _gameplay;
-    private readonly IWorldSnapshotProvider? _worldProvider;
+    private readonly object? _gameplay;  // WingedBeanGameplay - optional
+    private readonly object? _worldProvider;  // IWorldSnapshotProvider - optional
+    private readonly RecorderService? _recorder;
 
     public string Name => "SadConsole UI";
     public Plate.CrossMilo.Contracts.Hosting.App.AppState State => _state;
     public event EventHandler<Plate.CrossMilo.Contracts.Hosting.App.AppStateChangedEventArgs>? StateChanged;
     public event EventHandler<UIEventArgs>? UIEvent;
 
-    public SadConsoleApp(ILogger<SadConsoleApp>? logger = null, IDungeonService? dungeon = null, WingedBeanGameplay? gameplay = null, IWorldSnapshotProvider? worldProvider = null)
+    public SadConsoleApp(ILogger<SadConsoleApp>? logger = null, IDungeonService? dungeon = null, object? gameplay = null, object? worldProvider = null, RecorderService? recorder = null)
     {
         _logger = logger;
         _dungeon = dungeon;
         _gameplay = gameplay;
         _worldProvider = worldProvider;
+        _recorder = recorder;
     }
 
     public void RunGame()
@@ -80,7 +84,8 @@ public class SadConsoleApp : IUIAppService
         _logger?.LogInformation("SadConsole game started...");
 
         // Create main game screen
-        _gameScreen = new DungeonGameScreen(120, 40, _logger, _dungeon, _gameplay, _worldProvider);
+        // Note: gameplay and worldProvider are null for desktop-only mode
+        _gameScreen = new DungeonGameScreen(120, 40, _logger, _dungeon, null, null, _recorder);
         GameHost.Instance.Screen = _gameScreen;
 
         _logger?.LogInformation("Game screen created");

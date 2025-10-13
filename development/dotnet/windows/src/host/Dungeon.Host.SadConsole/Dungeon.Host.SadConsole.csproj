@@ -38,6 +38,7 @@
     <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.UI/CrossMilo.Contracts.UI.csproj" />
     <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Terminal/CrossMilo.Contracts.Terminal.csproj" />
     <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Resource/CrossMilo.Contracts.Resource.csproj" />
+    <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Recorder/CrossMilo.Contracts.Recorder.csproj" />
     <!-- Gameplay contracts (winged-bean local): compile-time only -->
     <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Gameplay/WingedBean.Contracts.Gameplay.csproj">
       <Private>false</Private>
@@ -45,6 +46,18 @@
     </ProjectReference>
     <!-- Game-specific contracts: ensure present in Default ALC -->
     <ProjectReference Include="../../../../console/src/game/ConsoleDungeon.Contracts/ConsoleDungeon.Contracts.csproj" />
+
+    <!-- Build recorder snapshots plugin but do not copy runtime assets -->
+    <ProjectReference Include="../../plugins/WingedBean.Plugins.Recorder.Snapshots/WingedBean.Plugins.Recorder.Snapshots.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
+
+    <!-- Build SadConsole plugin so its manifest is output for manifest-based loading -->
+    <ProjectReference Include="../../plugins/WingedBean.Plugins.SadConsole/WingedBean.Plugins.SadConsole.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
   </ItemGroup>
 
   <ItemGroup>
@@ -64,12 +77,40 @@
 
     <ItemGroup>
       <!-- SadConsole Plugin -->
-      <PluginFiles Include="../../plugins/WingedBean.Plugins.SadConsole/bin/$(Configuration)/net8.0/**/*.*" />
+      <PluginFiles Include="../../plugins/WingedBean.Plugins.SadConsole/bin/$(Configuration)/net8.0/**/*.*"
+                   Exclude="**/CrossMilo.Contracts*.dll;**/CrossMilo.Contracts*.pdb;**/CrossMilo.Contracts*.xml;**/PluginManoi.*.dll;**/HostLand.*.dll" />
       <!-- Dungeon Game Plugin (from console tree) -->
-      <PluginFiles Include="../../../../console/src/plugins/WingedBean.Plugins.DungeonGame/bin/$(Configuration)/net8.0/**/*.*" />
+      <PluginFiles Include="../../../../console/src/plugins/WingedBean.Plugins.DungeonGame/bin/$(Configuration)/net8.0/**/*.*"
+                   Exclude="**/CrossMilo.Contracts*.dll;**/CrossMilo.Contracts*.pdb;**/CrossMilo.Contracts*.xml;**/PluginManoi.*.dll;**/HostLand.*.dll" />
+      <!-- Recorder Snapshots Plugin -->
+      <PluginFiles Include="../../plugins/WingedBean.Plugins.Recorder.Snapshots/bin/$(Configuration)/net8.0/**/*.*"
+                   Exclude="**/CrossMilo.Contracts*.dll;**/CrossMilo.Contracts*.pdb;**/CrossMilo.Contracts*.xml;**/PluginManoi.*.dll;**/HostLand.*.dll" />
     </ItemGroup>
 
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(OutputPath)plugins/%(RecursiveDir)" SkipUnchangedFiles="true" />
+
+    <!-- Ensure manifests are copied to the same directory as their DLLs -->
+    <Copy SourceFiles="../../plugins/WingedBean.Plugins.SadConsole/WingedBean.Plugins.SadConsole.plugin.json"
+          DestinationFolder="$(OutputPath)plugins/WingedBean.Plugins.SadConsole/bin/$(Configuration)/net8.0" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="../../plugins/WingedBean.Plugins.Recorder.Snapshots/WingedBean.Plugins.Recorder.Snapshots.plugin.json"
+          DestinationFolder="$(OutputPath)plugins/WingedBean.Plugins.Recorder.Snapshots/bin/$(Configuration)/net8.0" SkipUnchangedFiles="true" />
+
+    <!-- Ensure the SadConsole plugin DLL resides next to its manifest -->
+    <Copy SourceFiles="../../plugins/WingedBean.Plugins.SadConsole/bin/$(Configuration)/net8.0/WingedBean.Plugins.SadConsole.dll"
+          DestinationFolder="$(OutputPath)plugins/WingedBean.Plugins.SadConsole/bin/$(Configuration)/net8.0" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="../../plugins/WingedBean.Plugins.SadConsole/bin/$(Configuration)/net8.0/WingedBean.Plugins.SadConsole.pdb"
+          DestinationFolder="$(OutputPath)plugins/WingedBean.Plugins.SadConsole/bin/$(Configuration)/net8.0" SkipUnchangedFiles="true" Condition="Exists('../../plugins/WingedBean.Plugins.SadConsole/bin/$(Configuration)/net8.0/WingedBean.Plugins.SadConsole.pdb')" />
+
+    <!-- Remove contract assemblies from plugins root to ensure host contracts are used -->
+    <ItemGroup>
+      <ContractAssemblies Include="$(OutputPath)plugins/CrossMilo.Contracts*.dll" />
+      <ContractAssemblies Include="$(OutputPath)plugins/CrossMilo.Contracts*.pdb" />
+      <ContractAssemblies Include="$(OutputPath)plugins/CrossMilo.Contracts*.xml" />
+      <ContractAssemblies Include="$(OutputPath)plugins/PluginManoi.*.dll" />
+      <ContractAssemblies Include="$(OutputPath)plugins/PluginManoi.*.pdb" />
+      <ContractAssemblies Include="$(OutputPath)plugins/HostLand.*.dll" />
+    </ItemGroup>
+    <Delete Files="@(ContractAssemblies)" />
 
     <Message Text="Copied @(PluginFiles->Count()) plugin files to $(OutputPath)plugins/" Importance="high" />
   </Target>

@@ -1,0 +1,33 @@
+{
+  "$schema": "https://wingedbean.dev/schemas/plugin-overrides.v1.json",
+  "schemaVersion": "1.0",
+  "overrides": {
+    "winged-bean.plugins.analytics": {
+      "enabled": false,
+      "reason": "Disabled per GDPR compliance requirements for EU deployments"
+    },
+    "winged-bean.plugins.sadconsole": {
+      "priority": 200,
+      "environment": {
+        "SADCONSOLE_THEME": "dark",
+        "SADCONSOLE_FPS": "60"
+      }
+    },
+    "winged-bean.plugins.recorder.snapshots": {
+      "config": {
+        "outputDirectory": "/var/log/recordings",
+        "maxFileSize": "100MB"
+      }
+    }
+  },
+  "loadOrder": "dependency-graph",
+  "validation": {
+    "requireSignedPlugins": false,
+    "allowedAuthors": ["WingedBean Team", "Trusted Partner"],
+    "blockedPlugins": ["suspicious-plugin"],
+    "minVersions": {
+      "winged-bean.plugins.config": "1.2.0"
+    },
+    "allowExternalPlugins": false
+  }
+}
