@@ -76,7 +76,8 @@ public class RecordingControlService : BackgroundService
             var registry = _services.GetService(typeof(IRegistry)) as IRegistry;
             if (registry == null)
             {
-                _logger.LogWarning("Registry not available, cannot start recording");
+                _logger.LogError("Registry not available, cannot start recording. Exiting.");
+                _lifetime.StopApplication();
                 return;
             }
 
@@ -87,13 +88,15 @@ public class RecordingControlService : BackgroundService
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Recorder service not available");
+                _logger.LogError(ex, "Recorder service not available - cannot record. Exiting.");
+                _lifetime.StopApplication();
                 return;
             }
 
             if (recorderService == null)
             {
-                _logger.LogWarning("No recorder service registered");
+                _logger.LogError("No recorder service registered - cannot record. Exiting.");
+                _lifetime.StopApplication();
                 return;
             }
 
