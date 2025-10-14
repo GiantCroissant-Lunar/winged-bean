@@ -62,3 +62,14 @@ build/_artifacts/
 **/obj/
 development/dotnet/console/build/
 development/dotnet/console/docs/build/
+
+# Runtime logs and temporary files
+logs/
+websocket-port.txt
+build/logs/
+build/websocket-port.txt
+build/ecosystem.config.js
+
+# Backup files
+*.backup
+*.old

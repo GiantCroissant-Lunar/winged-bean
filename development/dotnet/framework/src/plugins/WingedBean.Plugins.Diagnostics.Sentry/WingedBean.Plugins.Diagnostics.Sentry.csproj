@@ -15,7 +15,7 @@
     <!-- Sentry SDK -->
     <PackageReference Include="Sentry" />
     <PackageReference Include="Sentry.Profiling" />
-    
+
     <!-- Microsoft Extensions -->
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
   </ItemGroup>
