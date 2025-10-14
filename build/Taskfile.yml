@@ -116,6 +116,30 @@ tasks:
         cp -r "$CONSOLE_BIN"/* "$BUILD_ROOT/_artifacts/{{.VERSION}}/dotnet/console/bin/"
         echo "✅ Console version built and copied"
 
+        echo "Copying Plate plugins to artifacts if present (GoapCkpor + CapabilityOrlia)..."
+        GOAP_SRC="../../plate-projects/plugins/dotnet/framework/src/Plate.Plugins.GoapCkpor/bin/Debug/net8.0"
+        CAP_SRC="../../plate-projects/plugins/dotnet/framework/src/Plate.Plugins.CapabilityOrlia/bin/Debug/net8.0"
+        PLUGINS_CONSOLE="$BUILD_ROOT/_artifacts/{{.VERSION}}/dotnet/console/bin/plugins"
+        PLUGINS_DESKTOP="$BUILD_ROOT/_artifacts/{{.VERSION}}/dotnet/desktop/bin/plugins"
+        mkdir -p "$PLUGINS_CONSOLE" "$PLUGINS_DESKTOP"
+        if [ -d "$GOAP_SRC" ]; then
+          mkdir -p "$PLUGINS_CONSOLE/Plate.Plugins.GoapCkpor/bin/Debug/net8.0" "$PLUGINS_DESKTOP/Plate.Plugins.GoapCkpor/bin/Debug/net8.0"
+          cp -R "$GOAP_SRC"/* "$PLUGINS_CONSOLE/Plate.Plugins.GoapCkpor/bin/Debug/net8.0/" || true
+          cp -R "$GOAP_SRC"/* "$PLUGINS_DESKTOP/Plate.Plugins.GoapCkpor/bin/Debug/net8.0/" || true
+          echo "✓ Copied Plate.Plugins.GoapCkpor"
+        else
+          echo "↷ Skipping GoapCkpor (no built outputs at $GOAP_SRC)"
+        fi
+        if [ -d "$CAP_SRC" ]; then
+          mkdir -p "$PLUGINS_CONSOLE/Plate.Plugins.CapabilityOrlia/bin/Debug/net8.0" "$PLUGINS_DESKTOP/Plate.Plugins.CapabilityOrlia/bin/Debug/net8.0"
+          cp -R "$CAP_SRC"/* "$PLUGINS_CONSOLE/Plate.Plugins.CapabilityOrlia/bin/Debug/net8.0/" || true
+          cp -R "$CAP_SRC"/* "$PLUGINS_DESKTOP/Plate.Plugins.CapabilityOrlia/bin/Debug/net8.0/" || true
+          echo "✓ Copied Plate.Plugins.CapabilityOrlia"
+        else
+          echo "↷ Skipping CapabilityOrlia (no built outputs at $CAP_SRC)"
+        fi
+        echo "✅ Plate plugin copy step completed (best-effort)"
+
         echo "Building Desktop version (SadConsole)..."
         # Build Dungeon.Host.SadConsole
         pushd ../development/dotnet/windows/src/host/Dungeon.Host.SadConsole >/dev/null
