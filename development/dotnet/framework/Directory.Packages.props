@@ -14,8 +14,8 @@
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="9.0.2" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.2" />
 
-    <!-- Rules Engine for testing bot -->
-    <PackageVersion Include="RulesEngine" Version="5.1.0" />
+    <!-- Rules Engine for AI and testing -->
+    <PackageVersion Include="RulesEngine" Version="6.0.0" />
 
     <!-- Source Link -->
     <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />

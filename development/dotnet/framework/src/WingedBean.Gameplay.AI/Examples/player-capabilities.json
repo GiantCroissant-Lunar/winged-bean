@@ -1,0 +1,97 @@
+[
+  {
+    "WorkflowName": "PlayerCapabilities",
+    "Rules": [
+      {
+        "RuleName": "CanMeleeAttack",
+        "Description": "Can attack target with melee weapon if in range and has weapon",
+        "Expression": "input1.Health > 0 AND input1.HasTarget == true AND input1.DistanceToTarget <= 1.5 AND input1.Equipment.CanMelee == true AND input1.Stamina >= 10"
+      },
+      {
+        "RuleName": "CanRangedAttack",
+        "Description": "Can attack target with ranged weapon if has bow",
+        "Expression": "input1.Health > 0 AND input1.HasTarget == true AND input1.DistanceToTarget <= 10.0 AND input1.Equipment.CanRanged == true AND input1.Stamina >= 5"
+      },
+      {
+        "RuleName": "CanCastSpell",
+        "Description": "Can cast spell if has staff and mana",
+        "Expression": "input1.Health > 0 AND input1.HasTarget == true AND input1.Equipment.CanCastSpells == true AND input1.Mana >= 20"
+      },
+      {
+        "RuleName": "CanUseHealthPotion",
+        "Description": "Can use health potion if injured and has potions",
+        "Expression": "input1.Health > 0 AND input1.Inventory.HasHealthPotion == true AND input1.Health < input1.MaxHealth"
+      },
+      {
+        "RuleName": "CanUseManaPotion",
+        "Description": "Can use mana potion if low on mana and has potions",
+        "Expression": "input1.Health > 0 AND input1.Inventory.HasManaPotion == true AND input1.Mana < input1.MaxMana"
+      },
+      {
+        "RuleName": "CanFlee",
+        "Description": "Can flee if critically injured",
+        "Expression": "input1.Health > 0 AND input1.IsCriticallyInjured == true AND input1.Stamina >= 20"
+      },
+      {
+        "RuleName": "CanRest",
+        "Description": "Can rest if safe and needs recovery",
+        "Expression": "input1.Health > 0 AND input1.IsSafe == true AND input1.IsInCombat == false AND (input1.HealthPercent < 1.0 OR input1.ManaPercent < 1.0 OR input1.StaminaPercent < 1.0)"
+      },
+      {
+        "RuleName": "CanMoveToTarget",
+        "Description": "Can move toward combat target if target is far",
+        "Expression": "input1.Health > 0 AND input1.HasTarget == true AND input1.DistanceToTarget > 1.5 AND input1.Stamina >= 5"
+      },
+      {
+        "RuleName": "CanMoveToGoal",
+        "Description": "Can move toward quest goal or destination",
+        "Expression": "input1.Health > 0 AND input1.GoalPosition != null AND input1.DistanceToGoal > 1.0 AND input1.Stamina >= 5"
+      },
+      {
+        "RuleName": "CanExplore",
+        "Description": "Can explore dungeon if safe and healthy",
+        "Expression": "input1.Health > 0 AND input1.IsSafe == true AND input1.IsInDungeon == true AND input1.HealthPercent > 0.5 AND input1.Stamina > 20"
+      },
+      {
+        "RuleName": "CanReturnToTown",
+        "Description": "Can return to town if low on resources or critically injured",
+        "Expression": "input1.Health > 0 AND input1.IsInTown == false AND (input1.IsCriticallyInjured == true OR input1.Inventory.HasBasicResources == false)"
+      },
+      {
+        "RuleName": "CanPickupItem",
+        "Description": "Can pickup items if nearby (simplified - would check actual item proximity)",
+        "Expression": "input1.Health > 0 AND input1.IsSafe == true"
+      },
+      {
+        "RuleName": "CanInteractWithNPC",
+        "Description": "Can interact with NPCs in town",
+        "Expression": "input1.Health > 0 AND input1.IsInTown == true AND input1.IsInCombat == false"
+      },
+      {
+        "RuleName": "CanAcceptQuest",
+        "Description": "Can accept new quest if not already on one",
+        "Expression": "input1.Health > 0 AND input1.HasActiveQuest == false AND input1.IsInTown == true"
+      },
+      {
+        "RuleName": "CanCompleteQuest",
+        "Description": "Can complete quest objective (simplified - would check actual objective)",
+        "Expression": "input1.Health > 0 AND input1.HasActiveQuest == true AND input1.GoalPosition != null AND input1.DistanceToGoal <= 1.0"
+      },
+      {
+        "RuleName": "CanBlock",
+        "Description": "Can block incoming attacks if has shield",
+        "Expression": "input1.Health > 0 AND input1.IsInCombat == true AND input1.Equipment.HasShield == true AND input1.Stamina >= 15"
+      },
+      {
+        "RuleName": "CanDodge",
+        "Description": "Can dodge attacks if has stamina",
+        "Expression": "input1.Health > 0 AND input1.IsInCombat == true AND input1.Stamina >= 20"
+      },
+      {
+        "RuleName": "CanEatFood",
+        "Description": "Can eat food to restore stamina",
+        "Expression": "input1.Health > 0 AND input1.Inventory.FoodItems > 0 AND input1.StaminaPercent < 1.0"
+      }
+    ]
+  }
+]

@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 using ConsoleDungeon.Contracts;
 using Microsoft.Extensions.Logging;
 using Plate.CrossMilo.Contracts;
+using Plate.CrossMilo.Contracts.UI.App;
+using Plate.Goap.Adapters;
 using Plate.PluginManoi.Contracts;
+using WingedBean.Contracts.Gameplay;
 using WingedBean.Gameplay.Goap;
-// WingedBean.Contracts.Gameplay is OPTIONAL - not needed for desktop-only scenarios
-// using WingedBean.Contracts.Gameplay;
-// Type alias for UI App service
 using IUIAppService = Plate.CrossMilo.Contracts.UI.App.IService;
-// using WingedBeanGameplay = WingedBean.Contracts.Gameplay.IService;
 using RecorderService = Plate.CrossMilo.Contracts.Recorder.Services.IService;
+using WingedBeanGameplay = WingedBean.Contracts.Gameplay.IService;
 
 namespace WingedBean.Plugins.SadConsole;
 
@@ -41,14 +41,8 @@ public class SadConsolePlugin : IPlugin
         try { recorder = registry.Get<RecorderService>(); } catch { }
         if (_appInstance == null)
         {
-            _appInstance = new SadConsoleApp(logger, dungeon, null, null, recorder);
-        }
-
-        // Run a one-time GOAP demo plan to verify integration
-        if (!_goapDemoRan)
-        {
-            _goapDemoRan = true;
-            GoapDemoRunner.RunOnce(logger);
+            var planner = new GoapPlannerService(new StopwatchTimeProvider());
+            _appInstance = new SadConsoleApp(logger, dungeon, null, null, recorder, planner);
         }
 
         // Register in the registry (required for plugin system)
@@ -69,14 +63,8 @@ public class SadConsolePlugin : IPlugin
         RecorderService? recorder = null;
         try { dungeon = registry.Get<IDungeonService>(); } catch { }
         try { recorder = registry.Get<RecorderService>(); } catch { }
-        _appInstance = new SadConsoleApp(logger, dungeon, null, null, recorder);
-
-        // Run a one-time GOAP demo plan to verify integration (guarded)
-        if (!_goapDemoRan)
-        {
-            _goapDemoRan = true;
-            GoapDemoRunner.RunOnce(logger);
-        }
+        var planner2 = new GoapPlannerService(new StopwatchTimeProvider());
+        _appInstance = new SadConsoleApp(logger, dungeon, null, null, recorder, planner2);
 
         // IMPORTANT: Also register it directly for the old loader path
         registry.Register<IUIAppService>(_appInstance, priority: 100);

@@ -8,6 +8,7 @@ using Plate.CrossMilo.Contracts.UI.App;
 using SadConsole;
 using SadConsole.Configuration;
 using WingedBean.Contracts.Gameplay;
+using WingedBean.Gameplay.Goap;
 using IUIAppService = Plate.CrossMilo.Contracts.UI.App.IService;
 using RecorderService = Plate.CrossMilo.Contracts.Recorder.Services.IService;
 using WingedBeanGameplay = WingedBean.Contracts.Gameplay.IService;
@@ -29,19 +30,22 @@ public class SadConsoleApp : IUIAppService
     private readonly WingedBeanGameplay? _gameplay;
     private readonly IWorldSnapshotProvider? _worldProvider;
     private readonly RecorderService? _recorder;
+    private readonly IGoapPlannerService? _planner;
+    private bool _plannerDemoRan;
 
     public string Name => "SadConsole UI";
     public Plate.CrossMilo.Contracts.Hosting.App.AppState State => _state;
     public event EventHandler<Plate.CrossMilo.Contracts.Hosting.App.AppStateChangedEventArgs>? StateChanged;
     public event EventHandler<UIEventArgs>? UIEvent;
 
-    public SadConsoleApp(ILogger<SadConsoleApp>? logger = null, IDungeonService? dungeon = null, WingedBeanGameplay? gameplay = null, IWorldSnapshotProvider? worldProvider = null, RecorderService? recorder = null)
+    public SadConsoleApp(ILogger<SadConsoleApp>? logger = null, IDungeonService? dungeon = null, WingedBeanGameplay? gameplay = null, IWorldSnapshotProvider? worldProvider = null, RecorderService? recorder = null, IGoapPlannerService? planner = null)
     {
         _logger = logger;
         _dungeon = dungeon;
         _gameplay = gameplay;
         _worldProvider = worldProvider;
         _recorder = recorder;
+        _planner = planner;
     }
 
     public void RunGame()
@@ -87,6 +91,13 @@ public class SadConsoleApp : IUIAppService
         GameHost.Instance.Screen = _gameScreen;
 
         _logger?.LogInformation("Game screen created");
+
+        // Optional: run planner demo once if service is available
+        if (!_plannerDemoRan && _planner != null)
+        {
+            _plannerDemoRan = true;
+            _planner.PlanDemo(_logger);
+        }
     }
 
     Task IHostedService.StopAsync(CancellationToken cancellationToken)

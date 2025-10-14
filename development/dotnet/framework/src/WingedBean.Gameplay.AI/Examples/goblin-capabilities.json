@@ -1,0 +1,70 @@
+[
+  {
+    "WorkflowName": "GoblinCapabilities",
+    "Rules": [
+      {
+        "RuleName": "CanMeleeAttack",
+        "Description": "Can attack target if alive and in melee range",
+        "Expression": "input1.Health > 0 AND input1.Distance <= 1.5 AND input1.Inventory.HasWeapon == true",
+        "SuccessEvent": {
+          "Cost": 1.0,
+          "Priority": "High"
+        }
+      },
+      {
+        "RuleName": "CanFlee",
+        "Description": "Can flee if health is critically low",
+        "Expression": "input1.Health > 0 AND input1.HealthPercent < 0.3",
+        "SuccessEvent": {
+          "Cost": 2.0,
+          "Priority": "Critical"
+        }
+      },
+      {
+        "RuleName": "CanUsePotion",
+        "Description": "Can use health potion if injured and has potions",
+        "Expression": "input1.Health > 0 AND input1.Inventory.Potions > 0 AND input1.Health < input1.MaxHealth",
+        "SuccessEvent": {
+          "Cost": 3.0,
+          "Priority": "Medium"
+        }
+      },
+      {
+        "RuleName": "CanMoveToTarget",
+        "Description": "Can move toward target if target exists and not too close",
+        "Expression": "input1.Health > 0 AND input1.TargetPosition != null AND input1.Distance > 1.5",
+        "SuccessEvent": {
+          "Cost": 1.5,
+          "Priority": "Medium"
+        }
+      },
+      {
+        "RuleName": "CanPatrol",
+        "Description": "Can patrol if not in combat and has patrol route",
+        "Expression": "input1.Health > 0 AND input1.IsInCombat == false AND input1.HasPatrolRoute == true",
+        "SuccessEvent": {
+          "Cost": 1.0,
+          "Priority": "Low"
+        }
+      },
+      {
+        "RuleName": "CanEnterCombat",
+        "Description": "Can enter combat if not already in combat and target nearby",
+        "Expression": "input1.Health > 0 AND input1.IsInCombat == false AND input1.Distance <= 5.0 AND input1.Aggression >= 0.5",
+        "SuccessEvent": {
+          "Cost": 0.5,
+          "Priority": "High"
+        }
+      },
+      {
+        "RuleName": "CanLeaveCombat",
+        "Description": "Can leave combat if target is far away or dead",
+        "Expression": "input1.IsInCombat == true AND (input1.Distance > 10.0 OR input1.TargetPosition == null)",
+        "SuccessEvent": {
+          "Cost": 1.0,
+          "Priority": "Medium"
+        }
+      }
+    ]
+  }
+]
