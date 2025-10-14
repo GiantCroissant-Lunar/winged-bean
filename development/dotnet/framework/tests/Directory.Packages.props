@@ -9,15 +9,11 @@
 
   <!-- Test-specific package versions (overrides or additions to parent CPM) -->
   <ItemGroup Label="Test-Specific Packages">
-    <!-- Add any test-only packages here that aren't in the parent CPM -->
-    <!-- Example: <PackageVersion Include="Moq" Version="4.20.0" /> -->
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageVersion Include="xunit" Version="2.9.2" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.2" />
   </ItemGroup>
 
-  <!-- Test framework versions are already managed by parent CPM:
-       - Microsoft.NET.Test.Sdk
-       - xunit
-       - xunit.runner.visualstudio
-       - coverlet.collector
-       - FluentAssertions
-  -->
+  <!-- Test framework versions are now managed above -->
 </Project>
