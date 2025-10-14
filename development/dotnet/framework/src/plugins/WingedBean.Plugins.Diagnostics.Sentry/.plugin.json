@@ -1,0 +1,36 @@
+{
+  "name": "WingedBean.Plugins.Diagnostics.Sentry",
+  "version": "1.0.0",
+  "description": "Sentry diagnostics backend provider (Tier 4)",
+  "author": "WingedBean Team",
+  "tier": 4,
+  "category": "diagnostics-provider",
+  "dependencies": [
+    "WingedBean.Plugins.Diagnostics"
+  ],
+  "capabilities": [
+    "tracing",
+    "error-tracking",
+    "profiling",
+    "breadcrumbs",
+    "performance-monitoring"
+  ],
+  "configuration": {
+    "required": [
+      "Diagnostics:Sentry:Dsn"
+    ],
+    "optional": [
+      "Diagnostics:Sentry:Environment",
+      "Diagnostics:Sentry:TracesSampleRate",
+      "Diagnostics:Sentry:ProfilesSampleRate",
+      "Diagnostics:Sentry:Debug"
+    ]
+  },
+  "tags": [
+    "diagnostics",
+    "sentry",
+    "monitoring",
+    "apm",
+    "error-tracking"
+  ]
+}

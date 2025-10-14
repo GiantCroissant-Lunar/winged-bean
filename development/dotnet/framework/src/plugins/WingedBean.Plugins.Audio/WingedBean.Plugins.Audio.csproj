@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <AssemblyTitle>WingedBean Audio Plugin</AssemblyTitle>
+    <AssemblyDescription>Plugin that provides audio playback services using LibVLC</AssemblyDescription>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="WingedBean.Plugins.Audio.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LibVLCSharp" />
+    <PackageReference Include="VideoLAN.LibVLC.Windows" Condition="'$(OS)' == 'Windows_NT'" />
+    <PackageReference Include="VideoLAN.LibVLC.Mac" Condition="'$(OS)' != 'Windows_NT'" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Extensions.Logging" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../../../../../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Core/PluginManoi.Core.csproj" />
+    <ProjectReference Include="../../../../../../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Registry/PluginManoi.Registry.csproj" />
+
+    <!-- Shared contracts: Compile-time reference, runtime from Default ALC (RFC-0037) -->
+    <ProjectReference Include="../../../../../../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Contracts/PluginManoi.Contracts.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
+    <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Audio/CrossMilo.Contracts.Audio.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
+
+    <ProjectReference Include="../../../../framework/src/WingedBean.SourceGenerators.Proxy/WingedBean.SourceGenerators.Proxy.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include=".plugin.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,19 @@
+{
+  "id": "wingedbean.plugins.websocket",
+  "name": "WebSocket Service (SuperSocket)",
+  "version": "1.0.0",
+  "description": "WebSocket server implementation using SuperSocket",
+  "author": "WingedBean Team",
+  "entryPoint": { "dotnet": "WingedBean.Plugins.WebSocket.dll" },
+  "dependencies": {},
+  "exports": {
+    "services": [
+      {
+        "interface": "WingedBean.Contracts.WebSocket.IWebSocketService",
+        "implementation": "WingedBean.Plugins.WebSocket.WebSocketService",
+        "lifecycle": "singleton"
+      }
+    ]
+  },
+  "priority": 10
+}
