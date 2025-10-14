@@ -88,7 +88,7 @@ var host = HostLand.Desktop.Host.CreateDesktopBuilder(args)
                 var registry = sp.GetRequiredService<IRegistry>();
                 return registry.Get<IUIApp>();
             });
-            
+
             // Register recording control service for automated testing
             services.AddHostedService<RecordingControlService>();
 

@@ -116,12 +116,16 @@ tasks:
         cp -r "$CONSOLE_BIN"/* "$BUILD_ROOT/_artifacts/{{.VERSION}}/dotnet/console/bin/"
         echo "✅ Console version built and copied"
 
-        echo "Copying Plate plugins to artifacts if present (GoapCkpor + CapabilityOrlia)..."
-        GOAP_SRC="../../plate-projects/plugins/dotnet/framework/src/Plate.Plugins.GoapCkpor/bin/Debug/net8.0"
-        CAP_SRC="../../plate-projects/plugins/dotnet/framework/src/Plate.Plugins.CapabilityOrlia/bin/Debug/net8.0"
+        echo "Copying Plate plugins to artifacts if present (GoapCkpor + CapabilityOrlia + ModernSatsuma + EdgRogqd)..."
+        GOAP_SRC="$BUILD_ROOT/../../../plate-projects/goap-ckpor/dotnet/framework/src/Plate.Plugins.GoapCkpor/bin/Debug/net8.0"
+        CAP_SRC="$BUILD_ROOT/../../../plate-projects/capability-orlia/dotnet/src/Plate.Plugins.CapabilityOrlia/bin/Debug/net8.0"
+        SATSUMA_SRC="$BUILD_ROOT/../../../plate-projects/modern-satsuma/dotnet/framework/src/Plate.ModernSatsuma/bin/Debug/netstandard2.0"
+        EDG_SRC="$BUILD_ROOT/../../../plate-projects/edg-rogqd/dotnet/framework/src/Plate.EdgRogqd/bin/Debug/netstandard2.0"
         PLUGINS_CONSOLE="$BUILD_ROOT/_artifacts/{{.VERSION}}/dotnet/console/bin/plugins"
         PLUGINS_DESKTOP="$BUILD_ROOT/_artifacts/{{.VERSION}}/dotnet/desktop/bin/plugins"
         mkdir -p "$PLUGINS_CONSOLE" "$PLUGINS_DESKTOP"
+
+        # Copy GOAP plugin
         if [ -d "$GOAP_SRC" ]; then
           mkdir -p "$PLUGINS_CONSOLE/Plate.Plugins.GoapCkpor/bin/Debug/net8.0" "$PLUGINS_DESKTOP/Plate.Plugins.GoapCkpor/bin/Debug/net8.0"
           cp -R "$GOAP_SRC"/* "$PLUGINS_CONSOLE/Plate.Plugins.GoapCkpor/bin/Debug/net8.0/" || true
@@ -130,6 +134,8 @@ tasks:
         else
           echo "↷ Skipping GoapCkpor (no built outputs at $GOAP_SRC)"
         fi
+
+        # Copy Capability plugin
         if [ -d "$CAP_SRC" ]; then
           mkdir -p "$PLUGINS_CONSOLE/Plate.Plugins.CapabilityOrlia/bin/Debug/net8.0" "$PLUGINS_DESKTOP/Plate.Plugins.CapabilityOrlia/bin/Debug/net8.0"
           cp -R "$CAP_SRC"/* "$PLUGINS_CONSOLE/Plate.Plugins.CapabilityOrlia/bin/Debug/net8.0/" || true

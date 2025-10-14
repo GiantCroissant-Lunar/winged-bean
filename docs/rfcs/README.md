@@ -690,3 +690,36 @@ Links to related docs
 
 **Last Updated:** 2025-10-03
 **Maintainer:** WingedBean Architecture Team
+
+---
+
+## Latest RFCs (2025-10-14)
+
+### RFC-0043: Tile-Based Map System for Dungeon Game
+- **Status:** Proposed
+- **Category:** game-engine, ecs, gameplay
+- **Priority:** P1 (High)
+- **Effort:** 4-6 hours
+- **Summary:** Introduce tile-based map system (DungeonMap, MapTile, TileType) enabling spatial representation of walkable/blocking terrain. Foundation for procedural generation and pathfinding.
+- **File:** [0043-tile-based-map-system.md](./0043-tile-based-map-system.md)
+
+### RFC-0044: Procedural Dungeon Generation with Plate.EdgRogqd
+- **Status:** Proposed
+- **Category:** game-engine, procedural-generation, gameplay
+- **Priority:** P1 (High)
+- **Effort:** 8-12 hours
+- **Summary:** Integrate Plate.EdgRogqd graph-based dungeon generator to procedurally create dungeon layouts with rooms, corridors, and doors. Enables infinite variety and replayability.
+- **Dependencies:** RFC-0043 (Required)
+- **File:** [0044-procedural-dungeon-generation.md](./0044-procedural-dungeon-generation.md)
+
+### RFC-0045: Plate Framework Libraries Integration
+- **Status:** Implemented ✅
+- **Category:** architecture, dependencies, framework
+- **Priority:** P1 (High)
+- **Effort:** 6-8 hours (Completed)
+- **Summary:** Integration of four Plate libraries: ModernSatsuma (graphs), GoAP-CKPor (AI planning), EdgRogqd (dungeon generation), Capability-Orlia (capability evaluation). Provides reusable components for game systems.
+- **File:** [0045-plate-library-integration.md](./0045-plate-library-integration.md)
+
+---
+
+**Last Updated:** 2025-10-14

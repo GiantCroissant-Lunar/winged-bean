@@ -43,10 +43,10 @@ public class RecordingControlService : BackgroundService
             // Check if recording is requested via command line
             // Supports both --record=true and --record (flag)
             var recordValue = _configuration["record"];
-            var shouldRecord = !string.IsNullOrEmpty(recordValue) && 
+            var shouldRecord = !string.IsNullOrEmpty(recordValue) &&
                               (recordValue.Equals("true", StringComparison.OrdinalIgnoreCase) || recordValue.Equals(""));
             var recordDuration = _configuration.GetValue<int>("record-duration", 30);
-            var sessionId = _configuration["record-session"] 
+            var sessionId = _configuration["record-session"]
                 ?? $"desktop-{DateTime.UtcNow:yyyyMMdd-HHmmss}";
 
             if (!shouldRecord)
@@ -55,7 +55,7 @@ public class RecordingControlService : BackgroundService
                 return;
             }
 
-            _logger.LogInformation("Recording requested: session={SessionId}, duration={Duration}s", 
+            _logger.LogInformation("Recording requested: session={SessionId}, duration={Duration}s",
                 sessionId, recordDuration);
 
             // Wait for plugins to load and services to be available

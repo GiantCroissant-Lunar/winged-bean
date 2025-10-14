@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Plate.PluginManoi.Core;
@@ -72,7 +73,10 @@ public class PluginDependenciesConverter : JsonConverter<PluginDependencies?>
         if (reader.TokenType == JsonTokenType.StartArray)
         {
             var plugins = JsonSerializer.Deserialize<List<string>>(ref reader, options);
-            return new PluginDependencies { Plugins = plugins };
+            return new PluginDependencies
+            {
+                Plugins = plugins?.Select(p => new PluginDependencySpec { PluginId = p }).ToList()
+            };
         }
 
         // Check if it's an object (new format with nuget)
@@ -87,7 +91,7 @@ public class PluginDependenciesConverter : JsonConverter<PluginDependencies?>
             var singlePlugin = reader.GetString();
             return new PluginDependencies
             {
-                Plugins = singlePlugin != null ? new List<string> { singlePlugin } : null
+                Plugins = singlePlugin != null ? new List<PluginDependencySpec> { new PluginDependencySpec { PluginId = singlePlugin } } : null
             };
         }
 
