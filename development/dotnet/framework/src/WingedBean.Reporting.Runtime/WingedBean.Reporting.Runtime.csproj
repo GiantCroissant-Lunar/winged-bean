@@ -8,7 +8,5 @@
     <RootNamespace>WingedBean.Reporting.Runtime</RootNamespace>
     <Description>Runtime report DTOs and writers for Winged-Bean. Emits JSON artifacts for nfun-report ingestion.</Description>
   </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="System.Text.Json" />
-  </ItemGroup>
+  <!-- System.Text.Json is part of the .NET 8 shared framework; no NuGet needed under CPM. -->
 </Project>

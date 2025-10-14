@@ -27,8 +27,8 @@ public static class GoblinDemo
         // 1. Load capability rules from embedded JSON
         var workflows = LoadGoblinCapabilities(logger);
 
-        // 2. Create capability evaluator
-        var evaluator = new RulesEngineCapabilityEvaluator(workflows,
+        // 2. Create capability evaluator (use adapter to satisfy CrossMilo contract)
+        var evaluator = new RulesEngineCapabilityAdapter(workflows,
             logger as ILogger<RulesEngineCapabilityEvaluator>
             ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<RulesEngineCapabilityEvaluator>.Instance);
 
@@ -132,7 +132,6 @@ public static class GoblinDemo
             Aggression = 0.7f
         };
     }
-
     private static CapabilityAction[] CreateActions(
         ICapabilityEvaluator evaluator,
         ILogger? logger)
@@ -141,24 +140,23 @@ public static class GoblinDemo
 
         return new CapabilityAction[]
         {
-            new GoblinFleeAction(evaluator,
-                logger as ILogger<GoblinFleeAction> ?? loggerFactory.CreateLogger<GoblinFleeAction>()),
-            new GoblinUsePotionAction(evaluator,
-                logger as ILogger<GoblinUsePotionAction> ?? loggerFactory.CreateLogger<GoblinUsePotionAction>()),
-            new GoblinMeleeAttackAction(evaluator,
-                logger as ILogger<GoblinMeleeAttackAction> ?? loggerFactory.CreateLogger<GoblinMeleeAttackAction>()),
-            new GoblinMoveToTargetAction(evaluator,
-                logger as ILogger<GoblinMoveToTargetAction> ?? loggerFactory.CreateLogger<GoblinMoveToTargetAction>())
+             new GoblinFleeAction(evaluator,
+                 logger as ILogger<GoblinFleeAction> ?? loggerFactory.CreateLogger<GoblinFleeAction>()),
+             new GoblinUsePotionAction(evaluator,
+                 logger as ILogger<GoblinUsePotionAction> ?? loggerFactory.CreateLogger<GoblinUsePotionAction>()),
+             new GoblinMeleeAttackAction(evaluator,
+                 logger as ILogger<GoblinMeleeAttackAction> ?? loggerFactory.CreateLogger<GoblinMeleeAttackAction>()),
+             new GoblinMoveToTargetAction(evaluator,
+                 logger as ILogger<GoblinMoveToTargetAction> ?? loggerFactory.CreateLogger<GoblinMoveToTargetAction>())
         };
     }
-
     private static Workflow[] LoadGoblinCapabilities(ILogger? logger)
     {
         try
         {
             var assembly = Assembly.GetExecutingAssembly();
             var resourceName = "WingedBean.Gameplay.AI.Examples.goblin-capabilities.json";
-
+            { { ... } }
             using var stream = assembly.GetManifestResourceStream(resourceName);
             if (stream == null)
             {
