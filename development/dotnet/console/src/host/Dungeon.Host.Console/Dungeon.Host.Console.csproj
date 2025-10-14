@@ -22,7 +22,7 @@
       <ExcludeAssets>runtime</ExcludeAssets>
     </ProjectReference>
     <!-- ArchECS plugin for service registration -->
-    <ProjectReference Include="../../plugins/WingedBean.Plugins.ArchECS/WingedBean.Plugins.ArchECS.csproj" />
+    <ProjectReference Include="../../../../framework/src/plugins/WingedBean.Plugins.ArchECS/WingedBean.Plugins.ArchECS.csproj" />
     <!-- Additional shared contracts for plugins (RFC-0037) -->
     <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Scene/CrossMilo.Contracts.Scene.csproj" />
     <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Input/CrossMilo.Contracts.Input.csproj" />

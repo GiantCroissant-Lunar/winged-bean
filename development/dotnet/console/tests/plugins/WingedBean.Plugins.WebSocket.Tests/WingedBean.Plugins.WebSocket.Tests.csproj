@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../../src/plugins/WingedBean.Plugins.WebSocket/WingedBean.Plugins.WebSocket.csproj" />
+    <ProjectReference Include="../../../../../framework/src/plugins/WingedBean.Plugins.WebSocket/WingedBean.Plugins.WebSocket.csproj" />
   </ItemGroup>
 
 </Project>

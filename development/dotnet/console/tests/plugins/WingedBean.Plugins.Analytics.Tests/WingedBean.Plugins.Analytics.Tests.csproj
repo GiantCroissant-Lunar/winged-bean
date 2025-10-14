@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../../src/plugins/WingedBean.Plugins.Analytics/WingedBean.Plugins.Analytics.csproj" />
+    <ProjectReference Include="../../../../../framework/src/plugins/WingedBean.Plugins.Analytics/WingedBean.Plugins.Analytics.csproj" />
     <ProjectReference Include="../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Analytics/CrossMilo.Contracts.Analytics.csproj" />
   </ItemGroup>
 

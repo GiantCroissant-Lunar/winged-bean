@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../../src/plugins/WingedBean.Plugins.ArchECS/WingedBean.Plugins.ArchECS.csproj" />
+    <ProjectReference Include="../../../../../framework/src/plugins/WingedBean.Plugins.ArchECS/WingedBean.Plugins.ArchECS.csproj" />
   </ItemGroup>
 
 </Project>
