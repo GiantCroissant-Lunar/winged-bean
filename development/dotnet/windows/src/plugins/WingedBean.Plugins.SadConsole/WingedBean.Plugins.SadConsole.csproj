@@ -38,8 +38,11 @@
       <ExcludeAssets>runtime</ExcludeAssets>
     </ProjectReference>
 
-    <!-- Shared gameplay GOAP wrapper -->
-    <ProjectReference Include="../../../../framework/src/WingedBean.Gameplay.Goap/WingedBean.Gameplay.Goap.csproj" />
+    <!-- CrossMilo GOAP contracts (consume planner via registry) -->
+    <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Goap/CrossMilo.Contracts.Goap.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
 
     <!-- Plugin system -->
     <ProjectReference Include="../../../../../../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Contracts/PluginManoi.Contracts.csproj" />

@@ -12,7 +12,7 @@ using Terminal.Gui;
 using WingedBean.Plugins.ConsoleDungeon.Input;
 using WingedBean.Plugins.ConsoleDungeon.Scene;
 using WingedBean.Plugins.TerminalUI;
-using WingedBean.Gameplay.Goap;
+using Plate.CrossMilo.Contracts.Goap;
 // Type aliases for game types (to avoid ambiguity with Scene types)
 using GameEntitySnapshot = ConsoleDungeon.Contracts.EntitySnapshot;
 using GamePosition = ConsoleDungeon.Contracts.Position;
@@ -53,7 +53,7 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IRegistryAware, IDispos
     private bool _isRunning = false;
     private bool _disposed = false;
     private bool _plannerDemoInvoked = false;
-    private readonly IGoapPlannerService? _planner;
+    private IGoapPlannerService? _planner;
 
     public event EventHandler<TerminalOutputEventArgs>? OutputReceived;
     public event EventHandler<TerminalExitEventArgs>? Exited;
@@ -104,6 +104,20 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IRegistryAware, IDispos
             : null;
 
         Diag($"SetRegistry called: config={_config?.Name}, gameService={_gameService != null}");
+
+        // Resolve planner from registry if not provided via DI
+        if (_planner == null)
+        {
+            try
+            {
+                if (registry.IsRegistered<IGoapPlannerService>())
+                {
+                    _planner = registry.Get<IGoapPlannerService>();
+                    Diag("IGoapPlannerService resolved from registry");
+                }
+            }
+            catch { }
+        }
     }
 
     // IHostedService.StartAsync - no config parameter needed

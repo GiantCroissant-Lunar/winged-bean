@@ -4,7 +4,6 @@ using Plate.CrossMilo.Contracts;
 using Plate.CrossMilo.Contracts.Terminal;
 using Plate.PluginManoi.Contracts;
 using Plate.PluginManoi.Core;
-using WingedBean.Gameplay.Goap;
 
 namespace WingedBean.Plugins.ConsoleDungeon;
 
@@ -18,9 +17,7 @@ public class ConsoleDungeonActivator : IPluginActivator
         var logger = hostServices.GetService<ILogger<ConsoleDungeonActivator>>();
         logger?.LogInformation("Registering ITerminalApp -> ConsoleDungeonAppRefactored (RFC-0020/0021)");
 
-        // Register GOAP services (managed planner dependencies)
-        services.AddGoap();
-        services.AddWingedBeanGoap();
+        // GOAP planner is now provided by Plate-layer plugin via registry (CrossMilo contracts)
 
         services.AddSingleton<ITerminalApp, ConsoleDungeonAppRefactored>();
         return Task.CompletedTask;

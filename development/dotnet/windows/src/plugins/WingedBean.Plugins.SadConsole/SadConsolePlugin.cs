@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 using ConsoleDungeon.Contracts;
 using Microsoft.Extensions.Logging;
 using Plate.CrossMilo.Contracts;
+using Plate.CrossMilo.Contracts.Goap;
 using Plate.CrossMilo.Contracts.UI.App;
-using Plate.Goap.Adapters;
 using Plate.PluginManoi.Contracts;
 using WingedBean.Contracts.Gameplay;
-using WingedBean.Gameplay.Goap;
 using IUIAppService = Plate.CrossMilo.Contracts.UI.App.IService;
 using RecorderService = Plate.CrossMilo.Contracts.Recorder.Services.IService;
 using WingedBeanGameplay = WingedBean.Contracts.Gameplay.IService;
@@ -25,7 +24,6 @@ public class SadConsolePlugin : IPlugin
 {
     private SadConsoleApp? _appInstance;
     private IRegistry? _registry;
-    private bool _goapDemoRan;
 
     public string Id => "winged-bean.plugins.sadconsole";
     public string Version => "1.0.0";
@@ -41,7 +39,8 @@ public class SadConsolePlugin : IPlugin
         try { recorder = registry.Get<RecorderService>(); } catch { }
         if (_appInstance == null)
         {
-            var planner = new GoapPlannerService(new StopwatchTimeProvider());
+            IGoapPlannerService? planner = null;
+            try { planner = registry.Get<IGoapPlannerService>(); } catch { }
             _appInstance = new SadConsoleApp(logger, dungeon, null, null, recorder, planner);
         }
 
@@ -63,7 +62,8 @@ public class SadConsolePlugin : IPlugin
         RecorderService? recorder = null;
         try { dungeon = registry.Get<IDungeonService>(); } catch { }
         try { recorder = registry.Get<RecorderService>(); } catch { }
-        var planner2 = new GoapPlannerService(new StopwatchTimeProvider());
+        IGoapPlannerService? planner2 = null;
+        try { planner2 = registry.Get<IGoapPlannerService>(); } catch { }
         _appInstance = new SadConsoleApp(logger, dungeon, null, null, recorder, planner2);
 
         // IMPORTANT: Also register it directly for the old loader path
