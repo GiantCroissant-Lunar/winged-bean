@@ -1,9 +1,10 @@
 using System.Reflection;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
+using Plate.Capability.Core.Capabilities;
+using Plate.Capability.Core.Contexts;
+using Plate.Capability.RulesEngine;
 using RulesEngine.Models;
-using WingedBean.Gameplay.AI.Behaviors;
-using WingedBean.Gameplay.AI.Capabilities;
 using WingedBean.Gameplay.AI.Integration;
 
 namespace WingedBean.Gameplay.AI.Examples;
@@ -114,6 +115,7 @@ public static class GoblinDemo
         return new GoblinContext
         {
             EntityId = id,
+            EntityType = "Goblin",
             Health = health,
             MaxHealth = maxHealth,
             AttackDamage = 5,

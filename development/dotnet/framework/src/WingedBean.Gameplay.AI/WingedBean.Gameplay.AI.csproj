@@ -14,6 +14,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Reference Plate.Capability packages -->
+    <ProjectReference Include="../../../../../../../plate-projects/capability-orlia/dotnet/src/Plate.Capability.Core/Plate.Capability.Core.csproj" />
+    <ProjectReference Include="../../../../../../../plate-projects/capability-orlia/dotnet/src/Plate.Capability.RulesEngine/Plate.Capability.RulesEngine.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="Examples\goblin-capabilities.json" />
     <EmbeddedResource Include="Examples\player-capabilities.json" />
   </ItemGroup>

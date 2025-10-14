@@ -1,4 +1,4 @@
-using WingedBean.Gameplay.AI.Capabilities;
+using Plate.Capability.Core.Capabilities;
 
 namespace WingedBean.Gameplay.AI.Integration;
 

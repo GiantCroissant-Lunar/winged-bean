@@ -1,4 +1,4 @@
-using WingedBean.Gameplay.AI.Behaviors;
+using Plate.Capability.Core.Contexts;
 
 namespace WingedBean.Gameplay.AI.Examples;
 

@@ -1,3 +1,5 @@
+using Plate.Capability.Core.Contexts;
+
 namespace WingedBean.Gameplay.AI.Behaviors;
 
 /// <summary>
