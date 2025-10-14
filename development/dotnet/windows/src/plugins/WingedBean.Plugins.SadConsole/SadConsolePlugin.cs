@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ConsoleDungeon.Contracts;
 using Microsoft.Extensions.Logging;
 using Plate.CrossMilo.Contracts;
+using Plate.CrossMilo.Contracts.Capability;
 using Plate.CrossMilo.Contracts.Goap;
 using Plate.CrossMilo.Contracts.UI.App;
 using Plate.PluginManoi.Contracts;
@@ -41,7 +42,9 @@ public class SadConsolePlugin : IPlugin
         {
             IGoapPlannerService? planner = null;
             try { planner = registry.Get<IGoapPlannerService>(); } catch { }
-            _appInstance = new SadConsoleApp(logger, dungeon, null, null, recorder, planner);
+            ICapabilityEvaluator? capability = null;
+            try { capability = registry.Get<ICapabilityEvaluator>(); } catch { }
+            _appInstance = new SadConsoleApp(logger, dungeon, null, null, recorder, planner, capability);
         }
 
         // Register in the registry (required for plugin system)
@@ -64,7 +67,9 @@ public class SadConsolePlugin : IPlugin
         try { recorder = registry.Get<RecorderService>(); } catch { }
         IGoapPlannerService? planner2 = null;
         try { planner2 = registry.Get<IGoapPlannerService>(); } catch { }
-        _appInstance = new SadConsoleApp(logger, dungeon, null, null, recorder, planner2);
+        ICapabilityEvaluator? capability2 = null;
+        try { capability2 = registry.Get<ICapabilityEvaluator>(); } catch { }
+        _appInstance = new SadConsoleApp(logger, dungeon, null, null, recorder, planner2, capability2);
 
         // IMPORTANT: Also register it directly for the old loader path
         registry.Register<IUIAppService>(_appInstance, priority: 100);

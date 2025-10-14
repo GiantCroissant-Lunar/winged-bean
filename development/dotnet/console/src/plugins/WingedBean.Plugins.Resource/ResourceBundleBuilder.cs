@@ -1,5 +1,7 @@
 using System.IO.Compression;
 using System.Text.Json;
+using System.Diagnostics;
+using WingedBean.Reporting.Runtime;
 
 namespace WingedBean.Plugins.Resource;
 
@@ -165,6 +167,27 @@ public class ResourceBundleBuilder
         {
             var archiveEntry = archive.CreateEntryFromFile(sourceFile, entry.Path);
         }
+
+        // Emit Winged resource bundle report for nfun-report ingestion
+        try
+        {
+            var report = new ResourceBundleReport
+            {
+                BundleName = _bundleId,
+                BundleVersion = _version,
+                FileCount = _resources.Count,
+                TotalSizeBytes = _resources.Sum(r => new FileInfo(r.sourceFile).Length),
+                Entries = _resources.Select(r => new ResourceBundleEntry { Path = r.entry.Path, SizeBytes = r.entry.Size }).ToList()
+            };
+
+            var outDir = Path.Combine(GetArtifactsRootDirectory(), "winged", "resource-bundles", _bundleId);
+            var path = ReportWriters.WriteResourceBundle(report, outDir);
+            _ = path;
+        }
+        catch
+        {
+            // ignore report failures to not break build
+        }
     }
 
     private static string DetermineType(string extension)
@@ -180,5 +203,67 @@ public class ResourceBundleBuilder
             "bin" or "dat" => "binary",
             _ => "unknown"
         };
+    }
+}
+
+// Local helper for artifacts root; avoids dependency on other plugins
+partial class ResourceBundleBuilder
+{
+    private static string GetArtifactsRootDirectory()
+    {
+        var version = GetVersionFallback();
+        var root = FindRepositoryRoot() ?? Directory.GetCurrentDirectory();
+        return Path.Combine(root, "build", "_artifacts", version);
+    }
+
+    private static string? FindRepositoryRoot()
+    {
+        var dir = new DirectoryInfo(Directory.GetCurrentDirectory());
+        while (dir != null && dir.Exists)
+        {
+            if (Directory.Exists(Path.Combine(dir.FullName, ".git")))
+                return dir.FullName;
+            dir = dir.Parent;
+        }
+        return null;
+    }
+
+    private static string GetVersionFallback()
+    {
+        try
+        {
+            var p = Process.Start(new ProcessStartInfo("git", "describe --tags --dirty --always")
+            {
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            });
+            if (p != null)
+            {
+                var s = p.StandardOutput.ReadToEnd().Trim();
+                p.WaitForExit();
+                if (p.ExitCode == 0 && !string.IsNullOrWhiteSpace(s)) return s;
+            }
+        }
+        catch { }
+        try
+        {
+            var p = Process.Start(new ProcessStartInfo("git", "rev-parse --short HEAD")
+            {
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            });
+            if (p != null)
+            {
+                var s = p.StandardOutput.ReadToEnd().Trim();
+                p.WaitForExit();
+                if (p.ExitCode == 0 && !string.IsNullOrWhiteSpace(s)) return $"0.1.0-dev+{s}";
+            }
+        }
+        catch { }
+        return "0.0.0-local";
     }
 }

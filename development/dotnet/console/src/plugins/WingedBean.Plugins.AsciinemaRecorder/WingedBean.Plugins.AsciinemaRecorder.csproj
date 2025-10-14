@@ -38,4 +38,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="../../../../framework/src/WingedBean.Reporting.Runtime/WingedBean.Reporting.Runtime.csproj" />
+  </ItemGroup>
+
 </Project>

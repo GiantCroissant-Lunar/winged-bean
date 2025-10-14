@@ -1,9 +1,9 @@
 using System.Reflection;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using Plate.Capability.Core.Capabilities;
 using Plate.Capability.Core.Contexts;
 using Plate.Capability.RulesEngine;
+using Plate.CrossMilo.Contracts.Capability;
 using RulesEngine.Models;
 using WingedBean.Gameplay.AI.Integration;
 
@@ -34,8 +34,8 @@ public static class PlayerBotDemo
         // 1. Load player capability rules
         var workflows = LoadPlayerCapabilities(logger);
 
-        // 2. Create capability evaluator
-        var evaluator = new RulesEngineCapabilityEvaluator(workflows,
+        // 2. Create capability evaluator (CrossMilo contract via adapter)
+        var evaluator = new RulesEngineCapabilityAdapter(workflows,
             logger as ILogger<RulesEngineCapabilityEvaluator>
             ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<RulesEngineCapabilityEvaluator>.Instance);
 

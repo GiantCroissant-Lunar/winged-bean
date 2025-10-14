@@ -27,6 +27,22 @@
 - **Project rules override workspace rules** when there's a conflict
 - **Project rules should ONLY contain project-specific information**, not duplicate workspace rules
 
+## Single Workspace rules.lock
+
+**Important**: This workspace uses a **single rules.lock** file:
+- Location: `/Users/apprenticegc/Work/lunar-horse/.agent/rules.lock`
+- Applies to: ALL projects in the workspace
+- Version: v1.0.0
+- Stacks: dotnet, nodejs, python, terraform
+
+**What this means**:
+- All projects share the same base/stack rule versions
+- No per-project rules.lock files
+- Update once, applies everywhere
+- No version drift between projects
+
+---
+
 ## Source Control
 
 - **Rule master source**: `personal-work/plate-projects/rule-ground/` (git repository)

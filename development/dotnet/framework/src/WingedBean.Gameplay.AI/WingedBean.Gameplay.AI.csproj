@@ -17,6 +17,11 @@
     <!-- Reference Plate.Capability packages -->
     <ProjectReference Include="../../../../../../../plate-projects/capability-orlia/dotnet/src/Plate.Capability.Core/Plate.Capability.Core.csproj" />
     <ProjectReference Include="../../../../../../../plate-projects/capability-orlia/dotnet/src/Plate.Capability.RulesEngine/Plate.Capability.RulesEngine.csproj" />
+    <!-- CrossMilo capability contracts (consume evaluator interface) -->
+    <ProjectReference Include="../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Capability/CrossMilo.Contracts.Capability.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
   </ItemGroup>
 
   <ItemGroup>

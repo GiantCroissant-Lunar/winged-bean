@@ -33,6 +33,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="../../../../framework/src/WingedBean.Reporting.Runtime/WingedBean.Reporting.Runtime.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include=".plugin.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

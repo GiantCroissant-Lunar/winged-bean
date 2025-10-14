@@ -1,4 +1,4 @@
-using Plate.Capability.Core.Capabilities;
+using Plate.CrossMilo.Contracts.Capability;
 
 namespace WingedBean.Gameplay.AI.Integration;
 

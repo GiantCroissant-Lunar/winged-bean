@@ -123,6 +123,28 @@ public static class GitVersionHelper
     }
 
     /// <summary>
+    /// Gets the versioned artifacts root directory path (build/_artifacts/{version})
+    /// </summary>
+    public static string GetArtifactsRootDirectory()
+    {
+        var version = GetVersion();
+        var repoRoot = FindRepositoryRoot();
+        if (repoRoot != null)
+        {
+            return Path.Combine(repoRoot, "build", "_artifacts", version);
+        }
+        return Path.Combine(Directory.GetCurrentDirectory(), "build", "_artifacts", version);
+    }
+
+    /// <summary>
+    /// Gets the winged artifacts directory (build/_artifacts/{version}/winged)
+    /// </summary>
+    public static string GetWingedDirectory()
+    {
+        return Path.Combine(GetArtifactsRootDirectory(), "winged");
+    }
+
+    /// <summary>
     /// Finds the repository root by walking up the directory tree looking for .git
     /// </summary>
     private static string? FindRepositoryRoot()

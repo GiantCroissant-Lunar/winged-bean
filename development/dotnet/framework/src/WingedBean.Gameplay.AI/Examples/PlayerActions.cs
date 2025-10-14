@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Logging;
-using Plate.Capability.Core.Capabilities;
+using Plate.CrossMilo.Contracts.Capability;
 using WingedBean.Gameplay.AI.Integration;
 
 namespace WingedBean.Gameplay.AI.Examples;

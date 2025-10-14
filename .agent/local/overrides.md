@@ -1,5 +1,7 @@
 # Winged Bean Project Overrides
 
+> ⚠️ **Read workspace rules first**: `../../../.agent/local/overrides.md` (or see `workspace-reference.md`)
+
 **Project**: Winged Bean  
 **Primary Stack**: .NET (multi-language: .NET, Node.js, Python, Unity)  
 **Date**: 2025-10-13

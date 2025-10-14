@@ -1,9 +1,9 @@
 using System.Reflection;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using Plate.Capability.Core.Capabilities;
 using Plate.Capability.Core.Contexts;
 using Plate.Capability.RulesEngine;
+using Plate.CrossMilo.Contracts.Capability;
 using RulesEngine.Models;
 
 namespace WingedBean.Gameplay.AI.Examples;
@@ -26,7 +26,7 @@ public static class DynamicCapabilityDemo
 
         // Load capabilities
         var workflows = LoadGoblinCapabilities(logger);
-        var evaluator = new RulesEngineCapabilityEvaluator(workflows,
+        var evaluator = new RulesEngineCapabilityAdapter(workflows,
             logger as ILogger<RulesEngineCapabilityEvaluator>
             ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<RulesEngineCapabilityEvaluator>.Instance);
 

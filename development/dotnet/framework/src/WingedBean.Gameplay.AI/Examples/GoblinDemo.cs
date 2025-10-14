@@ -1,9 +1,9 @@
 using System.Reflection;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using Plate.Capability.Core.Capabilities;
 using Plate.Capability.Core.Contexts;
 using Plate.Capability.RulesEngine;
+using Plate.CrossMilo.Contracts.Capability;
 using RulesEngine.Models;
 using WingedBean.Gameplay.AI.Integration;
 

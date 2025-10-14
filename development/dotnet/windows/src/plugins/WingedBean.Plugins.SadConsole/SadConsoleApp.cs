@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using ConsoleDungeon.Contracts;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Plate.CrossMilo.Contracts.Capability;
 using Plate.CrossMilo.Contracts.Goap;
 using Plate.CrossMilo.Contracts.UI.App;
 using SadConsole;
@@ -31,6 +32,7 @@ public class SadConsoleApp : IUIAppService
     private readonly IWorldSnapshotProvider? _worldProvider;
     private readonly RecorderService? _recorder;
     private readonly IGoapPlannerService? _planner;
+    private readonly ICapabilityEvaluator? _capability;
     private bool _plannerDemoRan;
 
     public string Name => "SadConsole UI";
@@ -38,7 +40,7 @@ public class SadConsoleApp : IUIAppService
     public event EventHandler<Plate.CrossMilo.Contracts.Hosting.App.AppStateChangedEventArgs>? StateChanged;
     public event EventHandler<UIEventArgs>? UIEvent;
 
-    public SadConsoleApp(ILogger<SadConsoleApp>? logger = null, IDungeonService? dungeon = null, WingedBeanGameplay? gameplay = null, IWorldSnapshotProvider? worldProvider = null, RecorderService? recorder = null, IGoapPlannerService? planner = null)
+    public SadConsoleApp(ILogger<SadConsoleApp>? logger = null, IDungeonService? dungeon = null, WingedBeanGameplay? gameplay = null, IWorldSnapshotProvider? worldProvider = null, RecorderService? recorder = null, IGoapPlannerService? planner = null, ICapabilityEvaluator? capability = null)
     {
         _logger = logger;
         _dungeon = dungeon;
@@ -46,6 +48,7 @@ public class SadConsoleApp : IUIAppService
         _worldProvider = worldProvider;
         _recorder = recorder;
         _planner = planner;
+        _capability = capability;
     }
 
     public void RunGame()

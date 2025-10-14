@@ -9,6 +9,7 @@ using Plate.CrossMilo.Contracts.Recorder.URF.Exporters;
 using Plate.PluginManoi.Contracts;
 using IRecorderService = Plate.CrossMilo.Contracts.Recorder.Services.IService;
 using RecorderSessionMetadata = Plate.CrossMilo.Contracts.Recorder.Services.SessionMetadata;
+using WingedBean.Reporting.Runtime;
 
 namespace WingedBean.Plugins.AsciinemaRecorder;
 
@@ -129,6 +130,24 @@ public class URFRecorderService : IRecorderService, IDisposable
             var castPath = urfPath.Replace(".urf.jsonl", ".cast");
             await exporter.ExportAsync(urfPath, castPath, ct);
             _logger.LogInformation("Asciinema export created: {Path}", castPath);
+
+            // Emit nfun-report compatible AsciinemaReport JSON under winged artifacts
+            try
+            {
+                var report = new AsciinemaReport
+                {
+                    SessionId = sessionId,
+                    DurationSeconds = (DateTimeOffset.UtcNow - _startTime).TotalSeconds,
+                    OutputFiles = new List<string> { urfPath, castPath }
+                };
+                var outDir = Path.Combine(GitVersionHelper.GetWingedDirectory(), "asciinema", sessionId);
+                var path = ReportWriters.WriteAsciinema(report, outDir);
+                _logger.LogInformation("Asciinema report written: {ReportPath}", path);
+            }
+            catch (Exception rex)
+            {
+                _logger.LogWarning(rex, "Failed to write Asciinema report JSON");
+            }
         }
         catch (Exception ex)
         {

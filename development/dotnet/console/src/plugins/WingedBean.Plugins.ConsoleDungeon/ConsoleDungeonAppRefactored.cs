@@ -13,6 +13,7 @@ using WingedBean.Plugins.ConsoleDungeon.Input;
 using WingedBean.Plugins.ConsoleDungeon.Scene;
 using WingedBean.Plugins.TerminalUI;
 using Plate.CrossMilo.Contracts.Goap;
+using Plate.CrossMilo.Contracts.Capability;
 // Type aliases for game types (to avoid ambiguity with Scene types)
 using GameEntitySnapshot = ConsoleDungeon.Contracts.EntitySnapshot;
 using GamePosition = ConsoleDungeon.Contracts.Position;
@@ -54,6 +55,7 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IRegistryAware, IDispos
     private bool _disposed = false;
     private bool _plannerDemoInvoked = false;
     private IGoapPlannerService? _planner;
+    private ICapabilityEvaluator? _capabilityEvaluator;
 
     public event EventHandler<TerminalOutputEventArgs>? OutputReceived;
     public event EventHandler<TerminalExitEventArgs>? Exited;
@@ -118,6 +120,17 @@ public class ConsoleDungeonAppRefactored : ITerminalApp, IRegistryAware, IDispos
             }
             catch { }
         }
+
+        // Resolve capability evaluator from registry (optional)
+        try
+        {
+            if (registry.IsRegistered<ICapabilityEvaluator>())
+            {
+                _capabilityEvaluator = registry.Get<ICapabilityEvaluator>();
+                Diag("ICapabilityEvaluator resolved from registry");
+            }
+        }
+        catch { }
     }
 
     // IHostedService.StartAsync - no config parameter needed
