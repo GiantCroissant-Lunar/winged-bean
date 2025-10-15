@@ -290,6 +290,42 @@ tasks:
     cmds:
       - ./test-tools/run-normal-mode.sh
 
+  console:bot:
+    desc: "Run ConsoleDungeon.Host with bot-controlled player (automated testing)"
+    deps:
+      - build-all
+      - artifacts:sync-from-source
+    cmds:
+      - ./test-tools/run-bot-mode.sh {{.CLI_ARGS | default "30"}}
+
+  console:bot-long:
+    desc: "Run 5-minute bot session for extended testing"
+    deps:
+      - build-all
+      - artifacts:sync-from-source
+    cmds:
+      - ./test-tools/run-bot-mode.sh 300
+
+  console:bot-record:
+    desc: "Run bot mode with asciinema recording"
+    deps:
+      - build-all
+      - artifacts:sync-from-source
+    cmds:
+      - ./test-tools/run-bot-with-recording.sh {{.CLI_ARGS | default "60"}}
+
+  bot:capture:
+    desc: "Run bot mode and capture complete state (screenshots, logs, recordings)"
+    deps:
+      - build-all
+      - artifacts:sync-from-source
+    cmds:
+      - |
+        echo "🤖 Starting bot mode with state capture..."
+        export ENABLE_BOT_MODE=1
+        task capture:state
+        echo "✅ Bot gameplay captured"
+
   clean:
     desc: Clean build artifacts and Task cache
     cmds:

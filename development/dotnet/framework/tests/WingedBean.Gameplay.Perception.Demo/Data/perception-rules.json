@@ -1,0 +1,67 @@
+[
+  {
+    "WorkflowName": "PerceptionRules",
+    "Rules": [
+      {
+        "RuleName": "StandardHumanoid",
+        "Expression": "race == \"human\" OR race == \"elf\" OR race == \"dwarf\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "{\"onSuccess\": {\"grant_perception\": [\"vision\", \"hearing\"]}}"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "ElfDarkvision",
+        "Expression": "race == \"elf\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "{\"onSuccess\": {\"grant_perception\": [\"darkvision\"], \"modify_range\": {\"darkvision\": 20}}}"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "DwarfDarkvision",
+        "Expression": "race == \"dwarf\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "{\"onSuccess\": {\"grant_perception\": [\"darkvision\"], \"modify_range\": {\"darkvision\": 30}}}"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "MageDetectMagic",
+        "Expression": "class == \"mage\" AND level >= 3",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "{\"onSuccess\": {\"grant_perception\": [\"detect_magic\"]}}"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "MonkSenseChi",
+        "Expression": "class == \"monk\" AND level >= 5",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "{\"onSuccess\": {\"grant_perception\": [\"sense_chi\"]}}"
+            }
+          }
+        }
+      }
+    ]
+  }
+]

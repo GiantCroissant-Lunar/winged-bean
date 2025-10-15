@@ -1,12 +1,52 @@
 # WingedBean.Plugins.Resource
 
-Resource loading service for Console profile with container-based (bundle) architecture.
+Resource loading service for Console profile with automatic reference counting and lifecycle management (RFC-0054).
 
 ## Overview
 
-This plugin provides an implementation of `IResourceService` that prioritizes loading from **resource bundles** (`.wbundle` files - ZIP containers with manifests) with fallback to individual files. This follows industry standards like NuGet packages, Unity AssetBundles, and JAR files.
+This plugin provides an implementation of `IResourceService` backed by **ResourceManager** - a sophisticated resource orchestrator with:
+
+- ✨ **Automatic reference counting** - Resources kept alive while in use
+- 🔄 **Load deduplication** - Multiple concurrent loads → single I/O operation
+- 🧵 **Thread-safe** - Safe resource sharing between systems  
+- 📊 **Lifecycle events** - Observable streams for OnLoaded/OnUnloaded
+- 🎯 **Smart cleanup** - Automatic unload after idle timeout
+- 📦 **Bundle support** - Load from `.wbundle` containers or individual files
+
+## Quick Start
+
+### Basic Usage (Old API - Still Works!)
+
+```csharp
+var resourceService = serviceProvider.GetRequiredService<IResourceService>();
+
+// Load a resource (cached automatically)
+var config = await resourceService.LoadAsync<GameConfig>("config.json");
+```
+
+### New API: Handle-Based (Recommended)
+
+```csharp
+var resourceManager = serviceProvider.GetRequiredService<ResourceManager>();
+
+// Automatic cleanup with using statement
+using var handle = resourceManager.GetHandle<LevelData>("levels/dungeon1.json");
+var level = await handle.GetAsync();
+// ... use level ...
+// ✨ Automatic cleanup when handle disposed
+```
 
 ## Features
+
+### RFC-0054: Reference Counting & Lifecycle (NEW!)
+
+- **Automatic Resource Management**: Use `ResourceHandle<T>` with `using` statements
+- **Load Deduplication**: Concurrent loads of same resource → single I/O operation
+- **Reference Counting**: Resources automatically unloaded when no longer in use
+- **Observable Events**: Subscribe to OnLoaded/OnUnloaded via System.Reactive
+- **State Tracking**: Monitor resource state (Unloaded/Loading/Loaded/Failed)
+- **Weak References**: Observe resources without keeping them alive
+- **Thread-Safe**: Safe sharing between multiple systems
 
 ### Bundle-Based Loading (Primary)
 - **Container Format**: ZIP-based `.wbundle` files with JSON manifests
@@ -27,6 +67,102 @@ This plugin provides an implementation of `IResourceService` that prioritizes lo
 - **Metadata Queries**: Query resource info without loading content
 
 ## Usage
+
+### Handle-Based API (RFC-0054 - Recommended)
+
+```csharp
+// Inject ResourceManager
+public class GameSystem
+{
+    private readonly ResourceManager _resources;
+    
+    public GameSystem(ResourceManager resources)
+    {
+        _resources = resources;
+    }
+    
+    // Example 1: Automatic cleanup
+    public async Task LoadLevel(string levelId)
+    {
+        using var handle = _resources.GetHandle<LevelData>($"levels/{levelId}.json");
+        var level = await handle.GetAsync();
+        // ... use level ...
+        // ✨ Automatic cleanup on dispose
+    }
+    
+    // Example 2: Long-lived resource
+    private ResourceHandle<GameData>? _gameDataHandle;
+    
+    public async Task InitializeGame()
+    {
+        _gameDataHandle = _resources.GetHandle<GameData>("game-data.json");
+        var gameData = await _gameDataHandle.GetAsync();
+        // Resource stays alive while handle exists
+    }
+    
+    public void Cleanup()
+    {
+        _gameDataHandle?.Dispose(); // Release reference
+    }
+}
+```
+
+### Shared Resources (Safe with Reference Counting)
+
+```csharp
+// System A
+using var handleA = resourceManager.GetHandle<Texture>("sprites/player.png");
+var textureA = await handleA.GetAsync();
+
+// System B (concurrent)
+using var handleB = resourceManager.GetHandle<Texture>("sprites/player.png");
+var textureB = await handleB.GetAsync(); // ✅ Instant - deduplicated load
+
+// textureA and textureB are the same instance
+// Resource stays loaded until BOTH handles are disposed
+```
+
+### Observable Lifecycle Events
+
+```csharp
+using var handle = resourceManager.GetHandle<Config>("config.json");
+
+// Subscribe to load event
+handle.OnLoaded.Subscribe(config =>
+{
+    Console.WriteLine($"Config loaded: {config.Version}");
+});
+
+// Subscribe to unload event
+handle.OnUnloaded.Subscribe(_ =>
+{
+    Console.WriteLine("Config unloaded");
+});
+
+var config = await handle.GetAsync();
+```
+
+### Weak References (Observers)
+
+```csharp
+// Weak handle doesn't increment refcount
+var weakHandle = resourceManager.GetWeakHandle<GameData>("data.json");
+
+// Can observe but won't prevent unload
+weakHandle.OnLoaded.Subscribe(data =>
+{
+    Console.WriteLine($"Data loaded: {data.Name}");
+});
+
+// Upgrade to strong handle if needed
+var strongHandle = weakHandle.ToStrongHandle();
+if (strongHandle != null)
+{
+    // Now we own a reference
+    var data = await strongHandle.GetAsync();
+    strongHandle.Dispose();
+}
+```
 
 ### Load from Bundle (Primary Method)
 
@@ -198,20 +334,71 @@ The plugin uses sensible defaults but can be configured through `IConfigService`
 
 ## Architecture
 
-This plugin follows the WingedBean 4-tier architecture:
+This plugin follows the WingedBean 4-tier architecture and implements RFC-0054:
 
-- **Tier 1**: `WingedBean.Contracts.Resource.IResourceService` (framework)
-- **Tier 3**: `WingedBean.Plugins.Resource.FileSystemResourceService` (this plugin)
+- **Tier 1**: `CrossMilo.Contracts.Resource.IResourceService` (framework contract)
+- **Tier 3**: `FileSystemResourceService` (plugin implementation)
+  - Now backed by `ResourceManager` (RFC-0054)
+  - Automatic reference counting
+  - Load deduplication
+  - Lifecycle events
+
+### Component Diagram
+
+```
+┌──────────────────────────────────────────────────┐
+│          IResourceService (Public API)           │ ← Tier 1 Contract
+├──────────────────────────────────────────────────┤
+│       FileSystemResourceService                  │ ← Tier 3 Plugin
+│  (delegates to ResourceManager)                  │
+├──────────────────────────────────────────────────┤
+│  ResourceManager (RFC-0054)                      │
+│  • Reference counting                            │
+│  • Load deduplication                            │
+│  • Lifecycle events                              │
+├──────────────────────────────────────────────────┤
+│  ResourceHandle<T> │ WeakResourceHandle<T>       │
+│  (Strong ref)      │ (Weak ref)                  │
+├──────────────────────────────────────────────────┤
+│          Enhanced ResourceCache                  │
+│  • RefCount per entry                            │
+│  • State machine tracking                        │
+│  • Observable event streams                      │
+├──────────────────────────────────────────────────┤
+│         IResourceProvider Chain                  │
+│  • FileSystemProvider                            │
+│  • NuGetProvider (optional)                      │
+│  • BundleProvider                                │
+└──────────────────────────────────────────────────┘
+```
+
+## Migration from Old API
+
+See [MIGRATION-GUIDE.md](./MIGRATION-GUIDE.md) for detailed migration instructions.
+
+**TL;DR:**
+- ✅ Old API still works (fully backward compatible)
+- 🔄 Gradually migrate to handle-based API for better resource management
+- 🎯 Use handles for long-lived or shared resources
+- 📚 Migration patterns for common scenarios provided
 
 ## Dependencies
 
-- `WingedBean.Contracts.Resource` (Tier 1 contract)
-- `WingedBean.PluginSystem` (plugin infrastructure)
+- `CrossMilo.Contracts.Resource` (Tier 1 contract)
+- `PluginManoi.Core` (plugin infrastructure)
 - `Microsoft.Extensions.Logging.Abstractions` (logging)
 - `System.Text.Json` (JSON serialization)
+- `System.Reactive` (lifecycle events - NEW in RFC-0054)
 
 ## See Also
 
-- [RFC-0027: Resource Service Console Implementation](../../../../../docs/rfcs/0027-resource-service-console-implementation.md)
-- [IResourceService Contract](../../../../framework/src/WingedBean.Contracts.Resource/IResourceService.cs)
-- [Plugin Architecture Adjustments](../../../../../docs/implementation/PLUGIN-ARCHITECTURE-ADJUSTMENTS.md)
+- **[RFC-0054: Resource Reference Counting and Lifecycle Management](../../../../../docs/rfcs/0054-resource-reference-counting-lifecycle.md)** - Full specification
+- **[MIGRATION-GUIDE.md](./MIGRATION-GUIDE.md)** - How to migrate from old API
+- [RFC-0027: Resource Service Console Implementation](../../../../../docs/rfcs/0027-resource-service-console-implementation.md) - Original design
+- [IResourceService Contract](../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Resource/)
+
+## Version History
+
+- **v2.0** (RFC-0054 Phase 2): Added ResourceManager, reference counting, lifecycle events
+- **v1.0** (RFC-0027): Initial implementation with bundle support
+

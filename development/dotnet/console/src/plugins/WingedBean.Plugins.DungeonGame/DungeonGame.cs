@@ -7,6 +7,8 @@ using WingedBean.Plugins.ArchECS.Internal;
 using WingedBean.Plugins.DungeonGame.Components;
 using WingedBean.Plugins.DungeonGame.Data;
 using WingedBean.Plugins.DungeonGame.Systems;
+using WingedBean.Gameplay.Perception.Components;
+using WingedBean.Gameplay.Perception;
 // Type alias for backward compatibility during namespace migration
 using IResourceService = Plate.CrossMilo.Contracts.Resource.Services.IService;
 
@@ -115,10 +117,28 @@ public class DungeonGame
     private void RegisterSystems()
     {
         // Systems execute in order of registration
-        _systems.Add(new AISystem());           // AI runs first (priority: 100)
-        _systems.Add(new MovementSystem());     // Then movement (priority: 90)
-        _systems.Add(new CombatSystem());       // Then combat (priority: 80)
-        _systems.Add(new RenderSystem());       // Finally rendering (priority: 10)
+        // Phase 1: Perception & FOV (calculate what entities can see)
+        _systems.Add(new GoRogueFOVSystem());           // Priority: 200
+        
+        // Phase 2: AI & Decision Making
+        _systems.Add(new AISystem());                    // Priority: 100
+        
+        // Phase 3: Turn Management & Actions
+        _systems.Add(new TurnManagerSystem());           // Priority: 95
+        
+        // Phase 4: Movement & Pathfinding
+        _systems.Add(new PathfindingSystem());           // Priority: 92
+        _systems.Add(new GoRoguePathfindingSystem());    // Priority: 91
+        _systems.Add(new MovementSystem());              // Priority: 90
+        
+        // Phase 5: Combat & Interactions
+        _systems.Add(new CombatSystem());                // Priority: 80
+        _systems.Add(new InventorySystem());             // Priority: 70
+        
+        // Phase 6: Camera & Rendering
+        _systems.Add(new CameraSystem());                // Priority: 20
+        _systems.Add(new RenderSystem());                // Priority: 10
+        _systems.Add(new HUDRenderSystem());             // Priority: 5
     }
 
     /// <summary>
@@ -189,14 +209,31 @@ public class DungeonGame
 
         _logger?.LogInformation("Using hardcoded game data (legacy mode)");
 
+        // Initialize fog of war config (singleton)
+        var fogConfig = FogOfWarConfig.CreateDefault();
+        _world.SetSingleton(fogConfig);
+        _logger?.LogDebug("Fog of war config initialized");
+
+        // Create camera entity
+        var cameraEntity = _world.CreateEntity();
+        var camera = Plate.Camera2D.Camera.CreateDefault(40, 20);
+        camera.Mode = Plate.Camera2D.CameraMode.CenterOnTarget;
+        _world.AttachComponent(cameraEntity, new CameraComponent { Camera = camera });
+        _logger?.LogDebug("Camera entity created (40x20 viewport)");
+
         // Create the player entity
-        CreatePlayerLegacy();
+        var playerEntity = CreatePlayerLegacy();
+
+        // Set camera target to player
+        var playerPos = _world.GetComponent<Position>(playerEntity);
+        camera.SetTarget(playerPos.X, playerPos.Y);
+        _logger?.LogDebug("Camera target set to player position ({X}, {Y})", playerPos.X, playerPos.Y);
 
         // Create some enemy entities
         CreateEnemiesLegacy(5);
     }
 
-    private void CreatePlayerLegacy()
+    private Entity CreatePlayerLegacy()
     {
         var player = _world.CreateEntity();
 
@@ -228,7 +265,42 @@ public class DungeonGame
             RenderLayer = 2
         });
 
+        // Fog of war - Map memory
+        _world.AttachComponent(player, new MapMemoryComponent());
+        _logger?.LogDebug("Added MapMemoryComponent to player");
+
+        // Perception config for FOV
+        _world.AttachComponent(player, new PerceptionConfigComponent
+        {
+            PerceptionTypes = new List<PerceptionTypeConfig>
+            {
+                new PerceptionTypeConfig
+                {
+                    TypeId = "vision",
+                    Range = 10.0f,
+                    Algorithm = PerceptionAlgorithm.Shadowcast
+                }
+            }
+        });
+        _logger?.LogDebug("Added PerceptionConfigComponent to player (vision range: 10)");
+
+        // BOT MODE: Add Enemy component to make player act as bot
+        // This allows AISystem to control the player for automated testing
+        var enableBotMode = Environment.GetEnvironmentVariable("ENABLE_BOT_MODE") == "1";
+        if (enableBotMode)
+        {
+            _world.AttachComponent(player, new Enemy
+            {
+                Type = EnemyType.Goblin, // Reuse enemy type for bot behavior
+                State = AIState.Patrol,  // Start in patrol mode (wander around)
+                AggroRange = 15.0f,      // Larger range for bot exploration
+                Target = null
+            });
+            _logger?.LogInformation("🤖 BOT MODE ENABLED - Player will be AI-controlled for automated testing");
+        }
+
         _logger?.LogDebug("Created player entity at (40, 12)");
+        return player;
     }
 
     private void CreateEnemiesLegacy(int count)

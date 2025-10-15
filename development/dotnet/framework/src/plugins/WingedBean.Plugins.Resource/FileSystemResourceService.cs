@@ -7,21 +7,29 @@ namespace WingedBean.Plugins.Resource;
 
 /// <summary>
 /// Resource service for Console profile with pluggable provider support.
+/// Now backed by ResourceManager (RFC-0054) for reference counting and lifecycle management.
 /// Supports file system resources, bundles, and NuGet packages through provider pattern.
 /// </summary>
 public class FileSystemResourceService : IService
 {
     private readonly ILogger<FileSystemResourceService> _logger;
-    private readonly ResourceCache _cache;
+    private readonly ResourceManager _resourceManager;
     private readonly List<IResourceProvider> _providers;
 
+    /// <summary>
+    /// Initializes a new instance of FileSystemResourceService.
+    /// </summary>
+    /// <param name="logger">Logger instance</param>
+    /// <param name="basePath">Base path for file system resources (optional)</param>
+    /// <param name="customProviders">Custom providers to add (higher priority, optional)</param>
+    /// <param name="options">ResourceManager options (optional)</param>
     public FileSystemResourceService(
         ILogger<FileSystemResourceService> logger,
         string? basePath = null,
-        IEnumerable<IResourceProvider>? customProviders = null)
+        IEnumerable<IResourceProvider>? customProviders = null,
+        ResourceManagerOptions? options = null)
     {
         _logger = logger;
-        _cache = new ResourceCache();
         _providers = new List<IResourceProvider>();
 
         // Add custom providers first (higher priority)
@@ -58,11 +66,21 @@ public class FileSystemResourceService : IService
         // Add default file system provider (lowest priority)
         _providers.Add(new FileSystemProvider(logger, basePath));
 
+        // Create ResourceManager with providers (RFC-0054)
+        var managerLogger = new LoggerWrapper<ResourceManager>(logger);
+        _resourceManager = new ResourceManager(managerLogger, _providers, options);
+
         logger.LogInformation(
-            "Resource service initialized with {ProviderCount} provider(s)",
+            "Resource service initialized with {ProviderCount} provider(s) (backed by ResourceManager with ref counting)",
             _providers.Count
         );
     }
+
+    /// <summary>
+    /// Gets the underlying ResourceManager for advanced scenarios.
+    /// Allows direct access to handle-based API.
+    /// </summary>
+    public ResourceManager Manager => _resourceManager;
 
     /// <inheritdoc/>
     public async Task<TResource?> LoadAsync<TResource>(
@@ -70,41 +88,9 @@ public class FileSystemResourceService : IService
         CancellationToken cancellationToken = default)
         where TResource : class
     {
-        // Check cache first
-        if (_cache.TryGet<TResource>(resourceId, out var cached))
-        {
-            _logger.LogDebug("Resource '{ResourceId}' loaded from cache", resourceId);
-            return cached;
-        }
-
-        // Try each provider in order
-        foreach (var provider in _providers)
-        {
-            if (provider.CanHandle(resourceId))
-            {
-                _logger.LogDebug(
-                    "Attempting to load '{ResourceId}' with provider {ProviderType}",
-                    resourceId,
-                    provider.GetType().Name
-                );
-
-                var resource = await provider.LoadAsync<TResource>(resourceId, cancellationToken);
-
-                if (resource != null)
-                {
-                    _cache.Set(resourceId, resource);
-                    _logger.LogInformation(
-                        "Resource '{ResourceId}' loaded successfully by {ProviderType}",
-                        resourceId,
-                        provider.GetType().Name
-                    );
-                    return resource;
-                }
-            }
-        }
-
-        _logger.LogWarning("Resource '{ResourceId}' not found by any provider", resourceId);
-        return null;
+        // Delegate to ResourceManager (RFC-0054)
+        // This provides automatic deduplication and caching
+        return await _resourceManager.LoadAsync<TResource>(resourceId, cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -141,19 +127,24 @@ public class FileSystemResourceService : IService
     /// <inheritdoc/>
     public void Unload(string resourceId)
     {
-        if (_cache.Remove(resourceId))
-        {
-            _logger.LogDebug("Resource '{ResourceId}' unloaded from cache", resourceId);
-        }
+        // Note: With ResourceManager, resources are only unloaded when refcount reaches zero
+        // This method is kept for backward compatibility but doesn't force immediate unload
+        _logger.LogDebug(
+            "Unload called for '{ResourceId}' (note: resource will only be unloaded when all references are released)",
+            resourceId
+        );
+        
+        // We don't force unload anymore - let ResourceManager handle lifecycle
+        // Resources will be automatically unloaded after idle timeout when refcount is zero
     }
 
     /// <inheritdoc/>
     public void UnloadAll<TResource>() where TResource : class
     {
-        var count = _cache.RemoveAll<TResource>();
+        // Similar to Unload() - this is now a no-op
+        // ResourceManager handles cleanup automatically
         _logger.LogInformation(
-            "Unloaded {Count} resources of type {Type}",
-            count,
+            "UnloadAll<{Type}> called (resource cleanup is now automatic via ResourceManager)",
             typeof(TResource).Name
         );
     }
@@ -161,7 +152,7 @@ public class FileSystemResourceService : IService
     /// <inheritdoc/>
     public bool IsLoaded(string resourceId)
     {
-        return _cache.Contains(resourceId);
+        return _resourceManager.IsLoaded(resourceId);
     }
 
     /// <inheritdoc/>
@@ -191,7 +182,7 @@ public class FileSystemResourceService : IService
         CancellationToken cancellationToken = default)
     {
         var tasks = resourceIds.Select(id =>
-            LoadAsync<object>(id, cancellationToken)
+            _resourceManager.LoadAsync<object>(id, cancellationToken)
         );
 
         await Task.WhenAll(tasks);
@@ -201,4 +192,32 @@ public class FileSystemResourceService : IService
             resourceIds.Count()
         );
     }
+
+    /// <summary>
+    /// Logger wrapper to adapt ILogger&lt;FileSystemResourceService&gt; to ILogger&lt;ResourceManager&gt;.
+    /// </summary>
+    private class LoggerWrapper<T> : ILogger<T>
+    {
+        private readonly ILogger _inner;
+
+        public LoggerWrapper(ILogger inner)
+        {
+            _inner = inner;
+        }
+
+        public IDisposable? BeginScope<TState>(TState state) where TState : notnull
+            => _inner.BeginScope(state);
+
+        public bool IsEnabled(LogLevel logLevel)
+            => _inner.IsEnabled(logLevel);
+
+        public void Log<TState>(
+            LogLevel logLevel,
+            EventId eventId,
+            TState state,
+            Exception? exception,
+            Func<TState, Exception?, string> formatter)
+            => _inner.Log(logLevel, eventId, state, exception, formatter);
+    }
 }
+

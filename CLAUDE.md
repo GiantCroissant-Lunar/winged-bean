@@ -2,7 +2,7 @@
 
 **Project**: Winged Bean  
 **Stack**: .NET (multi)  
-**Date**: 2025-10-14
+**Date**: 2025-10-15
 
 > 📘 **Optional File**: This file provides Claude-specific formatting. All rules are in `.agent/local/`
 

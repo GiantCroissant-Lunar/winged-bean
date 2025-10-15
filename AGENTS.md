@@ -10,7 +10,7 @@
 
 ### Rule Priority (Read in Order)
 
-1. **Workspace Rules** (highest priority) → `/Users/apprenticegc/Work/lunar-horse/.agent/local/overrides.md`
+1. **Workspace Rules** (highest priority) → `.agent/local/workspace-reference.md`
 2. **Project Rules** → `.agent/local/overrides.md` 
 3. **Stack Rules** (cached) → `~/.cache/lunar-rules/v1.0.0/stacks/{stack}/`
 4. **Base Rules** (cached) → `~/.cache/lunar-rules/v1.0.0/base/`
@@ -19,7 +19,7 @@
 
 ```
 Workspace Rules (ALL projects)
-  Absolute: /Users/apprenticegc/Work/lunar-horse/.agent/local/overrides.md
+  Reference: .agent/local/workspace-reference.md
   Relative: ../../../.agent/local/overrides.md
   
 Project Rules (this project only)

@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Input/CrossMilo.Contracts.Input.csproj" />
+    <ProjectReference Include="../../../../../../../../plate-projects/input-nanat/dotnet/src/Plate.Input.Core/Plate.Input.Core.csproj" />
     <ProjectReference Include="../../game/ConsoleDungeon.Contracts/ConsoleDungeon.Contracts.csproj" />
   </ItemGroup>
 

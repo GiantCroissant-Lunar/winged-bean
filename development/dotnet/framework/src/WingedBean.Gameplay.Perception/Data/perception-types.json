@@ -1,0 +1,78 @@
+{
+  "perception_types": [
+    {
+      "id": "vision",
+      "name": "Vision",
+      "description": "Standard sight using light",
+      "propagation_mode": "LineOfSight",
+      "default_range": 10,
+      "attenuation_rate": 0.05,
+      "flows_around_obstacles": false,
+      "blocked_by_material_types": ["wall", "door_closed"],
+      "properties": {
+        "requires_light": true,
+        "affected_by_darkness": true
+      }
+    },
+    {
+      "id": "darkvision",
+      "name": "Darkvision",
+      "description": "See in darkness (up to range)",
+      "propagation_mode": "LineOfSight",
+      "default_range": 20,
+      "attenuation_rate": 0.03,
+      "flows_around_obstacles": false,
+      "blocked_by_material_types": ["wall"],
+      "properties": {
+        "requires_light": false,
+        "affected_by_darkness": false,
+        "grayscale": true
+      }
+    },
+    {
+      "id": "hearing",
+      "name": "Hearing",
+      "description": "Detect sounds through walls",
+      "propagation_mode": "FloodFill",
+      "default_range": 25,
+      "attenuation_rate": 0.15,
+      "flows_around_obstacles": true,
+      "blocked_by_material_types": [],
+      "attenuated_by_material_types": {
+        "wall": 0.5,
+        "door_closed": 0.3
+      },
+      "properties": {
+        "detects_noise_events": true
+      }
+    },
+    {
+      "id": "detect_magic",
+      "name": "Detect Magic",
+      "description": "Sense magical auras",
+      "propagation_mode": "FloodFill",
+      "default_range": 15,
+      "attenuation_rate": 0.1,
+      "flows_around_obstacles": true,
+      "blocked_by_material_types": ["antimagic_field"],
+      "properties": {
+        "only_detects_magical_entities": true,
+        "can_identify_spell_schools": true
+      }
+    },
+    {
+      "id": "sense_chi",
+      "name": "Sense Chi/Life Force",
+      "description": "Detect living beings by their life energy",
+      "propagation_mode": "FloodFill",
+      "default_range": 20,
+      "attenuation_rate": 0.08,
+      "flows_around_obstacles": true,
+      "blocked_by_material_types": ["lead", "antimagic_field"],
+      "properties": {
+        "only_detects_living": true,
+        "strength_indicates_health": true
+      }
+    }
+  ]
+}

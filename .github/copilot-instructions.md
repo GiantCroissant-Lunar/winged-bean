@@ -14,7 +14,7 @@ GitHub Copilot: Read these files in order (highest priority first):
 **Contains**: Project-specific rules for Winged Bean
 
 ### 2. Workspace Rules
-**File**: `../../../.agent/local/overrides.md`  
+**File**: `.agent/local/workspace-reference.md`  
 **Contains**: Rules for ALL projects in lunar-horse workspace
 
 ### 3. Workspace Reference
@@ -80,8 +80,8 @@ Winged Bean/
 
 ## Rule System
 
-**Master Source**: `/Users/apprenticegc/Work/lunar-horse/personal-work/plate-projects/rule-ground/`  
-**Workspace Rules**: `/Users/apprenticegc/Work/lunar-horse/.agent/local/overrides.md`  
+**Master Source**: `../plate-projects/rule-ground/`  
+**Workspace Rules**: `.agent/local/workspace-reference.md`  
 **Cached Base/Stack**: `~/.cache/lunar-rules/v1.0.0/`
 
 **Priority**: Project → Workspace → Stack → Base
@@ -91,7 +91,7 @@ Winged Bean/
 ## For Copilot: Before Making Changes
 
 1. Read `.agent/local/overrides.md` (project rules)
-2. Read `../../../.agent/local/overrides.md` (workspace rules)
+2. Read `.agent/local/workspace-reference.md` (workspace rules)
 3. Verify current directory with `pwd`
 4. Check project structure if uncertain
 

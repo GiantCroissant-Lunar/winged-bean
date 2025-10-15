@@ -3,6 +3,8 @@ using Microsoft.Extensions.Logging;
 using WingedBean.Plugins.ArchECS.Internal;
 using WingedBean.Plugins.DungeonGame.Components;
 using WingedBean.Plugins.DungeonGame.Map;
+using WingedBean.Gameplay.Perception.Components;
+using TheSadRogue.Primitives;
 
 namespace WingedBean.Plugins.DungeonGame.Systems;
 
@@ -143,7 +145,7 @@ public class RenderSystem : IECSSystem
         // Render with fog of war if enabled
         if (hasFog && boundsComp != null)
         {
-            RenderWithFogOfWar(buffer, visibilityBuffer, boundsComp, fogConfig!);
+            RenderWithFogOfWar(world, buffer, visibilityBuffer, boundsComp, fogConfig!);
         }
         else
         {
@@ -201,6 +203,7 @@ public class RenderSystem : IECSSystem
     }
     
     private void RenderWithFogOfWar(
+        IWorld world,
         char[,] buffer,
         TileVisibility[,] visibilityBuffer,
         ViewportBoundsComponent boundsComp,
@@ -210,12 +213,30 @@ public class RenderSystem : IECSSystem
         int bufferHeight = buffer.GetLength(0);
         var bounds = boundsComp.Bounds;
         
-        // Get player's map memory (if available)
+        // Get player's map memory and perception results
         MapMemoryComponent? mapMemory = null;
         HashSet<(int, int)>? visibleTiles = null;
         
-        // TODO: Get from player entity when perception system is integrated
-        // For now, treat all tiles as visible (no fog)
+        // Query for player with perception results and map memory
+        var playerQuery = world.CreateQuery<PlayerComponent, PerceptionResultsComponent, MapMemoryComponent>();
+        var playerEntity = playerQuery.FirstOrDefault();
+        
+        if (playerEntity != default)
+        {
+            var perceptionResults = world.GetComponent<PerceptionResultsComponent>(playerEntity);
+            mapMemory = world.GetComponent<MapMemoryComponent>(playerEntity);
+            
+            // Extract visible tiles from perception results ("vision" type)
+            if (perceptionResults.DetectedPositionsByType.TryGetValue("vision", out var visionTiles))
+            {
+                visibleTiles = new HashSet<(int, int)>();
+                foreach (var point in visionTiles)
+                {
+                    visibleTiles.Add((point.X, point.Y));
+                    mapMemory.MarkExplored(point.X, point.Y);
+                }
+            }
+        }
         
         // Render map tiles with visibility
         for (int worldY = bounds.MinY; worldY <= bounds.MaxY; worldY++)

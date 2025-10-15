@@ -61,6 +61,9 @@
     <!-- Plate.Camera2D: Tile-based camera system -->
     <ProjectReference Include="../../../../../../../../plate-projects/camera-bioca/dotnet/framework/src/Plate.Camera2D/Plate.Camera2D.csproj" />
 
+    <!-- WingedBean.Gameplay.Perception: Perception system for fog of war -->
+    <ProjectReference Include="../../../../framework/src/WingedBean.Gameplay.Perception/WingedBean.Gameplay.Perception.csproj" />
+
     <ProjectReference Include="../../../../../../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Core/PluginManoi.Core.csproj" />
     <ProjectReference Include="../../../../framework/src/WingedBean.SourceGenerators.Proxy/WingedBean.SourceGenerators.Proxy.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>

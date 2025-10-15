@@ -1,0 +1,10 @@
+<!-- spec-ground: template=CODEOWNERS version=0.1.0 checksum=6b90b2e4123105375749645729e86615d4f66c07babb0ec082c8c2db0d36a618 -->
+# This file is managed by spec-ground. Do not edit in-place.
+
+# CODEOWNERS
+* @giantcroissant/owners
+
+# Per-folder owners (examples)
+# /docs/ @giantcroissant/docs
+# /src/  @giantcroissant/devs
+
