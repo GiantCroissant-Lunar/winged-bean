@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.Extensions.Logging;
 using WingedBean.Plugins.ArchECS.Internal;
 using WingedBean.Plugins.DungeonGame.Components;
+using WingedBean.Plugins.DungeonGame.Map;
 
 namespace WingedBean.Plugins.DungeonGame.Systems;
 
@@ -9,6 +10,7 @@ namespace WingedBean.Plugins.DungeonGame.Systems;
 /// System responsible for rendering entities with Renderable components.
 /// Renders to a text buffer that can be displayed by Terminal.Gui or console.
 /// Supports viewport culling when camera system is active.
+/// Supports fog of war rendering (visible/explored/unexplored states).
 /// </summary>
 public class RenderSystem : IECSSystem
 {
@@ -25,6 +27,7 @@ public class RenderSystem : IECSSystem
     // Statistics
     public int LastFrameEntityCount { get; private set; }
     public int LastFrameCulledCount { get; private set; }
+    public int LastFrameFogCulledCount { get; private set; }
 
     public RenderSystem(ILogger<RenderSystem>? logger = null)
     {
@@ -37,6 +40,7 @@ public class RenderSystem : IECSSystem
         _renderBuffer.Clear();
         LastFrameEntityCount = 0;
         LastFrameCulledCount = 0;
+        LastFrameFogCulledCount = 0;
 
         // Get viewport bounds from camera system (if available)
         var boundsComp = world.GetSingleton<ViewportBoundsComponent>();
@@ -56,10 +60,10 @@ public class RenderSystem : IECSSystem
         _renderBuffer.Sort((a, b) => a.render.RenderLayer.CompareTo(b.render.RenderLayer));
 
         // Render to text buffer
-        LastRenderedFrame = RenderToTextBuffer(boundsComp);
+        LastRenderedFrame = RenderToTextBuffer(world, boundsComp);
         
-        _logger?.LogTrace("Rendered {EntityCount} entities ({CulledCount} culled)", 
-            LastFrameEntityCount, LastFrameCulledCount);
+        _logger?.LogTrace("Rendered {EntityCount} entities ({CulledCount} culled, {FogCulled} fog culled)", 
+            LastFrameEntityCount, LastFrameCulledCount, LastFrameFogCulledCount);
     }
 
     private void RenderWithViewportCulling(IWorld world, ViewportBoundsComponent boundsComp)
@@ -100,7 +104,7 @@ public class RenderSystem : IECSSystem
         }
     }
 
-    private string RenderToTextBuffer(ViewportBoundsComponent? boundsComp)
+    private string RenderToTextBuffer(IWorld world, ViewportBoundsComponent? boundsComp)
     {
         int bufferWidth, bufferHeight;
         
@@ -118,16 +122,57 @@ public class RenderSystem : IECSSystem
             bufferHeight = _renderHeight;
         }
         
-        // Create a 2D buffer filled with empty spaces
+        // Get fog of war configuration
+        var fogConfig = world.GetSingleton<FogOfWarConfig>();
+        var hasFog = fogConfig != null && fogConfig.Mode != FogMode.None;
+        
+        // Create buffers
         var buffer = new char[bufferHeight, bufferWidth];
+        var visibilityBuffer = new TileVisibility[bufferHeight, bufferWidth];
+        
+        // Initialize buffers
         for (var y = 0; y < bufferHeight; y++)
         {
             for (var x = 0; x < bufferWidth; x++)
             {
                 buffer[y, x] = '.'; // Floor/background character
+                visibilityBuffer[y, x] = TileVisibility.Unexplored;
+            }
+        }
+        
+        // Render with fog of war if enabled
+        if (hasFog && boundsComp != null)
+        {
+            RenderWithFogOfWar(buffer, visibilityBuffer, boundsComp, fogConfig!);
+        }
+        else
+        {
+            // Legacy rendering without fog
+            RenderWithoutFog(buffer, boundsComp);
+        }
+
+        // Convert buffer to string
+        var sb = new StringBuilder();
+        for (var y = 0; y < bufferHeight; y++)
+        {
+            for (var x = 0; x < bufferWidth; x++)
+            {
+                sb.Append(buffer[y, x]);
+            }
+            if (y < bufferHeight - 1)
+            {
+                sb.AppendLine();
             }
         }
 
+        return sb.ToString();
+    }
+    
+    private void RenderWithoutFog(char[,] buffer, ViewportBoundsComponent? boundsComp)
+    {
+        int bufferWidth = buffer.GetLength(1);
+        int bufferHeight = buffer.GetLength(0);
+        
         // Draw entities into the buffer
         foreach (var (pos, render) in _renderBuffer)
         {
@@ -153,22 +198,119 @@ public class RenderSystem : IECSSystem
                 buffer[screenY, screenX] = render.Symbol;
             }
         }
-
-        // Convert buffer to string
-        var sb = new StringBuilder();
-        for (var y = 0; y < bufferHeight; y++)
+    }
+    
+    private void RenderWithFogOfWar(
+        char[,] buffer,
+        TileVisibility[,] visibilityBuffer,
+        ViewportBoundsComponent boundsComp,
+        FogOfWarConfig fogConfig)
+    {
+        int bufferWidth = buffer.GetLength(1);
+        int bufferHeight = buffer.GetLength(0);
+        var bounds = boundsComp.Bounds;
+        
+        // Get player's map memory (if available)
+        MapMemoryComponent? mapMemory = null;
+        HashSet<(int, int)>? visibleTiles = null;
+        
+        // TODO: Get from player entity when perception system is integrated
+        // For now, treat all tiles as visible (no fog)
+        
+        // Render map tiles with visibility
+        for (int worldY = bounds.MinY; worldY <= bounds.MaxY; worldY++)
         {
-            for (var x = 0; x < bufferWidth; x++)
+            for (int worldX = bounds.MinX; worldX <= bounds.MaxX; worldX++)
             {
-                sb.Append(buffer[y, x]);
-            }
-            if (y < bufferHeight - 1)
-            {
-                sb.AppendLine();
+                var (vx, vy) = bounds.WorldToViewport(worldX, worldY);
+                
+                if (vx < 0 || vx >= bufferWidth || vy < 0 || vy >= bufferHeight)
+                    continue;
+                
+                // Determine visibility
+                var visibility = GetTileVisibility(worldX, worldY, mapMemory, visibleTiles, fogConfig);
+                visibilityBuffer[vy, vx] = visibility;
+                
+                // Render based on visibility
+                switch (visibility)
+                {
+                    case TileVisibility.Unexplored:
+                        buffer[vy, vx] = fogConfig.UnexploredGlyph;
+                        break;
+                        
+                    case TileVisibility.Explored:
+                        buffer[vy, vx] = GetExploredGlyph(worldX, worldY);
+                        break;
+                        
+                    case TileVisibility.Visible:
+                        buffer[vy, vx] = GetVisibleGlyph(worldX, worldY);
+                        break;
+                }
             }
         }
-
-        return sb.ToString();
+        
+        // Render entities (only if visible)
+        foreach (var (pos, render) in _renderBuffer)
+        {
+            var (vx, vy) = bounds.WorldToViewport(pos.X, pos.Y);
+            
+            if (vx < 0 || vx >= bufferWidth || vy < 0 || vy >= bufferHeight)
+                continue;
+            
+            var visibility = visibilityBuffer[vy, vx];
+            
+            // Only show entities in visible tiles (or if ShowEntitiesInMemory is true)
+            if (visibility == TileVisibility.Visible)
+            {
+                buffer[vy, vx] = render.Symbol;
+            }
+            else if (visibility == TileVisibility.Explored && fogConfig.ShowEntitiesInMemory)
+            {
+                buffer[vy, vx] = render.Symbol;
+            }
+            else
+            {
+                LastFrameFogCulledCount++;
+            }
+        }
+    }
+    
+    private TileVisibility GetTileVisibility(
+        int x, int y,
+        MapMemoryComponent? mapMemory,
+        HashSet<(int, int)>? visibleTiles,
+        FogOfWarConfig fogConfig)
+    {
+        if (fogConfig.Mode == FogMode.None)
+            return TileVisibility.Visible;
+        
+        // Check if currently visible
+        bool isVisible = visibleTiles != null && visibleTiles.Contains((x, y));
+        
+        if (isVisible)
+            return TileVisibility.Visible;
+        
+        if (fogConfig.Mode == FogMode.OnlyVisible)
+            return TileVisibility.Unexplored;
+        
+        // Check if explored
+        if (mapMemory != null && mapMemory.IsExplored(x, y))
+            return TileVisibility.Explored;
+        
+        return TileVisibility.Unexplored;
+    }
+    
+    private char GetVisibleGlyph(int x, int y)
+    {
+        // TODO: Get from map when available
+        return '.';
+    }
+    
+    private char GetExploredGlyph(int x, int y)
+    {
+        // TODO: Get from map when available
+        // Could be dimmed version or simplified glyph
+        return '·'; // Middle dot for explored tiles
     }
 
     public void SetRenderDimensions(int width, int height)
