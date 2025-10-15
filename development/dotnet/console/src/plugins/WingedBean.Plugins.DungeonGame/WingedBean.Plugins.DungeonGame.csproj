@@ -58,6 +58,9 @@
     <!-- ModernSatsuma: Graph algorithms for pathfinding -->
     <ProjectReference Include="../../../../../../../../plate-projects/modern-satsuma/dotnet/framework/src/Plate.ModernSatsuma/Plate.ModernSatsuma.csproj" />
 
+    <!-- Plate.Camera2D: Tile-based camera system -->
+    <ProjectReference Include="../../../../../../../../plate-projects/camera-bioca/dotnet/framework/src/Plate.Camera2D/Plate.Camera2D.csproj" />
+
     <ProjectReference Include="../../../../../../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Core/PluginManoi.Core.csproj" />
     <ProjectReference Include="../../../../framework/src/WingedBean.SourceGenerators.Proxy/WingedBean.SourceGenerators.Proxy.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
