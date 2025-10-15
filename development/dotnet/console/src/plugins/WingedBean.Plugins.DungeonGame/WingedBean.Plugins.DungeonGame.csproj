@@ -51,6 +51,10 @@
     <!-- Internal ECS implementation: Direct reference to ArchECS plugin for internal types -->
     <ProjectReference Include="../../../../framework/src/plugins/WingedBean.Plugins.ArchECS/WingedBean.Plugins.ArchECS.csproj" />
 
+    <!-- InventoryPoki: Inventory system plugin -->
+    <ProjectReference Include="../../../../../../../../plate-projects/inventory-poki/dotnet/src/InventoryPoki.Items/InventoryPoki.Items.csproj" />
+    <ProjectReference Include="../../../../../../../../plate-projects/inventory-poki/dotnet/src/InventoryPoki.Inventories/InventoryPoki.Inventories.csproj" />
+
     <ProjectReference Include="../../../../../../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Core/PluginManoi.Core.csproj" />
     <ProjectReference Include="../../../../framework/src/WingedBean.SourceGenerators.Proxy/WingedBean.SourceGenerators.Proxy.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
