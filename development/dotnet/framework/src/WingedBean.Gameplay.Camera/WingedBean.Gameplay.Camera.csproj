@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <AssemblyTitle>WingedBean Gameplay Camera</AssemblyTitle>
+    <AssemblyDescription>Camera system for tile-based rendering with viewport culling</AssemblyDescription>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Arch" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Plate.Camera2D: Core camera logic -->
+    <ProjectReference Include="../../../../../../plate-projects/camera-bioca/dotnet/framework/src/Plate.Camera2D/Plate.Camera2D.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,12 @@
+{
+  "id": "winged-bean.plugins.dungeongame",
+  "name": "Dungeon Game (ECS)",
+  "version": "1.0.0",
+  "description": "Core dungeon gameplay service with ECS and snapshot provider",
+  "author": "WingedBean Team",
+  "entryPoint": { "dotnet": "WingedBean.Plugins.DungeonGame.dll" },
+  "loadStrategy": "Eager",
+  "priority": 120,
+  "dependencies": { "plugins": [], "nuget": [] },
+  "compatibility": { "minHostVersion": "1.0.0" }
+}

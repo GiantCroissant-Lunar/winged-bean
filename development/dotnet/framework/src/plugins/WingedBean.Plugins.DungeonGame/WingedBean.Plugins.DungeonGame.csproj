@@ -1,0 +1,104 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <AssemblyTitle>WingedBean Dungeon Game Logic Plugin</AssemblyTitle>
+    <AssemblyDescription>Plugin that provides dungeon crawler game logic using ECS and reactive patterns</AssemblyDescription>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <RootNamespace>WingedBean.Plugins.DungeonGame</RootNamespace>
+    <AssemblyName>WingedBean.Plugins.DungeonGame</AssemblyName>
+    <!-- Opt-out of central package management to avoid NU1010 when building in isolation -->
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="WingedBean.Plugins.DungeonGame.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Explicit versions (opted-out of central management) -->
+    <PackageReference Include="System.Reactive" Version="6.0.0" />
+    <PackageReference Include="ReactiveUI" Version="20.1.1" />
+    <PackageReference Include="MessagePipe" Version="1.8.1" />
+    <PackageReference Include="ObservableCollections" Version="3.1.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.2" />
+    <PackageReference Include="GoRogue" Version="3.0.0-beta08" />
+    <PackageReference Include="TheSadRogue.Primitives" Version="1.6.0-rc3" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <!-- Shared contracts: Compile-time reference, runtime from Default ALC (RFC-0037) -->
+    <ProjectReference Include="../../../../../../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Contracts/PluginManoi.Contracts.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
+    <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts/CrossMilo.Contracts.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
+    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Gameplay/WingedBean.Contracts.Gameplay.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
+
+    <!-- Game-specific contracts: Normal reference (game-specific, not framework) -->
+    <ProjectReference Include="../../../../console/src/game/ConsoleDungeon.Contracts/ConsoleDungeon.Contracts.csproj" />
+
+    <!-- Plugin-specific contracts: Normal reference (loaded in plugin ALC) -->
+    <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Resource/CrossMilo.Contracts.Resource.csproj" />
+
+    <!-- Internal ECS implementation: Direct reference to ArchECS plugin for internal types -->
+    <ProjectReference Include="../WingedBean.Plugins.ArchECS/WingedBean.Plugins.ArchECS.csproj" />
+
+    <!-- InventoryPoki: Inventory system plugin -->
+    <ProjectReference Include="../../../../../../../../plate-projects/inventory-poki/dotnet/src/InventoryPoki.Items/InventoryPoki.Items.csproj" />
+    <ProjectReference Include="../../../../../../../../plate-projects/inventory-poki/dotnet/src/InventoryPoki.Inventories/InventoryPoki.Inventories.csproj" />
+
+    <!-- ModernSatsuma: Graph algorithms for pathfinding -->
+    <ProjectReference Include="../../../../../../../../plate-projects/modern-satsuma/dotnet/framework/src/Plate.ModernSatsuma/Plate.ModernSatsuma.csproj" />
+
+    <!-- Plate.Camera2D: Tile-based camera system -->
+    <ProjectReference Include="../../../../../../../../plate-projects/camera-bioca/dotnet/framework/src/Plate.Camera2D/Plate.Camera2D.csproj" />
+
+    <!-- WingedBean.Gameplay.Perception: Perception system for fog of war -->
+    <ProjectReference Include="../../../../framework/src/WingedBean.Gameplay.Perception/WingedBean.Gameplay.Perception.csproj" />
+
+    <!-- Plate.PerceptionSensor: Shadowcasting FOV algorithm -->
+    <ProjectReference Include="../../../../../../../../plate-projects/perception-sensor/dotnet/src/Plate.PerceptionSensor/Plate.PerceptionSensor.csproj" />
+
+    <ProjectReference Include="../../../../../../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Core/PluginManoi.Core.csproj" />
+    <ProjectReference Include="../../../../framework/src/WingedBean.SourceGenerators.Proxy/WingedBean.SourceGenerators.Proxy.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Copy local plugin manifest -->
+    <None Include=".plugin.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Exclude legacy service providers that require refactoring -->
+    <Compile Remove="Services/GameUIServiceProvider.cs" />
+    <Compile Remove="Services/RenderServiceProvider.cs" />
+    <Compile Remove="Services/NavigationGraph.cs" />
+    <!-- Exclude Inventory system for now (depends on older world API) -->
+    <Compile Remove="Systems/InventorySystem.cs" />
+    <!-- Exclude advanced rendering systems (UI handled by SadConsole plugin) -->
+    <Compile Remove="Systems/RenderSystem.cs" />
+    <Compile Remove="Systems/HUDRenderSystem.cs" />
+    <!-- Exclude systems with class components (need struct conversion) -->
+    <Compile Remove="Systems/CameraSystem.cs" />
+    <Compile Remove="Systems/TurnManagerSystem.cs" />
+    <Compile Remove="Systems/PathfindingSystem.cs" />
+    <Compile Remove="Systems/GoRogueFOVSystem.cs" />
+    <Compile Remove="Systems/GoRoguePathfindingSystem.cs" />
+  </ItemGroup>
+
+</Project>
