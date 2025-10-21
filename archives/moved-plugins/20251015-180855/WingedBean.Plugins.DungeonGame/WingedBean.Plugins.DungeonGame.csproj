@@ -1,0 +1,83 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <AssemblyTitle>WingedBean Dungeon Game Logic Plugin</AssemblyTitle>
+    <AssemblyDescription>Plugin that provides dungeon crawler game logic using ECS and reactive patterns</AssemblyDescription>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="WingedBean.Plugins.DungeonGame.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Reactive" />
+    <PackageReference Include="ReactiveUI" />
+    <PackageReference Include="MessagePipe" />
+    <PackageReference Include="ObservableCollections" />
+    <PackageReference Include="Terminal.Gui" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="GoRogue" />
+    <PackageReference Include="TheSadRogue.Primitives" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Shared contracts: Compile-time reference, runtime from Default ALC (RFC-0037) -->
+    <ProjectReference Include="../../../../../../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Contracts/PluginManoi.Contracts.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
+    <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts/CrossMilo.Contracts.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
+    <ProjectReference Include="../../../../framework/src/WingedBean.Contracts.Gameplay/WingedBean.Contracts.Gameplay.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
+
+    <!-- Game-specific contracts: Normal reference (game-specific, not framework) -->
+    <ProjectReference Include="../../game/ConsoleDungeon.Contracts/ConsoleDungeon.Contracts.csproj" />
+
+    <!-- Plugin-specific contracts: Normal reference (loaded in plugin ALC) -->
+    <ProjectReference Include="../../../../../../../../plate-projects/cross-milo/dotnet/framework/src/CrossMilo.Contracts.Resource/CrossMilo.Contracts.Resource.csproj" />
+
+    <!-- Internal ECS implementation: Direct reference to ArchECS plugin for internal types -->
+    <ProjectReference Include="../../../../framework/src/plugins/WingedBean.Plugins.ArchECS/WingedBean.Plugins.ArchECS.csproj" />
+
+    <!-- InventoryPoki: Inventory system plugin -->
+    <ProjectReference Include="../../../../../../../../plate-projects/inventory-poki/dotnet/src/InventoryPoki.Items/InventoryPoki.Items.csproj" />
+    <ProjectReference Include="../../../../../../../../plate-projects/inventory-poki/dotnet/src/InventoryPoki.Inventories/InventoryPoki.Inventories.csproj" />
+
+    <!-- ModernSatsuma: Graph algorithms for pathfinding -->
+    <ProjectReference Include="../../../../../../../../plate-projects/modern-satsuma/dotnet/framework/src/Plate.ModernSatsuma/Plate.ModernSatsuma.csproj" />
+
+    <!-- Plate.Camera2D: Tile-based camera system -->
+    <ProjectReference Include="../../../../../../../../plate-projects/camera-bioca/dotnet/framework/src/Plate.Camera2D/Plate.Camera2D.csproj" />
+
+    <!-- WingedBean.Gameplay.Perception: Perception system for fog of war -->
+    <ProjectReference Include="../../../../framework/src/WingedBean.Gameplay.Perception/WingedBean.Gameplay.Perception.csproj" />
+
+    <ProjectReference Include="../../../../../../../../plate-projects/plugin-manoi/dotnet/framework/src/PluginManoi.Core/PluginManoi.Core.csproj" />
+    <ProjectReference Include="../../../../framework/src/WingedBean.SourceGenerators.Proxy/WingedBean.SourceGenerators.Proxy.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include=".plugin.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Temporarily exclude these services - they need refactoring to remove CrossMilo.Contracts.Game dependencies -->
+    <Compile Remove="Services/GameUIServiceProvider.cs" />
+    <Compile Remove="Services/RenderServiceProvider.cs" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,22 @@
+{
+  "id": "wingedbean.plugins.dungeongame",
+  "name": "Dungeon Game Logic",
+  "version": "1.0.0",
+  "description": "Dungeon crawler game logic plugin with ECS and reactive patterns",
+  "author": "WingedBean",
+  "entryPoint": { "dotnet": "WingedBean.Plugins.DungeonGame.dll" },
+  "exports": {
+    "services": [
+      {
+        "interface": "ConsoleDungeon.Contracts.IDungeonService",
+        "implementation": "WingedBean.Plugins.DungeonGame.DungeonGameService",
+        "lifecycle": "singleton",
+        "comment": "Game-specific service contract"
+      }
+    ],
+    "comment": "RenderService removed - was framework-level service that didn't belong in game plugin"
+  },
+  "capabilities": [ "game-logic" ],
+  "loadStrategy": "eager",
+  "priority": 150
+}

@@ -1,0 +1,273 @@
+using System;
+using System.Collections.Generic;
+using System.Reactive.Subjects;
+using System.Threading;
+using System.Threading.Tasks;
+using ConsoleDungeon.Contracts;
+using Plate.CrossMilo.Contracts;
+using Plate.PluginManoi.Contracts;
+using WingedBean.Plugins.ArchECS;
+using WingedBean.Plugins.ArchECS.Internal;
+using WingedBean.Plugins.DungeonGame.Components;
+using WingedBean.Contracts.Gameplay;
+
+namespace WingedBean.Plugins.DungeonGame;
+
+/// <summary>
+/// Implementation of IDungeonService and WingedBean.Contracts.Gameplay.IService
+/// with reactive patterns and multi-world support. Wraps the core DungeonGame
+/// class and exposes observables for game state.
+/// </summary>
+public class DungeonGameService : IDungeonService, WingedBean.Contracts.Gameplay.IService, IWorldSnapshotProvider, IDisposable
+{
+    private readonly IRegistry _registry;
+    private ArchECSService? _ecs;
+    private readonly DungeonGame _game;
+
+    private readonly BehaviorSubject<GameState> _gameStateSubject;
+    private readonly BehaviorSubject<IReadOnlyList<EntitySnapshot>> _entitiesSubject;
+    private readonly BehaviorSubject<PlayerStats> _playerStatsSubject;
+    private readonly BehaviorSubject<WorldSnapshot> _worldSubject;
+
+    public event EventHandler<GameMode>? ModeChanged;
+
+    public DungeonGameService(IRegistry registry)
+    {
+        _registry = registry ?? throw new ArgumentNullException(nameof(registry));
+        // Note: Don't resolve ArchECSService here - it may not be registered yet
+        // It will be resolved in Initialize() when all plugins have activated
+        _game = new DungeonGame(registry);
+
+        _gameStateSubject = new BehaviorSubject<GameState>(GameState.NotStarted);
+        _entitiesSubject = new BehaviorSubject<IReadOnlyList<EntitySnapshot>>(Array.Empty<EntitySnapshot>());
+        _playerStatsSubject = new BehaviorSubject<PlayerStats>(new PlayerStats(0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
+        _worldSubject = new BehaviorSubject<WorldSnapshot>(new WorldSnapshot());
+    }
+
+    public void Initialize()
+    {
+        // Resolve or create ArchECSService
+        // NOTE: Due to manifest-based plugin loading issues, ArchECSService might not be registered
+        // So we try to get it, and if that fails, we create and register it ourselves
+        try
+        {
+            _ecs = _registry.Get<ArchECSService>();
+        }
+        catch (ServiceNotFoundException)
+        {
+            // ArchECSService not in registry - create and register it
+            _ecs = new ArchECSService();
+            _registry.Register<ArchECSService>(_ecs, priority: 100);
+        }
+
+        _ecs.ModeChanged += HandleModeChanged;
+
+        _game.Initialize();
+        _ecs.SetMode(GameMode.Play);
+        _gameStateSubject.OnNext(GameState.Running);
+        UpdateSnapshots();
+    }
+
+    public void Update(float deltaTime)
+    {
+        _game.Update();
+        UpdateSnapshots();
+    }
+
+    public void Shutdown()
+    {
+        _gameStateSubject.OnNext(GameState.GameOver);
+        _gameStateSubject.OnCompleted();
+        _entitiesSubject.OnCompleted();
+        _playerStatsSubject.OnCompleted();
+        _ecs.ModeChanged -= HandleModeChanged;
+    }
+
+    // WingedBean.Contracts.Gameplay.IService implementation (async wrappers)
+    public Task StartAsync(CancellationToken cancellationToken = default)
+    {
+        Initialize();
+        return Task.CompletedTask;
+    }
+
+    public Task UpdateAsync(TimeSpan delta, CancellationToken cancellationToken = default)
+    {
+        // Current game ignores delta parameter internally
+        Update((float)delta.TotalSeconds);
+        return Task.CompletedTask;
+    }
+
+    public Task StopAsync(CancellationToken cancellationToken = default)
+    {
+        Shutdown();
+        return Task.CompletedTask;
+    }
+
+    public void HandleInput(GameInput input)
+    {
+        var world = _game.World;
+        if (world == null)
+        {
+            return;
+        }
+
+        foreach (var entity in world.CreateQuery<Player, Components.Position>())
+        {
+            ref var pos = ref world.GetComponent<Components.Position>(entity);
+
+            switch (input.Type)
+            {
+                case InputType.MoveUp:
+                    pos.Y--;
+                    break;
+                case InputType.MoveDown:
+                    pos.Y++;
+                    break;
+                case InputType.MoveLeft:
+                    pos.X--;
+                    break;
+                case InputType.MoveRight:
+                    pos.X++;
+                    break;
+                case InputType.Quit:
+                    _gameStateSubject.OnNext(GameState.GameOver);
+                    break;
+            }
+
+            break;
+        }
+
+        UpdateSnapshots();
+    }
+
+    public WorldHandle RuntimeWorldHandle => _game.RuntimeHandle;
+
+    public IEnumerable<WorldHandle> RuntimeWorlds => _ecs.GetRuntimeWorlds();
+
+    public GameMode CurrentMode => _ecs.CurrentMode;
+
+    public void SetMode(GameMode mode)
+    {
+        _ecs.SetMode(mode);
+    }
+
+    public WorldHandle CreateRuntimeWorld(string name)
+    {
+        var handle = _ecs.CreateRuntimeWorld(name);
+        _game.EnsureRuntimeWorld(handle);
+        UpdateSnapshots();
+        return handle;
+    }
+
+    public void SwitchRuntimeWorld(WorldHandle handle)
+    {
+        _game.SwitchRuntimeWorld(handle);
+        UpdateSnapshots();
+    }
+
+    private void UpdateSnapshots()
+    {
+        var world = _game.World;
+        if (world == null)
+        {
+            return;
+        }
+
+        var snapshots = new List<EntitySnapshot>();
+        foreach (var entity in world.CreateQuery<Components.Position, Renderable>())
+        {
+            var pos = world.GetComponent<Components.Position>(entity);
+            var render = world.GetComponent<Renderable>(entity);
+
+            snapshots.Add(new EntitySnapshot(
+                Guid.NewGuid(),
+                new ConsoleDungeon.Contracts.Position(pos.X, pos.Y, pos.Floor),
+                render.Symbol,
+                render.ForegroundColor,
+                render.BackgroundColor,
+                render.RenderLayer
+            ));
+        }
+        _entitiesSubject.OnNext(snapshots);
+
+        PlayerStats? ps = null;
+        foreach (var entity in world.CreateQuery<Player, Stats>())
+        {
+            var stats = world.GetComponent<Stats>(entity);
+            var playerStats = new PlayerStats(
+                stats.CurrentHP,
+                stats.MaxHP,
+                stats.CurrentMana,
+                stats.MaxMana,
+                stats.Level,
+                stats.Experience,
+                stats.Strength,
+                stats.Dexterity,
+                stats.Intelligence,
+                stats.Defense
+            );
+            _playerStatsSubject.OnNext(playerStats);
+            ps = playerStats;
+            break;
+        }
+
+        // Publish UI-agnostic world snapshot
+        PublishWorldSnapshot(ps ?? _playerStatsSubject.Value, snapshots);
+    }
+
+    private void PublishWorldSnapshot(PlayerStats stats, IReadOnlyList<EntitySnapshot> entities)
+    {
+        var views = new List<EntityView>(entities.Count);
+        foreach (var e in entities)
+        {
+            views.Add(new EntityView
+            {
+                X = e.Position.X,
+                Y = e.Position.Y,
+                Z = e.Position.Z,
+                Glyph = e.Symbol,
+                Foreground = e.ForegroundColor,
+                Background = e.BackgroundColor,
+                Layer = e.RenderLayer
+            });
+        }
+
+        var hud = new PlayerHud
+        {
+            HP = stats.CurrentHP,
+            MaxHP = stats.MaxHP,
+            Level = stats.Level,
+            XP = stats.Experience,
+            MaxXP = 0
+        };
+
+        var ws = new WorldSnapshot
+        {
+            Entities = views,
+            Hud = hud,
+            Floor = views.Count > 0 ? views[0].Z : 0
+        };
+        _worldSubject.OnNext(ws);
+    }
+
+    // IWorldSnapshotProvider
+    public IObservable<WorldSnapshot> WorldObservable => _worldSubject;
+    public WorldSnapshot CurrentWorld => _worldSubject.Value;
+
+    private void HandleModeChanged(object? sender, GameMode mode)
+    {
+        ModeChanged?.Invoke(this, mode);
+    }
+
+    public IObservable<GameState> GameStateObservable => _gameStateSubject;
+    public IObservable<IReadOnlyList<EntitySnapshot>> EntitiesObservable => _entitiesSubject;
+    public IObservable<PlayerStats> PlayerStatsObservable => _playerStatsSubject;
+    public IWorld? World => _game.World;
+    public GameState CurrentState => _gameStateSubject.Value;
+    public PlayerStats CurrentPlayerStats => _playerStatsSubject.Value;
+
+    public void Dispose()
+    {
+        _ecs.ModeChanged -= HandleModeChanged;
+    }
+}
