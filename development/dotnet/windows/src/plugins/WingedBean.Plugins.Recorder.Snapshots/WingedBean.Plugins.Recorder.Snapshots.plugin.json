@@ -17,7 +17,7 @@
     "services": [
       {
         "interface": "Plate.CrossMilo.Contracts.Recorder.Services.IService",
-        "implementation": "WingedBean.Plugins.Recorder.Snapshots.URFRecorderService",
+        "implementation": "WingedBean.Plugins.Recorder.Snapshots.HybridRecorder",
         "lifecycle": "singleton"
       }
     ]

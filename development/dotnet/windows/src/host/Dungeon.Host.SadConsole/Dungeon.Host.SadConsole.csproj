@@ -17,6 +17,7 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" />
     <PackageReference Include="Microsoft.Extensions.Logging" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" />
+    <PackageReference Include="Serilog.Extensions.Logging.File" />
     <PackageReference Include="Scrutor" />
   </ItemGroup>
 
@@ -79,8 +80,8 @@
       <!-- SadConsole Plugin -->
       <PluginFiles Include="../../plugins/WingedBean.Plugins.SadConsole/bin/$(Configuration)/net8.0/**/*.*"
                    Exclude="**/CrossMilo.Contracts*.dll;**/CrossMilo.Contracts*.pdb;**/CrossMilo.Contracts*.xml;**/PluginManoi.*.dll;**/HostLand.*.dll" />
-      <!-- Dungeon Game Plugin (from console tree) -->
-      <PluginFiles Include="../../../../console/src/plugins/WingedBean.Plugins.DungeonGame/bin/$(Configuration)/net8.0/**/*.*"
+      <!-- Dungeon Game Plugin (from framework tree) -->
+      <PluginFiles Include="../../../../framework/src/plugins/WingedBean.Plugins.DungeonGame/bin/$(Configuration)/net8.0/**/*.*"
                    Exclude="**/CrossMilo.Contracts*.dll;**/CrossMilo.Contracts*.pdb;**/CrossMilo.Contracts*.xml;**/PluginManoi.*.dll;**/HostLand.*.dll" />
       <!-- Recorder Snapshots Plugin -->
       <PluginFiles Include="../../plugins/WingedBean.Plugins.Recorder.Snapshots/bin/$(Configuration)/net8.0/**/*.*"

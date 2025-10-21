@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Threading;
@@ -72,7 +73,7 @@ public class HybridRecorder : URFRecorderService
         {
             try
             {
-                var outputDir = metadata.OutputDirectory ?? "recordings";
+                var outputDir = "recordings";
                 var videoPath = Path.Combine(outputDir, $"{sessionId}.mp4");
 
                 // Calculate video dimensions from terminal size
@@ -83,7 +84,7 @@ public class HybridRecorder : URFRecorderService
 
                 _videoEncoder.StartRecording(videoPath, videoWidth, videoHeight, fps);
                 _logger?.LogInformation("✓ Video recording started: {Path}", videoPath);
-                _logger?.LogInformation("  Resolution: {Width}x{Height} @ {FPS} fps", 
+                _logger?.LogInformation("  Resolution: {Width}x{Height} @ {FPS} fps",
                     videoWidth, videoHeight, fps);
             }
             catch (Exception ex)
@@ -139,7 +140,7 @@ public class HybridRecorder : URFRecorderService
     {
         try
         {
-            var outputDir = metadata.OutputDirectory ?? "recordings";
+            var outputDir = "recordings";
             var syncPath = Path.Combine(outputDir, $"{sessionId}.sync.json");
 
             var syncData = new RecordingSyncMetadata
@@ -180,7 +181,7 @@ public class HybridRecorder : URFRecorderService
     {
         try
         {
-            var outputDir = metadata.OutputDirectory ?? "recordings";
+            var outputDir = "recordings";
             var syncPath = Path.Combine(outputDir, $"{sessionId}.sync.json");
 
             if (!File.Exists(syncPath))

@@ -72,6 +72,24 @@ public class SadConsoleApp : IUIAppService
         _game = Game.Instance;
         System.Console.WriteLine($"DEBUG: Game instance: {_game != null}");
 
+        // Fallback: eagerly create the main screen before the Started event.
+        // On some environments the Started event may not fire reliably; this ensures
+        // the dungeon initializes and updates even if the event is missed.
+        try
+        {
+            if (_gameScreen == null)
+            {
+                _logger?.LogInformation("Creating game screen eagerly (pre-Started fallback)...");
+                _gameScreen = new DungeonGameScreen(120, 40, _logger, _dungeon, _gameplay, _worldProvider, _recorder);
+                GameHost.Instance.Screen = _gameScreen;
+                _logger?.LogInformation("Game screen set as current (fallback)");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogWarning(ex, "Failed to create screen in fallback path");
+        }
+
         SetState(Plate.CrossMilo.Contracts.Hosting.App.AppState.Running);
         _logger?.LogInformation("SadConsole started successfully");
 
@@ -87,6 +105,9 @@ public class SadConsoleApp : IUIAppService
 
     private void OnGameStarted(object? sender, GameHost host)
     {
+        _logger?.LogInformation("OnGameStarted fired!");
+        _logger?.LogInformation("_dungeon is {Status}", _dungeon == null ? "NULL" : "NOT NULL");
+        _logger?.LogInformation("_logger is {Status}", _logger == null ? "NULL" : "NOT NULL");
         _logger?.LogInformation("SadConsole game started...");
 
         // Create main game screen

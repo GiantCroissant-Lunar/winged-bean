@@ -4,6 +4,7 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Plate.CrossMilo.Contracts;
 using Plate.CrossMilo.Contracts.Recorder.URF;
 using Plate.CrossMilo.Contracts.Recorder.URF.Events;
 using Plate.CrossMilo.Contracts.Recorder.URF.Exporters;
@@ -27,15 +28,17 @@ public class URFRecorderService : IRecorderService, IDisposable
 {
     private readonly ILogger? _logger;
     private readonly IWorldSnapshotProvider? _provider;
+    private readonly IRegistry? _registry; // optional: used to resolve provider lazily
     private readonly UniversalRecorder _recorder;
     private IDisposable? _subscription;
     private DateTimeOffset _startTime;
     private string? _currentSessionId;
 
-    public URFRecorderService(IWorldSnapshotProvider? provider = null, ILogger? logger = null)
+    public URFRecorderService(IWorldSnapshotProvider? provider = null, ILogger? logger = null, IRegistry? registry = null)
     {
         _provider = provider;
         _logger = logger;
+        _registry = registry;
         _recorder = new UniversalRecorder();
     }
 
@@ -76,10 +79,21 @@ public class URFRecorderService : IRecorderService, IDisposable
 
         await _recorder.StartRecordingAsync(sessionId, urfMetadata, ct);
 
-        // Subscribe to world snapshots
-        if (_provider != null)
+        // Ensure provider is available; if not, try to resolve lazily from registry now that plugins may be loaded
+        var provider = _provider;
+        if (provider == null && _registry != null)
         {
-            _subscription = _provider.WorldObservable
+            try
+            {
+                provider = _registry.Get<IWorldSnapshotProvider>();
+            }
+            catch { /* ignore; will run without snapshots */ }
+        }
+
+        // Subscribe to world snapshots
+        if (provider != null)
+        {
+            _subscription = provider.WorldObservable
                 .Throttle(TimeSpan.FromMilliseconds(16)) // ~60 FPS
                 .Subscribe(async ws =>
                 {

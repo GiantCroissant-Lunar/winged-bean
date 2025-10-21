@@ -63,16 +63,35 @@ public class DungeonGameScreen : ScreenObject
         Children.Add(_statusBar);
 
         // Initialize gameplay if available
-        try
+        _logger?.LogInformation("DungeonGameScreen constructor - _dungeon is {Status}", _dungeon == null ? "NULL" : "NOT NULL");
+        _logger?.LogInformation("DungeonGameScreen constructor - _logger is {Status}", _logger == null ? "NULL" : "NOT NULL");
+        _logger?.LogInformation("Initializing dungeon service...");
+        if (_dungeon == null)
         {
-            _dungeon?.Initialize();
+            _logger?.LogWarning("⚠ IDungeonService is NULL - game will not initialize");
         }
-        catch { /* ignore */ }
+        else
+        {
+            try
+            {
+                _logger?.LogInformation("Calling _dungeon.Initialize()...");
+                _dungeon.Initialize();
+                _logger?.LogInformation("✓ Dungeon initialized successfully. State: {State}", _dungeon.CurrentState);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "✗ Failed to initialize dungeon");
+            }
+        }
+
         try
         {
             _ = _gameplay?.StartAsync();
         }
-        catch { /* ignore */ }
+        catch (Exception ex)
+        {
+            _logger?.LogWarning(ex, "Failed to start gameplay service");
+        }
 
         // Subscriptions
         if (_worldProvider != null)
@@ -107,6 +126,15 @@ public class DungeonGameScreen : ScreenObject
             // Initialize local snapshots
             _playerStats = _dungeon.CurrentPlayerStats;
             _gameState = _dungeon.CurrentState;
+
+            // Emit a concise verification message to console for recording/debug
+            try
+            {
+                var bot = (Environment.GetEnvironmentVariable("ENABLE_BOT_MODE") == "1");
+                var count = _entities?.Count ?? 0;
+                System.Console.WriteLine($"[Verify] UI ready; state={_gameState}; entities={count}; bot={bot}");
+            }
+            catch { }
         }
 
         // Initial draw

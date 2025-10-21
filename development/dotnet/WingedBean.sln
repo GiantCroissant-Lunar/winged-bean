@@ -67,6 +67,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WingedBean.Plugins.Analytic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WingedBean.Plugins.WebSocket.Tests", "framework\tests\WingedBean.Plugins.WebSocket.Tests\WingedBean.Plugins.WebSocket.Tests.csproj", "{E2A0880A-D52E-4C56-BA6D-5311929A0C0B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WingedBean.Plugins.DungeonGame", "framework\src\plugins\WingedBean.Plugins.DungeonGame\WingedBean.Plugins.DungeonGame.csproj", "{C749B106-FF89-40D7-83B3-7B857EFCF0B3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -401,6 +403,18 @@ Global
 		{E2A0880A-D52E-4C56-BA6D-5311929A0C0B}.Release|x64.Build.0 = Release|Any CPU
 		{E2A0880A-D52E-4C56-BA6D-5311929A0C0B}.Release|x86.ActiveCfg = Release|Any CPU
 		{E2A0880A-D52E-4C56-BA6D-5311929A0C0B}.Release|x86.Build.0 = Release|Any CPU
+		{C749B106-FF89-40D7-83B3-7B857EFCF0B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C749B106-FF89-40D7-83B3-7B857EFCF0B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C749B106-FF89-40D7-83B3-7B857EFCF0B3}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C749B106-FF89-40D7-83B3-7B857EFCF0B3}.Debug|x64.Build.0 = Debug|Any CPU
+		{C749B106-FF89-40D7-83B3-7B857EFCF0B3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C749B106-FF89-40D7-83B3-7B857EFCF0B3}.Debug|x86.Build.0 = Debug|Any CPU
+		{C749B106-FF89-40D7-83B3-7B857EFCF0B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C749B106-FF89-40D7-83B3-7B857EFCF0B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C749B106-FF89-40D7-83B3-7B857EFCF0B3}.Release|x64.ActiveCfg = Release|Any CPU
+		{C749B106-FF89-40D7-83B3-7B857EFCF0B3}.Release|x64.Build.0 = Release|Any CPU
+		{C749B106-FF89-40D7-83B3-7B857EFCF0B3}.Release|x86.ActiveCfg = Release|Any CPU
+		{C749B106-FF89-40D7-83B3-7B857EFCF0B3}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -439,5 +453,6 @@ Global
 		{934890E0-47C2-4493-B5B3-FD370819391C} = {86B0F5E2-B532-461A-9017-6693F74D75ED}
 		{BE517FA4-5EE4-46F7-A2B3-2A78B90BA7CA} = {86B0F5E2-B532-461A-9017-6693F74D75ED}
 		{E2A0880A-D52E-4C56-BA6D-5311929A0C0B} = {86B0F5E2-B532-461A-9017-6693F74D75ED}
+		{C749B106-FF89-40D7-83B3-7B857EFCF0B3} = {FA46E424-1637-487B-AB62-2F54BA52572B}
 	EndGlobalSection
 EndGlobal

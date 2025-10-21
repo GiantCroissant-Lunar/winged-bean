@@ -52,7 +52,8 @@ public class RecorderSnapshotsPlugin : IPlugin
 
         // Create the URF recorder instance with snapshot provider
         // Note: Constructor takes (provider, logger) not (logger, provider)
-        _serviceInstance = new URFRecorderService(snapshotProvider, logger);
+        // Pass registry for lazy provider resolution in StartRecordingAsync
+        _serviceInstance = new URFRecorderService(snapshotProvider, logger, registry);
 
         // Register the service with priority 110 (takes precedence over legacy recorder)
         registry.Register<IRecorderService>(_serviceInstance, priority: 110);

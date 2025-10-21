@@ -199,6 +199,32 @@ public class PluginLoaderHostedService : IHostedService
             // Micro step: try to start WebSocket server if service is available
             _logger.LogInformation("→ Attempting WebSocket bootstrap on port 4040...");
             TryStartWebSocketServer(4040);
+
+            // Auto-start Dungeon game service in headless runs so verification markers are emitted
+            try
+            {
+                var gameService = _registry.Get<IDungeonService>();
+                _logger.LogInformation("→ Starting DungeonGameService (headless)");
+                var init = gameService.GetType().GetMethod("Initialize", Type.EmptyTypes);
+                if (init != null)
+                {
+                    init.Invoke(gameService, null);
+                    _logger.LogInformation("[Verify] Dungeon service initialized via host");
+                }
+                else
+                {
+                    var startAsync = gameService.GetType().GetMethod("StartAsync", new[] { typeof(CancellationToken) });
+                    if (startAsync != null)
+                    {
+                        startAsync.Invoke(gameService, new object[] { CancellationToken.None });
+                        _logger.LogInformation("[Verify] Dungeon service StartAsync invoked via host");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "DungeonGameService auto-start failed (optional)");
+            }
         }
         catch (Exception ex)
         {

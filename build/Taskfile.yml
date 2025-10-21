@@ -157,6 +157,14 @@ tasks:
         rm -rf "$BUILD_ROOT/_artifacts/{{.VERSION}}/dotnet/desktop/bin"/*
         cp -r "$DESKTOP_BIN"/* "$BUILD_ROOT/_artifacts/{{.VERSION}}/dotnet/desktop/bin/"
         echo "✅ Desktop version built and copied"
+        # Ensure DungeonGame plugin exists (use existing artifact copy from prior build)
+        DG_PLUGINS_DIR="$BUILD_ROOT/_artifacts/{{.VERSION}}/dotnet/desktop/bin/plugins"
+        if [ -f "$DG_PLUGINS_DIR/WingedBean.Plugins.DungeonGame.dll" ]; then
+          echo "✓ DungeonGame plugin present in desktop plugins"
+        else
+          echo "✗ DungeonGame plugin missing in desktop plugins" >&2
+          exit 1
+        fi
         echo "✅ Both versions available in $BUILD_ROOT/_artifacts/{{.VERSION}}/dotnet/"
 
   build-web:
@@ -188,8 +196,47 @@ tasks:
       - build-pty
     cmds:
       - task: framework:pack-and-sync
+
+  run:desktop:
+    desc: "Run Desktop (SadConsole) from versioned artifacts"
+    deps: [build-dotnet]
+    cmds:
+      - |
+        set -euo pipefail
+        VER="${VERSION:-$(./get-version.sh)}"
+        BIN="_artifacts/${VER}/dotnet/desktop/bin"
+        echo "Running Desktop host from ${BIN}"
+        pushd "$BIN" >/dev/null
+        ./Dungeon.Host.SadConsole ${ARGS:-} || true
+        popd >/dev/null
+
+  run:desktop:record:
+    desc: "Build + run Desktop with URF recording for DURATION seconds"
+    deps: [build-dotnet]
+    vars:
+      DURATION: "10"
+    cmds:
+      - |
+        set -euo pipefail
+        VER="${VERSION:-$(./get-version.sh)}"
+        echo "Building and running Desktop with recording (version ${VER}, duration {{.DURATION}}s)"
+        ./test-hybrid-recording.sh {{.DURATION}} "$VER"
       - echo "All builds completed for version {{.VERSION}}"
       - task: update-latest
+
+  run:desktop:record:verify:
+    desc: "Build + run Desktop with recording and verify URF frames"
+    deps: [build-dotnet]
+    vars:
+      DURATION: "10"
+      TIMEOUT: '{{.TIMEOUT | default "60"}}'
+    cmds:
+      - |
+        set -euo pipefail
+        VER="${VERSION:-$(./get-version.sh)}"
+        echo "Running verify-flow (version ${VER}, duration {{.DURATION}}s, timeout {{.TIMEOUT}}s)"
+        ./verify-flow.sh {{.DURATION}} "$VER" {{.TIMEOUT}}
+      - echo "Verify completed for version {{.VERSION}}"
 
   update-latest:
     desc: "Copy current version to latest directory"
@@ -313,6 +360,21 @@ tasks:
       - artifacts:sync-from-source
     cmds:
       - ./test-tools/run-bot-with-recording.sh {{.CLI_ARGS | default "60"}}
+
+  run:console:record:verify:
+    desc: "Run Console host with URF recording and verify frames"
+    deps:
+      - build-dotnet
+    vars:
+      DURATION: "10"
+      TIMEOUT: '{{.TIMEOUT | default "60"}}'
+    cmds:
+      - |
+        set -euo pipefail
+        VER="${VERSION:-$(./get-version.sh)}"
+        echo "Running console verify-flow (version ${VER}, duration {{.DURATION}}s, timeout {{.TIMEOUT}}s)"
+        ./verify-flow-console.sh {{.DURATION}} "$VER" {{.TIMEOUT}}
+      - echo "Console verify completed for version {{.VERSION}}"
 
   bot:capture:
     desc: "Run bot mode and capture complete state (screenshots, logs, recordings)"

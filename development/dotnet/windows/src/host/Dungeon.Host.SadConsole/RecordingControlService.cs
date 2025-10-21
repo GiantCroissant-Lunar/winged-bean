@@ -40,13 +40,22 @@ public class RecordingControlService : BackgroundService
     {
         try
         {
-            // Check if recording is requested via command line
-            // Supports both --record=true and --record (flag)
+            // Check if recording is requested via command line or environment
+            // Supports both --record=true and --record (flag) and ENABLE_VIDEO=1 env var
             var recordValue = _configuration["record"];
-            var shouldRecord = !string.IsNullOrEmpty(recordValue) &&
-                              (recordValue.Equals("true", StringComparison.OrdinalIgnoreCase) || recordValue.Equals(""));
-            var recordDuration = _configuration.GetValue<int>("record-duration", 30);
+            var envEnableVideo = Environment.GetEnvironmentVariable("ENABLE_VIDEO");
+            var envEnableRecord = Environment.GetEnvironmentVariable("ENABLE_RECORD");
+            var shouldRecord =
+                (!string.IsNullOrEmpty(recordValue) && (recordValue.Equals("true", StringComparison.OrdinalIgnoreCase) || recordValue.Equals("")))
+                || string.Equals(envEnableVideo, "1", StringComparison.Ordinal)
+                || string.Equals(envEnableRecord, "1", StringComparison.Ordinal);
+
+            // Support --record-duration, --duration, and DURATION env var
+            var recordDuration = _configuration.GetValue<int>("record-duration",
+                _configuration.GetValue<int>("duration",
+                    int.TryParse(Environment.GetEnvironmentVariable("DURATION"), out var d) ? d : 30));
             var sessionId = _configuration["record-session"]
+                ?? Environment.GetEnvironmentVariable("RECORD_SESSION")
                 ?? $"desktop-{DateTime.UtcNow:yyyyMMdd-HHmmss}";
 
             if (!shouldRecord)

@@ -25,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../../src/plugins/WingedBean.Plugins.DungeonGame/WingedBean.Plugins.DungeonGame.csproj" />
+    <ProjectReference Include="../../../../../framework/src/plugins/WingedBean.Plugins.DungeonGame/WingedBean.Plugins.DungeonGame.csproj" />
     <ProjectReference Include="../../../../../framework/src/plugins/WingedBean.Plugins.ArchECS/WingedBean.Plugins.ArchECS.csproj" />
   </ItemGroup>
 

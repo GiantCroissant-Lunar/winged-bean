@@ -33,11 +33,31 @@ public class SadConsolePlugin : IPlugin
     {
         // Create SadConsole app instance
         var logger = registry.GetAll<ILogger<SadConsoleApp>>().FirstOrDefault();
+        logger?.LogInformation("SadConsolePlugin.OnActivateAsync - Resolving services...");
+
         // Resolve gameplay services (optional - not available on desktop-only scenarios)
         IDungeonService? dungeon = null;
         RecorderService? recorder = null;
-        try { dungeon = registry.Get<IDungeonService>(); } catch { }
-        try { recorder = registry.Get<RecorderService>(); } catch { }
+
+        try
+        {
+            dungeon = registry.Get<IDungeonService>();
+            logger?.LogInformation("✓ IDungeonService resolved: {Type}", dungeon.GetType().Name);
+        }
+        catch (Exception ex)
+        {
+            logger?.LogWarning(ex, "✗ IDungeonService not available");
+        }
+
+        try
+        {
+            recorder = registry.Get<RecorderService>();
+            logger?.LogInformation("✓ RecorderService resolved");
+        }
+        catch (Exception ex)
+        {
+            logger?.LogWarning(ex, "✗ RecorderService not available");
+        }
         if (_appInstance == null)
         {
             IGoapPlannerService? planner = null;
@@ -61,10 +81,30 @@ public class SadConsolePlugin : IPlugin
 
         // Create SadConsole app instance IMMEDIATELY
         var logger = registry.GetAll<ILogger<SadConsoleApp>>().FirstOrDefault();
+        logger?.LogInformation("SadConsolePlugin.SetRegistry - Resolving services...");
+
         IDungeonService? dungeon = null;
         RecorderService? recorder = null;
-        try { dungeon = registry.Get<IDungeonService>(); } catch { }
-        try { recorder = registry.Get<RecorderService>(); } catch { }
+
+        try
+        {
+            dungeon = registry.Get<IDungeonService>();
+            logger?.LogInformation("✓ IDungeonService resolved: {Type}", dungeon.GetType().Name);
+        }
+        catch (Exception ex)
+        {
+            logger?.LogWarning(ex, "✗ IDungeonService not available");
+        }
+
+        try
+        {
+            recorder = registry.Get<RecorderService>();
+            logger?.LogInformation("✓ RecorderService resolved");
+        }
+        catch (Exception ex)
+        {
+            logger?.LogWarning(ex, "✗ RecorderService not available");
+        }
         IGoapPlannerService? planner2 = null;
         try { planner2 = registry.Get<IGoapPlannerService>(); } catch { }
         ICapabilityEvaluator? capability2 = null;

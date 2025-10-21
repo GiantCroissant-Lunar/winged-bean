@@ -124,7 +124,15 @@ var host = HostLand.Desktop.Host.CreateDesktopBuilder(args)
                 .AddCommandLine(args);
             var configuration = configBuilder.Build();
             logging.AddConfiguration(configuration.GetSection("Logging"));
+
+            // Add file logging to logs directory
+            var logsDir = Path.Combine(AppContext.BaseDirectory, "logs");
+            Directory.CreateDirectory(logsDir);
+            var logFile = Path.Combine(logsDir, $"winged-bean-{DateTime.Now:yyyy-MM-dd}.log");
+            logging.AddFile(logFile, minimumLevel: LogLevel.Debug);
+
             diagnosticLogger.LogInformation("Logging configuration complete");
+            diagnosticLogger.LogInformation("Log file: {LogFile}", logFile);
         })
         .Build();
 

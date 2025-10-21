@@ -723,3 +723,92 @@ Links to related docs
 ---
 
 **Last Updated:** 2025-10-14
+
+## Gap Analysis RFCs (2025-10-15)
+
+### RFC-0056: Environment/Tilemap System
+- **Status:** Proposed
+- **Category:** game-engine, gameplay, foundation
+- **Priority:** P0 (Critical - Blocking)
+- **Effort:** 2-3 weeks
+- **Summary:** Complete environment/tilemap system with dungeon maps, tiles (floor, wall, door, trap), collision detection, door mechanics, and environmental hazards. Foundation for all spatial gameplay.
+- **Dependencies:** None (foundational)
+- **File:** [0056-environment-tilemap-system.md](./0056-environment-tilemap-system.md)
+
+### RFC-0057: Camera Integration
+- **Status:** Proposed
+- **Category:** game-engine, rendering, foundation
+- **Priority:** P0 (Critical - Blocking)
+- **Effort:** 1 week
+- **Summary:** Implement camera-bioca (Plate layer) and integrate into WingedBean for camera tracking, viewport culling, and smooth movement. Enables large maps and proper rendering.
+- **Dependencies:** RFC-0056 (Environment/Tilemap)
+- **File:** [0057-camera-integration.md](./0057-camera-integration.md)
+
+### RFC-0058: Field of View System
+- **Status:** Proposed
+- **Category:** game-engine, perception, foundation
+- **Priority:** P0 (Critical - Blocking)
+- **Effort:** 2-3 weeks
+- **Summary:** Implement perception-sensor (Plate layer) with shadowcasting FOV algorithm and integrate into WingedBean. Adds fog of war, visibility system, and light sources. Critical for roguelike gameplay.
+- **Dependencies:** RFC-0056 (Environment/Tilemap), RFC-0057 (Camera)
+- **File:** [0058-field-of-view-system.md](./0058-field-of-view-system.md)
+
+### RFC-0059: Dungeon Generation Integration
+- **Status:** Proposed
+- **Category:** game-engine, procedural-generation, foundation
+- **Priority:** P0 (Critical - Blocking)
+- **Effort:** 2 weeks
+- **Summary:** Integrate existing edg-rogqd (Plate layer) dungeon generation into WingedBean. Converts edg-rogqd layouts to WingedBean tile format, adds floor progression, and implements stair traversal.
+- **Dependencies:** RFC-0056 (Environment/Tilemap)
+- **Plate Layer:** edg-rogqd (exists)
+- **File:** [0059-dungeon-generation-integration.md](./0059-dungeon-generation-integration.md)
+
+### RFC-0060: Pathfinding Library (Plate Layer)
+- **Status:** Proposed
+- **Category:** framework, ai, plate-layer
+- **Priority:** P1 (High)
+- **Effort:** 1-2 weeks
+- **Summary:** Create Plate.Pathfinding - A generic, reusable A* pathfinding library for grid-based games. Includes heuristics (Manhattan, Euclidean, Chebyshev), path smoothing, and grid adapter. Zero dependencies.
+- **Dependencies:** None
+- **Consumers:** WingedBean (RFC-0061), future grid-based games
+- **File:** [0060-pathfinding-library.md](./0060-pathfinding-library.md)
+
+---
+
+## Implementation Roadmap - Gap Analysis Features
+
+### Phase 1: Foundation (P0 - Critical, Blocking) - 4-6 weeks
+**Goal:** Playable environment with visibility and navigation
+
+1. RFC-0056: Environment/Tilemap System (2-3 weeks)
+2. RFC-0057: Camera Integration (1 week)
+3. RFC-0058: Field of View System (2-3 weeks)
+4. RFC-0059: Dungeon Generation Integration (2 weeks)
+
+**All Phase 1 RFCs are complete and ready for implementation.**
+
+### Phase 2: Core Gameplay (P1 - High, MVP) - 4-6 weeks
+**Goal:** Complete gameplay loop (explore, fight, loot)
+
+1. RFC-0060: Pathfinding Library (Plate) (1-2 weeks) ✅ Ready
+2. RFC-0061: Pathfinding System Integration (TODO)
+3. RFC-0062: Spawn System (TODO)
+4. RFC-0063: Inventory Integration (TODO)
+5. RFC-0064: Loot Table Library (Plate) (TODO)
+6. RFC-0065: Loot System (TODO)
+
+### Phase 3: Combat & AI (P1 - High, MVP+) - 3-4 weeks
+**Goal:** Engaging combat and challenging AI
+
+1. RFC-0066: Status Effect System (Plate) (TODO)
+2. RFC-0067: Advanced Combat System (TODO)
+3. RFC-0068: Enhanced AI (TODO)
+
+### Phases 4-5: See GAP_ANALYSIS.md and RFC-SUMMARY.md
+
+---
+
+**Last Updated:** 2025-10-15
+**Gap Analysis RFCs:** 5 created (RFC-0056 through RFC-0060)
+**Phase 1 Status:** All RFCs ready for implementation
+**Phase 2-5 Status:** Summaries in RFC-SUMMARY.md, full RFCs to be created on-demand
